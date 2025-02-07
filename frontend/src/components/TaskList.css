@@ -7,6 +7,14 @@
     color: white;
     overflow: hidden; /* Ensures no unnecessary scrolling */
 }
+.kanban-column ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* ✅ Centers the task cards */
+    width: 100%; /* ✅ Ensure it takes full width */
+}
 
 /* === SIDEBAR === */
 .sidebar {
@@ -141,18 +149,19 @@
     background-color: darkgreen;
 }
 
-/* === KANBAN BOARD (Moved Right & Up, No Stretching) === */
+/* Ensure the Kanban board expands dynamically */
 .kanban-board {
     display: flex;
-    align-items: flex-start;
+    align-items: stretch; /* This ensures all columns stretch to the tallest one */
     justify-content: flex-start;
     gap: 20px;
     max-width: fit-content;
     overflow-x: auto;
     overflow-y: hidden;
+    height: auto; /* Allow dynamic height */
 }
 
-/* === KANBAN COLUMNS === */
+/* Ensure each column stretches to match the tallest column */
 .kanban-column {
     width: 280px;
     background: #2c3e50;
@@ -160,10 +169,10 @@
     border-radius: 8px;
     display: flex;
     flex-direction: column;
-    height: 100%;
-    overflow-y: auto;
-    max-height: 600px;
+    flex-grow: 1; /* Ensures all columns stretch equally */
+    height: 100%; /* Make it expand to the tallest column */
 }
+
 
 .kanban-column h2 {
     text-align: center;
@@ -175,7 +184,6 @@
 /* === TASK CARDS === */
 .task-card {
     display: flex;
-    justify-content: space-between;
     align-items: center;
     padding: 10px;
     border-radius: 5px;
@@ -185,7 +193,10 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    text-align: center; /* ✅ Centers text inside */
+    width: 80%; /* ✅ Prevents full stretch, making them properly centered */
 }
+
 
 /* === PRIORITY COLORS === */
 .priority-A1 { background-color: #ff4d4d; }
