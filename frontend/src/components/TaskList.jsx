@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { auth } from "../firebase";
-import "./TaskList.css";
 import { useNavigate } from "react-router-dom";
+import "./TaskList.css";
 
 const TaskList = () => {
   const [tasks, setTasks] = useState([]);
@@ -46,19 +46,17 @@ const TaskList = () => {
     <div className="kanban-container">
       {/* Sidebar */}
       <aside className="sidebar">
-  <div className="sidebar-content">
-    <nav>
-      <ul>
-        <li className="active">Dashboard</li>
-        <li>Stats</li>
-        <li>Profile</li>
-      </ul>
-    </nav>
-  </div>
-  <button onClick={handleLogout} className="logout-btn">Logout</button>
-</aside>
-
-
+        <div className="sidebar-content">
+          <nav>
+            <ul>
+              <li className="active">Dashboard</li>
+              <li>Stats</li>
+              <li>Profile</li>
+            </ul>
+          </nav>
+        </div>
+        <button onClick={handleLogout} className="logout-btn">Logout</button>
+      </aside>
 
       {/* Main Content */}
       <div className="main-content">
@@ -90,7 +88,8 @@ const TaskList = () => {
               <ul>
                 {tasks.filter((task) => task.status === status).map((task) => (
                   <li key={task._id} className={`task-card priority-${task.priority}`}>
-                    <span>{task.title} ({task.priority})</span>
+                    <span className="task-title">{task.title}</span>
+                    <span className="task-priority">{task.priority}</span>
                   </li>
                 ))}
               </ul>
