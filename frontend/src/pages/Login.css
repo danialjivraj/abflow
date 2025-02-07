@@ -1,0 +1,77 @@
+/* Center the entire login container */
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Full viewport height */
+    width: 100vw; /* Full viewport width */
+  }
+  
+  /* Style the login box */
+  .login-box {
+    background: white;
+    padding: 3rem; /* Increased padding */
+    border-radius: 15px; /* Slightly bigger corners */
+    box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.15); /* Stronger shadow */
+    text-align: center;
+    width: 450px; /* Bigger box */
+  }
+  
+  /* Center the heading */
+  .login-box h2 {
+    font-size: 2.2rem; /* Bigger text */
+    font-weight: bold;
+    margin-bottom: 2rem;
+    color: #333;
+  }
+  
+  /* Google login button */
+  .google-login-btn {
+    background: #db4437;
+    color: white;
+    padding: 15px 25px; /* Bigger button */
+    border: none;
+    border-radius: 8px; /* Softer corners */
+    font-size: 18px; /* Bigger font size */
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s ease;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* Add hover effect */
+  .google-login-btn:hover {
+    background: #c1351d;
+  }
+  
+  /* Google button icon */
+  .google-icon {
+    width: 26px; /* Bigger icon */
+    height: 26px;
+    margin-right: 12px;
+  }
+  
+  /* Mobile responsiveness */
+  @media (max-width: 500px) {
+    .login-box {
+      width: 90%;
+      padding: 2rem;
+    }
+    
+    .login-box h2 {
+      font-size: 1.8rem;
+    }
+
+    .google-login-btn {
+      font-size: 16px;
+      padding: 12px 20px;
+    }
+
+    .google-icon {
+      width: 22px;
+      height: 22px;
+    }
+  }
