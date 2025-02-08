@@ -136,34 +136,33 @@ const TaskList = () => {
       </div>
 
       {isModalOpen && selectedTask && (
-        <div className="modal">
-          <div className="modal-content">
-            <button className="close-x" onClick={closeModal}>
-              ✖
-            </button>
-            <h2>Edit Task</h2>
-            <input
-              type="text"
-              value={selectedTask.title}
-              onChange={(e) => setSelectedTask({ ...selectedTask, title: e.target.value })}
-            />
-            <select
-              value={selectedTask.priority}
-              onChange={(e) => setSelectedTask({ ...selectedTask, priority: e.target.value })}
-            >
-              {["A1", "A2", "A3", "B1", "B2", "B3", "C1", "C2", "C3", "D", "E"].map((p) => (
-                <option key={p} value={p}>
-                  {p}
-                </option>
-              ))}
-            </select>
-            <button onClick={updateTask}>Save</button>
-            <button onClick={() => deleteTask(selectedTask._id)} className="delete-btn">
-              Delete
-            </button>
-          </div>
-        </div>
-      )}
+  <div className="modal">
+    <div className="modal-content">
+      <span className="close-x" onClick={closeModal}>&times;</span>
+      <h2>Edit Task</h2>
+      <input
+        type="text"
+        value={selectedTask.title}
+        onChange={(e) => setSelectedTask({ ...selectedTask, title: e.target.value })}
+      />
+      <select
+        value={selectedTask.priority}
+        onChange={(e) => setSelectedTask({ ...selectedTask, priority: e.target.value })}
+      >
+        {["A1", "A2", "A3", "B1", "B2", "B3", "C1", "C2", "C3", "D", "E"].map((p) => (
+          <option key={p} value={p}>
+            {p}
+          </option>
+        ))}
+      </select>
+      <button onClick={updateTask}>Save</button>
+      <button onClick={() => deleteTask(selectedTask._id)} className="delete-btn">
+        Delete
+      </button>
+    </div>
+  </div>
+)}
+
     </div>
   );
 };

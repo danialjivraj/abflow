@@ -272,3 +272,19 @@ html, body {
     background-color: gray;
     color: white;
 }
+
+/* Style the close button */
+.close-x {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 30px;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+    transition: color 0.1s ease;
+}
+
+.close-x:hover {
+    color: red;
+}
