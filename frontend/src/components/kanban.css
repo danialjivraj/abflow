@@ -288,3 +288,18 @@ html, body {
 .close-x:hover {
     color: red;
 }
+
+
+.drag-handle {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    cursor: grab;
+    color: #ffffff;
+    transition: color 0.2s ease-in-out;
+  }
+  
+  .drag-handle:hover {
+    color: #555;
+  }
+  

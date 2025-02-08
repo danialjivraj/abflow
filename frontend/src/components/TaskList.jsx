@@ -1,9 +1,10 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { auth } from "../firebase";
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+import { GripVertical } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import "./kanban.css";
-import "./sidebar.css";
 
 const TaskList = () => {
   const [tasks, setTasks] = useState([]);
@@ -14,8 +15,6 @@ const TaskList = () => {
   const navigate = useNavigate();
 
   const user = auth.currentUser;
-  const columnsRef = useRef([]);
-  const [maxHeight, setMaxHeight] = useState("auto");
 
   useEffect(() => {
     if (user) {
@@ -26,7 +25,6 @@ const TaskList = () => {
         .catch((err) => console.error("Error fetching tasks:", err));
     }
   }, [user]);
-
 
   const addTask = async () => {
     if (!title.trim()) return;
@@ -43,59 +41,30 @@ const TaskList = () => {
     }
   };
 
-  const openModal = (task) => {
-    setSelectedTask(task);
-    setIsModalOpen(true);
-  };
+  const handleDragEnd = async (result) => {
+    if (!result.destination) return;
 
-  const closeModal = () => {
-    setSelectedTask(null);
-    setIsModalOpen(false);
-  };
+    const { source, destination } = result;
 
-  const updateTask = async () => {
-    if (!selectedTask) return;
-    try {
-      const res = await axios.put(`http://localhost:5000/api/tasks/${selectedTask._id}/edit`, {
-        title: selectedTask.title,
-        priority: selectedTask.priority,
+    if (source.droppableId === destination.droppableId) {
+      const updatedTasks = [...tasks];
+      const movedTask = updatedTasks.splice(source.index, 1)[0];
+      updatedTasks.splice(destination.index, 0, movedTask);
+      setTasks(updatedTasks);
+    } else {
+      const updatedTasks = [...tasks];
+      const movedTask = updatedTasks.find((task) => task._id === result.draggableId);
+      movedTask.status = destination.droppableId;
+      setTasks(updatedTasks);
+
+      await axios.put(`http://localhost:5000/api/tasks/${movedTask._id}/move`, {
+        status: destination.droppableId,
       });
-
-      setTasks(tasks.map((t) => (t._id === selectedTask._id ? res.data : t)));
-      closeModal();
-    } catch (err) {
-      console.error("❌ Error updating task:", err);
     }
   };
-
-  const deleteTask = async (id) => {
-    try {
-        await axios.delete(`http://localhost:5000/api/tasks/${id}`);
-        const updatedTasks = tasks.filter((t) => t._id !== id);
-        setTasks(updatedTasks);
-        closeModal();
-    } catch (err) {
-        console.error("Error deleting task:", err);
-    }
-};
 
   return (
     <div className="kanban-container">
-      <aside className="sidebar">
-        <div className="sidebar-content">
-          <nav>
-            <ul>
-              <li className="active">Dashboard</li>
-              <li>Stats</li>
-              <li>Profile</li>
-            </ul>
-          </nav>
-        </div>
-        <button onClick={() => auth.signOut()} className="logout-btn">
-          Logout
-        </button>
-      </aside>
-
       <div className="main-content">
         <div className="top-bar">
           <input className="search-bar" placeholder="Search Tasks..." />
@@ -113,56 +82,81 @@ const TaskList = () => {
           <button onClick={addTask}>Add</button>
         </div>
 
-        <div className="kanban-board">
-          {["backlog", "todo", "done"].map((status, index) => (
-            <div
-              key={status}
-              ref={(el) => (columnsRef.current[index] = el)}
-              className="kanban-column"
-              style={{ minHeight: maxHeight }}
-            >
-              <h2>{status}</h2>
-              <ul>
-                {tasks.filter((task) => task.status === status).map((task) => (
-                  <li key={task._id} className={`task-card priority-${task.priority}`} onClick={() => openModal(task)}>
-                    <span className="task-title">{task.title}</span>
-                    <span className="task-priority">{task.priority}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
+        <DragDropContext onDragEnd={handleDragEnd}>
+          <div className="kanban-board">
+            {["backlog", "todo", "done"].map((status) => (
+              <Droppable key={status} droppableId={status}>
+                {(provided) => (
+                  <div
+                    className="kanban-column"
+                    ref={provided.innerRef}
+                    {...provided.droppableProps}
+                  >
+                    <h2>{status}</h2>
+                    <ul>
+                      {tasks
+                        .filter((task) => task.status === status)
+                        .map((task, index) => (
+                          <Draggable key={task._id} draggableId={task._id} index={index}>
+                            {(provided) => (
+                              <li
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                className={`task-card priority-${task.priority}`}
+                                onClick={(e) => {
+                                  if (e.target.closest(".drag-handle")) return;
+                                  setSelectedTask(task);
+                                  setIsModalOpen(true);
+                                }}
+                              >
+                                <span
+                                  className="drag-handle"
+                                  {...provided.dragHandleProps}
+                                >
+                                  <GripVertical size={18} />
+                                </span>
+                                <span className="task-title">{task.title}</span>
+                                <span className="task-priority">{task.priority}</span>
+                              </li>
+                            )}
+                          </Draggable>
+                        ))}
+                    </ul>
+                  </div>
+                )}
+              </Droppable>
+            ))}
+          </div>
+        </DragDropContext>
       </div>
 
       {isModalOpen && selectedTask && (
-  <div className="modal">
-    <div className="modal-content">
-      <span className="close-x" onClick={closeModal}>&times;</span>
-      <h2>Edit Task</h2>
-      <input
-        type="text"
-        value={selectedTask.title}
-        onChange={(e) => setSelectedTask({ ...selectedTask, title: e.target.value })}
-      />
-      <select
-        value={selectedTask.priority}
-        onChange={(e) => setSelectedTask({ ...selectedTask, priority: e.target.value })}
-      >
-        {["A1", "A2", "A3", "B1", "B2", "B3", "C1", "C2", "C3", "D", "E"].map((p) => (
-          <option key={p} value={p}>
-            {p}
-          </option>
-        ))}
-      </select>
-      <button onClick={updateTask}>Save</button>
-      <button onClick={() => deleteTask(selectedTask._id)} className="delete-btn">
-        Delete
-      </button>
-    </div>
-  </div>
-)}
-
+        <div className="modal">
+          <div className="modal-content">
+            <span className="close-x" onClick={() => setIsModalOpen(false)}>&times;</span>
+            <h2>Edit Task</h2>
+            <input
+              type="text"
+              value={selectedTask.title}
+              onChange={(e) => setSelectedTask({ ...selectedTask, title: e.target.value })}
+            />
+            <select
+              value={selectedTask.priority}
+              onChange={(e) => setSelectedTask({ ...selectedTask, priority: e.target.value })}
+            >
+              {["A1", "A2", "A3", "B1", "B2", "B3", "C1", "C2", "C3", "D", "E"].map((p) => (
+                <option key={p} value={p}>
+                  {p}
+                </option>
+              ))}
+            </select>
+            <button onClick={() => updateTask(selectedTask)}>Save</button>
+            <button onClick={() => deleteTask(selectedTask._id)} className="delete-btn">
+              Delete
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
