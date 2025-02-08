@@ -1,0 +1,63 @@
+/* === SIDEBAR === */
+.sidebar {
+    width: 220px;
+    background: #2d2d2d;
+    padding: 30px 20px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: fixed;
+    left: 0;
+    top: 0;
+}
+
+.sidebar-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* === NAVIGATION ITEMS === */
+.sidebar nav ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar nav ul li {
+    padding: 12px;
+    color: #ccc;
+    cursor: pointer;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.sidebar nav ul li:hover {
+    background: #444;
+}
+
+.sidebar nav ul li.active {
+    background: #0f0;
+    color: black;
+    font-weight: bold;
+}
+
+/* === LOGOUT BUTTON === */
+.logout-btn {
+    background-color: #d9534f;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+    text-align: center;
+    font-size: 16px;
+    margin-top: auto;
+    margin-bottom: 40px;
+}
+
+.logout-btn:hover {
+    background-color: #c9302c;
+}

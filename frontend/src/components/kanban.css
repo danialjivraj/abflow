@@ -10,80 +10,20 @@ html, body {
     padding: 0;
 }
 
-/* === MAIN CONTENT (Flexible Layout) === */
+/* === MAIN CONTENT (Adjust to be at the top) === */
 .main-content {
     flex-grow: 1;
     padding: 20px;
     display: flex;
     flex-direction: column;
     margin-left: 260px;
-    margin-top: 10px;
+    margin-top: 0; /* Ensure no extra margin pushing it down */
+    padding-top: 0; /* Remove any extra padding at the top */
     width: calc(100vw - 260px);
+    align-items: flex-start; /* Align content to the top */
+    justify-content: flex-start; /* Ensure content is at the top */
 }
 
-/* === SIDEBAR === */
-.sidebar {
-    width: 220px;
-    background: #2d2d2d;
-    padding: 30px 20px;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    position: fixed;
-    left: 0;
-    top: 0;
-}
-
-.sidebar-content {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-/* === NAVIGATION ITEMS === */
-.sidebar nav ul {
-    list-style: none;
-    padding: 0;
-}
-
-.sidebar nav ul li {
-    padding: 12px;
-    color: #ccc;
-    cursor: pointer;
-    border-radius: 5px;
-    text-align: center;
-}
-
-.sidebar nav ul li:hover {
-    background: #444;
-}
-
-.sidebar nav ul li.active {
-    background: #0f0;
-    color: black;
-    font-weight: bold;
-}
-
-/* === LOGOUT BUTTON === */
-.logout-btn {
-    background-color: #d9534f;
-    color: white;
-    border: none;
-    padding: 12px;
-    border-radius: 5px;
-    cursor: pointer;
-    width: 100%;
-    text-align: center;
-    font-size: 16px;
-    margin-top: auto;
-    margin-bottom: 40px;
-}
-
-.logout-btn:hover {
-    background-color: #c9302c;
-}
 
 /* === TOP BAR === */
 .top-bar {
@@ -141,18 +81,42 @@ html, body {
     background-color: darkgreen;
 }
 
-/* === KANBAN BOARD (Stretch Columns to Tallest) === */
+
+/* === Ensure the container fills the page and aligns to the top === */
+.kanban-container {
+    display: flex;
+    height: 100vh; /* Full page height */
+    align-items: flex-start; /* Align all content at the top */
+    justify-content: flex-start;
+}
+
+/* === MAIN CONTENT (Align to the top without affecting layout) === */
+.main-content {
+    flex-grow: 1;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    margin-left: 260px;
+    width: calc(100vw - 260px);
+    align-items: flex-start;
+    justify-content: flex-start;
+    height: auto;
+}
+
+/* === KANBAN BOARD (Keep original style while ensuring it's at the top) === */
 .kanban-board {
     display: flex;
-    align-items: stretch; /* ✅ Ensures all columns have the same height */
+    align-items: flex-start;
     justify-content: flex-start;
     gap: 20px;
     width: 100%;
-    min-height: 100vh; /* ✅ Expands dynamically */
+    min-height: auto;
     overflow-x: auto;
+    margin-top: 0 !important;
+    padding-top: 0 !important;
 }
 
-/* === KANBAN COLUMN (Match Tallest) === */
+/* === KANBAN COLUMN (Fix spacing & alignment) === */
 .kanban-column {
     width: 280px;
     background: #2c3e50;
@@ -160,10 +124,10 @@ html, body {
     border-radius: 8px;
     display: flex;
     flex-direction: column;
-    height: auto; /* ✅ Expands based on content */
+    min-height: 400px; /* Prevent collapsing */
 }
 
-/* Center task cards inside the column */
+/* === Ensure task cards are centered in the column === */
 .kanban-column ul {
     list-style: none;
     padding: 0;
@@ -173,7 +137,7 @@ html, body {
     width: 100%;
 }
 
-/* === TASK CARDS (Dynamic Height) === */
+/* === TASK CARDS (Keep them styled properly) === */
 .task-card {
     display: flex;
     flex-direction: column;
@@ -185,26 +149,35 @@ html, body {
     font-weight: bold;
     color: white;
     width: 90%;
-    min-height: 50px; /* Minimum height */
+    min-height: 50px;
     position: relative;
     word-wrap: break-word;
     white-space: normal;
     overflow-wrap: break-word;
 }
 
-/* Task Title - Prevent Overlapping with Priority Label */
+/* === Ensure the column headings remain aligned === */
+.kanban-column h2 {
+    margin-bottom: 10px;
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+
+/* Task Title */
 .task-title {
     font-size: 18px;
     font-weight: bold;
     position: relative;
-    width: 85%; /* ✅ Prevents text from reaching the right side */
-    padding-bottom: 25px; /* ✅ Leaves space for priority label */
+    width: 85%;
+    padding-bottom: 25px;
     word-wrap: break-word;
     white-space: normal;
     overflow-wrap: break-word;
 }
 
-/* Priority Label - Stays at Bottom Right */
+/* Priority Label */
 .task-priority {
     font-size: 16px;
     font-weight: bold;
@@ -212,7 +185,6 @@ html, body {
     bottom: 10px;
     right: 12px;
 }
-
 
 /* === PRIORITY COLORS === */
 .priority-A1 { background-color: #ff4d4d; }
@@ -249,5 +221,54 @@ html, body {
 
 .task-actions .delete-btn {
     background-color: red;
+    color: white;
+}
+
+/* === MODAL STYLING === */
+.modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #2c3e50;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    width: 300px;
+    text-align: center;
+}
+
+.modal-content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.modal-content input,
+.modal-content select {
+    padding: 8px;
+    border-radius: 5px;
+    border: none;
+    background-color: #444;
+    color: white;
+}
+
+.modal-content button {
+    padding: 10px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    width: 100%;
+}
+
+.delete-btn {
+    background-color: red;
+    color: white;
+}
+
+.close-btn {
+    background-color: gray;
     color: white;
 }
