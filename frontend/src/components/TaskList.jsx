@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { auth } from "../firebase";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
@@ -12,19 +12,35 @@ const TaskList = () => {
   const [priority, setPriority] = useState("A1");
   const [selectedTask, setSelectedTask] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const navigate = useNavigate();
+  const modalRef = useRef(null); // 🔹 Reference for modal content
 
+  const navigate = useNavigate();
   const user = auth.currentUser;
 
   useEffect(() => {
     if (user) {
       axios.get(`http://localhost:5000/api/tasks/${user.uid}`)
-        .then((res) => {
-          setTasks(res.data);
-        })
+        .then((res) => setTasks(res.data))
         .catch((err) => console.error("Error fetching tasks:", err));
     }
   }, [user]);
+
+  // 🔹 Close modal when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (modalRef.current && !modalRef.current.contains(event.target)) {
+        setIsModalOpen(false);
+      }
+    };
+
+    if (isModalOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isModalOpen]);
 
   const addTask = async () => {
     if (!title.trim()) return;
@@ -87,11 +103,7 @@ const TaskList = () => {
             {["backlog", "todo", "done"].map((status) => (
               <Droppable key={status} droppableId={status}>
                 {(provided) => (
-                  <div
-                    className="kanban-column"
-                    ref={provided.innerRef}
-                    {...provided.droppableProps}
-                  >
+                  <div className="kanban-column" ref={provided.innerRef} {...provided.droppableProps}>
                     <h2>{status}</h2>
                     <ul>
                       {tasks
@@ -109,10 +121,7 @@ const TaskList = () => {
                                   setIsModalOpen(true);
                                 }}
                               >
-                                <span
-                                  className="drag-handle"
-                                  {...provided.dragHandleProps}
-                                >
+                                <span className="drag-handle" {...provided.dragHandleProps}>
                                   <GripVertical size={18} />
                                 </span>
                                 <span className="task-title">{task.title}</span>
@@ -132,7 +141,7 @@ const TaskList = () => {
 
       {isModalOpen && selectedTask && (
         <div className="modal">
-          <div className="modal-content">
+          <div className="modal-content" ref={modalRef}> {/* 🔹 Attach ref to modal content */}
             <span className="close-x" onClick={() => setIsModalOpen(false)}>&times;</span>
             <h2>Edit Task</h2>
             <input
