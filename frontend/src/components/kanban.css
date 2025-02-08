@@ -58,7 +58,6 @@ html {
     justify-content: flex-start;
     gap: 20px;
     /* Space between columns */
-    padding: 10px;
     overflow-x: auto;
     width: 100%;
     max-width: 100%;
