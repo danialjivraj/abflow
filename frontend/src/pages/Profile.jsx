@@ -1,13 +1,12 @@
-import Sidebar from "../components/Sidebar";
+import Layout from "../components/Layout";
 
 const Profile = () => {
   return (
-    <div className="dashboard-container">
-      <Sidebar />
-      <div className="p-6">
-        <h1>Profile Page</h1>
+    <Layout>
+      <div className="main-content">
+        <h1>Profile</h1>
       </div>
-    </div>
+    </Layout>
   );
 };
 

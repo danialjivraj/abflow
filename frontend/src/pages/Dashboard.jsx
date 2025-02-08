@@ -1,7 +1,7 @@
 import { auth } from "../firebase";
 import { useEffect, useState } from "react";
 import TaskList from "../components/TaskList";
-import Sidebar from "../components/Sidebar"; // Import Sidebar
+import Layout from "../components/Layout";
 
 const Dashboard = () => {
   const [user, setUser] = useState(null);
@@ -11,12 +11,13 @@ const Dashboard = () => {
   }, []);
 
   return (
-    <div className="dashboard-container">
-      <Sidebar /> {/* Sidebar is now separate from TaskList */}
-      <div className="p-6">
+    <Layout>
+      <div className="main-content">
+        <h1>Dashboard</h1>
+        <br></br>
         <TaskList />
       </div>
-    </div>
+    </Layout>
   );
 };
 

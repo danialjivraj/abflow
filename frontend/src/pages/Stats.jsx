@@ -1,13 +1,12 @@
-import Sidebar from "../components/Sidebar";
+import Layout from "../components/Layout";
 
 const Stats = () => {
   return (
-    <div className="dashboard-container">
-      <Sidebar />
-      <div className="p-6">
-        <h1>Stats Page</h1>
+    <Layout>
+      <div className="main-content">
+        <h1>Stats</h1>
       </div>
-    </div>
+    </Layout>
   );
 };
 
