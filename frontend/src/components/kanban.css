@@ -369,3 +369,100 @@ html {
 .task-form button:hover {
     background-color: #45a049;
 }
+
+/* === STATS === */
+.stats-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 120px;
+}
+
+.weekly-chart {
+    flex: 1;
+}
+
+.recommendations {
+    flex: 1;
+    background: #232323;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    max-width: 400px;
+}
+
+.recommendations-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.sort-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.sort-buttons button {
+    background: #444;
+    color: white;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.2s;
+}
+
+.sort-buttons button:hover {
+    background: #666;
+}
+
+.recommendations p {
+    font-size: 1.2rem;
+    padding: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.recommendations p:last-child {
+    border-bottom: none;
+}
+
+@media (max-width: 768px) {
+    .stats-flex {
+        flex-direction: column;
+    }
+
+    .recommendations {
+        max-width: 100%;
+        margin-top: 20px;
+    }
+}
+
+
+
+/* === PROFILE === */
+.profile-card {
+    background: #232323;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    max-width: 400px;
+    margin: 20px auto;
+}
+
+.profile-card h2 {
+    font-size: 2rem;
+    margin-bottom: 15px;
+}
+
+.profile-card p {
+    font-size: 1.2rem;
+    margin: 10px 0;
+}
+
+.profile-achievements {
+    margin-top: 20px;
+    font-size: 1.3rem;
+    color: #ffcc00;
+}

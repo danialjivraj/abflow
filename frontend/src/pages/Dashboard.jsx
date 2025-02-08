@@ -13,7 +13,7 @@ const Dashboard = () => {
   return (
     <Layout>
       <div className="main-content">
-        <h1>Dashboard</h1>
+        <h1>📌 Dashboard</h1>
         <br></br>
         <TaskList />
       </div>

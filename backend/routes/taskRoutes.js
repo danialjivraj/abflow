@@ -32,7 +32,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-// ✅ Move Task (Change Status)
+// ✅ Move Task (Change Status & Award Points)
 router.put("/:id/move", async (req, res) => {
   try {
     const { status } = req.body;
@@ -40,7 +40,17 @@ router.put("/:id/move", async (req, res) => {
       return res.status(400).json({ error: "Invalid status" });
     }
 
-    const task = await Task.findByIdAndUpdate(req.params.id, { status }, { new: true });
+    const task = await Task.findById(req.params.id);
+    if (!task) return res.status(404).json({ error: "Task not found" });
+
+    // Award points **only if task is moved to 'done'**
+    if (status === "done" && task.status !== "done") {
+      task.points = pointsMap[task.priority] || 0; // Assign points based on priority
+    }
+
+    task.status = status;
+    await task.save();
+
     res.json(task);
   } catch (error) {
     console.error("❌ Error moving task:", error);
