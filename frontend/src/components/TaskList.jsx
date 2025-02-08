@@ -140,8 +140,8 @@ const TaskList = () => {
       </div>
 
       {isModalOpen && selectedTask && (
-        <div className="modal">
-          <div className="modal-content" ref={modalRef}> {/* 🔹 Attach ref to modal content */}
+        <div className="modal" ref={modalRef}>
+          <div className="modal-content">
             <span className="close-x" onClick={() => setIsModalOpen(false)}>&times;</span>
             <h2>Edit Task</h2>
             <input
