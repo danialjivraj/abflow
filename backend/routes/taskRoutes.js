@@ -43,13 +43,13 @@ router.put("/:id/move", async (req, res) => {
     const task = await Task.findById(req.params.id);
     if (!task) return res.status(404).json({ error: "Task not found" });
 
-    // Award points **only if task is moved to 'done'**
+    task.status = status;  // ✅ Set status before checking points
+
     if (status === "done" && task.status !== "done") {
-      task.points = pointsMap[task.priority] || 0; // Assign points based on priority
+      task.points = pointsMap[task.priority] || 0;
     }
 
-    task.status = status;
-    await task.save();
+    await task.save(); // ✅ Ensure task is saved
 
     res.json(task);
   } catch (error) {
@@ -57,6 +57,7 @@ router.put("/:id/move", async (req, res) => {
     res.status(500).json({ error: "Failed to move task" });
   }
 });
+
 
 // ✅ Edit Task
 router.put("/:id/edit", async (req, res) => {
