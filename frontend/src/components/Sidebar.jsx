@@ -9,8 +9,8 @@ const Sidebar = () => {
   return (
     <aside className="sidebar">
       <div className="sidebar-content">
-        <nav>    
-          <h2>ProjectName</h2><br></br>
+        <nav>
+          <h2>ABFlow</h2><br></br>
           <ul>
             <li
               className={location.pathname === "/dashboard" ? "active" : ""}

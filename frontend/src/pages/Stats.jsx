@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import axios from "axios";
 import Layout from "../components/Layout";
 import { FaSortAlphaDown, FaSortAlphaUp, FaSortAmountDown, FaSortAmountUp } from "react-icons/fa";
 import { startOfISOWeek, addWeeks, format, isWithinInterval, endOfISOWeek } from "date-fns";
-
+import { auth } from "../firebase"; // Import Firebase auth
 const Stats = () => {
   const [weeklyStats, setWeeklyStats] = useState([]);
   const [timeTracking, setTimeTracking] = useState([]);
@@ -12,11 +12,14 @@ const Stats = () => {
   const [sortOrder, setSortOrder] = useState("asc");
 
   useEffect(() => {
-    axios.get("http://localhost:5000/api/stats/weekly")
+    const user = auth.currentUser;
+    if (!user) return;
+
+    axios.get(`http://localhost:5000/api/stats/weekly?userId=${user.uid}`)
       .then((res) => setWeeklyStats(res.data))
       .catch((err) => console.error("Error fetching weekly stats:", err));
 
-    axios.get("http://localhost:5000/api/stats/time-tracking")
+    axios.get(`http://localhost:5000/api/stats/time-tracking?userId=${user.uid}`)
       .then((res) => setTimeTracking(res.data))
       .catch((err) => console.error("Error fetching time tracking:", err));
   }, []);
@@ -101,7 +104,7 @@ const Stats = () => {
                       tick={{ fontSize: 12 }} /* ✅ Ensures text is smaller */
                     />
                     <YAxis />
-                    <Tooltip 
+                    <Tooltip
                       formatter={(value) => [`Tasks Completed: ${value}`, ""]} // ✅ Fix tooltip readability
                       contentStyle={{ backgroundColor: "#222", color: "#fff", borderRadius: 5, border: "1px solid #555" }} // ✅ Improved tooltip styling
                       labelStyle={{ color: "#fff" }}
@@ -159,11 +162,11 @@ const CustomDot = ({ cx, cy, payload, today }) => {
   const isCurrentWeek = payload.isCurrentWeek;
 
   return (
-    <circle 
-      cx={cx} 
-      cy={cy} 
-      r={6} 
-      fill={isCurrentWeek ? "#ff5733" : "#00c0ff"} 
+    <circle
+      cx={cx}
+      cy={cy}
+      r={6}
+      fill={isCurrentWeek ? "#ff5733" : "#00c0ff"}
       stroke="none"
     />
   );
@@ -176,9 +179,9 @@ const CustomActiveDot = ({ cx, cy, payload, today }) => {
   const isCurrentWeek = payload.isCurrentWeek;
 
   return (
-    <circle 
-      cx={cx} 
-      cy={cy} 
+    <circle
+      cx={cx}
+      cy={cy}
       r={8} /* ✅ Enlarged on hover */
       fill={isCurrentWeek ? "#ff5733" : "#00c0ff"} /* ✅ Keep red for current week */
       stroke="white" /* ✅ White outline on hover */
