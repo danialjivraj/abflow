@@ -86,25 +86,31 @@ body, html {
     color: white;
     width: 100%;
     min-height: 70px;
-    /* ✅ More height for better spacing */
     background-color: #34495e;
     position: relative;
     word-wrap: break-word;
     white-space: normal;
     overflow-wrap: break-word;
+    max-width: 100%; /* Ensure it doesn't shrink */
 }
 
-/* === TASK TITLE (Ensure Text Breaks Properly) === */
+.task-content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    max-width: 100%; /* Ensure it spans full width */
+}
+
 .task-title {
     font-size: 16px;
     font-weight: bold;
     word-wrap: break-word;
     white-space: normal;
     overflow-wrap: break-word;
-    width: calc(100% - 50px);
-    margin-right: 5px;
-    /* ✅ Ensures padding between text and icons */
+    width: 100%; /* Ensure full width usage */
 }
+
 
 /* === TASK PRIORITY (Fix Position & Spacing) === */
 .task-priority {
