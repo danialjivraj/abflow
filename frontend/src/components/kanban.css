@@ -108,7 +108,6 @@ body, html {
     white-space: normal;
     overflow-wrap: break-word;
     width: calc(100% - 50px);
-    /* ✅ Prevents touching priority label & dots */
     margin-right: 5px;
     /* ✅ Ensures padding between text and icons */
 }

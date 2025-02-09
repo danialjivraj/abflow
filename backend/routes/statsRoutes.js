@@ -3,23 +3,37 @@ const router = express.Router();
 const Task = require("../models/Task");
 const moment = require("moment");
 
-// ✅ Weekly Completed Tasks
+// ✅ Weekly Completed Tasks - Shows Past 4 Weeks + Current + Next Week
 router.get("/weekly", async (req, res) => {
   try {
     const tasks = await Task.find({ status: "done" });
 
-    // Group by week (last 4 weeks)
-    const weeklyStats = [0, 0, 0, 0];
-    const weeks = ["Week 1", "Week 2", "Week 3", "Week 4"];
-    
+    const weeklyStats = {};
+    const currentWeek = moment().isoWeek(); // Get current ISO week
+
+    // Generate keys for past 4 weeks, current, and next week
+    const weeksToShow = Array.from({ length: 6 }, (_, i) => currentWeek - 4 + i); // ✅ Only 1 future week
+
+    // Initialize all weeks with 0 tasks completed
+    weeksToShow.forEach(week => {
+      weeklyStats[week] = 0;
+    });
+
+    // Process tasks by their ISO week number
     tasks.forEach(task => {
-      const weekDiff = moment().diff(moment(task.createdAt), "weeks");
-      if (weekDiff >= 0 && weekDiff < 4) {
-        weeklyStats[3 - weekDiff]++; // Assign task count to respective week
+      const taskWeek = moment(task.createdAt).isoWeek();
+      if (weeklyStats.hasOwnProperty(taskWeek)) {
+        weeklyStats[taskWeek]++;
       }
     });
 
-    res.json(weeks.map((week, i) => ({ week, tasksCompleted: weeklyStats[i] })));
+    // Convert data into an array for the frontend
+    const formattedWeeks = weeksToShow.map(week => ({
+      week,
+      tasksCompleted: weeklyStats[week] || 0 // Default to 0 if no data
+    }));
+
+    res.json(formattedWeeks);
   } catch (error) {
     console.error("❌ Error fetching weekly stats:", error);
     res.status(500).json({ error: "Failed to fetch weekly stats" });

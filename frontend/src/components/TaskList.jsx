@@ -22,14 +22,10 @@ const TaskList = () => {
     if (user) {
       axios
         .get(`http://localhost:5000/api/tasks/${user.uid}`)
-        .then((res) => {
-          console.log("Fetched tasks:", res.data); // Debugging
-          setTasks(res.data);
-        })
+        .then((res) => setTasks(res.data))
         .catch((err) => console.error("Error fetching tasks:", err));
     }
   }, [user]);
-  
 
   // Close modals when clicking outside
   useEffect(() => {
@@ -94,31 +90,25 @@ const TaskList = () => {
 
   const handleDragEnd = async (result) => {
     if (!result.destination) return;
-  
-    const { source, destination, draggableId } = result;
-  
+
+    const { source, destination } = result;
+
     if (source.droppableId === destination.droppableId) {
-      const reorderedTasks = [...tasks];
-      const [movedTask] = reorderedTasks.splice(source.index, 1);
-      reorderedTasks.splice(destination.index, 0, movedTask);
-      setTasks(reorderedTasks);
-    } else {
-      const updatedTasks = tasks.map((task) =>
-        task._id === draggableId ? { ...task, status: destination.droppableId } : task
-      );
-  
+      const updatedTasks = [...tasks];
+      const movedTask = updatedTasks.splice(source.index, 1)[0];
+      updatedTasks.splice(destination.index, 0, movedTask);
       setTasks(updatedTasks);
-  
-      try {
-        await axios.put(`http://localhost:5000/api/tasks/${draggableId}/move`, {
-          status: destination.droppableId,
-        });
-      } catch (error) {
-        console.error("Error moving task:", error);
-      }
+    } else {
+      const updatedTasks = [...tasks];
+      const movedTask = updatedTasks.find((task) => task._id === result.draggableId);
+      movedTask.status = destination.droppableId;
+      setTasks(updatedTasks);
+
+      await axios.put(`http://localhost:5000/api/tasks/${movedTask._id}/move`, {
+        status: destination.droppableId,
+      });
     }
   };
-  
 
   return (
     <div className="kanban-container">
