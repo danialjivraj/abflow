@@ -1,318 +1,249 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
-import { auth } from "../firebase";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
-import { GripVertical, X, ChevronDown } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { auth } from "../firebase";
 import "./styles.css";
 
+const initialColumns = {
+  backlog: { name: "Backlog", items: [] },
+  todo: { name: "Todo", items: [] },
+  done: { name: "Done", items: [] }
+};
+
+const allowedPriorities = ["A1", "A2", "A3", "B1", "B2", "B3", "C1", "C2", "C3", "D", "E"];
+
 const TaskList = () => {
-  const [tasks, setTasks] = useState([]);
-  const [newTask, setNewTask] = useState({ title: "", priority: "A1" });
-  const [selectedTask, setSelectedTask] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const modalEditRef = useRef(null);
-  const modalCreateRef = useRef(null);
-  const [priorityTags, setPriorityTags] = useState([]);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [columns, setColumns] = useState(initialColumns);
+  const [columnOrder, setColumnOrder] = useState(["backlog", "todo", "done"]);
+  const [newTaskTitle, setNewTaskTitle] = useState("");
+  const [selectedPriority, setSelectedPriority] = useState("A1");
+  const [userId, setUserId] = useState(null);
 
-  const [searchQuery, setSearchQuery] = useState("");
-  const navigate = useNavigate();
-  const user = auth.currentUser;
-
+  // ✅ Fetch the current Firebase user
   useEffect(() => {
+    const user = auth.currentUser;
     if (user) {
-      axios
-        .get(`http://localhost:5000/api/tasks/${user.uid}`)
-        .then((res) => setTasks(res.data))
-        .catch((err) => console.error("Error fetching tasks:", err));
+      setUserId(user.uid);
     }
-  }, [user]);
+  }, []);
 
-  // Close modals when clicking outside
+  // ✅ Fetch Column Order from Backend
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (modalEditRef.current && !modalEditRef.current.contains(event.target)) {
-        setIsModalOpen(false);
-      }
-      if (modalCreateRef.current && !modalCreateRef.current.contains(event.target)) {
-        setIsCreateModalOpen(false);
-      }
-    };
+    if (!userId) return;
 
-    if (isModalOpen || isCreateModalOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isModalOpen, isCreateModalOpen]);
-
-  const addTask = async () => {
-    if (!newTask.title.trim()) return;
-    try {
-      const res = await axios.post("http://localhost:5000/api/tasks", {
-        ...newTask,
-        status: "backlog",
-        userId: auth.currentUser.uid,
+    // ✅ Fetch Column Order
+    axios
+      .get(`http://localhost:5000/api/tasks/columns/order/${userId}`)
+      .then((res) => {
+        if (res.data.columnOrder) {
+          setColumnOrder(res.data.columnOrder);
+        }
+      })
+      .catch((err) => {
+        console.error("Error fetching column order:", err);
       });
 
-      setTasks((prevTasks) => [...prevTasks, res.data]);
-      setNewTask({ title: "", priority: "A1" });
-      setIsCreateModalOpen(false);
-    } catch (err) {
-      console.error("Error adding task:", err);
-    }
-  };
+    // ✅ Fetch Tasks and Maintain Order
+    axios
+      .get(`http://localhost:5000/api/tasks/${userId}`)
+      .then((res) => {
+        const groupedTasks = {
+          backlog: { name: "Backlog", items: [] },
+          todo: { name: "Todo", items: [] },
+          done: { name: "Done", items: [] }
+        };
 
-  const updateTask = async () => {
-    if (!selectedTask) return;
-    try {
-      await axios.put(`http://localhost:5000/api/tasks/${selectedTask._id}/edit`, {
-        title: selectedTask.title,
-        priority: selectedTask.priority,
+        res.data.forEach((task) => {
+          groupedTasks[task.status]?.items.push(task);
+        });
+
+        setColumns(groupedTasks);
+      })
+      .catch((err) => {
+        console.error("Error fetching tasks:", err);
       });
-      setTasks(tasks.map((task) => (task._id === selectedTask._id ? selectedTask : task)));
-      setIsModalOpen(false);
-    } catch (err) {
-      console.error("Error updating task:", err);
-    }
-  };
+  }, [userId]);
 
-  const deleteTask = async () => {
-    if (!selectedTask) return;
-    try {
-      await axios.delete(`http://localhost:5000/api/tasks/${selectedTask._id}`);
-      setTasks(tasks.filter((task) => task._id !== selectedTask._id));
-      setIsModalOpen(false);
-    } catch (err) {
-      console.error("Error deleting task:", err);
-    }
-  };
+
+
+  // ✅ Fetch Tasks when userId is available
+  useEffect(() => {
+    if (!userId) return;
+
+    axios
+      .get(`http://localhost:5000/api/tasks/${userId}`)
+      .then((res) => {
+        const groupedTasks = {
+          backlog: { name: "Backlog", items: [] },
+          todo: { name: "Todo", items: [] },
+          done: { name: "Done", items: [] }
+        };
+
+        res.data.forEach((task) => {
+          groupedTasks[task.status]?.items.push(task);
+        });
+
+        setColumns(groupedTasks);
+      })
+      .catch((err) => {
+        console.error("Error fetching tasks:", err);
+      });
+  }, [userId]);
+
 
   const handleDragEnd = async (result) => {
-    if (!result.destination) return;
+    const { source, destination, type } = result;
+    if (!destination) return;
 
-    const updatedTasks = [...tasks];
-    const movedTask = updatedTasks.find((task) => task._id === result.draggableId);
-    movedTask.status = result.destination.droppableId;
+    if (type === "COLUMN") {
+      const newColumnOrder = [...columnOrder];
+      const [movedColumn] = newColumnOrder.splice(source.index, 1);
+      newColumnOrder.splice(destination.index, 0, movedColumn);
+      setColumnOrder(newColumnOrder);
 
-    setTasks([...updatedTasks]);
+      try {
+        await axios.put("http://localhost:5000/api/tasks/columns/order", {
+          userId,
+          columnOrder: newColumnOrder
+        });
+      } catch (error) {
+        console.error("Error saving column order:", error);
+      }
+      return;
+    }
+
+    // ✅ Handle Task Dragging
+    const sourceColumn = columns[source.droppableId];
+    const destColumn = columns[destination.droppableId];
+
+    const sourceItems = [...sourceColumn.items];
+    const destItems = sourceColumn === destColumn ? sourceItems : [...destColumn.items];
+
+    const [movedItem] = sourceItems.splice(source.index, 1);
+    movedItem.status = destination.droppableId;
+    destItems.splice(destination.index, 0, movedItem);
+
+    // ✅ Assign correct order to tasks
+    const updatedTasks = destItems.map((task, index) => ({
+      ...task,
+      order: index,
+    }));
+
+    const updatedColumns = {
+      ...columns,
+      [source.droppableId]: { ...sourceColumn, items: sourceItems },
+      [destination.droppableId]: { ...destColumn, items: updatedTasks }
+    };
+
+    setColumns(updatedColumns);
 
     try {
-      await axios.put(`http://localhost:5000/api/tasks/${movedTask._id}/move`, {
-        status: movedTask.status,
+      await axios.put("http://localhost:5000/api/tasks/reorder", {
+        tasks: updatedTasks
+      });
+    } catch (error) {
+      console.error("Error updating task order:", error);
+    }
+  };
+
+  const addTask = async () => {
+    if (!newTaskTitle.trim() || !userId) return;
+
+    try {
+      const res = await axios.post("http://localhost:5000/api/tasks", {
+        title: newTaskTitle,
+        priority: selectedPriority,
+        status: "backlog",
+        userId: userId
       });
 
-      console.log("Task updated in DB:", movedTask);
+      const newTask = res.data;
+
+      setColumns((prevColumns) => ({
+        ...prevColumns,
+        backlog: { ...prevColumns.backlog, items: [...prevColumns.backlog.items, newTask] }
+      }));
+
+      setNewTaskTitle(""); // Reset input
     } catch (error) {
-      console.error("Error updating task:", error);
+      console.error("Error adding task:", error);
     }
   };
-
-  // Allowed priority options
-  const allowedPriorities = ["A", "A1", "A2", "A3", "B", "B1", "B2", "B3", "C", "C1", "C2", "C3", "D", "E"];
-
-  // Adds a selected priority to the input
-  const addPriorityTag = (priority) => {
-    if (!priorityTags.includes(priority)) {
-      setPriorityTags([...priorityTags, priority]); // Corrected: Use the passed argument
-    }
-    setDropdownOpen(false);
-  };
-
-
-  // Removes a tag
-  const removeTag = (tag) => {
-    setPriorityTags(priorityTags.filter((t) => t !== tag));
-  };
-
-  // Clears all tags
-  const clearTags = () => {
-    setPriorityTags([]);
-  };
-
-  // Filters tasks based on search & priority selection
-  const filteredTasks = tasks.filter((task) => {
-    const matchesSearch = task.title.toLowerCase().includes(searchQuery.toLowerCase());
-
-    if (priorityTags.length === 0) return matchesSearch; // If no tags, show all tasks
-
-    const matchesPriority = priorityTags.includes(task.priority) || priorityTags.includes(task.priority[0]);
-
-    return matchesSearch && matchesPriority;
-  });
 
   return (
     <div className="kanban-container">
-      {/* Search & Filter Bar */}
-      <div className="top-bar">
-        {/* Search Bar */}
+      <div className="task-input-container">
         <input
-          className="search-bar"
-          placeholder="Search Tasks..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          type="text"
+          placeholder="Enter task name"
+          value={newTaskTitle}
+          onChange={(e) => setNewTaskTitle(e.target.value)}
+          className="task-input"
         />
 
-        {/* Tag Selection Area */}
-        <div className="tag-container">
-          {/* Dropdown Button */}
-          <div className="tag-input-box" onClick={() => setDropdownOpen(!dropdownOpen)}>
-            <ChevronDown className={`dropdown-icon ${dropdownOpen ? "dropdown-open" : ""}`} />
-            {dropdownOpen && (
-              <div className="dropdown-menu">
-                {allowedPriorities.map((option) => (
-                  <div key={option} className="dropdown-item" onClick={() => addPriorityTag(option)}>
-                    {option}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Selected Tags */}
-          {priorityTags.map((tag) => (
-            <span key={tag} className="tag">
-              {tag}
-              <X size={14} className="remove-tag" onClick={() => removeTag(tag)} />
-            </span>
+        <select value={selectedPriority} onChange={(e) => setSelectedPriority(e.target.value)}>
+          {allowedPriorities.map((priority) => (
+            <option key={priority} value={priority}>
+              {priority}
+            </option>
           ))}
+        </select>
 
-          {/* "Clear All" Button */}
-          {priorityTags.length > 0 && (
-            <button className="clear-tags-btn" onClick={clearTags}>Clear All</button>
-          )}
-        </div>
-      </div>
-
-      {/* Add Task Button */}
-      <div className="add-task-container">
-        <button className="add-task-btn" onClick={() => setIsCreateModalOpen(true)}>
+        <button onClick={addTask} className="add-task-btn">
           + Add Task
         </button>
       </div>
 
       <DragDropContext onDragEnd={handleDragEnd}>
-        <div className="kanban-board">
-          {["backlog", "todo", "done"].map((status) => (
-            <Droppable key={status} droppableId={status}>
-              {(provided) => (
-                <div className="kanban-column" ref={provided.innerRef} {...provided.droppableProps}>
-                  <h2>{status.toUpperCase()}</h2>
-                  <ul className="task-list">
-                    {filteredTasks
-                      .filter((task) => task.status === status) // <-- Apply the filtering logic
-                      .map((task, index) => (
-                        <Draggable key={task._id} draggableId={task._id} index={index}>
-                          {(provided) => (
-                            <li
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              className="task-card"
-                              onClick={(e) => {
-                                if (e.target.closest(".drag-handle")) return; // Prevents modal from opening when clicking drag handle
-                                console.log("Task clicked:", task); // Debugging
-                                setSelectedTask(task);
-                                setIsModalOpen(true);
-                              }}
-                            >
-                              {/* Drag Handle (draggable area only) */}
-                              <span className="drag-handle" {...provided.dragHandleProps}>
-                                <GripVertical size={18} />
-                              </span>
+        {/* 🔹 Make columns draggable */}
+        <Droppable droppableId="all-columns" direction="horizontal" type="COLUMN">
+          {(provided) => (
+            <div ref={provided.innerRef} {...provided.droppableProps} className="kanban-board">
+              {columnOrder.map((id, index) => (
+                <Draggable key={id} draggableId={id} index={index}>
+                  {(provided) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      className="kanban-column"
+                    >
+                      <h2 {...provided.dragHandleProps}>{columns[id].name}</h2>
+                      <Droppable droppableId={id} type="TASK">
+                        {(provided) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.droppableProps}
+                            className="droppable-area" // Ensure this class is applied
+                          >
+                            {columns[id].items.map((task, index) => (
+                              <Draggable key={task._id} draggableId={task._id} index={index}>
+                                {(provided) => (
+                                  <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} className="task-card">
+                                    <span>{task.title}</span>
 
-                              {/* Task Content (clicking here opens modal) */}
-                              <div className="task-content">
-                                <span className="task-title">{task.title}</span>
-                                <span className={`task-priority priority-${task.priority}`}>
-                                  {task.priority}
-                                </span>
-                              </div>
-                            </li>
-                          )}
-                        </Draggable>
+                                    {/* New bottom section for priority & other details */}
+                                    <div className="task-bottom">
+                                      <b className={`priority-${task.priority.replace(/\s+/g, '')}`}>{task.priority}</b>
+                                      {/* Add any additional details here */}
+                                    </div>
+                                  </div>
+                                )}
+                              </Draggable>
 
-                      ))}
-                    {provided.placeholder}
-                  </ul>
-                </div>
-              )}
-            </Droppable>
-          ))}
-        </div>
+                            ))}
+                            {provided.placeholder}
+                          </div>
+                        )}
+                      </Droppable>
+                    </div>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
       </DragDropContext>
-
-{/* Edit Task Modal */}
-{isModalOpen && selectedTask && (
-  <div className="modal">
-    <div className="modal-content" ref={modalEditRef}>
-      <span className="close-x" onClick={() => setIsModalOpen(false)}>
-        &times;
-      </span>
-      <h2>Edit Task</h2>
-      <input
-        type="text"
-        value={selectedTask.title}
-        onChange={(e) => setSelectedTask({ ...selectedTask, title: e.target.value })}
-      />
-      <select
-        value={selectedTask.priority}
-        onChange={(e) => setSelectedTask({ ...selectedTask, priority: e.target.value })}
-      >
-        {["A1", "A2", "A3", "B1", "B2", "B3", "C1", "C2", "C3", "D", "E"].map((p) => (
-          <option key={p} value={p}>
-            {p}
-          </option>
-        ))}
-      </select>
-      <div className="task-actions">
-        <button className="save-btn" onClick={updateTask}>
-          Save
-        </button>
-        <button className="delete-btn" onClick={deleteTask}>
-          Delete
-        </button>
-      </div>
-    </div>
-  </div>
-)}
-
-{/* Create Task Modal */}
-{isCreateModalOpen && (
-  <div className="modal">
-    <div className="modal-content" ref={modalCreateRef}>
-      <span className="close-x" onClick={() => setIsCreateModalOpen(false)}>
-        &times;
-      </span>
-      <h2>Create New Task</h2>
-      <input
-        type="text"
-        placeholder="Task Name"
-        value={newTask.title}
-        onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
-      />
-      <select
-        value={newTask.priority}
-        onChange={(e) => setNewTask({ ...newTask, priority: e.target.value })}
-      >
-        {["A1", "A2", "A3", "B1", "B2", "B3", "C1", "C2", "C3", "D", "E"].map((p) => (
-          <option key={p} value={p}>
-            {p}
-          </option>
-        ))}
-      </select>
-      <div className="task-actions">
-        <button className="save-btn" onClick={addTask}>
-          Add Task
-        </button>
-      </div>
-    </div>
-  </div>
-)}
-
     </div>
   );
 };

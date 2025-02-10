@@ -81,7 +81,6 @@ const Stats = () => {
 
   return (
     <Layout>
-      <div className="main-content">
         <div className="stats-container">
           <h1>📊 Stats & Insights</h1>
 
@@ -149,7 +148,6 @@ const Stats = () => {
               )}
             </div>
           </div>
-        </div>
       </div>
     </Layout>
   );

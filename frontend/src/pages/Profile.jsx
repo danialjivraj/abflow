@@ -25,7 +25,6 @@ const Profile = () => {
 
   return (
     <Layout>
-      <div className="main-content">
       <div className="profile-container">
         <h1>🏅 Profile Overview</h1>
         <div className="profile-card">
@@ -36,7 +35,6 @@ const Profile = () => {
         <div className="profile-achievements">
           <h3>🎯 Keep completing tasks to level up!</h3>
         </div>
-      </div>
       </div>
     </Layout>
   );

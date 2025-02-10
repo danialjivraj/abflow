@@ -10,7 +10,8 @@ const TaskSchema = new mongoose.Schema({
   status: { type: String, enum: ["backlog", "todo", "done"], default: "backlog" }, // Kanban Status
   userId: { type: String, required: true },
   createdAt: { type: Date, default: Date.now },
-  points: { type: Number, default: 0 } // Points earned when completed
+  points: { type: Number, default: 0 }, // Points earned when completed
+  order: { type: Number, default: 0 } // ✅ Order field to track position
 });
 
 const Task = mongoose.model("Task", TaskSchema);
