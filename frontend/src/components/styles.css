@@ -55,9 +55,11 @@ select {
 /* Kanban Board Styles */
 .kanban-board {
     display: flex;
-    gap: 20px;
+    gap: 0;
+    /* No gap between columns */
     align-items: flex-start;
-    /* Ensure columns don't stretch to match height */
+    overflow-x: auto;
+    padding-bottom: 10px;
 }
 
 /* Kanban Column Styles */
@@ -68,9 +70,8 @@ select {
     width: 300px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     min-height: 100px;
-    /* Minimum height for the column */
-    transition: transform 0.2s ease;
-    /* Smooth transition for dragging */
+    flex-shrink: 0;
+    margin-right: 20px;
 }
 
 .kanban-column h2 {
@@ -82,13 +83,9 @@ select {
 /* Droppable Area Styles */
 .kanban-column .droppable-area {
     min-height: 10px;
-    /* Ensure it has a minimum height */
     padding: 10px;
-    /* Add padding to ensure spacing */
     background-color: transparent;
-    /* Make it transparent */
     border: none;
-    /* Remove any borders */
 }
 
 /* Task Card Styles */
@@ -137,22 +134,41 @@ select {
     background-color: rgba(0, 0, 0, 0.5);
     color: white;
 }
-  
-  /* Priority Font Colors */
-  .task-card b.priority-A1 { color: #ff4d4d; } /* Strongest red */
-  .task-card b.priority-A2 { color: #ff6666; } /* Medium red */
-  .task-card b.priority-A3 { color: #ff9999; } /* Weakest red */
-  
-  .task-card b.priority-B1 { color: #4d4dff; } /* Strongest blue */
-  .task-card b.priority-B2 { color: #6666ff; } /* Medium blue */
-  .task-card b.priority-B3 { color: #9999ff; } /* Weakest blue */
-  
-  .task-card b.priority-C1 { color: #4dff4d; } /* Strongest green */
-  .task-card b.priority-C2 { color: #66ff66; } /* Medium green */
-  .task-card b.priority-C3 { color: #99ff99; } /* Weakest green */
-  
-  .task-card b.priority-D { color: #cc66ff; } /* Strong purple */
-  .task-card b.priority-E { color: #ff9966; } /* Strong orange *//* Drag and Drop Styles */
+
+/* Priority Font Colors */
+.task-card b.priority-A1 {
+    color: #ff4d4d;
+}
+.task-card b.priority-A2 {
+    color: #ff6666;
+}
+.task-card b.priority-A3 {
+    color: #ff9999;
+}
+.task-card b.priority-B1 {
+    color: #4d4dff;
+}
+.task-card b.priority-B2 {
+    color: #6666ff;
+}
+.task-card b.priority-B3 {
+    color: #9999ff;
+}
+.task-card b.priority-C1 {
+    color: #4dff4d;
+}
+.task-card b.priority-C2 {
+    color: #66ff66;
+}
+.task-card b.priority-C3 {
+    color: #99ff99;
+}
+.task-card b.priority-D {
+    color: #cc66ff;
+}
+.task-card b.priority-E {
+    color: #ff9966;
+}
 
 .Draggable {
     transition: background-color 0.2s ease;

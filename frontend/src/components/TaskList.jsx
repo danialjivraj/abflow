@@ -7,14 +7,13 @@ import "./styles.css";
 const initialColumns = {
   backlog: { name: "Backlog", items: [] },
   todo: { name: "Todo", items: [] },
-  done: { name: "Done", items: [] }
+  done: { name: "Done", items: [] },
 };
 
 const allowedPriorities = ["A1", "A2", "A3", "B1", "B2", "B3", "C1", "C2", "C3", "D", "E"];
 
 const TaskList = () => {
   const [columns, setColumns] = useState(initialColumns);
-  const [columnOrder, setColumnOrder] = useState(["backlog", "todo", "done"]);
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [selectedPriority, setSelectedPriority] = useState("A1");
   const [userId, setUserId] = useState(null);
@@ -27,88 +26,72 @@ const TaskList = () => {
     }
   }, []);
 
-  // ✅ Fetch Column Order from Backend
-  useEffect(() => {
-    if (!userId) return;
-
-    // ✅ Fetch Column Order
-    axios
-      .get(`http://localhost:5000/api/tasks/columns/order/${userId}`)
-      .then((res) => {
-        if (res.data.columnOrder) {
-          setColumnOrder(res.data.columnOrder);
-        }
-      })
-      .catch((err) => {
-        console.error("Error fetching column order:", err);
-      });
-
-    // ✅ Fetch Tasks and Maintain Order
-    axios
-      .get(`http://localhost:5000/api/tasks/${userId}`)
-      .then((res) => {
-        const groupedTasks = {
-          backlog: { name: "Backlog", items: [] },
-          todo: { name: "Todo", items: [] },
-          done: { name: "Done", items: [] }
-        };
-
-        res.data.forEach((task) => {
-          groupedTasks[task.status]?.items.push(task);
-        });
-
-        setColumns(groupedTasks);
-      })
-      .catch((err) => {
-        console.error("Error fetching tasks:", err);
-      });
-  }, [userId]);
-
-
-
   // ✅ Fetch Tasks when userId is available
   useEffect(() => {
     if (!userId) return;
-
-    axios
-      .get(`http://localhost:5000/api/tasks/${userId}`)
-      .then((res) => {
+  
+    // ✅ Fetch tasks and column order
+    const fetchData = async () => {
+      try {
+        const [tasksRes, columnOrderRes] = await Promise.all([
+          axios.get(`http://localhost:5000/api/tasks/${userId}`),
+          axios.get(`http://localhost:5000/api/tasks/columns/order/${userId}`),
+        ]);
+  
         const groupedTasks = {
           backlog: { name: "Backlog", items: [] },
           todo: { name: "Todo", items: [] },
-          done: { name: "Done", items: [] }
+          done: { name: "Done", items: [] },
         };
-
-        res.data.forEach((task) => {
+  
+        tasksRes.data.forEach((task) => {
           groupedTasks[task.status]?.items.push(task);
         });
-
-        setColumns(groupedTasks);
-      })
-      .catch((err) => {
-        console.error("Error fetching tasks:", err);
-      });
+  
+        // ✅ Apply the saved column order
+        const savedColumnOrder = columnOrderRes.data.columnOrder;
+        const orderedColumns = {};
+        savedColumnOrder.forEach((columnId) => {
+          orderedColumns[columnId] = groupedTasks[columnId];
+        });
+  
+        setColumns(orderedColumns);
+      } catch (err) {
+        console.error("Error fetching data:", err);
+      }
+    };
+  
+    fetchData();
   }, [userId]);
-
 
   const handleDragEnd = async (result) => {
     const { source, destination, type } = result;
+  
     if (!destination) return;
-
+  
+    // ✅ Handle Column Dragging
     if (type === "COLUMN") {
-      const newColumnOrder = [...columnOrder];
+      const newColumnOrder = Object.keys(columns);
       const [movedColumn] = newColumnOrder.splice(source.index, 1);
       newColumnOrder.splice(destination.index, 0, movedColumn);
-      setColumnOrder(newColumnOrder);
-
+  
+      const newColumns = {};
+      newColumnOrder.forEach((columnId) => {
+        newColumns[columnId] = columns[columnId];
+      });
+  
+      setColumns(newColumns);
+  
+      // ✅ Save the new column order to the backend
       try {
         await axios.put("http://localhost:5000/api/tasks/columns/order", {
           userId,
-          columnOrder: newColumnOrder
+          columnOrder: newColumnOrder,
         });
       } catch (error) {
         console.error("Error saving column order:", error);
       }
+  
       return;
     }
 
@@ -132,14 +115,14 @@ const TaskList = () => {
     const updatedColumns = {
       ...columns,
       [source.droppableId]: { ...sourceColumn, items: sourceItems },
-      [destination.droppableId]: { ...destColumn, items: updatedTasks }
+      [destination.droppableId]: { ...destColumn, items: updatedTasks },
     };
 
     setColumns(updatedColumns);
 
     try {
       await axios.put("http://localhost:5000/api/tasks/reorder", {
-        tasks: updatedTasks
+        tasks: updatedTasks,
       });
     } catch (error) {
       console.error("Error updating task order:", error);
@@ -154,14 +137,14 @@ const TaskList = () => {
         title: newTaskTitle,
         priority: selectedPriority,
         status: "backlog",
-        userId: userId
+        userId: userId,
       });
 
       const newTask = res.data;
 
       setColumns((prevColumns) => ({
         ...prevColumns,
-        backlog: { ...prevColumns.backlog, items: [...prevColumns.backlog.items, newTask] }
+        backlog: { ...prevColumns.backlog, items: [...prevColumns.backlog.items, newTask] },
       }));
 
       setNewTaskTitle(""); // Reset input
@@ -195,41 +178,47 @@ const TaskList = () => {
       </div>
 
       <DragDropContext onDragEnd={handleDragEnd}>
-        {/* 🔹 Make columns draggable */}
         <Droppable droppableId="all-columns" direction="horizontal" type="COLUMN">
           {(provided) => (
-            <div ref={provided.innerRef} {...provided.droppableProps} className="kanban-board">
-              {columnOrder.map((id, index) => (
-                <Draggable key={id} draggableId={id} index={index}>
+            <div
+              ref={provided.innerRef}
+              {...provided.droppableProps}
+              className="kanban-board"
+            >
+              {Object.keys(columns).map((columnId, index) => (
+                <Draggable key={columnId} draggableId={columnId} index={index}>
                   {(provided) => (
                     <div
                       ref={provided.innerRef}
                       {...provided.draggableProps}
                       className="kanban-column"
                     >
-                      <h2 {...provided.dragHandleProps}>{columns[id].name}</h2>
-                      <Droppable droppableId={id} type="TASK">
+                      <h2 {...provided.dragHandleProps}>{columns[columnId].name}</h2>
+                      <Droppable droppableId={columnId} type="TASK">
                         {(provided) => (
                           <div
                             ref={provided.innerRef}
                             {...provided.droppableProps}
-                            className="droppable-area" // Ensure this class is applied
+                            className="droppable-area"
                           >
-                            {columns[id].items.map((task, index) => (
+                            {columns[columnId].items.map((task, index) => (
                               <Draggable key={task._id} draggableId={task._id} index={index}>
                                 {(provided) => (
-                                  <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} className="task-card">
+                                  <div
+                                    ref={provided.innerRef}
+                                    {...provided.draggableProps}
+                                    {...provided.dragHandleProps}
+                                    className="task-card"
+                                  >
                                     <span>{task.title}</span>
-
-                                    {/* New bottom section for priority & other details */}
                                     <div className="task-bottom">
-                                      <b className={`priority-${task.priority.replace(/\s+/g, '')}`}>{task.priority}</b>
-                                      {/* Add any additional details here */}
+                                      <b className={`priority-${task.priority.replace(/\s+/g, "")}`}>
+                                        {task.priority}
+                                      </b>
                                     </div>
                                   </div>
                                 )}
                               </Draggable>
-
                             ))}
                             {provided.placeholder}
                           </div>
