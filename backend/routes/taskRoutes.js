@@ -94,7 +94,7 @@ router.get("/:userId", async (req, res) => {
     const { userId } = req.params;
     if (!userId) return res.status(400).json({ error: "User ID is required" });
 
-    // ✅ Fetch tasks sorted by order
+    // Fetch all tasks for the user, sorted by order
     const tasks = await Task.find({ userId }).sort({ order: 1 });
     res.json(tasks);
   } catch (error) {
@@ -173,19 +173,27 @@ router.put("/columns/order", async (req, res) => {
 router.get("/columns/order/:userId", async (req, res) => {
   try {
     const { userId } = req.params;
-    const user = await User.findOne({ userId });
 
+    // Check if the user exists, if not, create a new user document
+    let user = await User.findOne({ userId });
     if (!user) {
-      return res.json({ columnOrder: ["backlog", "todo", "done"] }); // Default order if no data
+      user = new User({
+        userId,
+        columnOrder: ["backlog", "todo", "done"],
+        columnNames: new Map([["backlog", "Backlog"], ["todo", "Todo"], ["done", "Done"]]),
+      });
+      await user.save();
     }
 
-    res.json({ columnOrder: user.columnOrder });
+    // Convert the Map to a plain object for JSON serialization
+    const columnNames = Object.fromEntries(user.columnNames);
+
+    res.json({ columnOrder: user.columnOrder, columnNames });
   } catch (error) {
     console.error("❌ Error fetching column order:", error);
     res.status(500).json({ error: "Failed to fetch column order" });
   }
 });
-
 
 router.put("/tasks/reorder", async (req, res) => {
   try {
@@ -215,5 +223,99 @@ router.put("/tasks/reorder", async (req, res) => {
   }
 });
 
+router.post("/columns/create", async (req, res) => {
+  try {
+    const { userId, columnName } = req.body;
+    if (!userId || !columnName) {
+      return res.status(400).json({ error: "User ID and column name are required" });
+    }
+
+    // Check if the user exists, if not, create a new user document
+    let user = await User.findOne({ userId });
+    if (!user) {
+      user = new User({
+        userId,
+        columnOrder: ["backlog", "todo", "done"],
+        columnNames: new Map([["backlog", "Backlog"], ["todo", "Todo"], ["done", "Done"]]),
+      });
+      await user.save();
+    }
+
+    // Generate a unique ID for the new column
+    const newColumnId = `column-${Date.now()}`;
+
+    // Add the new column to the columnOrder array
+    user.columnOrder.push(newColumnId);
+
+    // Add the new column's name to the columnNames map
+    user.columnNames.set(newColumnId, columnName);
+
+    // Save the updated user
+    await user.save();
+
+    res.json({ message: "Board created successfully", columnId: newColumnId, columnName });
+  } catch (error) {
+    console.error("❌ Error creating board:", error);
+    res.status(500).json({ error: "Failed to create board" });
+  }
+});
+
+// ✅ Rename a board
+router.put("/columns/rename", async (req, res) => {
+  try {
+    const { userId, columnId, newName } = req.body;
+    if (!userId || !columnId || !newName) {
+      return res.status(400).json({ error: "User ID, column ID, and new name are required" });
+    }
+
+    const user = await User.findOne({ userId });
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Update the column name in the columnNames map
+    user.columnNames.set(columnId, newName);
+
+    // Save the updated user
+    await user.save();
+
+    res.json({ message: "Board renamed successfully" });
+  } catch (error) {
+    console.error("❌ Error renaming board:", error);
+    res.status(500).json({ error: "Failed to rename board" });
+  }
+});
+
+// ✅ Delete a board
+router.delete("/columns/delete", async (req, res) => {
+  try {
+    const { userId, columnId } = req.body;
+    if (!userId || !columnId) {
+      return res.status(400).json({ error: "User ID and column ID are required" });
+    }
+
+    const user = await User.findOne({ userId });
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Prevent deletion of default boards
+    const defaultBoards = ["backlog", "todo", "done"];
+
+    // Remove the column from the columnOrder array
+    user.columnOrder = user.columnOrder.filter((id) => id !== columnId);
+
+    // Remove the column from the columnNames map
+    user.columnNames.delete(columnId);
+
+    // Save the updated user
+    await user.save();
+
+    res.json({ message: "Board deleted successfully" });
+  } catch (error) {
+    console.error("❌ Error deleting board:", error);
+    res.status(500).json({ error: "Failed to delete board" });
+  }
+});
 
 module.exports = router;

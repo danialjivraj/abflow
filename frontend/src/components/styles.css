@@ -8,7 +8,7 @@ body {
 
 .kanban-container {
     padding: 20px;
-    max-width: 1200px;
+    max-width: 1800px;
     margin: 0 auto;
 }
 
@@ -56,7 +56,6 @@ select {
 .kanban-board {
     display: flex;
     gap: 0;
-    /* No gap between columns */
     align-items: flex-start;
     overflow-x: auto;
     padding-bottom: 10px;
@@ -66,7 +65,8 @@ select {
 .kanban-column {
     background-color: #2a2a2a;
     border-radius: 4px;
-    padding: 10px;
+    padding: 5px;
+    /* Remove padding */
     width: 300px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     min-height: 100px;
@@ -83,7 +83,7 @@ select {
 /* Droppable Area Styles */
 .kanban-column .droppable-area {
     min-height: 10px;
-    padding: 10px;
+    padding: 0;
     background-color: transparent;
     border: none;
 }
@@ -92,37 +92,34 @@ select {
 .task-card {
     background-color: #3a3a3a;
     border-radius: 4px;
-    padding: 10px;
-    margin-bottom: 10px;
+    padding: 14px;
+    margin-bottom: 5px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     color: #ffffff;
     display: flex;
     flex-direction: column;
-    justify-content: space-between; /* Ensures text stays up & bottom area stays down */
-    position: relative; /* Keeps content structured */
+    justify-content: space-between;
+    position: relative;
 }
 
-/* Ensure text stays at the top */
 .task-card span {
     font-weight: bold;
     word-break: break-word;
     overflow-wrap: break-word;
     white-space: normal;
     display: block;
-    flex-grow: 1; /* Ensures text takes up available space */
+    flex-grow: 1;
+    margin-right: 25px;
 }
 
-/* New bottom section that aligns content horizontally */
 .task-card .task-bottom {
     display: flex;
-    justify-content: flex-end; /* Aligns items to the right */
-    align-items: center; /* Keeps everything aligned */
-    margin-top: 10px; /* Ensures spacing from text */
-    gap: 8px; /* Adds spacing between items */
+    justify-content: flex-end;
+    align-items: center;
+    margin-top: 10px;
+    gap: 8px;
 }
 
-
-/* Priority indicator stays at the bottom-right */
 .task-card b {
     font-size: 12px;
     display: flex;
@@ -135,37 +132,46 @@ select {
     color: white;
 }
 
-/* Priority Font Colors */
 .task-card b.priority-A1 {
     color: #ff4d4d;
 }
+
 .task-card b.priority-A2 {
     color: #ff6666;
 }
+
 .task-card b.priority-A3 {
     color: #ff9999;
 }
+
 .task-card b.priority-B1 {
     color: #4d4dff;
 }
+
 .task-card b.priority-B2 {
     color: #6666ff;
 }
+
 .task-card b.priority-B3 {
     color: #9999ff;
 }
+
 .task-card b.priority-C1 {
     color: #4dff4d;
 }
+
 .task-card b.priority-C2 {
     color: #66ff66;
 }
+
 .task-card b.priority-C3 {
     color: #99ff99;
 }
+
 .task-card b.priority-D {
     color: #cc66ff;
 }
+
 .task-card b.priority-E {
     color: #ff9966;
 }
@@ -186,13 +192,11 @@ select {
     background-color: #333;
 }
 
-/* Placeholder Styles */
 [data-rbd-placeholder-context-id] {
     background-color: #444;
     border-radius: 4px;
 }
 
-/* Scrollbar Styles */
 .kanban-column::-webkit-scrollbar {
     width: 8px;
 }
@@ -209,3 +213,218 @@ select {
 .kanban-column::-webkit-scrollbar-thumb:hover {
     background: #555;
 }
+
+.column-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    padding: 10px 0px;
+    /* Reduced padding, 3px on sides */
+    width: 100%;
+    /* Ensure it spans the full width */
+    box-sizing: border-box;
+    /* Include padding in width calculation */
+}
+
+.column-header h2 {
+    margin: 0;
+}
+
+.column-actions {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.dots-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: #ffffff;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+    outline: none;
+    opacity: 0;
+}
+
+.column-header:hover .dots-button {
+    opacity: 1;
+}
+
+.dots-button.active {
+    opacity: 1;
+}
+
+.dots-button:focus {
+    outline: none;
+}
+
+.dots-button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: #2a2a2a;
+    border: 1px solid #444;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    z-index: 10;
+    display: none;
+}
+
+.dropdown-menu.open {
+    display: block;
+}
+
+.dropdown-menu button {
+    display: block;
+    width: 100%;
+    padding: 8px 16px;
+    text-align: left;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #ffffff;
+    transition: background-color 0.2s ease;
+}
+
+.dropdown-menu button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.board-actions {
+    margin-bottom: 16px;
+}
+
+.board-actions input {
+    padding: 8px;
+    margin-right: 8px;
+}
+
+.board-actions button {
+    padding: 8px 16px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.board-actions button:hover {
+    background: #0056b3;
+}
+
+.task-actions {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+.task-card:hover .dots-button {
+    opacity: 1;
+}
+
+/* Hide dots by default */
+.task-card .dots-button {
+    opacity: 0;
+    transition: opacity 0.14s ease;
+}
+
+.task-card .dots-button.active {
+    opacity: 1;
+}
+
+/* Position dropdown menu */
+.task-card .dropdown-menu {
+    top: 30px;
+    right: 0;
+    display: none;
+}
+
+/* Show dropdown menu when open */
+.task-card .dropdown-menu.open {
+    display: block;
+}
+
+/* Show dots on hover or when dropdown is open */
+.task-card:hover .dots-button.visible,
+.task-card .dots-button.visible {
+    opacity: 1;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.8); /* Darker overlay for better contrast */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Ensure the modal is on top */
+  }
+  
+  .modal-content {
+    background-color: #2a2a2a; /* Dark background */
+    padding: 20px;
+    border-radius: 8px;
+    width: 400px;
+    max-width: 90%;
+    color: #ffffff; /* White text */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Add shadow for better visibility */
+  }
+  
+  .modal-content input,
+  .modal-content select,
+  .modal-content textarea {
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 8px;
+    border: 1px solid #444; /* Dark border */
+    border-radius: 4px;
+    background-color: #3a3a3a; /* Dark input background */
+    color: #ffffff; /* White text */
+  }
+  
+  .modal-content input::placeholder,
+  .modal-content textarea::placeholder {
+    color: #888; /* Placeholder text color */
+  }
+  
+  .modal-content button {
+    margin-right: 10px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background-color: #4CAF50; /* Green button */
+    color: #ffffff; /* White text */
+    transition: background-color 0.2s ease;
+  }
+  
+  .modal-content button:hover {
+    background-color: #45a049; /* Darker green on hover */
+  }
+  
+  .modal-content button:last-child {
+    margin-right: 0;
+    background-color: #ff4d4d; /* Red button for cancel */
+  }
+  
+  .modal-content button:last-child:hover {
+    background-color: #cc0000; /* Darker red on hover */
+  }
+
+  
