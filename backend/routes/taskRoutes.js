@@ -6,7 +6,7 @@ const User = require("../models/User"); // Import User model
 // ✅ Create Task
 router.post("/", async (req, res) => {
   try {
-    const { title, priority, userId } = req.body;
+    const { title, priority, userId, description } = req.body;
     if (!title || !priority || !userId) {
       return res.status(400).json({ error: "All fields are required" });
     }
@@ -22,8 +22,9 @@ router.post("/", async (req, res) => {
       title, 
       priority, 
       userId, 
-      status: "backlog", // ✅ Default status when created
-      points: pointsMap[priority] || 0 
+      status: "backlog",
+      points: pointsMap[priority] || 0,
+      description: description || "" // Include description
     });
 
     await newTask.save();
@@ -33,7 +34,6 @@ router.post("/", async (req, res) => {
     res.status(500).json({ error: "Failed to create task" });
   }
 });
-
 
 // ✅ Move Task (Change Status & Award Points)
 router.put("/:id/move", async (req, res) => {
