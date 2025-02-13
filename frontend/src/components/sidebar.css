@@ -1,104 +1,126 @@
 /* Sidebar.css */
 .sidebar {
-    width: 250px; /* Fixed width for the sidebar */
-    background-color: #2a2a2a; /* Dark background for the sidebar */
-    color: #ffffff; /* Light text color */
-    padding: 20px;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Add a shadow for depth */
-    height: 100vh; /* Full height */
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between; /* Space between top content and logout button */
-    box-sizing: border-box; /* Include padding in height calculation */
-    overflow-y: auto; /* Add scroll if content overflows */
-  }
-  
-  .sidebar-content {
-    flex: 1; /* Take up remaining space */
-  }
-  
-  .sidebar h2 {
-    font-size: 24px;
-    font-weight: bold;
-    color: #4CAF50; /* Accent color for the title */
-    margin-bottom: 20px;
-  }
-  
-  .sidebar nav ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-  
-  .sidebar nav ul li {
-    margin-bottom: 15px;
-    padding: 10px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.2s ease, transform 0.2s ease;
-  }
-  
-  .sidebar nav ul li:hover {
-    background-color: #3a3a3a; /* Slightly lighter background on hover */
-    transform: translateX(5px); /* Slight move to the right on hover */
-  }
-  
-  .sidebar nav ul li.active {
-    background-color: #4CAF50; /* Highlight active link */
-    color: #ffffff;
-    font-weight: bold;
-  }
-  
-  .logout-btn {
-    background-color: #ef4444; /* Red color */
-    color: white;
-    border: none;
-    padding: 10px 14px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background 0.2s ease-in-out;
-  }
-  
-  .logout-btn:hover {
-    background-color: #dc2626; /* Darker red on hover */
-  }
-  
+  width: 250px;
+  /* Fixed width for the sidebar */
+  background-color: #2a2a2a;
+  /* Dark background for the sidebar */
+  color: #ffffff;
+  /* Light text color */
+  padding: 20px;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  /* Add a shadow for depth */
+  height: 100vh;
+  /* Full height */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  /* Space between top content and logout button */
+  box-sizing: border-box;
+  /* Include padding in height calculation */
+  overflow-y: auto;
+  /* Add scroll if content overflows */
+}
 
+.sidebar-content {
+  flex: 1;
+  /* Take up remaining space */
+}
 
+.sidebar h2 {
+  font-size: 24px;
+  font-weight: bold;
+  color: #4CAF50;
+  /* Accent color for the title */
+  margin-bottom: 20px;
+}
 
-  /* Layout.css */
+.sidebar nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar nav ul li {
+  margin-bottom: 15px;
+  padding: 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.sidebar nav ul li:hover {
+  background-color: #3a3a3a;
+  /* Slightly lighter background on hover */
+  transform: translateX(5px);
+  /* Slight move to the right on hover */
+}
+
+.sidebar nav ul li.active {
+  background-color: #4CAF50;
+  /* Highlight active link */
+  color: #ffffff;
+  font-weight: bold;
+}
+
+.logout-btn {
+  background-color: #ef4444;
+  /* Red color */
+  color: white;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.2s ease-in-out;
+}
+
+.logout-btn:hover {
+  background-color: #dc2626;
+  /* Darker red on hover */
+}
+
+/* Layout.css */
 .dashboard-container {
-    display: flex;
-    min-height: 100vh; /* Ensure the container takes up the full viewport height */
-  }
-  
+  display: flex;
+  min-height: 100vh;
+  /* Ensure the container takes up the full viewport height */
+}
+
+.sidebar-container {
+  width: 250px;
+  /* Fixed width for the sidebar */
+  background-color: #2a2a2a;
+  /* Dark background for the sidebar */
+  color: #ffffff;
+  /* Light text color */
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  /* Add a shadow for depth */
+  position: fixed;
+  /* Fix the sidebar to the left */
+  height: 100vh;
+  /* Full height */
+  overflow-y: auto;
+  /* Add scroll if content overflows */
+}
+
+.main-content {
+  flex: 1;
+  margin-left: 250px; /* This should match the sidebar width */
+  padding: 20px;
+  margin-top: 40px; /* Add this line to create space between the top bar and main content */
+}
+
+
+
+/* Responsive Design */
+@media (max-width: 768px) {
   .sidebar-container {
-    width: 250px; /* Fixed width for the sidebar */
-    background-color: #2a2a2a; /* Dark background for the sidebar */
-    color: #ffffff; /* Light text color */
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Add a shadow for depth */
-    position: fixed; /* Fix the sidebar to the left */
-    height: 100vh; /* Full height */
-    overflow-y: auto; /* Add scroll if content overflows */
+    width: 200px;
+    /* Reduce sidebar width on smaller screens */
   }
-  
+
   .main-content {
-    flex: 1; /* Take up the remaining space */
-    margin-left: 250px; /* Offset by the width of the sidebar */
-    padding: 20px;
-    background-color: #1a1a1a; /* Dark background for the main content */
-    color: #ffffff; /* Light text color */
-    min-height: 100vh; /* Ensure it takes up the full height */
+    margin-left: 200px;
+    /* Adjust margin to match the sidebar width */
   }
-  
-  /* Responsive Design */
-  @media (max-width: 768px) {
-    .sidebar-container {
-      width: 200px; /* Reduce sidebar width on smaller screens */
-    }
-  
-    .main-content {
-      margin-left: 200px; /* Adjust margin to match the sidebar width */
-    }
-  }
+}

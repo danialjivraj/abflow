@@ -9,10 +9,11 @@ const TaskSchema = new mongoose.Schema({
   },
   status: { type: String, enum: ["backlog", "todo", "done"], default: "backlog" },
   userId: { type: String, required: true },
+  assignedTo: { type: String, default: "" }, // New field for assigned user
   createdAt: { type: Date, default: Date.now },
   points: { type: Number, default: 0 },
   order: { type: Number, default: 0 },
-  description: { type: String, default: "" } // Add description field
+  description: { type: String, default: "" }
 });
 
 const Task = mongoose.model("Task", TaskSchema);

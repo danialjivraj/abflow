@@ -6,7 +6,7 @@ const User = require("../models/User"); // Import User model
 // ✅ Create Task
 router.post("/", async (req, res) => {
   try {
-    const { title, priority, userId, description } = req.body;
+    const { title, priority, userId, description, assignedTo } = req.body;
     if (!title || !priority || !userId) {
       return res.status(400).json({ error: "All fields are required" });
     }
@@ -24,7 +24,8 @@ router.post("/", async (req, res) => {
       userId, 
       status: "backlog",
       points: pointsMap[priority] || 0,
-      description: description || "" // Include description
+      description: description || "",
+      assignedTo: assignedTo || "" // Include assignedTo field
     });
 
     await newTask.save();
