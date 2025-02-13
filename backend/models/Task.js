@@ -7,9 +7,9 @@ const TaskSchema = new mongoose.Schema({
     enum: ["A1", "A2", "A3", "B1", "B2", "B3", "C1", "C2", "C3", "D", "E"], 
     required: true 
   },
-  status: { type: String, enum: ["backlog", "todo", "done"], default: "backlog" },
+  status: { type: String, required: true }, // Remove enum constraint
   userId: { type: String, required: true },
-  assignedTo: { type: String, default: "" }, // New field for assigned user
+  assignedTo: { type: String, default: "" },
   createdAt: { type: Date, default: Date.now },
   points: { type: Number, default: 0 },
   order: { type: Number, default: 0 },

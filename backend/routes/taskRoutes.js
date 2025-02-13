@@ -6,10 +6,19 @@ const User = require("../models/User"); // Import User model
 // ✅ Create Task
 router.post("/", async (req, res) => {
   try {
-    const { title, priority, userId, description, assignedTo } = req.body;
-    if (!title || !priority || !userId) {
+    const { title, priority, userId, description, assignedTo, status } = req.body;
+    if (!title || !priority || !userId || !status) {
       return res.status(400).json({ error: "All fields are required" });
     }
+
+    // Find the highest order value for tasks in the same column
+    const highestOrderTask = await Task.findOne({ userId, status })
+      .sort({ order: -1 }) // Sort in descending order
+      .select("order") // Only fetch the order field
+      .exec();
+
+    const highestOrder = highestOrderTask ? highestOrderTask.order : -1; // Default to -1 if no tasks exist
+    const newOrder = highestOrder + 1; // Set the new task's order to the next value
 
     const pointsMap = {
       "A1": 10, "A2": 8, "A3": 6,
@@ -18,14 +27,15 @@ router.post("/", async (req, res) => {
       "D": 0, "E": 0
     };
 
-    const newTask = new Task({ 
-      title, 
-      priority, 
-      userId, 
-      status: "backlog",
+    const newTask = new Task({
+      title,
+      priority,
+      userId,
+      status: status,
       points: pointsMap[priority] || 0,
       description: description || "",
-      assignedTo: assignedTo || "" // Include assignedTo field
+      assignedTo: assignedTo || "",
+      order: newOrder // Set the calculated order
     });
 
     await newTask.save();
@@ -180,8 +190,8 @@ router.get("/columns/order/:userId", async (req, res) => {
     if (!user) {
       user = new User({
         userId,
-        columnOrder: ["backlog", "todo", "done"],
-        columnNames: new Map([["backlog", "Backlog"], ["todo", "Todo"], ["done", "Done"]]),
+        columnOrder: ["backlog", "inprogress", "done"],
+        columnNames: new Map([["backlog", "Backlog"], ["inprogress", "In Progress"], ["done", "Done"]]),
       });
       await user.save();
     }
@@ -236,8 +246,6 @@ router.post("/columns/create", async (req, res) => {
     if (!user) {
       user = new User({
         userId,
-        columnOrder: ["backlog", "todo", "done"],
-        columnNames: new Map([["backlog", "Backlog"], ["todo", "Todo"], ["done", "Done"]]),
       });
       await user.save();
     }
@@ -299,9 +307,6 @@ router.delete("/columns/delete", async (req, res) => {
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
-
-    // Prevent deletion of default boards
-    const defaultBoards = ["backlog", "todo", "done"];
 
     // Remove the column from the columnOrder array
     user.columnOrder = user.columnOrder.filter((id) => id !== columnId);

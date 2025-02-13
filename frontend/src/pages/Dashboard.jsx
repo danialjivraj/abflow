@@ -10,16 +10,10 @@ import Layout from "../components/Layout";
 import "../components/topBar.css";
 import "../components/tipTapEditor.css";
 
-const initialColumns = {
-  backlog: { name: "Backlog", items: [] },
-  todo: { name: "Todo", items: [] },
-  done: { name: "Done", items: [] },
-};
-
 const allowedPriorities = ["A1", "A2", "A3", "B1", "B2", "B3", "C1", "C2", "C3", "D", "E"];
 
 const Dashboard = () => {
-  const [columns, setColumns] = useState(initialColumns);
+  const [columns, setColumns] = useState("");
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [selectedPriority, setSelectedPriority] = useState("A1");
   const [userId, setUserId] = useState(null);
@@ -37,6 +31,7 @@ const Dashboard = () => {
   const [newBoardCreateName, setNewBoardCreateName] = useState("");
   const [user, setUser] = useState(null);
   const [assignedTo, setAssignedTo] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState("");
 
   useEffect(() => {
     const user = auth.currentUser;
@@ -57,11 +52,6 @@ const Dashboard = () => {
         ]);
 
         const groupedTasks = {};
-        const defaultColumns = {
-          backlog: { name: "Backlog", items: [] },
-          todo: { name: "Todo", items: [] },
-          done: { name: "Done", items: [] },
-        };
 
         const savedColumnOrder = columnOrderRes.data.columnOrder;
         const savedColumnNames = columnOrderRes.data.columnNames || {};
@@ -166,6 +156,9 @@ const Dashboard = () => {
 
   const openModal = () => {
     setIsModalOpen(true);
+    // Set the selectedStatus to the first column ID (or any valid column ID)
+    const firstColumnId = Object.keys(columns)[0];
+    setSelectedStatus(firstColumnId);
   };
 
   const closeModal = () => {
@@ -184,22 +177,25 @@ const Dashboard = () => {
       const res = await axios.post("http://localhost:5000/api/tasks", {
         title: newTaskTitle,
         priority: selectedPriority,
-        status: "backlog", // Default status, can be changed in the modal
+        status: selectedStatus, // Ensure this is being passed correctly
         userId: userId,
         description: taskDescription,
-        assignedTo: assignedTo // Include assignedTo field
+        assignedTo: assignedTo,
       });
 
       const newTask = res.data;
 
-      setColumns((prevColumns) => ({
-        ...prevColumns,
-        backlog: { ...prevColumns.backlog, items: [...prevColumns.backlog.items, newTask] },
-      }));
+      setColumns((prevColumns) => {
+        const targetColumn = prevColumns[selectedStatus] || { name: selectedStatus, items: [] };
+        return {
+          ...prevColumns,
+          [selectedStatus]: { ...targetColumn, items: [...targetColumn.items, newTask] },
+        };
+      });
 
       setNewTaskTitle("");
       setTaskDescription("");
-      setAssignedTo(""); // Reset assignedTo field
+      setAssignedTo("");
       closeModal();
     } catch (error) {
       console.error("Error adding task:", error);
@@ -219,7 +215,7 @@ const Dashboard = () => {
 
       setColumns((prevColumns) => ({
         ...prevColumns,
-        [columnId]: { name: columnName, items: [] },
+        [columnId]: { name: columnName, items: [] }, // Ensure items array is initialized
       }));
 
       setNewBoardCreateName("");
@@ -476,7 +472,7 @@ const Dashboard = () => {
                     ))}
                   </select>
                   <label>Status:</label>
-                  <select>
+                  <select value={selectedStatus} onChange={(e) => setSelectedStatus(e.target.value)}>
                     {Object.keys(columns).map(columnId => (
                       <option key={columnId} value={columnId}>{columns[columnId].name}</option>
                     ))}
