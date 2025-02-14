@@ -1,31 +1,31 @@
-  .top-bar {
-    position: fixed;
-    top: 0;
-    left: 250px;
-    right: 0;
-    height: 50px;
-    background-color: #2a2a2a;
-    display: flex;
-    align-items: center;
-    padding: 0 20px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    z-index: 999;
-    gap: 10px;
-    border-bottom: 1px solid #444;
-    margin-bottom: 100px;
-  }
+.top-bar {
+  position: fixed;
+  top: 0;
+  left: 225px; /* Reduced from 250px */
+  right: 0;
+  height: 50px; /* Increased from 45px to make it taller */
+  background-color: #2a2a2a;
+  display: flex;
+  align-items: center;
+  padding: 0 18px; /* Reduced from 20px */
+  box-shadow: 0 1.8px 3.6px rgba(0, 0, 0, 0.2); /* Reduced from 2px 4px */
+  z-index: 999;
+  gap: 9px; /* Reduced from 10px */
+  border-bottom: 1px solid #444;
+  margin-bottom: 90px; /* Reduced from 100px */
+}
 
-  .create-top-bar-task-btn {
-    background-color: #2d74d1;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.2s ease;
-  }
+.create-top-bar-task-btn {
+  background-color: #2d74d1;
+  color: white;
+  border: none;
+  padding: 7.2px 14.4px; /* Reduced from 8px 16px */
+  border-radius: 3.6px; /* Reduced from 4px */
+  cursor: pointer;
+  font-size: 14.6px; /* Reduced from 14px */
+  transition: background-color 0.2s ease;
+}
 
-  .create-top-bar-task-btn:hover {
-    background-color: #0056b3;
-  }
+.create-top-bar-task-btn:hover {
+  background-color: #0056b3;
+}

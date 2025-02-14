@@ -32,6 +32,47 @@ const Dashboard = () => {
   const [user, setUser] = useState(null);
   const [assignedTo, setAssignedTo] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("");
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  const startTimer = async (taskId) => {
+    try {
+      await axios.put(`http://localhost:5000/api/tasks/${taskId}/start-timer`);
+
+      // Update the columns state
+      setColumns((prevColumns) => {
+        const updatedColumns = { ...prevColumns };
+        Object.keys(updatedColumns).forEach((columnId) => {
+          updatedColumns[columnId].items = updatedColumns[columnId].items.map((task) =>
+            task._id === taskId ? { ...task, isTimerRunning: true } : task
+          );
+        });
+        return updatedColumns;
+      });
+    } catch (error) {
+      console.error("Error starting timer:", error);
+    }
+  };
+
+  const stopTimer = async (taskId) => {
+    try {
+      await axios.put(`http://localhost:5000/api/tasks/${taskId}/stop-timer`);
+
+      // Update the columns state
+      setColumns((prevColumns) => {
+        const updatedColumns = { ...prevColumns };
+        Object.keys(updatedColumns).forEach((columnId) => {
+          updatedColumns[columnId].items = updatedColumns[columnId].items.map((task) =>
+            task._id === taskId ? { ...task, isTimerRunning: false } : task
+          );
+        });
+        return updatedColumns;
+      });
+
+      console.log(`Timer stopped for task ${taskId}`);
+    } catch (error) {
+      console.error("Error stopping timer:", error);
+    }
+  };
 
   useEffect(() => {
     const user = auth.currentUser;
@@ -65,7 +106,10 @@ const Dashboard = () => {
 
         tasksRes.data.forEach((task) => {
           if (groupedTasks[task.status]) {
-            groupedTasks[task.status].items.push(task);
+            groupedTasks[task.status].items.push({
+              ...task,
+              isTimerRunning: task.isTimerRunning || false, // Ensure isTimerRunning is included
+            });
           }
         });
 
@@ -92,6 +136,62 @@ const Dashboard = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(new Date()); // Update the current time every minute
+    }, 1000);
+
+    return () => clearInterval(interval); // Cleanup the interval on component unmount
+  }, []);
+
+  const formatDueDate = (dueDate, currentTime) => {
+    const due = new Date(dueDate);
+    const diffInMs = due - currentTime;
+
+    const formatValue = (value, singular, plural) => {
+      const formatted = value === Math.floor(value) ? Math.floor(value) : value.toFixed(1);
+      const num = formatted.toString().replace(/\.0$/, "");
+      return `${num} ${num === "1" ? singular : plural}`;
+    };
+
+    const calculateTimeDifference = (diff) => {
+      const diffInSeconds = diff / 1000;
+      const diffInMinutes = diffInSeconds / 60;
+      const diffInHours = diffInMinutes / 60;
+      const diffInDays = diffInHours / 24;
+      const diffInWeeks = diffInDays / 7;
+      const diffInMonths = diffInDays / 30;
+      const diffInYears = diffInDays / 365;
+
+      return { diffInSeconds, diffInMinutes, diffInHours, diffInDays, diffInWeeks, diffInMonths, diffInYears };
+    };
+
+    const generateText = (diffValues, prefix) => {
+      if (diffValues.diffInSeconds < 60) {
+        return `${prefix} ${Math.round(diffValues.diffInSeconds)} second${Math.round(diffValues.diffInSeconds) === 1 ? "" : "s"}`;
+      } else if (diffValues.diffInMinutes < 60) {
+        return `${prefix} ${Math.round(diffValues.diffInMinutes)} minute${Math.round(diffValues.diffInMinutes) === 1 ? "" : "s"}`;
+      } else if (diffValues.diffInHours < 24) {
+        return `${prefix} ${formatValue(diffValues.diffInHours, "hour", "hours")}`;
+      } else if (diffValues.diffInDays < 7) {
+        return `${prefix} ${formatValue(diffValues.diffInDays, "day", "days")}`;
+      } else if (diffValues.diffInWeeks < 4) {
+        return `${prefix} ${formatValue(diffValues.diffInWeeks, "week", "weeks")}`;
+      } else if (diffValues.diffInMonths < 12) {
+        return `${prefix} ${formatValue(diffValues.diffInMonths, "month", "months")}`;
+      } else {
+        return `${prefix} ${formatValue(diffValues.diffInYears, "year", "years")}`;
+      }
+    };
+
+    if (diffInMs < 0) {
+      return { text: generateText(calculateTimeDifference(Math.abs(diffInMs)), "Overdue by"), isOverdue: true };
+    }
+    return { text: generateText(calculateTimeDifference(diffInMs), "Due in"), isOverdue: false };
+  };
+
+
 
   const handleDragEnd = async (result) => {
     const { source, destination, type } = result;
@@ -177,25 +277,29 @@ const Dashboard = () => {
       const res = await axios.post("http://localhost:5000/api/tasks", {
         title: newTaskTitle,
         priority: selectedPriority,
-        status: selectedStatus, // Ensure this is being passed correctly
+        status: selectedStatus,
         userId: userId,
         description: taskDescription,
         assignedTo: assignedTo,
+        dueDate: dueDate,
       });
 
       const newTask = res.data;
+      console.log("Task created successfully:", newTask);
 
       setColumns((prevColumns) => {
         const targetColumn = prevColumns[selectedStatus] || { name: selectedStatus, items: [] };
+        const updatedItems = [...targetColumn.items, newTask];
         return {
           ...prevColumns,
-          [selectedStatus]: { ...targetColumn, items: [...targetColumn.items, newTask] },
+          [selectedStatus]: { ...targetColumn, items: updatedItems },
         };
       });
 
       setNewTaskTitle("");
       setTaskDescription("");
       setAssignedTo("");
+      setDueDate(null);
       closeModal();
     } catch (error) {
       console.error("Error adding task:", error);
@@ -365,18 +469,45 @@ const Dashboard = () => {
                                       {...provided.draggableProps}
                                       {...provided.dragHandleProps}
                                       className="task-card"
-                                      onMouseEnter={() => setIsTaskHovered(task._id)}
-                                      onMouseLeave={() => {
-                                        if (isTaskDropdownOpen !== task._id) {
-                                          setIsTaskHovered(null);
-                                        }
-                                      }}
                                     >
                                       <span>{task.title}</span>
                                       <div className="task-bottom">
+                                        {/* Due Date (Far Left) */}
+                                        {task.dueDate && (
+                                          <span
+                                            className={`due-date ${formatDueDate(task.dueDate, currentTime).isOverdue ? "overdue" : ""}`}
+                                          >
+                                            {formatDueDate(task.dueDate, currentTime).text}
+                                          </span>
+                                        )}
+
+                                        {/* Clock Icon (Only shown if timer is active) */}
+                                        {task.isTimerRunning && (
+                                          <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth="2"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            className="alarm-clock-icon"
+                                          >
+                                            <circle cx="12" cy="13" r="8" />
+                                            <path d="M12 9v4l2 2" />
+                                            <path d="M5 3L2 6" />
+                                            <path d="M22 6l-3-3" />
+                                            <path d="M6 19l-2 2" />
+                                            <path d="M18 19l2 2" />
+                                          </svg>
+                                        )}
+
+                                        {/* Priority Letters */}
                                         <b className={`priority-${task.priority.replace(/\s+/g, "")}`}>
                                           {task.priority}
                                         </b>
+
+                                        {/* Task Actions (Dots Button, Far Right) */}
                                         <div className="task-actions">
                                           <button
                                             className={`dots-button ${isTaskHovered === task._id || isTaskDropdownOpen === task._id ? "visible" : ""}`}
@@ -385,7 +516,22 @@ const Dashboard = () => {
                                             &#8942;
                                           </button>
                                           {isTaskDropdownOpen === task._id && (
-                                            <div className={`dropdown-menu ${isTaskDropdownOpen === task._id ? "open" : ""}`} ref={dropdownRef}>
+                                            <div
+                                              className={`dropdown-menu ${isTaskDropdownOpen === task._id ? "open" : ""}`}
+                                              ref={dropdownRef}
+                                            >
+                                              <button
+                                                onClick={() => {
+                                                  if (task.isTimerRunning) {
+                                                    stopTimer(task._id);
+                                                  } else {
+                                                    startTimer(task._id);
+                                                  }
+                                                  setIsTaskDropdownOpen(false); // Close the dropdown after clicking
+                                                }}
+                                              >
+                                                {task.isTimerRunning ? "Stop Timer" : "Start Timer"}
+                                              </button>
                                               <button onClick={() => deleteTask(task._id)}>Delete</button>
                                             </div>
                                           )}
@@ -465,7 +611,7 @@ const Dashboard = () => {
                     value={newTaskTitle}
                     onChange={(e) => setNewTaskTitle(e.target.value)}
                   />
-                  <label>Letter:</label>
+                  <label>Priority:</label>
                   <select value={selectedPriority} onChange={(e) => setSelectedPriority(e.target.value)}>
                     {allowedPriorities.map(priority => (
                       <option key={priority} value={priority}>{priority}</option>

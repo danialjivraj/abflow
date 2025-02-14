@@ -1,37 +1,27 @@
 /* Sidebar.css */
 .sidebar {
-  width: 250px;
-  /* Fixed width for the sidebar */
+  width: 225px; /* Reduced from 250px */
   background-color: #2a2a2a;
-  /* Dark background for the sidebar */
   color: #ffffff;
-  /* Light text color */
-  padding: 20px;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-  /* Add a shadow for depth */
+  padding: 18px; /* Reduced from 20px */
+  box-shadow: 1.8px 0 4.5px rgba(0, 0, 0, 0.1); /* Reduced from 2px 0 5px */
   height: 100vh;
-  /* Full height */
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  /* Space between top content and logout button */
   box-sizing: border-box;
-  /* Include padding in height calculation */
   overflow-y: auto;
-  /* Add scroll if content overflows */
 }
 
 .sidebar-content {
   flex: 1;
-  /* Take up remaining space */
 }
 
 .sidebar h2 {
-  font-size: 24px;
+  font-size: 21.6px; /* Reduced from 24px */
   font-weight: bold;
   color: #4CAF50;
-  /* Accent color for the title */
-  margin-bottom: 20px;
+  margin-bottom: 18px; /* Reduced from 20px */
 }
 
 .sidebar nav ul {
@@ -41,34 +31,30 @@
 }
 
 .sidebar nav ul li {
-  margin-bottom: 15px;
-  padding: 10px;
-  border-radius: 4px;
+  margin-bottom: 13.5px; /* Reduced from 15px */
+  padding: 9px; /* Reduced from 10px */
+  border-radius: 3.6px; /* Reduced from 4px */
   cursor: pointer;
   transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
 .sidebar nav ul li:hover {
   background-color: #3a3a3a;
-  /* Slightly lighter background on hover */
-  transform: translateX(5px);
-  /* Slight move to the right on hover */
+  transform: translateX(4.5px); /* Reduced from 5px */
 }
 
 .sidebar nav ul li.active {
   background-color: #4CAF50;
-  /* Highlight active link */
   color: #ffffff;
   font-weight: bold;
 }
 
 .logout-btn {
   background-color: #ef4444;
-  /* Red color */
   color: white;
   border: none;
-  padding: 10px 14px;
-  border-radius: 6px;
+  padding: 9px 12.6px; /* Reduced from 10px 14px */
+  border-radius: 5.4px; /* Reduced from 6px */
   cursor: pointer;
   font-weight: bold;
   transition: background 0.2s ease-in-out;
@@ -76,51 +62,38 @@
 
 .logout-btn:hover {
   background-color: #dc2626;
-  /* Darker red on hover */
 }
 
 /* Layout.css */
 .dashboard-container {
   display: flex;
   min-height: 100vh;
-  /* Ensure the container takes up the full viewport height */
 }
 
 .sidebar-container {
-  width: 250px;
-  /* Fixed width for the sidebar */
+  width: 225px; /* Reduced from 250px */
   background-color: #2a2a2a;
-  /* Dark background for the sidebar */
   color: #ffffff;
-  /* Light text color */
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-  /* Add a shadow for depth */
+  box-shadow: 1.8px 0 4.5px rgba(0, 0, 0, 0.1); /* Reduced from 2px 0 5px */
   position: fixed;
-  /* Fix the sidebar to the left */
   height: 100vh;
-  /* Full height */
   overflow-y: auto;
-  /* Add scroll if content overflows */
 }
 
 .main-content {
   flex: 1;
-  margin-left: 250px; /* This should match the sidebar width */
-  padding: 20px;
-  margin-top: 40px; /* Add this line to create space between the top bar and main content */
+  margin-left: 225px; /* Reduced from 250px */
+  padding: 18px; /* Reduced from 20px */
+  margin-top: 36px; /* Reduced from 40px */
 }
-
-
 
 /* Responsive Design */
 @media (max-width: 768px) {
   .sidebar-container {
-    width: 200px;
-    /* Reduce sidebar width on smaller screens */
+    width: 180px; /* Reduced from 200px */
   }
 
   .main-content {
-    margin-left: 200px;
-    /* Adjust margin to match the sidebar width */
+    margin-left: 180px; /* Reduced from 200px */
   }
 }

@@ -1,4 +1,3 @@
-/* General Styles */
 body {
     margin: 0;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
@@ -7,21 +6,21 @@ body {
 }
 
 .kanban-container {
-    padding: 20px;
-    max-width: 1800px;
+    padding: 18px;
+    max-width: 1620px;
     margin: 0 auto;
 }
 
 .task-input-container {
     display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
+    gap: 9px;
+    margin-bottom: 18px;
 }
 
 .task-input {
-    padding: 10px;
+    padding: 9px;
     border: 1px solid #444;
-    border-radius: 4px;
+    border-radius: 3.6px;
     background-color: #2a2a2a;
     color: #ffffff;
     flex-grow: 1;
@@ -32,9 +31,9 @@ body {
 }
 
 select {
-    padding: 10px;
+    padding: 9px;
     border: 1px solid #444;
-    border-radius: 4px;
+    border-radius: 3.6px;
     background-color: #2a2a2a;
     color: #ffffff;
 }
@@ -42,21 +41,20 @@ select {
 .add-task-btn {
     padding: 0;
     border: none;
-    border-radius: 4px;
+    border-radius: 3.6px;
     background-color: #2a2a2a;
     color: #ffffff;
     cursor: pointer;
-    font-size: 30px;
+    font-size: 27px;
     font-weight: bold;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
     text-align: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 1.8px 3.6px rgba(0, 0, 0, 0.2);
     line-height: 1;
-    /* Ensures font aligns naturally */
 }
 
 .thick-plus {
@@ -65,10 +63,8 @@ select {
     justify-content: center;
     width: 100%;
     height: 100%;
-    transform: translateY(-2px);
-    /* Small manual adjustment */
+    transform: translateY(-1.8px);
 }
-
 
 .add-task-btn:hover {
     background-color: #3a3a3a;
@@ -77,18 +73,18 @@ select {
 .rename-board-wrapper {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    width: 85%; /* Ensure it takes full width */
+    gap: 9px;
+    width: 85%;
 }
 
 .rename-board-wrapper input {
-    padding: 10px;
+    padding: 9px;
     border: 1px solid #444;
-    border-radius: 4px;
+    border-radius: 3.6px;
     background-color: #2a2a2a;
     color: #ffffff;
-    width: 85%; /* Input takes full width */
-    box-sizing: border-box; /* Ensures padding does not affect width */
+    width: 85%;
+    box-sizing: border-box;
 }
 
 .rename-board-wrapper input::placeholder {
@@ -97,58 +93,55 @@ select {
 
 .rename-board-wrapper .button-container {
     display: flex;
-    justify-content: flex-end; /* Align buttons to the right */
-    width: 85%; /* Ensure it matches input width */
-    gap: 5px; /* Reduce space between buttons */
+    justify-content: flex-end;
+    width: 85%;
+    gap: 4.5px;
 }
-  
+
 .kanban-board {
     display: flex;
     gap: 0;
     align-items: flex-start;
     overflow-x: auto;
-    padding-bottom: 10px;
+    padding-bottom: 9px;
     position: relative;
 }
 
-/* Kanban Column Styles */
 .kanban-column {
     background-color: #2a2a2a;
-    border-radius: 4px;
-    padding: 15px;
-    width: 300px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    min-height: 100px;
+    border-radius: 3.6px;
+    padding: 13.5px;
+    width: 270px;
+    box-shadow: 0 1.8px 3.6px rgba(0, 0, 0, 0.2);
+    min-height: 90px;
     flex-shrink: 0;
-    margin-right: 20px;
+    margin-right: 18px;
 }
 
 .kanban-column h2 {
-    margin: 0 0 10px 0;
-    font-size: 18px;
+    margin: 0 0 9px 0;
+    font-size: 16.2px;
     color: #ffffff;
-    word-break: break-word; /* Ensures words break */
-    overflow-wrap: break-word; /* Ensures wrapping */
-    white-space: normal; /* Allows text to wrap */
-    max-width: 255px; /* Adjust width to force earlier wrapping */
-    display: block; /* Ensures it takes up full width */
+    word-break: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+    max-width: 229.5px;
+    display: block;
 }
 
-/* Droppable Area Styles */
 .kanban-column .droppable-area {
-    min-height: 10px;
+    min-height: 9px;
     padding: 0;
     background-color: transparent;
     border: none;
 }
 
-/* Task Card Styles */
 .task-card {
     background-color: #3a3a3a;
-    border-radius: 4px;
-    padding: 14px;
-    margin-bottom: 10px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border-radius: 3.6px;
+    padding: 12.6px;
+    margin-bottom: 9px;
+    box-shadow: 0 0.9px 2.7px rgba(0, 0, 0, 0.1);
     color: #ffffff;
     display: flex;
     flex-direction: column;
@@ -163,24 +156,24 @@ select {
     white-space: normal;
     display: block;
     flex-grow: 1;
-    margin-right: 25px;
+    margin-right: 22.5px;
 }
 
 .task-card .task-bottom {
     display: flex;
     justify-content: flex-end;
     align-items: center;
-    margin-top: 10px;
-    gap: 8px;
+    margin-top: 9px;
+    gap: 7.2px;
 }
 
 .task-card b {
-    font-size: 12px;
+    font-size: 10.8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 28px;
-    height: 28px;
+    width: 25.2px;
+    height: 25.2px;
     border-radius: 50%;
     background-color: rgba(0, 0, 0, 0.5);
     color: white;
@@ -190,24 +183,19 @@ select {
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    /* Ensures input takes full width */
     width: 100%;
-    max-width: 400px;
-    /* Adjust if needed */
-    gap: 10px;
-    /* Space between input and buttons */
+    max-width: 360px;
+    gap: 9px;
 }
 
 .add-board-wrapper input {
-    padding: 10px;
+    padding: 9px;
     border: 1px solid #444;
-    border-radius: 4px;
+    border-radius: 3.6px;
     background-color: #2a2a2a;
     color: #ffffff;
     width: 100%;
-    /* Input takes full width */
     box-sizing: border-box;
-    /* Ensures padding does not affect width */
 }
 
 .add-board-wrapper input::placeholder {
@@ -217,28 +205,70 @@ select {
 .button-container {
     display: flex;
     justify-content: flex-end;
-    /* Align buttons to the right */
     width: 100%;
-    /* Ensures it matches input width */
-    gap: 5px;
-    /* Reduce space between buttons */
+    gap: 4.5px;
 }
 
 .tick-btn,
 .cross-btn {
-    padding: 10px;
+    padding: 9px;
     border: none;
-    border-radius: 4px;
+    border-radius: 3.6px;
     background-color: #2a2a2a;
     color: #ffffff;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 14.4px;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    width: 36px;
+    height: 36px;
+    box-shadow: 0 1.8px 3.6px rgba(0, 0, 0, 0.2);
+}
+
+.alarm-clock-icon {
+    width: 22.5px;
+    height: 22.5px;
+    margin-right: 0.9px;
+    color: #4caf50;
+    stroke: currentColor;
+}
+
+.dropdown-menu {
+    position: absolute;
+    background-color: #2a2a2a;
+    border: 1px solid #444;
+    border-radius: 3.6px;
+    box-shadow: 0 1.8px 3.6px rgba(0, 0, 0, 0.2);
+    z-index: 10;
+    padding: 7.2px;
+    min-width: 108px;
+}
+
+.dropdown-menu button {
+    display: block;
+    width: 100%;
+    padding: 7.2px;
+    text-align: left;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #ffffff;
+    font-size: 12.6px;
+}
+
+.dropdown-menu button:hover {
+    background-color: #3a3a3a;
+}
+
+.due-date {
+    font-size: 0.675em;
+    color: #888;
+    margin-right: auto;
+}
+
+.due-date.overdue {
+    color: rgb(219, 71, 71);
 }
 
 .tick-btn:hover,
@@ -308,11 +338,11 @@ select {
 
 [data-rbd-placeholder-context-id] {
     background-color: #444;
-    border-radius: 4px;
+    border-radius: 3.6px;
 }
 
 .kanban-column::-webkit-scrollbar {
-    width: 8px;
+    width: 7.2px;
 }
 
 .kanban-column::-webkit-scrollbar-track {
@@ -321,7 +351,7 @@ select {
 
 .kanban-column::-webkit-scrollbar-thumb {
     background: #4a4a4a;
-    border-radius: 4px;
+    border-radius: 3.6px;
 }
 
 .kanban-column::-webkit-scrollbar-thumb:hover {
@@ -333,8 +363,8 @@ select {
     justify-content: space-between;
     align-items: center;
     position: relative;
-    padding: 10px 0px;
-    margin: -5px;
+    padding: 9px 0px;
+    margin: -4.5px;
     width: 100%;
     box-sizing: border-box;
 }
@@ -349,15 +379,15 @@ select {
     background: none;
     border: none;
     cursor: pointer;
-    font-size: 1.5rem;
+    font-size: 1.35rem;
     color: #ffffff;
-    padding: 4px;
+    padding: 3.6px;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
-    border-radius: 4px;
+    width: 28.8px;
+    height: 28.8px;
+    border-radius: 3.6px;
     transition: background-color 0.2s ease;
     outline: none;
     opacity: 0;
@@ -379,19 +409,6 @@ select {
     background-color: rgba(255, 255, 255, 0.1);
 }
 
-.dropdown-menu {
-    position: absolute;
-    top: 100%;
-    /* Position below the button */
-    right: 0;
-    background: #2a2a2a;
-    border: 1px solid #555;
-    border-radius: 4px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    z-index: 10;
-    display: none;
-}
-
 .dropdown-menu.open {
     display: block;
 }
@@ -399,7 +416,7 @@ select {
 .dropdown-menu button {
     display: block;
     width: 100%;
-    padding: 8px 16px;
+    padding: 7.2px 14.4px;
     text-align: left;
     background: none;
     border: none;
@@ -415,20 +432,20 @@ select {
 }
 
 .board-actions {
-    margin-bottom: 16px;
+    margin-bottom: 14.4px;
 }
 
 .board-actions input {
-    padding: 8px;
-    margin-right: 8px;
+    padding: 7.2px;
+    margin-right: 7.2px;
 }
 
 .board-actions button {
-    padding: 8px 16px;
-    background: #007bff;
+    padding: 7.2px 14.4px;
+    background: #2d74d1;
     color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 3.6px;
     cursor: pointer;
 }
 
@@ -438,8 +455,8 @@ select {
 
 .task-actions {
     position: absolute;
-    top: 10px;
-    right: 10px;
+    top: 9px;
+    right: 9px;
 }
 
 .task-card:hover .dots-button {
@@ -456,7 +473,7 @@ select {
 }
 
 .task-card .dropdown-menu {
-    top: 30px;
+    top: 27px;
     right: 0;
     display: none;
 }
@@ -470,8 +487,6 @@ select {
     opacity: 1;
 }
 
-
-/* Modal */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -487,31 +502,31 @@ select {
 
 .modal-content {
     background-color: #2a2a2a;
-    padding: 20px;
-    border-radius: 8px;
-    width: 750px;
-    max-width: 95%;
+    padding: 18px;
+    border-radius: 7.2px;
+    width: 675px;
+    max-width: 85.5%;
     color: #ffffff;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 3.6px 7.2px rgba(0, 0, 0, 0.3);
     position: relative;
     display: flex;
     flex-direction: column;
-    min-height: 650px;
+    min-height: 585px;
 }
 
 .modal-content h2 {
     margin-top: 0;
-    padding-top: 5px;
-    font-size: 24px;
+    padding-top: 4.5px;
+    font-size: 21.6px;
 }
 
 .close-modal {
     position: absolute;
-    top: 1px;
-    right: 10px;
+    top: 0.9px;
+    right: 9px;
     background: none;
     border: none;
-    font-size: 50px;
+    font-size: 45px;
     font-weight: bold;
     color: #ff4d4d;
     cursor: pointer;
@@ -536,7 +551,7 @@ select {
 
 .modal-body {
     display: flex;
-    gap: 20px;
+    gap: 18px;
 }
 
 .modal-left {
@@ -554,55 +569,52 @@ select {
 
 .modal-content label {
     font-weight: bold;
-    margin-bottom: 5px;
+    margin-bottom: 4.5px;
     display: block;
     color: #ddd;
-    font-size: 18px;
+    font-size: 16.2px;
 }
 
 .modal-content input,
 .modal-content select,
 .modal-content textarea {
     width: 100%;
-    padding: 12px;
+    padding: 10.8px;
     border: 1px solid #444;
-    border-radius: 6px;
+    border-radius: 5.4px;
     background-color: #3a3a3a;
     color: #ffffff;
     box-sizing: border-box;
-    margin-bottom: 12px;
-    font-size: 16px;
+    margin-bottom: 10.8px;
+    font-size: 14.4px;
 }
 
 .modal-content textarea.task-title {
-    min-height: 50px;
-    max-height: 120px;
+    min-height: 45px;
+    max-height: 108px;
     overflow-y: auto;
-    font-size: 18px;
+    font-size: 16.2px;
     font-family: inherit;
     font-weight: normal;
     background-color: #3a3a3a;
     border: 1px solid #444;
     color: #ffffff;
-    padding: 12px;
-    border-radius: 4px;
+    padding: 10.8px;
+    border-radius: 3.6px;
     width: 100%;
     box-sizing: border-box;
     resize: none;
 }
 
 .ql-container {
-    min-height: 200px !important;
-    max-height: 250px !important;
-    /* Same as .task-description */
+    min-height: 180px !important;
+    max-height: 225px !important;
     overflow-y: auto !important;
-    /* Prevents expanding beyond the modal */
     background-color: #3a3a3a !important;
     border: 1px solid #444 !important;
     color: white !important;
-    font-size: 16px;
+    font-size: 14.4px;
 }
-
 
 .ql-editor::before {
     color: #ccc !important;
@@ -621,30 +633,30 @@ select {
 
 .react-datepicker__input-container input {
     width: 100%;
-    padding: 12px;
+    padding: 10.8px;
     border: 1px solid #444;
-    border-radius: 6px;
+    border-radius: 5.4px;
     background-color: #3a3a3a;
     color: #ffffff;
     box-sizing: border-box;
     text-align: left;
-    font-size: 18px;
+    font-size: 16.2px;
 }
 
 .story-points-container {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 9px;
 }
 
 .story-points-container input {
-    width: 60px;
+    width: 54px;
     text-align: center;
-    font-size: 18px;
+    font-size: 16.2px;
 }
 
 .modal-footer {
-    margin-top: 30px;
+    margin-top: 27px;
     display: flex;
     justify-content: space-between;
 }
@@ -653,26 +665,26 @@ select {
     background-color: #2d74d1;
     color: white;
     border: none;
-    padding: 8px 16px;
-    border-radius: 4px;
+    padding: 7.2px 14.4px;
+    border-radius: 3.6px;
     cursor: pointer;
-    font-size: 18px;
-    transition: background-color 0.2s ease; /* Smooth hover effect */
-  }
-  
-  .create-task-btn:hover {
-    background-color: #0056b3; /* Darker blue on hover */
-  }
+    font-size: 16.2px;
+    transition: background-color 0.2s ease;
+}
+
+.create-task-btn:hover {
+    background-color: #0056b3;
+}
 
 .cancel-btn {
     background-color: #ff4d4d;
     color: white;
-    padding: 12px 18px;
+    padding: 10.8px 16.2px;
     border: none;
-    border-radius: 6px;
+    border-radius: 5.4px;
     cursor: pointer;
     font-weight: bold;
-    font-size: 18px;
+    font-size: 16.2px;
     transition: background-color 0.2s ease;
 }
 
@@ -682,21 +694,114 @@ select {
 
 .description-section {
     width: 100%;
-    margin-top: 20px;
+    margin-top: 18px;
 }
 
 .task-description {
     width: 100% !important;
-    height: 250px;
-    /* Fixed height */
-    font-size: 16px;
+    height: 225px;
+    font-size: 14.4px;
     resize: none;
-    /* Prevents manual resizing */
-    margin-bottom: 30px;
+    margin-bottom: 27px;
 }
 
 .custom-date-picker {
     text-align: left !important;
-    padding-left: 10px;
-    font-size: 18px;
+    padding-left: 9px;
+    font-size: 16.2px;
+}
+
+.react-datepicker {
+    background-color: #2a2a2a;
+    border: 1px solid #444;
+    color: #ffffff;
+    font-family: inherit;
+}
+
+.react-datepicker__header {
+    background-color: #3a3a3a;
+    border-bottom: 1px solid #444;
+}
+
+.react-datepicker__current-month,
+.react-datepicker-time__header,
+.react-datepicker-year-header {
+    color: #ffffff;
+}
+
+.react-datepicker__day-name,
+.react-datepicker__day,
+.react-datepicker__time-name {
+    color: #ffffff;
+}
+
+.react-datepicker__day:hover,
+.react-datepicker__month-text:hover,
+.react-datepicker__quarter-text:hover,
+.react-datepicker__year-text:hover {
+    background-color: #4a4a4a !important;
+    color: #ffffff !important;
+}
+
+.react-datepicker__day--selected,
+.react-datepicker__day--in-selecting-range,
+.react-datepicker__day--in-range,
+.react-datepicker__month-text--selected,
+.react-datepicker__month-text--in-selecting-range,
+.react-datepicker__month-text--in-range,
+.react-datepicker__quarter-text--selected,
+.react-datepicker__quarter-text--in-selecting-range,
+.react-datepicker__quarter-text--in-range,
+.react-datepicker__year-text--selected,
+.react-datepicker__year-text--in-selecting-range,
+.react-datepicker__year-text--in-range {
+    background-color: #2d74d1 !important;
+    color: #ffffff !important;
+}
+
+.react-datepicker__day--keyboard-selected,
+.react-datepicker__month-text--keyboard-selected,
+.react-datepicker__quarter-text--keyboard-selected,
+.react-datepicker__year-text--keyboard-selected {
+    background-color: #0056b3 !important;
+    color: #ffffff !important;
+}
+
+.react-datepicker__day--disabled,
+.react-datepicker__month-text--disabled,
+.react-datepicker__quarter-text--disabled,
+.react-datepicker__year-text--disabled {
+    color: #888 !important;
+}
+
+.react-datepicker__time-container {
+    background-color: #2a2a2a;
+    border-left: 1px solid #444;
+}
+
+.react-datepicker__time-container .react-datepicker__time {
+    background-color: #2a2a2a;
+}
+
+.react-datepicker__time-container .react-datepicker__time-box ul.react-datepicker__time-list li.react-datepicker__time-list-item {
+    color: #ffffff !important;
+}
+
+.react-datepicker__time-container .react-datepicker__time-box ul.react-datepicker__time-list li.react-datepicker__time-list-item:hover {
+    background-color: #4a4a4a !important;
+    color: #ffffff !important;
+}
+
+.react-datepicker__time-container .react-datepicker__time-box ul.react-datepicker__time-list li.react-datepicker__time-list-item--selected {
+    background-color: #2d74d1 !important;
+    color: #ffffff !important;
+}
+
+.react-datepicker__input-container input {
+    background-color: #3a3a3a;
+    color: #ffffff;
+    border: 1px solid #444;
+    border-radius: 5.4px;
+    padding: 10.8px;
+    font-size: 16.2px;
 }

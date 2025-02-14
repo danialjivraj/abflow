@@ -6,7 +6,7 @@ const User = require("../models/User"); // Import User model
 // ✅ Create Task
 router.post("/", async (req, res) => {
   try {
-    const { title, priority, userId, description, assignedTo, status } = req.body;
+    const { title, priority, userId, description, assignedTo, status, dueDate } = req.body; // Add dueDate
     if (!title || !priority || !userId || !status) {
       return res.status(400).json({ error: "All fields are required" });
     }
@@ -35,6 +35,7 @@ router.post("/", async (req, res) => {
       points: pointsMap[priority] || 0,
       description: description || "",
       assignedTo: assignedTo || "",
+      dueDate: dueDate || null, // Add dueDate
       order: newOrder // Set the calculated order
     });
 
@@ -45,7 +46,6 @@ router.post("/", async (req, res) => {
     res.status(500).json({ error: "Failed to create task" });
   }
 });
-
 // ✅ Move Task (Change Status & Award Points)
 router.put("/:id/move", async (req, res) => {
   try {
@@ -324,4 +324,45 @@ router.delete("/columns/delete", async (req, res) => {
   }
 });
 
+// Start the timer for a task
+router.put("/:id/start-timer", async (req, res) => {
+  try {
+    const task = await Task.findById(req.params.id);
+    if (!task) return res.status(404).json({ error: "Task not found" });
+
+    task.isTimerRunning = true;
+    task.timerStartTime = new Date();
+    await task.save();
+
+    console.log(`Timer started for task ${task._id} at ${task.timerStartTime}`); // Log timer start
+    res.json(task);
+  } catch (error) {
+    console.error("❌ Error starting timer:", error);
+    res.status(500).json({ error: "Failed to start timer" });
+  }
+});
+
+// Stop the timer for a task
+router.put("/:id/stop-timer", async (req, res) => {
+  try {
+    const task = await Task.findById(req.params.id);
+    if (!task) return res.status(404).json({ error: "Task not found" });
+
+    if (task.isTimerRunning) {
+      const now = new Date();
+      const timeElapsed = Math.floor((now - task.timerStartTime) / 1000); // Time elapsed in seconds
+      task.timeSpent += timeElapsed;
+      task.isTimerRunning = false;
+      task.timerStartTime = null;
+      await task.save();
+
+      console.log(`Timer stopped for task ${task._id}. Total time spent: ${task.timeSpent} seconds`); // Log total time spent
+    }
+
+    res.json(task);
+  } catch (error) {
+    console.error("❌ Error stopping timer:", error);
+    res.status(500).json({ error: "Failed to stop timer" });
+  }
+});
 module.exports = router;
