@@ -4,7 +4,7 @@ import axios from "axios";
 import Layout from "../components/Layout";
 import { FaSortAlphaDown, FaSortAlphaUp, FaSortAmountDown, FaSortAmountUp } from "react-icons/fa";
 import { startOfISOWeek, addWeeks, format, isWithinInterval, endOfISOWeek } from "date-fns";
-import { auth } from "../firebase"; // Import Firebase auth
+import { auth } from "../firebase";
 
 const Stats = () => {
   const [weeklyStats, setWeeklyStats] = useState([]);
@@ -15,41 +15,31 @@ const Stats = () => {
   useEffect(() => {
     const user = auth.currentUser;
     if (!user) return;
-
-    // Fetch weekly stats
+  
     axios.get(`http://localhost:5000/api/stats/weekly?userId=${user.uid}`)
       .then((res) => setWeeklyStats(res.data))
       .catch((err) => console.error("Error fetching weekly stats:", err));
-
-    // Fetch tasks with timeSpent
+  
     axios.get(`http://localhost:5000/api/tasks/${user.uid}`)
       .then((res) => {
         const tasks = res.data;
-        const currentWeekStart = startOfISOWeek(new Date());
-        const currentWeekEnd = endOfISOWeek(new Date());
-
-        // Filter tasks that were worked on this week
-        const tasksThisWeek = tasks.filter((task) => {
-          const taskDate = new Date(task.updatedAt || task.createdAt);
-          return isWithinInterval(taskDate, { start: currentWeekStart, end: currentWeekEnd });
-        });
-
-        // Format tasks for display
-        const formattedTasks = tasksThisWeek.map((task) => ({
-          id: task._id,
-          title: task.title,
-          priority: task.priority,
-          timeSpent: task.timeSpent || 0, // Ensure timeSpent is defined
-          isTimerRunning: task.isTimerRunning || false,
-          timerStartTime: task.timerStartTime || null,
-        }));
-
+  
+        const formattedTasks = tasks
+          .filter((task) => task.timeSpent > 60)
+          .map((task) => ({
+            id: task._id,
+            title: task.title,
+            priority: task.priority,
+            timeSpent: task.timeSpent || 0,
+            isTimerRunning: task.isTimerRunning || false,
+            timerStartTime: task.timerStartTime || null,
+          }));
+  
         setTimeTracking(formattedTasks);
       })
       .catch((err) => console.error("Error fetching tasks:", err));
   }, []);
 
-  // Helper function to format timeSpent
   const formatTimeSpent = (timeSpent) => {
     const hours = Math.floor(timeSpent / 3600);
     const minutes = Math.floor((timeSpent % 3600) / 60);
@@ -64,14 +54,12 @@ const Stats = () => {
     return formattedTime || "0 minutes";
   };
 
-  // Calculate total time spent (backend + frontend)
   const calculateTotalTimeSpent = (task) => {
     const backendTimeSpent = task.timeSpent || 0;
     const frontendElapsedTime = task.isTimerRunning ? (new Date() - new Date(task.timerStartTime)) / 1000 : 0;
     return backendTimeSpent + frontendElapsedTime;
   };
 
-  // Sorting logic
   const sortedTimeTracking = [...timeTracking].sort((a, b) => {
     if (sortBy === "priority") {
       return sortOrder === "asc" ? a.priority.localeCompare(b.priority) : b.priority.localeCompare(a.priority);
@@ -82,7 +70,6 @@ const Stats = () => {
     }
   });
 
-  // Toggle sorting order
   const toggleSort = (type) => {
     if (sortBy === type) {
       setSortOrder(sortOrder === "asc" ? "desc" : "asc");
@@ -92,7 +79,6 @@ const Stats = () => {
     }
   };
 
-  // Fetch timeSpent periodically
   useEffect(() => {
     const fetchTimeSpent = async () => {
       const user = auth.currentUser;
@@ -102,7 +88,6 @@ const Stats = () => {
         const response = await axios.get(`http://localhost:5000/api/tasks/${user.uid}`);
         const tasks = response.data;
 
-        // Update the timeTracking state with the latest timeSpent
         setTimeTracking((prevTimeTracking) =>
           prevTimeTracking.map((task) => {
             const backendTask = tasks.find((t) => t._id === task.id);
@@ -114,10 +99,8 @@ const Stats = () => {
       }
     };
 
-    // Fetch timeSpent every 10 seconds
     const interval = setInterval(fetchTimeSpent, 10000);
 
-    // Cleanup interval on unmount
     return () => clearInterval(interval);
   }, []);
 
@@ -126,7 +109,6 @@ const Stats = () => {
       <div className="stats-container">
         <h1>📊 Stats & Insights</h1>
 
-        {/* Weekly Completed Tasks & Time Spent on Tasks Section */}
         <div className="stats-flex">
           <div className="chart-container weekly-chart">
             <br />
@@ -165,7 +147,6 @@ const Stats = () => {
             )}
           </div>
 
-          {/* Time Spent on Tasks with Sorting */}
           <div className="recommendations">
             <div className="recommendations-header">
               <h2>⏳ Total Time Spent on Tasks this Week</h2>
