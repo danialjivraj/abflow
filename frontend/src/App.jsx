@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
+import Dashboard from "./pages/Dashboard/Dashboard";
 import Stats from "./pages/Stats";  
 import Profile from "./pages/Profile";  
 import PrivateRoute from "./components/PrivateRoute"; 

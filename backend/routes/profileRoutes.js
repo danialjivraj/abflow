@@ -3,11 +3,11 @@ const router = express.Router();
 const Task = require("../models/Task");
 
 const getUserTitle = (points) => {
-  if (points >= 1000) return "Grandmaster 🎖️";
-  if (points >= 500) return "Master 🏆";
-  if (points >= 250) return "Pro 🥇";
-  if (points >= 100) return "Intermediate 🥈";
-  return "Beginner 🥉";
+  if (points >= 1000) return "Grandmaster ";
+  if (points >= 500) return "Master";
+  if (points >= 250) return "Pro";
+  if (points >= 100) return "Intermediate";
+  return "Beginner";
 };
 
 // get total tasks and points for user

@@ -26,14 +26,14 @@ const Profile = () => {
   return (
     <Layout>
       <div className="profile-container">
-        <h1>🏅 Profile Overview</h1>
+        <h1>Profile</h1>
         <div className="profile-card">
           <h2><FaTrophy /> {profileData.userTitle} <FaMedal /></h2>
           <p><FaTasks /> <strong>Total Tasks Completed:</strong> {profileData.totalTasks}</p>
-          <p>⭐ <strong>Total Points:</strong> {profileData.totalPoints}</p>
+          <p><strong>Total Points:</strong> {profileData.totalPoints}</p>
         </div>
         <div className="profile-achievements">
-          <h3>🎯 Keep completing tasks to level up!</h3>
+          <h3>Keep completing tasks to level up!</h3>
         </div>
       </div>
     </Layout>

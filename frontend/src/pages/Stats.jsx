@@ -107,12 +107,12 @@ const Stats = () => {
   return (
     <Layout>
       <div className="stats-container">
-        <h1>📊 Stats & Insights</h1>
+        <h1>Stats</h1>
 
         <div className="stats-flex">
           <div className="chart-container weekly-chart">
             <br />
-            <h2>📈 Weekly Completed Tasks</h2>
+            <h2>Weekly Completed Tasks</h2>
             <br />
             {weeklyStats.length > 0 ? (
               <ResponsiveContainer width="100%" height={300}>
@@ -149,7 +149,7 @@ const Stats = () => {
 
           <div className="recommendations">
             <div className="recommendations-header">
-              <h2>⏳ Total Time Spent on Tasks this Week</h2>
+              <h2>Total Time Spent on Tasks this Week</h2>
               <div className="sort-buttons">
                 <button onClick={() => toggleSort("priority")} title="Sort by Priority">
                   {sortBy === "priority" && sortOrder === "asc" ? <FaSortAlphaDown /> : <FaSortAlphaUp />}
@@ -165,7 +165,7 @@ const Stats = () => {
                 const totalTimeSpent = calculateTotalTimeSpent(task);
                 return (
                   <p key={task.id}>
-                    🔹 <strong>{task.title} ({task.priority})</strong> - {formatTimeSpent(totalTimeSpent)}
+                    <strong>{task.title} ({task.priority})</strong> - {formatTimeSpent(totalTimeSpent)}
                   </p>
                 );
               })
