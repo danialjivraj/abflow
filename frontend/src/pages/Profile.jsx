@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Layout from "../components/Layout";
-import { auth } from "../firebase"; // Ensure Firebase is correctly imported
+import { auth } from "../firebase";
 import { FaTrophy, FaTasks, FaMedal } from "react-icons/fa"; 
 
 const Profile = () => {

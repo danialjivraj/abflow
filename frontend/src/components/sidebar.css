@@ -1,10 +1,10 @@
 /* Sidebar.css */
 .sidebar {
-  width: 225px; /* Reduced from 250px */
+  width: 225px;
   background-color: #2a2a2a;
   color: #ffffff;
-  padding: 18px; /* Reduced from 20px */
-  box-shadow: 1.8px 0 4.5px rgba(0, 0, 0, 0.1); /* Reduced from 2px 0 5px */
+  padding: 18px;
+  box-shadow: 1.8px 0 4.5px rgba(0, 0, 0, 0.1);
   height: 100vh;
   display: flex;
   flex-direction: column;
@@ -18,10 +18,10 @@
 }
 
 .sidebar h2 {
-  font-size: 21.6px; /* Reduced from 24px */
+  font-size: 21.6px;
   font-weight: bold;
   color: #4CAF50;
-  margin-bottom: 18px; /* Reduced from 20px */
+  margin-bottom: 18px;
 }
 
 .sidebar nav ul {
@@ -31,16 +31,16 @@
 }
 
 .sidebar nav ul li {
-  margin-bottom: 13.5px; /* Reduced from 15px */
-  padding: 9px; /* Reduced from 10px */
-  border-radius: 3.6px; /* Reduced from 4px */
+  margin-bottom: 13.5px;
+  padding: 9px;
+  border-radius: 3.6px;
   cursor: pointer;
   transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
 .sidebar nav ul li:hover {
   background-color: #3a3a3a;
-  transform: translateX(4.5px); /* Reduced from 5px */
+  transform: translateX(4.5px);
 }
 
 .sidebar nav ul li.active {
@@ -53,8 +53,8 @@
   background-color: #ef4444;
   color: white;
   border: none;
-  padding: 9px 12.6px; /* Reduced from 10px 14px */
-  border-radius: 5.4px; /* Reduced from 6px */
+  padding: 9px 12.6px;
+  border-radius: 5.4px;
   cursor: pointer;
   font-weight: bold;
   transition: background 0.2s ease-in-out;
@@ -71,10 +71,10 @@
 }
 
 .sidebar-container {
-  width: 225px; /* Reduced from 250px */
+  width: 225px;
   background-color: #2a2a2a;
   color: #ffffff;
-  box-shadow: 1.8px 0 4.5px rgba(0, 0, 0, 0.1); /* Reduced from 2px 0 5px */
+  box-shadow: 1.8px 0 4.5px rgba(0, 0, 0, 0.1);
   position: fixed;
   height: 100vh;
   overflow-y: auto;
@@ -82,18 +82,18 @@
 
 .main-content {
   flex: 1;
-  margin-left: 225px; /* Reduced from 250px */
-  padding: 18px; /* Reduced from 20px */
-  margin-top: 36px; /* Reduced from 40px */
+  margin-left: 225px;
+  padding: 18px;
+  margin-top: 36px;
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
   .sidebar-container {
-    width: 180px; /* Reduced from 200px */
+    width: 180px;
   }
 
   .main-content {
-    margin-left: 180px; /* Reduced from 200px */
+    margin-left: 180px;
   }
 }

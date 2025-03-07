@@ -4,7 +4,7 @@ import "./sidebar.css";
 
 const Sidebar = () => {
   const navigate = useNavigate();
-  const location = useLocation(); // Get the current path
+  const location = useLocation();
 
   return (
     <aside className="sidebar">

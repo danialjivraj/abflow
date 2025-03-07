@@ -2,7 +2,7 @@ export const topBarConfig = {
     "/dashboard": [
       {
         label: "Create Task",
-        onClick: (openModal) => openModal(), // Use the openModal method
+        onClick: (openModal) => openModal(),
         className: "create-top-bar-task-btn",
       },
     ],

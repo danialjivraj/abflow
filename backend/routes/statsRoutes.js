@@ -3,13 +3,13 @@ const router = express.Router();
 const Task = require("../models/Task");
 const moment = require("moment");
 
-// ✅ Weekly Completed Tasks - Shows Past 4 Weeks + Current + Next Week
+// weekly completed tasks
 router.get("/weekly", async (req, res) => {
   try {
-    const { userId } = req.query; // Get userId from request query
+    const { userId } = req.query;
     if (!userId) return res.status(400).json({ error: "User ID is required" });
 
-    const tasks = await Task.find({ status: "done", userId }); // ✅ Filter by userId
+    const tasks = await Task.find({ status: "done", userId });
 
     const weeklyStats = {};
     const currentWeek = moment().isoWeek();
@@ -33,7 +33,7 @@ router.get("/weekly", async (req, res) => {
 
     res.json(formattedWeeks);
   } catch (error) {
-    console.error("❌ Error fetching weekly stats:", error);
+    console.error("Error fetching weekly stats:", error);
     res.status(500).json({ error: "Failed to fetch weekly stats" });
   }
 });
@@ -43,7 +43,7 @@ router.get("/time-tracking", async (req, res) => {
     const { userId } = req.query;
     if (!userId) return res.status(400).json({ error: "User ID is required" });
 
-    const completedTasks = await Task.find({ status: "done", userId }); // ✅ Filter by userId
+    const completedTasks = await Task.find({ status: "done", userId });
 
     if (!completedTasks || completedTasks.length === 0) {
       return res.status(200).json([]);
@@ -81,7 +81,7 @@ router.get("/time-tracking", async (req, res) => {
 
     res.json(formattedData);
   } catch (error) {
-    console.error("❌ Error fetching time tracking:", error);
+    console.error("Error fetching time tracking:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });

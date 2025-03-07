@@ -15,9 +15,9 @@ const TaskSchema = new mongoose.Schema({
   points: { type: Number, default: 0 },
   order: { type: Number, default: 0 },
   description: { type: String, default: "" },
-  timeSpent: { type: Number, default: 0 }, // New field to track time spent in seconds
-  isTimerRunning: { type: Boolean, default: false }, // New field to track if the timer is running
-  timerStartTime: { type: Date } // New field to track when the timer was started
+  timeSpent: { type: Number, default: 0 },
+  isTimerRunning: { type: Boolean, default: false },
+  timerStartTime: { type: Date }
 });
 
 const Task = mongoose.model("Task", TaskSchema);

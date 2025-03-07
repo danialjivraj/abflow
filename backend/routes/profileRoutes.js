@@ -2,7 +2,6 @@ const express = require("express");
 const router = express.Router();
 const Task = require("../models/Task");
 
-// Define user titles based on points
 const getUserTitle = (points) => {
   if (points >= 1000) return "Grandmaster 🎖️";
   if (points >= 500) return "Master 🏆";
@@ -11,12 +10,12 @@ const getUserTitle = (points) => {
   return "Beginner 🥉";
 };
 
-// ✅ Get Total Tasks & Points for User
+// get total tasks and points for user
 router.get("/:userId", async (req, res) => {
   try {
     const { userId } = req.params;
 
-    const tasks = await Task.find({ userId, status: "done" }); // Only completed tasks
+    const tasks = await Task.find({ userId, status: "done" });
     const totalTasks = tasks.length;
     const totalPoints = tasks.reduce((sum, task) => sum + task.points, 0);
 
@@ -24,7 +23,7 @@ router.get("/:userId", async (req, res) => {
 
     res.json({ totalTasks, totalPoints, userTitle });
   } catch (error) {
-    console.error("❌ Error fetching profile stats:", error);
+    console.error("Error fetching profile stats:", error);
     res.status(500).json({ error: "Failed to fetch profile stats" });
   }
 });
@@ -49,7 +48,7 @@ router.get("/:userId", async (req, res) => {
   
       res.json({ totalTasks, totalPoints, userTitle });
     } catch (error) {
-      console.error("❌ Error fetching profile data:", error);
+      console.error("Error fetching profile data:", error);
       res.status(500).json({ error: "Failed to fetch profile data" });
     }
   });

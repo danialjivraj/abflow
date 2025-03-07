@@ -14,7 +14,7 @@ import { Color } from "@tiptap/extension-color";
 import Picker from '@emoji-mart/react';
 import data from '@emoji-mart/data';
 import TextAlign from "@tiptap/extension-text-align";
-import React, { useState, useRef, useEffect } from "react"; // Added useRef and useEffect
+import React, { useState, useRef, useEffect } from "react";
 import {
   FaBold,
   FaItalic,
@@ -47,10 +47,8 @@ const Toolbar = ({ editor }) => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [emojiPickerPosition, setEmojiPickerPosition] = useState({ top: 0, left: 0 });
 
-  // Ref to track the emoji picker element
   const emojiPickerRef = useRef(null);
 
-  // Close the emoji picker when clicking outside of it
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target)) {
@@ -58,10 +56,8 @@ const Toolbar = ({ editor }) => {
       }
     };
 
-    // Attach the event listener
     document.addEventListener("mousedown", handleClickOutside);
 
-    // Cleanup the event listener
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
@@ -254,7 +250,7 @@ const Toolbar = ({ editor }) => {
         <div
           className="emoji-picker-popup"
           style={{ top: emojiPickerPosition.top, left: emojiPickerPosition.left }}
-          ref={emojiPickerRef} // Attach the ref to the emoji picker
+          ref={emojiPickerRef}
         >
           <Picker data={data} onEmojiSelect={addEmojiToEditor} />
         </div>

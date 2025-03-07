@@ -1,9 +1,9 @@
 const mongoose = require("mongoose");
 
 const ColumnSchema = new mongoose.Schema({
-  name: { type: String, required: true }, // Board name
-  order: { type: Number, default: 0 }, // Position of the board
-  userId: { type: String, required: true }, // User who owns this board
+  name: { type: String, required: true },
+  order: { type: Number, default: 0 },
+  userId: { type: String, required: true },
 });
 
 const Column = mongoose.model("Column", ColumnSchema);

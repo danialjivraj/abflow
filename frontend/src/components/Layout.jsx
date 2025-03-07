@@ -9,15 +9,12 @@ const Layout = ({ children, openModal }) => {
 
   return (
     <div className="dashboard-container">
-      {/* Sidebar (Fixed Width) */}
       <div className="sidebar-container">
         <Sidebar />
       </div>
 
-      {/* Top Bar (Conditional Rendering) */}
       {buttons.length > 0 && <TopBar buttons={buttons} openModal={openModal} />}
 
-      {/* Main Content Wrapper (Applies to ALL Pages) */}
       <div className="main-content">
         {children}
       </div>

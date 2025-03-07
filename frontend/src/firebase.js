@@ -1,9 +1,8 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
-import { getFirestore } from "firebase/firestore"; // ✅ Import Firestore
+import { getFirestore } from "firebase/firestore";
 import { getAnalytics } from "firebase/analytics";
 
-// Your web app's Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyBLxzNdxqMcRNRIYixhkEP1_02je9cNCJo",
   authDomain: "prioritymanagerapp.firebaseapp.com",
@@ -14,13 +13,11 @@ const firebaseConfig = {
   measurementId: "G-DWR6BF7X7F"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
-const db = getFirestore(app); // ✅ Initialize Firestore
+const db = getFirestore(app);
 
-// ✅ Export only Google authentication-related functions
 export { auth, googleProvider, db };
 export default app;

@@ -38,7 +38,6 @@ const Dashboard = () => {
     try {
       await axios.put(`http://localhost:5000/api/tasks/${taskId}/start-timer`);
 
-      // Update the columns state
       setColumns((prevColumns) => {
         const updatedColumns = { ...prevColumns };
         Object.keys(updatedColumns).forEach((columnId) => {
@@ -57,7 +56,6 @@ const Dashboard = () => {
     try {
       await axios.put(`http://localhost:5000/api/tasks/${taskId}/stop-timer`);
 
-      // Update the columns state
       setColumns((prevColumns) => {
         const updatedColumns = { ...prevColumns };
         Object.keys(updatedColumns).forEach((columnId) => {
@@ -108,7 +106,7 @@ const Dashboard = () => {
           if (groupedTasks[task.status]) {
             groupedTasks[task.status].items.push({
               ...task,
-              isTimerRunning: task.isTimerRunning || false, // Ensure isTimerRunning is included
+              isTimerRunning: task.isTimerRunning || false,
             });
           }
         });
@@ -139,10 +137,10 @@ const Dashboard = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentTime(new Date()); // Update the current time every minute
+      setCurrentTime(new Date());
     }, 1000);
 
-    return () => clearInterval(interval); // Cleanup the interval on component unmount
+    return () => clearInterval(interval);
   }, []);
 
   const formatDueDate = (dueDate, currentTime) => {
@@ -190,8 +188,6 @@ const Dashboard = () => {
     }
     return { text: generateText(calculateTimeDifference(diffInMs), "Due in"), isOverdue: false };
   };
-
-
 
   const handleDragEnd = async (result) => {
     const { source, destination, type } = result;
@@ -256,7 +252,6 @@ const Dashboard = () => {
 
   const openModal = () => {
     setIsModalOpen(true);
-    // Set the selectedStatus to the first column ID (or any valid column ID)
     const firstColumnId = Object.keys(columns)[0];
     setSelectedStatus(firstColumnId);
   };
@@ -319,7 +314,7 @@ const Dashboard = () => {
 
       setColumns((prevColumns) => ({
         ...prevColumns,
-        [columnId]: { name: columnName, items: [] }, // Ensure items array is initialized
+        [columnId]: { name: columnName, items: [] },
       }));
 
       setNewBoardCreateName("");
@@ -472,7 +467,6 @@ const Dashboard = () => {
                                     >
                                       <span>{task.title}</span>
                                       <div className="task-bottom">
-                                        {/* Due Date (Far Left) */}
                                         {task.dueDate && (
                                           <span
                                             className={`due-date ${formatDueDate(task.dueDate, currentTime).isOverdue ? "overdue" : ""}`}
@@ -481,7 +475,6 @@ const Dashboard = () => {
                                           </span>
                                         )}
 
-                                        {/* Clock Icon (Only shown if timer is active) */}
                                         {task.isTimerRunning && (
                                           <svg
                                             xmlns="http://www.w3.org/2000/svg"
@@ -502,12 +495,10 @@ const Dashboard = () => {
                                           </svg>
                                         )}
 
-                                        {/* Priority Letters */}
                                         <b className={`priority-${task.priority.replace(/\s+/g, "")}`}>
                                           {task.priority}
                                         </b>
 
-                                        {/* Task Actions (Dots Button, Far Right) */}
                                         <div className="task-actions">
                                           <button
                                             className={`dots-button ${isTaskHovered === task._id || isTaskDropdownOpen === task._id ? "visible" : ""}`}
@@ -527,7 +518,7 @@ const Dashboard = () => {
                                                   } else {
                                                     startTimer(task._id);
                                                   }
-                                                  setIsTaskDropdownOpen(false); // Close the dropdown after clicking
+                                                  setIsTaskDropdownOpen(false);
                                                 }}
                                               >
                                                 {task.isTimerRunning ? "Stop Timer" : "Start Timer"}

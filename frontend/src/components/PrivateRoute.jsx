@@ -14,7 +14,7 @@ const PrivateRoute = () => {
     return () => unsubscribe();
   }, []);
 
-  if (loading) return <p>Loading...</p>; // Show a loading state
+  if (loading) return <p>Loading...</p>;
 
   return user ? <Outlet /> : <Navigate to="/login" />;
 };

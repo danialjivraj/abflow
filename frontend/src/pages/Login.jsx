@@ -1,8 +1,8 @@
 import { auth, googleProvider } from "../firebase";
 import { signInWithPopup } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-import "./Login.css"; // Import the updated CSS file
-import googleIcon from "../assets/google-icon.png"; // Make sure the Google icon exists
+import "./Login.css";
+import googleIcon from "../assets/google-icon.png";
 
 const Login = () => {
   const navigate = useNavigate();
