@@ -1,16 +1,19 @@
-/* Sidebar.css */
 .sidebar {
-  width: 225px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 240px;
+  height: 100vh;
   background-color: #2a2a2a;
   color: #ffffff;
   padding: 18px;
+  box-sizing: border-box;
   box-shadow: 1.8px 0 4.5px rgba(0, 0, 0, 0.1);
-  height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  box-sizing: border-box;
   overflow-y: auto;
+  z-index: 999;
 }
 
 .sidebar-content {
@@ -62,38 +65,4 @@
 
 .logout-btn:hover {
   background-color: #dc2626;
-}
-
-/* Layout.css */
-.dashboard-container {
-  display: flex;
-  min-height: 100vh;
-}
-
-.sidebar-container {
-  width: 225px;
-  background-color: #2a2a2a;
-  color: #ffffff;
-  box-shadow: 1.8px 0 4.5px rgba(0, 0, 0, 0.1);
-  position: fixed;
-  height: 100vh;
-  overflow-y: auto;
-}
-
-.main-content {
-  flex: 1;
-  margin-left: 225px;
-  padding: 18px;
-  margin-top: 36px;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .sidebar-container {
-    width: 180px;
-  }
-
-  .main-content {
-    margin-left: 180px;
-  }
 }

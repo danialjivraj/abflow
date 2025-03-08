@@ -2,23 +2,23 @@ import Sidebar from "../components/Sidebar";
 import TopBar from "../components/TopBar";
 import { useLocation } from "react-router-dom";
 import { topBarConfig } from "../config/topBarConfig";
+import "./layout.css";
 
 const Layout = ({ children, openModal }) => {
   const location = useLocation();
   const buttons = topBarConfig[location.pathname] || [];
 
   return (
-    <div className="dashboard-container">
-      <div className="sidebar-container">
-        <Sidebar />
-      </div>
+    <>
+      <Sidebar />
 
-      {buttons.length > 0 && <TopBar buttons={buttons} openModal={openModal} />}
-
-      <div className="main-content">
-        {children}
+      <div className="content-container">
+        {buttons.length > 0 && <TopBar buttons={buttons} openModal={openModal} />}
+        <div className="main-content">
+          {children}
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

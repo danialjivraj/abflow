@@ -1,7 +1,7 @@
 .top-bar {
   position: fixed;
   top: 0;
-  left: 225px;
+  left: 240px;
   right: 0;
   height: 50px;
   background-color: #2a2a2a;
@@ -9,7 +9,7 @@
   align-items: center;
   padding: 0 18px;
   box-shadow: 0 1.8px 3.6px rgba(0, 0, 0, 0.2);
-  z-index: 999;
+  z-index: 998;
   gap: 9px;
   border-bottom: 1px solid #444;
   margin-bottom: 90px;

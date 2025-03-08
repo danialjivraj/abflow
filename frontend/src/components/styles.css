@@ -7,9 +7,10 @@ body {
 
 .kanban-container {
     padding: 18px;
-    max-width: 1620px;
-    margin: 0 auto;
-}
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0;
+  }
 
 .task-input-container {
     display: flex;
@@ -100,12 +101,13 @@ select {
 
 .kanban-board {
     display: flex;
-    gap: 0;
-    align-items: flex-start;
+    flex-wrap: nowrap;
     overflow-x: auto;
+    align-items: flex-start;
+    justify-content: flex-start;
     padding-bottom: 9px;
     position: relative;
-}
+  }
 
 .kanban-column {
     background-color: #2a2a2a;
