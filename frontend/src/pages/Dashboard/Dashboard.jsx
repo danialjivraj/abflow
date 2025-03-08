@@ -48,6 +48,9 @@ const Dashboard = () => {
   const [dueDate, setDueDate] = useState(null);
   const [assignedTo, setAssignedTo] = useState("");
   const [taskDescription, setTaskDescription] = useState("");
+  // --- errors and warnings for creating a task ---
+  const [errorMessage, setErrorMessage] = useState("");
+  const [dueDateWarning, setDueDateWarning] = useState("");
 
   // ---------------------- side effects ----------------------
   // sets current user from firebase
@@ -226,8 +229,15 @@ const Dashboard = () => {
   };
 
   const handleCreateTask = async () => {
-    if (!newTaskTitle.trim() || !userId || isSubmitting) return;
+    if (!newTaskTitle.trim()) {
+      setErrorMessage("Task Title is required.");
+      return;
+    }
+    if (!userId || isSubmitting) return;
+  
     setIsSubmitting(true);
+    setErrorMessage("");
+  
     try {
       const taskData = {
         title: newTaskTitle,
@@ -374,7 +384,10 @@ const Dashboard = () => {
           taskDescription={taskDescription}
           setTaskDescription={setTaskDescription}
           handleCreateTask={handleCreateTask}
-        />
+          errorMessage={errorMessage}
+          dueDateWarning={dueDateWarning}
+          setDueDateWarning={setDueDateWarning}
+          />
       </div>
     </Layout>
   );

@@ -1,5 +1,3 @@
-// src/utils/dateUtils.js
-
 export const formatDueDate = (dueDate, currentTime) => {
     const due = new Date(dueDate);
     const diffInMs = due - currentTime;

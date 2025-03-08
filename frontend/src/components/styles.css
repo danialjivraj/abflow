@@ -805,3 +805,18 @@ select {
     padding: 10.8px;
     font-size: 16.2px;
 }
+
+.error-message {
+  color: #ff4d4d;
+  font-size: 14.4px;
+  margin-top: -9px;
+  margin-bottom: 9px;
+}
+
+.warning-message {
+    color: #ffcc00;
+    font-size: 14.4px;
+    margin-top: -9px;
+    margin-bottom: 9px;
+    font-style: italic;
+  }
