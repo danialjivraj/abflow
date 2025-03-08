@@ -52,7 +52,7 @@ const Column = ({
             )}
             <div className="column-actions">
               <button
-                className={`dots-button ${isDropdownOpen === columnId ? "active" : ""}`}
+                className={`dots-button ${isDropdownOpen === columnId ? "active dropdown-active" : ""}`}
                 onClick={() => setIsDropdownOpen(isDropdownOpen === columnId ? null : columnId)}
               >
                 &#8942;

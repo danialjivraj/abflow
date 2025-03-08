@@ -63,7 +63,7 @@ const TaskCard = ({
               <button
                 className={`dots-button ${
                   isTaskHovered === task._id || isTaskDropdownOpen === task._id ? "visible" : ""
-                }`}
+                } ${isTaskDropdownOpen === task._id ? "dropdown-active" : ""}`}
                 onClick={() =>
                   setIsTaskDropdownOpen(isTaskDropdownOpen === task._id ? null : task._id)
                 }
