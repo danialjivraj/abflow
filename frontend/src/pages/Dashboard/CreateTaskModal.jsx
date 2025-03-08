@@ -2,6 +2,7 @@ import React from "react";
 import DatePicker from "react-datepicker";
 import TiptapEditor from "../../components/TiptapEditor";
 import "react-datepicker/dist/react-datepicker.css";
+import "./createTaskModal.css";
 
 const allowedPriorities = ["A1", "A2", "A3", "B1", "B2", "B3", "C1", "C2", "C3", "D", "E"];
 

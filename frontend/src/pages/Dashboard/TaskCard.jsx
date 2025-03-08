@@ -14,7 +14,13 @@ const TaskCard = ({
   deleteTask,
   startTimer,
   stopTimer,
+  openViewTaskModal,
 }) => {
+  const handleClick = (e) => {
+    if (e.target.closest(".task-actions")) return;
+    openViewTaskModal(task);
+  };
+
   return (
     <Draggable draggableId={task._id} index={index}>
       {(provided) => (
@@ -23,6 +29,7 @@ const TaskCard = ({
           {...provided.draggableProps}
           {...provided.dragHandleProps}
           className="task-card"
+          onClick={handleClick}
           onMouseEnter={() => setIsTaskHovered(task._id)}
           onMouseLeave={() => setIsTaskHovered(null)}
         >
@@ -62,18 +69,24 @@ const TaskCard = ({
             <div className="task-actions">
               <button
                 className={`dots-button ${
-                  isTaskHovered === task._id || isTaskDropdownOpen === task._id ? "visible" : ""
+                  isTaskHovered === task._id || isTaskDropdownOpen === task._id
+                    ? "visible"
+                    : ""
                 } ${isTaskDropdownOpen === task._id ? "dropdown-active" : ""}`}
-                onClick={() =>
-                  setIsTaskDropdownOpen(isTaskDropdownOpen === task._id ? null : task._id)
-                }
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsTaskDropdownOpen(
+                    isTaskDropdownOpen === task._id ? null : task._id
+                  );
+                }}
               >
                 &#8942;
               </button>
               {isTaskDropdownOpen === task._id && (
                 <div className="dropdown-menu open" ref={dropdownRef}>
                   <button
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation();
                       task.isTimerRunning ? stopTimer(task._id) : startTimer(task._id);
                       setIsTaskDropdownOpen(null);
                     }}
@@ -81,7 +94,8 @@ const TaskCard = ({
                     {task.isTimerRunning ? "Stop Timer" : "Start Timer"}
                   </button>
                   <button
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation();
                       deleteTask(task._id);
                       setIsTaskDropdownOpen(null);
                     }}

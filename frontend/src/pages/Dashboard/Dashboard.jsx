@@ -1,9 +1,11 @@
+// Dashboard.jsx
 import React, { useEffect, useState, useRef } from "react";
 import { DragDropContext, Droppable } from "@hello-pangea/dnd";
 import Layout from "../../components/Layout";
 import TopBar from "../../components/TopBar";
 import { topBarConfig } from "../../config/topBarConfig";
 import CreateTaskModal from "./CreateTaskModal";
+import ViewTaskModal from "./ViewTaskModal";
 import Column from "./Column";
 import AddBoard from "./AddBoard";
 import { auth } from "../../firebase";
@@ -51,6 +53,10 @@ const Dashboard = () => {
   // --- errors and warnings for creating a task ---
   const [errorMessage, setErrorMessage] = useState("");
   const [dueDateWarning, setDueDateWarning] = useState("");
+  
+  // --- state for viewing/updating a task ---
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [selectedTask, setSelectedTask] = useState(null);
 
   // ---------------------- side effects ----------------------
   // sets current user from firebase
@@ -126,6 +132,17 @@ const Dashboard = () => {
   const closeModal = () => {
     resetForm();
     setIsModalOpen(false);
+  };
+
+  // handler for opening the view task modal
+  const openViewTaskModal = (task) => {
+    setSelectedTask(task);
+    setIsViewModalOpen(true);
+  };
+
+  const closeViewTaskModal = () => {
+    setSelectedTask(null);
+    setIsViewModalOpen(false);
   };
 
   const handleCreateBoard = async () => {
@@ -282,6 +299,10 @@ const Dashboard = () => {
     }
   };
 
+  const handleUpdateTask = (updatedTask) => {
+    updateTaskInColumns(updatedTask._id, updatedTask);
+  };
+
   const handleDragEnd = async (result) => {
     const { source, destination, type } = result;
     if (!destination) return;
@@ -362,6 +383,7 @@ const Dashboard = () => {
                     deleteTask={handleDeleteTask}
                     startTimer={handleStartTimer}
                     stopTimer={handleStopTimer}
+                    openViewTaskModal={openViewTaskModal}
                   />
                 ))}
                 {provided.placeholder}
@@ -396,7 +418,14 @@ const Dashboard = () => {
           errorMessage={errorMessage}
           dueDateWarning={dueDateWarning}
           setDueDateWarning={setDueDateWarning}
-          />
+        />
+        <ViewTaskModal
+          isModalOpen={isViewModalOpen}
+          closeModal={closeViewTaskModal}
+          task={selectedTask}
+          handleUpdateTask={handleUpdateTask}
+          columns={columns}
+        />
       </div>
     </Layout>
   );

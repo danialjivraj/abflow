@@ -1,0 +1,299 @@
+/*********************************
+ * Modal Overlay and Container
+ *********************************/
+ .view-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.view-modal-content {
+    background-color: #2a2a2a;
+    padding: 18px;
+    border-radius: 7.2px;
+    width: 1000px;
+    max-width: 95%;
+    color: #ffffff;
+    box-shadow: 0 3.6px 7.2px rgba(0, 0, 0, 0.3);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 585px;
+    min-width: 900px;
+}
+
+.view-modal-content h2 {
+    margin-top: 0;
+    padding-top: 4.5px;
+    font-size: 21.6px;
+}
+
+.view-close-modal {
+    position: absolute;
+    top: 0.9px;
+    right: 9px;
+    background: none;
+    border: none;
+    font-size: 45px;
+    font-weight: bold;
+    color: #ff4d4d;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    outline: none;
+}
+
+.view-close-modal:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.view-close-modal:hover {
+    color: #cc0000;
+}
+
+/*********************************
+ * Modal Layout
+ *********************************/
+.view-modal-body {
+    display: flex;
+    gap: 24px;
+    margin-top: 16px;
+    flex: 1;
+}
+
+.view-modal-left {
+    flex: 2;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.view-modal-right {
+    flex: 1;
+    min-width: 0;
+    margin-left: 20px;
+}
+
+.panel-heading {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0;
+    padding-bottom: 4px;
+    border-bottom: 1px solid #444;
+    color: #ccc;
+}
+
+.field-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 1rem;
+}
+
+.field-row label {
+    flex: 0 0 100px;
+    font-weight: 500;
+    font-size: 14px;
+    color: #ddd;
+    margin-bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+/*********************************
+ * Inline Editable Field
+ *********************************/
+.view-task-field {
+    border: none;
+    border-radius: 5.4px;
+    background-color: #2a2a2a;
+    color: #ffffff;
+    font-size: 14.4px;
+    display: flex;
+    align-items: flex-start;
+    padding: 0;
+    min-height: 40px;
+    width: 100%;
+    transition: background-color 0.2s ease;
+}
+
+/*********************************
+ * Scroll Wrapper (holds scrollbar)
+ *********************************/
+.scroll-wrapper {
+    max-height: 400px;
+    overflow-y: auto;
+    background-color: #2a2a2a;
+    border-radius: 5.4px;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+}
+
+/*********************************
+ * Text Container (no hover effect here)
+ *********************************/
+.text-container {
+    padding: 10px;
+    box-sizing: border-box;
+    width: 100%;
+    background-color: inherit;
+    border-radius: inherit;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.text-container:hover {
+    background-color: #4a4a4a;
+    cursor: pointer;
+}
+
+/*********************************
+ * Editing Inputs
+ *********************************/
+.view-modal-content input,
+.view-modal-content select,
+.view-modal-content textarea {
+    width: 100%;
+    padding: 10.8px;
+    border: 1px solid #444;
+    border-radius: 5.4px;
+    background-color: #3a3a3a;
+    color: #ffffff;
+    box-sizing: border-box;
+    font-size: 14.4px;
+    margin-bottom: 0;
+}
+
+.view-task-field input,
+.view-task-field textarea {
+    resize: none;
+    border: none;
+    background: transparent;
+    color: #fff;
+    font-size: 14.4px;
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+    outline: none;
+    cursor: text;
+    min-height: 40px;
+}
+
+/*********************************
+ * Footer Buttons (if any)
+ *********************************/
+.view-modal-footer {
+    margin-top: 27px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.view-save-task-btn {
+    background-color: #2d74d1;
+    color: white;
+    border: none;
+    padding: 7.2px 14.4px;
+    border-radius: 3.6px;
+    cursor: pointer;
+    font-size: 16.2px;
+    transition: background-color 0.2s ease;
+}
+
+.view-save-task-btn:hover {
+    background-color: #0056b3;
+}
+
+.view-cancel-btn {
+    background-color: #ff4d4d;
+    color: white;
+    padding: 10.8px 16.2px;
+    border: none;
+    border-radius: 5.4px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 16.2px;
+    transition: background-color 0.2s ease;
+}
+
+.view-cancel-btn:hover {
+    background-color: #cc0000;
+}
+
+/*********************************
+ * Title Styling
+ *********************************/
+.modal-title {
+    display: inline-block;
+    max-width: 50%;
+    margin-bottom: 0.5rem;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+}
+
+.modal-title-container {
+    margin-bottom: 1rem;
+}
+
+.modal-title-label {
+    font-size: 14px;
+    font-weight: bold;
+    color: #ccc;
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.modal-title-divider {
+    border: none;
+    border-bottom: 1px solid #444;
+    margin-top: 0.5rem;
+    width: 95%;
+    margin-left: 0;
+}
+
+/*********************************
+ * Tiptap Editor Min-Height
+ *********************************/
+.view-modal-content .ProseMirror {
+    min-height: 320px;
+}
+
+/*********************************
+ * Editing Mode
+ *********************************/
+.view-task-field.is-editing {
+    overflow-y: visible !important;
+    max-height: none !important;
+    cursor: default;
+}
+
+/*********************************
+ * Buttons in Editing UI
+ *********************************/
+.button-container {
+    display: flex;
+    gap: 8px;
+    margin-top: -10px;
+}
+
+.tick-btn,
+.cross-btn {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
