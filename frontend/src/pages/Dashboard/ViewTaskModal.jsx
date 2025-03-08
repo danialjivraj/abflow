@@ -3,6 +3,7 @@ import TiptapEditor from "../../components/TiptapEditor";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import "./viewTaskModal.css";
+import { formatDueDate } from "../../utils/dateUtils";
 
 // Helper to format date
 function formatDateWithoutGMT(dateValue) {
@@ -28,7 +29,6 @@ const allowedPriorities = [
   "D", "E",
 ];
 
-// InlineEditable component
 const InlineEditable = ({
   value,
   onChange,
@@ -55,7 +55,6 @@ const InlineEditable = ({
     }
   };
 
-  // Display logic for certain types
   let displayValue = value;
   if (type === "date" && value) {
     displayValue = formatDateWithoutGMT(value);
@@ -78,7 +77,7 @@ const InlineEditable = ({
               onKeyDown={handleKeyDown}
               autoFocus
               rows={1}
-              style={{ width: "100%", height: "40px", resize: "none" }}
+              style={{ width: "600%", resize: "none" }}
             />
           ) : type === "date" ? (
             <DatePicker
@@ -122,7 +121,6 @@ const InlineEditable = ({
               autoFocus
             />
           )}
-          {/* Only show tick/cross for non-dropdown fields */}
           {!isDropdown && (
             <div className="button-container">
               <button className="tick-btn" onClick={handleConfirm}>
@@ -135,8 +133,6 @@ const InlineEditable = ({
           )}
         </>
       ) : (
-        // NON-EDITING VIEW:
-        // Separate the scrollbar from the text container:
         <div className="scroll-wrapper">
           <div
             className="text-container"
@@ -152,7 +148,6 @@ const InlineEditable = ({
   );
 };
 
-// InlineTiptap component
 const InlineTiptap = ({ value, onChange }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [localValue, setLocalValue] = useState(value);
@@ -180,7 +175,7 @@ const InlineTiptap = ({ value, onChange }) => {
       {isEditing ? (
         <div style={containerStyle}>
           <TiptapEditor value={localValue} onChange={setLocalValue} />
-          <div className="button-container">
+          <div className="button-container description-buttons">
             <button className="tick-btn" onClick={handleConfirm}>
               ✔️
             </button>
@@ -190,7 +185,6 @@ const InlineTiptap = ({ value, onChange }) => {
           </div>
         </div>
       ) : value && value.trim() !== "" ? (
-        // NON-EDITING VIEW for Tiptap:
         <div className="scroll-wrapper">
           <div
             className="text-container"
@@ -238,28 +232,48 @@ const ViewTaskModal = ({
           &times;
         </button>
 
-        <h2 className="modal-title">
-          <div className="title-section">
-            <h3 className="panel-heading">Title</h3>
-            <InlineEditable
-              value={editableTask.title || ""}
-              onChange={(val) => updateField("title", val)}
-              type="title"
-            />
-          </div>
-        </h2>
+        <div className="modal-header">
+          <h2>Task Overview</h2>
+        </div>
+
 
         <div className="view-modal-body">
+
           <div className="view-modal-left">
-            <h3 className="panel-heading">Description</h3>
-            <InlineTiptap
-              value={editableTask.description || ""}
-              onChange={(val) => updateField("description", val)}
-            />
+            <div className="title-block">
+              <h3 className="panel-heading">Title</h3>
+              <InlineEditable
+                value={editableTask.title || ""}
+                onChange={(val) => updateField("title", val)}
+                type="title"
+              />
+            </div>
+
+            <div className="description-block">
+              <h3 className="panel-heading">Description</h3>
+              <InlineTiptap
+                value={editableTask.description || ""}
+                onChange={(val) => updateField("description", val)}
+              />
+            </div>
           </div>
 
           <div className="view-modal-right">
             <h3 className="panel-heading">Details</h3>
+
+            <div className="field-row">
+              <label>Created At:</label>
+              <div className="view-task-field non-editable-field">
+                <div className="scroll-wrapper">
+                  <div className="text-container">
+                    {editableTask.createdAt
+                      ? formatDateWithoutGMT(editableTask.createdAt)
+                      : "N/A"}
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div className="field-row">
               <label>Priority:</label>
               <InlineEditable
@@ -288,6 +302,15 @@ const ViewTaskModal = ({
               />
             </div>
 
+            <div className="field-row due-status-row">
+              <label className="empty-label"></label>
+              <div className="due-status-text">
+                {editableTask.dueDate
+                  ? formatDueDate(editableTask.dueDate, new Date()).text
+                  : "No due date"}
+              </div>
+            </div>
+
             <div className="field-row">
               <label>Assigned To:</label>
               <InlineEditable
@@ -301,6 +324,15 @@ const ViewTaskModal = ({
               <InlineEditable
                 value={editableTask.storyPoints || 0}
                 onChange={(val) => updateField("storyPoints", val)}
+                type="number"
+              />
+            </div>
+
+            <div className="field-row">
+              <label>Time Spent:</label>
+              <InlineEditable
+                value={editableTask.timeSpent || 0}
+                onChange={(val) => updateField("timeSpent", val)}
                 type="number"
               />
             </div>

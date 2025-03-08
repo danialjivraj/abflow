@@ -65,27 +65,28 @@
 /*********************************
  * Modal Layout
  *********************************/
-.view-modal-body {
+ .view-modal-body {
     display: flex;
     gap: 24px;
     margin-top: 16px;
     flex: 1;
-}
-
-.view-modal-left {
+  }
+  
+  .view-modal-left {
     flex: 2;
     min-width: 0;
     display: flex;
     flex-direction: column;
-}
-
-.view-modal-right {
+    gap: 24px;
+  }
+  
+  .view-modal-right {
     flex: 1;
     min-width: 0;
-    margin-left: 20px;
-}
-
-.panel-heading {
+    margin-top: 0;
+  }
+  
+  .panel-heading {
     font-size: 1.1rem;
     font-weight: 600;
     margin: 0;
@@ -178,7 +179,6 @@
     margin-bottom: 0;
 }
 
-.view-task-field input,
 .view-task-field textarea {
     resize: none;
     border: none;
@@ -190,7 +190,7 @@
     box-sizing: border-box;
     outline: none;
     cursor: text;
-    min-height: 40px;
+    min-height: 70px;
 }
 
 /*********************************
@@ -238,7 +238,7 @@
  *********************************/
 .modal-title {
     display: inline-block;
-    max-width: 50%;
+    max-width: 64%;
     margin-bottom: 0.5rem;
     white-space: normal;
     overflow-wrap: break-word;
@@ -276,9 +276,8 @@
  * Editing Mode
  *********************************/
 .view-task-field.is-editing {
-    overflow-y: visible !important;
-    max-height: none !important;
-    cursor: default;
+    flex-direction: column;
+    align-items: stretch;
 }
 
 /*********************************
@@ -286,8 +285,12 @@
  *********************************/
 .button-container {
     display: flex;
+    flex-direction: row;
     gap: 8px;
-    margin-top: -10px;
+}
+  
+.button-container.description-buttons {
+  margin-top: -10px;
 }
 
 .tick-btn,
@@ -297,3 +300,26 @@
     font-size: 1.2rem;
     cursor: pointer;
 }
+
+.due-status-row {
+    margin-top: -0.1rem;
+    align-items: flex-start;
+  }
+  
+  .due-date-container {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .due-status-text {
+    margin-top: 2px;
+    margin-left: 11px;
+    font-size: 12px;
+    color: #aaaaaa;
+    line-height: 1.2;
+  }
+  
+  .non-editable-field {
+    pointer-events: none;
+    opacity: 1;
+  }
