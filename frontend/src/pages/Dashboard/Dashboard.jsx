@@ -123,7 +123,10 @@ const Dashboard = () => {
 
   // ---------------------- handlers ----------------------
   const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
+  const closeModal = () => {
+    resetForm();
+    setIsModalOpen(false);
+  };
 
   const handleCreateBoard = async () => {
     if (!newBoardCreateName.trim() || !userId) return;
@@ -228,6 +231,17 @@ const Dashboard = () => {
     }
   };
 
+  const resetForm = () => {
+    setNewTaskTitle("");
+    setSelectedPriority("A1");
+    setSelectedStatus("");
+    setDueDate(null);
+    setAssignedTo("");
+    setTaskDescription("");
+    setErrorMessage("");
+    setDueDateWarning("");
+  };
+
   const handleCreateTask = async () => {
     if (!newTaskTitle.trim()) {
       setErrorMessage("Task Title is required.");
@@ -259,12 +273,7 @@ const Dashboard = () => {
         }
         return updated;
       });
-      // Clear form fields
-      setNewTaskTitle("");
-      setSelectedPriority("A1");
-      setDueDate(null);
-      setAssignedTo("");
-      setTaskDescription("");
+      resetForm();
       closeModal();
     } catch (error) {
       console.error("Error creating task:", error);
