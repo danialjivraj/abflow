@@ -29,6 +29,24 @@ const allowedPriorities = [
   "D", "E",
 ];
 
+const DropdownField = ({ value, onChange, type = "priority", columns = {} }) => {
+  return (
+    <select value={value} onChange={(e) => onChange(e.target.value)}>
+      {type === "status"
+        ? Object.keys(columns).map((columnId) => (
+            <option key={columnId} value={columnId}>
+              {columns[columnId].name}
+            </option>
+          ))
+        : allowedPriorities.map((p) => (
+            <option key={p} value={p}>
+              {p}
+            </option>
+          ))}
+    </select>
+  );
+};
+
 const InlineEditable = ({
   value,
   onChange,
@@ -235,8 +253,6 @@ const ViewTaskModal = ({
         <div className="modal-header">
           <h2>Task Overview</h2>
         </div>
-
-
         <div className="view-modal-body">
 
           <div className="view-modal-left">
@@ -276,21 +292,24 @@ const ViewTaskModal = ({
 
             <div className="field-row">
               <label>Priority:</label>
-              <InlineEditable
-                value={editableTask.priority || ""}
-                onChange={(val) => updateField("priority", val)}
-                type="priority"
-              />
+              <div className="view-task-field">
+                <DropdownField
+                  value={editableTask.priority || ""}
+                  onChange={(val) => updateField("priority", val)}
+                  type="priority"
+                />
+              </div>
             </div>
-
             <div className="field-row">
               <label>Status:</label>
-              <InlineEditable
-                value={editableTask.status || ""}
-                onChange={(val) => updateField("status", val)}
-                type="status"
-                columns={columns}
-              />
+              <div className="view-task-field">
+                <DropdownField
+                  value={editableTask.status || ""}
+                  onChange={(val) => updateField("status", val)}
+                  type="status"
+                  columns={columns}
+                />
+              </div>
             </div>
 
             <div className="field-row">

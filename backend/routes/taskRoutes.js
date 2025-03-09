@@ -3,10 +3,10 @@ const router = express.Router();
 const Task = require("../models/Task");
 const User = require("../models/User");
 
-// create Task
+// create task
 router.post("/", async (req, res) => {
   try {
-    const { title, priority, userId, description, assignedTo, status, dueDate } = req.body;
+    const { title, priority, userId, description, assignedTo, status, dueDate, storyPoints } = req.body;
     if (!title || !priority || !userId || !status) {
       return res.status(400).json({ error: "All fields are required" });
     }
@@ -35,7 +35,8 @@ router.post("/", async (req, res) => {
       description: description || "",
       assignedTo: assignedTo || "",
       dueDate: dueDate || null,
-      order: newOrder
+      order: newOrder,
+      storyPoints: storyPoints !== undefined ? storyPoints : 0,
     });
 
     await newTask.save();
@@ -45,6 +46,7 @@ router.post("/", async (req, res) => {
     res.status(500).json({ error: "Failed to create task" });
   }
 });
+
 // move task
 router.put("/:id/move", async (req, res) => {
   try {
@@ -63,13 +65,12 @@ router.put("/:id/move", async (req, res) => {
   }
 });
 
-
-
-// edit Task
+// edit task
 router.put("/:id/edit", async (req, res) => {
   try {
-    const { title, priority } = req.body;
-    const task = await Task.findByIdAndUpdate(req.params.id, { title, priority }, { new: true });
+    const { title, priority, status, dueDate, assignedTo, storyPoints, timeSpent, description } = req.body;
+    const updatedFields = { title, priority, status, dueDate, assignedTo, storyPoints, timeSpent, description };
+    const task = await Task.findByIdAndUpdate(req.params.id, updatedFields, { new: true });
     res.json(task);
   } catch (error) {
     console.error("Error editing task:", error);
@@ -88,7 +89,7 @@ router.put("/:id/archive", async (req, res) => {
   }
 });
 
-// delete Task
+// delete task
 router.delete("/:id", async (req, res) => {
   try {
     await Task.findByIdAndDelete(req.params.id);

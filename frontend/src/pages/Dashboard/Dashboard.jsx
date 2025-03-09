@@ -21,6 +21,7 @@ import {
   startTimerAPI,
   stopTimerAPI,
   deleteTaskAPI,
+  updateTask,
 } from "../../services/tasksService";
 import { formatDueDate } from "../../utils/dateUtils";
 import "../../components/styles.css";
@@ -50,6 +51,7 @@ const Dashboard = () => {
   const [dueDate, setDueDate] = useState(null);
   const [assignedTo, setAssignedTo] = useState("");
   const [taskDescription, setTaskDescription] = useState("");
+  const [storyPoints, setStoryPoints] = useState(0);
   // --- errors and warnings for creating a task ---
   const [errorMessage, setErrorMessage] = useState("");
   const [dueDateWarning, setDueDateWarning] = useState("");
@@ -255,6 +257,7 @@ const Dashboard = () => {
     setDueDate(null);
     setAssignedTo("");
     setTaskDescription("");
+    setStoryPoints(0);
     setErrorMessage("");
     setDueDateWarning("");
   };
@@ -278,6 +281,7 @@ const Dashboard = () => {
         dueDate,
         assignedTo,
         description: taskDescription,
+        storyPoints,
       };
       const response = await createTask(taskData);
       const newTask = response.data;
@@ -299,8 +303,14 @@ const Dashboard = () => {
     }
   };
 
-  const handleUpdateTask = (updatedTask) => {
-    updateTaskInColumns(updatedTask._id, updatedTask);
+  const handleUpdateTask = async (updatedTask) => {
+    try {
+      const response = await updateTask(updatedTask);
+      const updatedTaskFromBackend = response.data;
+      updateTaskInColumns(updatedTaskFromBackend._id, updatedTaskFromBackend);
+    } catch (error) {
+      console.error("Error updating task:", error);
+    }
   };
 
   const handleDragEnd = async (result) => {
@@ -418,6 +428,8 @@ const Dashboard = () => {
           errorMessage={errorMessage}
           dueDateWarning={dueDateWarning}
           setDueDateWarning={setDueDateWarning}
+          storyPoints={storyPoints} // Pass storyPoints here
+          setStoryPoints={setStoryPoints} // Pass setStoryPoints here
         />
         <ViewTaskModal
           isModalOpen={isViewModalOpen}

@@ -146,7 +146,7 @@
 /*********************************
  * Text Container (no hover effect here)
  *********************************/
-.text-container {
+ .text-container {
     padding: 10px;
     box-sizing: border-box;
     width: 100%;
@@ -155,12 +155,14 @@
     white-space: pre-wrap;
     word-wrap: break-word;
     overflow-wrap: break-word;
+    transition: background-color 0.3s ease;
 }
 
 .text-container:hover {
-    background-color: #4a4a4a;
+    background-color: #3a3a3a;
     cursor: pointer;
 }
+
 
 /*********************************
  * Editing Inputs
@@ -272,6 +274,11 @@
     min-height: 320px;
 }
 
+.view-modal-content .tiptap-toolbar button svg {
+  width: 13px;
+  height: 13px;
+}
+  
 /*********************************
  * Editing Mode
  *********************************/

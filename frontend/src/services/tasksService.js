@@ -117,3 +117,12 @@ export const saveColumnOrder = (userId, columnOrder) => {
     columnOrder,
   });
 };
+
+/**
+ * Update an existing task.
+ * @param {Object} taskData - An object containing updated task fields, including _id.
+ * @returns {Promise} Axios PUT request that resolves with the updated task.
+ */
+export const updateTask = (taskData) => {
+  return axios.put(`${API_URL}/${taskData._id}/edit`, taskData);
+};

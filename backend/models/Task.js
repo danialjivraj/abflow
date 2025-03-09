@@ -13,6 +13,7 @@ const TaskSchema = new mongoose.Schema({
   assignedTo: { type: String, default: "" },
   createdAt: { type: Date, default: Date.now },
   points: { type: Number, default: 0 },
+  storyPoints: { type: Number, default: 0 },
   order: { type: Number, default: 0 },
   description: { type: String, default: "" },
   timeSpent: { type: Number, default: 0 },
