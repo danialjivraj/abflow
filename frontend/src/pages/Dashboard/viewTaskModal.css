@@ -133,6 +133,10 @@
     transition: background-color 0.2s ease;
 }
 
+.view-task-field .scroll-wrapper {
+    align-self: flex-start; 
+  }
+  
 /*********************************
  * Scroll Wrapper (holds scrollbar)
  *********************************/
