@@ -410,3 +410,11 @@
   height: 20px;
   transition: stroke 0.3s ease;
 }
+
+.field-row .view-task-field .timer-toggle-container {
+    margin-left: 10px;
+}
+
+.due-status-text.overdue {
+  color: rgb(219, 71, 71);
+}

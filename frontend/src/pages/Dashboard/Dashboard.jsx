@@ -272,13 +272,15 @@ const Dashboard = () => {
       console.error("Error starting timer:", error);
     }
   };
-
+  
   const handleStopTimer = async (taskId) => {
     try {
-      await stopTimerAPI(taskId);
+      const response = await stopTimerAPI(taskId);
+      const updatedTask = response.data;
       updateTaskInColumns(taskId, {
         isTimerRunning: false,
         timerStartTime: null,
+        timeSpent: updatedTask.timeSpent,
       });
     } catch (error) {
       console.error("Error stopping timer:", error);
@@ -342,7 +344,16 @@ const Dashboard = () => {
     try {
       const response = await updateTask(updatedTask);
       const updatedTaskFromBackend = response.data;
-      updateTaskInColumns(updatedTaskFromBackend._id, updatedTaskFromBackend);
+  
+      setColumns((prevColumns) => {
+        const updatedColumns = { ...prevColumns };
+        Object.keys(updatedColumns).forEach((colId) => {
+          updatedColumns[colId].items = updatedColumns[colId].items.map((task) =>
+            task._id === updatedTaskFromBackend._id ? updatedTaskFromBackend : task
+          );
+        });
+        return updatedColumns;
+      });
     } catch (error) {
       console.error("Error updating task:", error);
     }
@@ -472,8 +483,8 @@ const Dashboard = () => {
           task={selectedTask}
           handleUpdateTask={handleUpdateTask}
           columns={columns}
-          startTimer={handleStartTimer}
-          stopTimer={handleStopTimer}
+          startTimer={startTimerAPI}
+          stopTimer={stopTimerAPI}
         />
       </div>
     </Layout>

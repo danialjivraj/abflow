@@ -349,3 +349,42 @@ router.put("/:id/stop-timer", async (req, res) => {
   }
 });
 module.exports = router;
+
+// start timer endpoint
+router.put("/:id/start-timer", async (req, res) => {
+  try {
+    const task = await Task.findById(req.params.id);
+    if (!task) return res.status(404).json({ error: "Task not found" });
+
+    task.isTimerRunning = true;
+    task.timerStartTime = new Date();
+    await task.save();
+
+    res.json(task);
+  } catch (error) {
+    console.error("Error starting timer:", error);
+    res.status(500).json({ error: "Failed to start timer" });
+  }
+});
+
+// stop timer endpoint
+router.put("/:id/stop-timer", async (req, res) => {
+  try {
+    const task = await Task.findById(req.params.id);
+    if (!task) return res.status(404).json({ error: "Task not found" });
+
+    if (task.isTimerRunning) {
+      const now = new Date();
+      const timeElapsed = Math.floor((now - task.timerStartTime) / 1000);
+      task.timeSpent += timeElapsed;
+      task.isTimerRunning = false;
+      task.timerStartTime = null;
+      await task.save();
+    }
+
+    res.json(task);
+  } catch (error) {
+    console.error("Error stopping timer:", error);
+    res.status(500).json({ error: "Failed to stop timer" });
+  }
+});

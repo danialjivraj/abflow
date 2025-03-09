@@ -198,6 +198,7 @@ select {
     color: #ffffff;
     width: 100%;
     box-sizing: border-box;
+    min-width: 200px;
 }
 
 .add-board-wrapper input::placeholder {

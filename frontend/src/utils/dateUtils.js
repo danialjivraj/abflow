@@ -1,51 +1,122 @@
+/**
+ * Formats a due date relative to the current time, returning a human-readable string and an overdue flag.
+ *
+ * @param {string|Date} dueDate - The due date as a string or Date object.
+ * @param {Date} currentTime - The current time.
+ * @returns {{text: string, isOverdue: boolean}} - An object containing the formatted time text and a flag indicating if it's overdue.
+ */
 export const formatDueDate = (dueDate, currentTime) => {
-    const due = new Date(dueDate);
-    const diffInMs = due - currentTime;
+  const due = new Date(dueDate);
+  const diffInMs = due - currentTime;
   
-    const formatValue = (value, singular, plural) => {
-      const formatted = value === Math.floor(value) ? Math.floor(value) : value.toFixed(1);
-      const num = formatted.toString().replace(/\.0$/, "");
-      return `${num} ${num === "1" ? singular : plural}`;
-    };
-  
-    const calculateTimeDifference = (diff) => {
-      const diffInSeconds = diff / 1000;
-      const diffInMinutes = diffInSeconds / 60;
-      const diffInHours = diffInMinutes / 60;
-      const diffInDays = diffInHours / 24;
-      const diffInWeeks = diffInDays / 7;
-      const diffInMonths = diffInDays / 30;
-      const diffInYears = diffInDays / 365;
-      return { diffInSeconds, diffInMinutes, diffInHours, diffInDays, diffInWeeks, diffInMonths, diffInYears };
-    };
-  
-    const generateText = (diffValues, prefix) => {
-      if (diffValues.diffInSeconds < 60) {
-        return `${prefix} ${Math.round(diffValues.diffInSeconds)} second${Math.round(diffValues.diffInSeconds) === 1 ? "" : "s"}`;
-      } else if (diffValues.diffInMinutes < 60) {
-        return `${prefix} ${Math.round(diffValues.diffInMinutes)} minute${Math.round(diffValues.diffInMinutes) === 1 ? "" : "s"}`;
-      } else if (diffValues.diffInHours < 24) {
-        return `${prefix} ${formatValue(diffValues.diffInHours, "hour", "hours")}`;
-      } else if (diffValues.diffInDays < 7) {
-        return `${prefix} ${formatValue(diffValues.diffInDays, "day", "days")}`;
-      } else if (diffValues.diffInWeeks < 4) {
-        return `${prefix} ${formatValue(diffValues.diffInWeeks, "week", "weeks")}`;
-      } else if (diffValues.diffInMonths < 12) {
-        return `${prefix} ${formatValue(diffValues.diffInMonths, "month", "months")}`;
-      } else {
-        return `${prefix} ${formatValue(diffValues.diffInYears, "year", "years")}`;
-      }
-    };
-  
-    if (diffInMs < 0) {
-      return {
-        text: generateText(calculateTimeDifference(Math.abs(diffInMs)), "Overdue by"),
-        isOverdue: true,
-      };
-    }
-    return {
-      text: generateText(calculateTimeDifference(diffInMs), "Due in"),
-      isOverdue: false,
-    };
+  const formatValue = (value, singular, plural) => {
+    const formatted = value === Math.floor(value) ? Math.floor(value) : value.toFixed(1);
+    const num = formatted.toString().replace(/\.0$/, "");
+    return `${num} ${num === "1" ? singular : plural}`;
   };
-  
+
+  const calculateTimeDifference = (diff) => {
+    const diffInSeconds = diff / 1000;
+    const diffInMinutes = diffInSeconds / 60;
+    const diffInHours = diffInMinutes / 60;
+    const diffInDays = diffInHours / 24;
+    const diffInWeeks = diffInDays / 7;
+    const diffInMonths = diffInDays / 30;
+    const diffInYears = diffInDays / 365;
+    return { diffInSeconds, diffInMinutes, diffInHours, diffInDays, diffInWeeks, diffInMonths, diffInYears };
+  };
+
+  const generateText = (diffValues, prefix) => {
+    if (diffValues.diffInSeconds < 60) {
+      return `${prefix} ${Math.round(diffValues.diffInSeconds)} second${Math.round(diffValues.diffInSeconds) === 1 ? "" : "s"}`;
+    } else if (diffValues.diffInMinutes < 60) {
+      return `${prefix} ${Math.round(diffValues.diffInMinutes)} minute${Math.round(diffValues.diffInMinutes) === 1 ? "" : "s"}`;
+    } else if (diffValues.diffInHours < 24) {
+      return `${prefix} ${formatValue(diffValues.diffInHours, "hour", "hours")}`;
+    } else if (diffValues.diffInDays < 7) {
+      return `${prefix} ${formatValue(diffValues.diffInDays, "day", "days")}`;
+    } else if (diffValues.diffInWeeks < 4) {
+      return `${prefix} ${formatValue(diffValues.diffInWeeks, "week", "weeks")}`;
+    } else if (diffValues.diffInMonths < 12) {
+      return `${prefix} ${formatValue(diffValues.diffInMonths, "month", "months")}`;
+    } else {
+      return `${prefix} ${formatValue(diffValues.diffInYears, "year", "years")}`;
+    }
+  };
+
+  if (diffInMs < 0) {
+    return {
+      text: generateText(calculateTimeDifference(Math.abs(diffInMs)), "Overdue by"),
+      isOverdue: true,
+    };
+  }
+  return {
+    text: generateText(calculateTimeDifference(diffInMs), "Due in"),
+    isOverdue: false,
+  };
+};
+
+/**
+ * Formats a duration in seconds into a human-readable string.
+ * If the duration is less than a minute, it shows seconds;
+ * if less than an hour, it shows minutes and seconds;
+ * otherwise, it shows hours and minutes.
+ *
+ * @param {number} totalSeconds - The total duration in seconds.
+ * @returns {string} - The formatted duration string.
+ */
+export const formatTimeSpent = (totalSeconds) => {
+  if (totalSeconds < 60) {
+    return `${totalSeconds} second${totalSeconds !== 1 ? "s" : ""}`;
+  } else if (totalSeconds < 3600) {
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${minutes} minute${minutes !== 1 ? "s" : ""}${
+      seconds > 0 ? ` and ${seconds} second${seconds !== 1 ? "s" : ""}` : ""
+    }`;
+  } else {
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    return `${hours} hour${hours !== 1 ? "s" : ""}${
+      minutes > 0 ? ` and ${minutes} minute${minutes !== 1 ? "s" : ""}` : ""
+    }`;
+  }
+};
+
+/**
+ * Calculates the total time spent on a task.
+ * It adds the backend-recorded time to any additional elapsed time if the timer is currently running.
+ *
+ * @param {number} timeSpent - The time (in seconds) already recorded.
+ * @param {boolean} isTimerRunning - Indicates if the timer is running.
+ * @param {string} timerStartTime - The ISO string representing when the timer started.
+ * @returns {number} - The total time spent in seconds.
+ */
+export const calculateTotalTimeSpent = (timeSpent, isTimerRunning, timerStartTime) => {
+  const backendTimeSpent = timeSpent || 0;
+  const frontendElapsedTime = isTimerRunning
+    ? Math.floor((new Date() - new Date(timerStartTime)) / 1000)
+    : 0;
+  return backendTimeSpent + frontendElapsedTime;
+};
+
+/**
+ * Formats a date into a human-readable string without showing GMT.
+ * It converts a date string or Date object into a format like "Month Day, Year, Hour:Minute AM/PM".
+ *
+ * @param {string|Date} dateValue - The date value to format.
+ * @returns {string} - The formatted date string, or an empty string if the date is invalid.
+ */
+export const formatDateWithoutGMT = (dateValue) => {
+  if (!dateValue) return "";
+  const dateObj = typeof dateValue === "string" ? new Date(dateValue) : dateValue;
+  if (isNaN(dateObj)) return "";
+  return dateObj.toLocaleString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+};

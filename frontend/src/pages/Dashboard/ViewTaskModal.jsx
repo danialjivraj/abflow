@@ -3,22 +3,7 @@ import TiptapEditor from "../../components/TiptapEditor";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import "./viewTaskModal.css";
-import { formatDueDate } from "../../utils/dateUtils";
-
-// Helper to format date
-function formatDateWithoutGMT(dateValue) {
-  if (!dateValue) return "";
-  const dateObj = typeof dateValue === "string" ? new Date(dateValue) : dateValue;
-  if (isNaN(dateObj)) return "";
-  return dateObj.toLocaleString("en-US", {
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true,
-  });
-}
+import { formatDueDate, formatTimeSpent, calculateTotalTimeSpent, formatDateWithoutGMT } from "../../utils/dateUtils";
 
 const allowedPriorities = [
   "A1", "A2", "A3",
@@ -56,14 +41,7 @@ const InlineTimeEditable = ({ value, onChange }) => {
   const [localSeconds, setLocalSeconds] = useState(initialSeconds);
 
   const createDisplayText = () => {
-    let text = "";
-    if (initialHours > 0) {
-      text += `${initialHours} hour${initialHours !== 1 ? "s" : ""}`;
-    }
-    if (initialMinutes > 0) {
-      text += (text ? " and " : "") + `${initialMinutes} minute${initialMinutes !== 1 ? "s" : ""}`;
-    }
-    return text || "0 minutes";
+    return formatTimeSpent(totalSeconds);
   };
 
   const startEditing = () => {
@@ -311,16 +289,56 @@ const ViewTaskModal = ({
     });
   };
 
-  const toggleTimer = () => {
+  const toggleTimer = async () => {
     if (editableTask.isTimerRunning) {
-      stopTimer(editableTask._id);
-      updateField("isTimerRunning", false);
-      updateField("timerStartTime", null);
+      try {
+        const response = await stopTimer(editableTask._id);
+        const updatedTask = response.data;
+  
+        setEditableTask((prev) => ({
+          ...prev,
+          isTimerRunning: false,
+          timerStartTime: null,
+          timeSpent: updatedTask.timeSpent,
+        }));
+  
+        handleUpdateTask({
+          ...editableTask,
+          isTimerRunning: false,
+          timerStartTime: null,
+          timeSpent: updatedTask.timeSpent,
+        });
+      } catch (error) {
+        console.error("Error stopping timer:", error);
+      }
     } else {
-      startTimer(editableTask._id);
-      updateField("isTimerRunning", true);
-      updateField("timerStartTime", new Date().toISOString());
+      try {
+        const response = await startTimer(editableTask._id);
+        const updatedTask = response.data;
+  
+        setEditableTask((prev) => ({
+          ...prev,
+          isTimerRunning: true,
+          timerStartTime: updatedTask.timerStartTime || new Date().toISOString(),
+        }));
+  
+        handleUpdateTask({
+          ...editableTask,
+          isTimerRunning: true,
+          timerStartTime: updatedTask.timerStartTime || new Date().toISOString(),
+        });
+      } catch (error) {
+        console.error("Error starting timer:", error);
+      }
     }
+  };
+
+  const getTotalTimeSpent = () => {
+    return calculateTotalTimeSpent(
+      editableTask.timeSpent,
+      editableTask.isTimerRunning,
+      editableTask.timerStartTime
+    );
   };
 
   return (
@@ -335,6 +353,7 @@ const ViewTaskModal = ({
         </div>
         <div className="view-modal-body">
           <div className="view-modal-left">
+
             <div className="title-block">
               <h3 className="panel-heading">Title</h3>
               <InlineEditable
@@ -343,6 +362,7 @@ const ViewTaskModal = ({
                 type="title"
               />
             </div>
+
             <div className="description-block">
               <h3 className="panel-heading">Description</h3>
               <InlineTiptap
@@ -375,6 +395,7 @@ const ViewTaskModal = ({
                 />
               </div>
             </div>
+
             <div className="field-row">
               <label>Status:</label>
               <div className="view-task-field">
@@ -397,8 +418,17 @@ const ViewTaskModal = ({
             </div>
             <div className="field-row due-status-row">
               <label className="empty-label"></label>
-              <div className="due-status-text">
-                {editableTask.dueDate ? formatDueDate(editableTask.dueDate, new Date()).text : "No due date"}
+              <div
+                className={`due-status-text ${
+                  editableTask.dueDate &&
+                  formatDueDate(editableTask.dueDate, new Date()).isOverdue
+                    ? "overdue"
+                    : ""
+                }`}
+              >
+                {editableTask.dueDate
+                  ? formatDueDate(editableTask.dueDate, new Date()).text
+                  : "No due date"}
               </div>
             </div>
 
@@ -409,6 +439,7 @@ const ViewTaskModal = ({
                 onChange={(val) => updateField("assignedTo", val)}
               />
             </div>
+
             <div className="field-row">
               <label>Story Points:</label>
               <InlineEditable
@@ -468,10 +499,11 @@ const ViewTaskModal = ({
             <div className="field-row">
               <label>Time Spent:</label>
               <InlineTimeEditable
-                value={editableTask.timeSpent || 0}
+                value={getTotalTimeSpent()}
                 onChange={(val) => updateField("timeSpent", val)}
               />
             </div>
+
           </div>
         </div>
       </div>
