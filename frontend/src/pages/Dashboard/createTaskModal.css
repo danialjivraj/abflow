@@ -16,13 +16,13 @@
     padding: 18px;
     border-radius: 7.2px;
     width: 675px;
-    max-width: 85.5%;
+    max-height: 80vh;
+    overflow-y: auto;
     color: #ffffff;
     box-shadow: 0 3.6px 7.2px rgba(0, 0, 0, 0.3);
     position: relative;
     display: flex;
     flex-direction: column;
-    min-height: 585px;
 }
 
 .modal-content h2 {

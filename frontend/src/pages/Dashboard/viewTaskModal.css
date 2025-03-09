@@ -18,15 +18,18 @@
     background-color: #2a2a2a;
     padding: 18px;
     border-radius: 7.2px;
-    width: 1000px;
-    max-width: 95%;
+    width: 90%;
+    max-width: 1000px;
+    min-width: auto;
+  
+    max-height: 80vh;
+    overflow-y: auto;
+  
     color: #ffffff;
     box-shadow: 0 3.6px 7.2px rgba(0, 0, 0, 0.3);
     position: relative;
     display: flex;
     flex-direction: column;
-    min-height: 585px;
-    min-width: 900px;
 }
 
 .view-modal-content h2 {

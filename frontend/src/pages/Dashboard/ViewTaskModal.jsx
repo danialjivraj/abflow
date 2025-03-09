@@ -177,7 +177,7 @@ const InlineTiptap = ({ value, onChange }) => {
 
   const containerStyle = {
     minHeight: "300px",
-    minWidth: "600px",
+    width: "100%",
   };
 
   const handleConfirm = () => {
