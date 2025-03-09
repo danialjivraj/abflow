@@ -24,7 +24,7 @@ const Column = ({
   deleteTask,
   startTimer,
   stopTimer,
-  openViewTaskModal, // make sure this prop is received
+  openViewTaskModal,
 }) => {
   return (
     <Draggable draggableId={columnId} index={index}>
@@ -92,7 +92,7 @@ const Column = ({
                     deleteTask={deleteTask}
                     startTimer={startTimer}
                     stopTimer={stopTimer}
-                    openViewTaskModal={openViewTaskModal} // Pass the function down here
+                    openViewTaskModal={openViewTaskModal}
                   />
                 ))}
                 {provided.placeholder}

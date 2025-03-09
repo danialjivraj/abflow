@@ -347,11 +347,18 @@ const Dashboard = () => {
   
       setColumns((prevColumns) => {
         const updatedColumns = { ...prevColumns };
+  
         Object.keys(updatedColumns).forEach((colId) => {
-          updatedColumns[colId].items = updatedColumns[colId].items.map((task) =>
-            task._id === updatedTaskFromBackend._id ? updatedTaskFromBackend : task
+          updatedColumns[colId].items = updatedColumns[colId].items.filter(
+            (task) => task._id !== updatedTaskFromBackend._id
           );
         });
+  
+        if (updatedColumns[updatedTaskFromBackend.status]) {
+          updatedColumns[updatedTaskFromBackend.status].items.push(
+            updatedTaskFromBackend
+          );
+        }
         return updatedColumns;
       });
     } catch (error) {

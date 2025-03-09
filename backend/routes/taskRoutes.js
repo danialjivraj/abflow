@@ -68,8 +68,8 @@ router.put("/:id/move", async (req, res) => {
 // edit task
 router.put("/:id/edit", async (req, res) => {
   try {
-    const { title, priority, status, dueDate, assignedTo, storyPoints, timeSpent, description } = req.body;
-    const updatedFields = { title, priority, status, dueDate, assignedTo, storyPoints, timeSpent, description };
+    const { title, priority, status, dueDate, assignedTo, storyPoints, timeSpent, description, order } = req.body;
+    const updatedFields = { title, priority, status, dueDate, assignedTo, storyPoints, timeSpent, description, order };
     const task = await Task.findByIdAndUpdate(req.params.id, updatedFields, { new: true });
     res.json(task);
   } catch (error) {

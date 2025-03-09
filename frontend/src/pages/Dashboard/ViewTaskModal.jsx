@@ -213,7 +213,7 @@ const InlineEditable = ({ value, onChange, type = "text", columns = {}, min, ...
         </>
       ) : (
         <div className="scroll-wrapper">
-          <div className="text-container" onClick={() => setIsEditing(true)}>
+            <div className="text-container title-text-container" onClick={() => setIsEditing(true)}>
             {displayValue && displayValue.toString().trim() !== "" ? displayValue.toString() : "Click to edit"}
           </div>
         </div>
@@ -282,12 +282,21 @@ const ViewTaskModal = ({
   const [editableTask, setEditableTask] = useState({ ...task });
 
   const updateField = (field, value) => {
-    setEditableTask((prev) => {
-      const updatedTask = { ...prev, [field]: value };
+    if (field === "status") {
+      const newColumnItems = columns[value]?.items || [];
+      const newOrder = newColumnItems.length;
+      const updatedTask = { ...editableTask, status: value, order: newOrder };
+      setEditableTask(updatedTask);
       handleUpdateTask(updatedTask);
-      return updatedTask;
-    });
+    } else {
+      setEditableTask((prev) => {
+        const updatedTask = { ...prev, [field]: value };
+        handleUpdateTask(updatedTask);
+        return updatedTask;
+      });
+    }
   };
+  
 
   const toggleTimer = async () => {
     if (editableTask.isTimerRunning) {
