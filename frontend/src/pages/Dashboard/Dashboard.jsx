@@ -9,6 +9,7 @@ import ViewTaskModal from "./ViewTaskModal";
 import Column from "./Column";
 import AddBoard from "./AddBoard";
 import { auth } from "../../firebase";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import {
   fetchTasks,
   fetchColumnOrder,
@@ -59,6 +60,10 @@ const Dashboard = () => {
   // --- state for viewing/updating a task ---
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
+
+  const navigate = useNavigate();
+  const { taskId } = useParams();
+  const location = useLocation();
 
   // ---------------------- side effects ----------------------
   // sets current user from firebase
@@ -129,22 +134,53 @@ const Dashboard = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // checks for task id and opens the modal if it finds it
+  useEffect(() => {
+    if (taskId && Object.keys(columns).length > 0) {
+      console.log("Columns loaded:", columns);
+      let foundTask = null;
+      Object.values(columns).forEach((column) => {
+        const task = column.items.find((t) => t._id === taskId);
+        if (task) foundTask = task;
+      });
+      console.log("Found task:", foundTask);
+      if (foundTask) {
+        setSelectedTask(foundTask);
+        setIsViewModalOpen(true);
+      }
+    }
+  }, [taskId, columns]);
+  
+  // checks for createtask and opens the modal if it finds it
+  useEffect(() => {
+    if (location.pathname.endsWith('/createtask')) {
+      setIsModalOpen(true);
+    } else {
+      setIsModalOpen(false);
+    }
+  }, [location]);
+  
   // ---------------------- handlers ----------------------
-  const openModal = () => setIsModalOpen(true);
+  const openModal = () => {
+    navigate('/dashboard/createtask');
+  };
+  
   const closeModal = () => {
     resetForm();
-    setIsModalOpen(false);
+    navigate('/dashboard');
   };
 
   // handler for opening the view task modal
   const openViewTaskModal = (task) => {
     setSelectedTask(task);
     setIsViewModalOpen(true);
+    navigate(`/dashboard/viewtask/${task._id}`);
   };
 
   const closeViewTaskModal = () => {
     setSelectedTask(null);
     setIsViewModalOpen(false);
+    navigate(`/dashboard`);
   };
 
   const handleCreateBoard = async () => {
@@ -428,8 +464,8 @@ const Dashboard = () => {
           errorMessage={errorMessage}
           dueDateWarning={dueDateWarning}
           setDueDateWarning={setDueDateWarning}
-          storyPoints={storyPoints} // Pass storyPoints here
-          setStoryPoints={setStoryPoints} // Pass setStoryPoints here
+          storyPoints={storyPoints}
+          setStoryPoints={setStoryPoints}
         />
         <ViewTaskModal
           isModalOpen={isViewModalOpen}

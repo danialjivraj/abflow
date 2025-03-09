@@ -52,6 +52,8 @@ const InlineEditable = ({
   onChange,
   type = "text",
   columns = {},
+  min,
+  ...rest
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [localValue, setLocalValue] = useState(value);
@@ -96,6 +98,7 @@ const InlineEditable = ({
               autoFocus
               rows={1}
               style={{ width: "600%", resize: "none" }}
+              {...rest}
             />
           ) : type === "date" ? (
             <DatePicker
@@ -137,6 +140,8 @@ const InlineEditable = ({
               onChange={(e) => setLocalValue(e.target.value)}
               onKeyDown={handleKeyDown}
               autoFocus
+              min={min}
+              {...rest}
             />
           )}
           {!isDropdown && (
@@ -344,6 +349,7 @@ const ViewTaskModal = ({
                 value={editableTask.storyPoints || 0}
                 onChange={(val) => updateField("storyPoints", val)}
                 type="number"
+                min="0"
               />
             </div>
 
