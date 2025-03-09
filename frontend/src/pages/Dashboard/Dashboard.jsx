@@ -1,4 +1,3 @@
-// Dashboard.jsx
 import React, { useEffect, useState, useRef } from "react";
 import { DragDropContext, Droppable } from "@hello-pangea/dnd";
 import Layout from "../../components/Layout";
@@ -473,6 +472,8 @@ const Dashboard = () => {
           task={selectedTask}
           handleUpdateTask={handleUpdateTask}
           columns={columns}
+          startTimer={handleStartTimer}
+          stopTimer={handleStopTimer}
         />
       </div>
     </Layout>

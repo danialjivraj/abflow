@@ -126,7 +126,7 @@
     color: #ffffff;
     font-size: 14.4px;
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     padding: 0;
     min-height: 40px;
     width: 100%;
@@ -332,4 +332,77 @@
   .non-editable-field {
     pointer-events: none;
     opacity: 1;
-  }
+}
+
+/*********************************
+* Timer Toggle
+*********************************/
+.timer-toggle-container {
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+    gap: 8px;
+}
+
+.toggle-label-left {
+  font-size: 0.8rem;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.toggle-label-right {
+  font-size: 0.8rem;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.timer-toggle-container.off .toggle-label-left {
+  color: #fff;
+}
+.timer-toggle-container.off .toggle-label-right {
+  color: #888;
+}
+
+.timer-toggle-container.on .toggle-label-left {
+  color: #888;
+}
+.timer-toggle-container.on .toggle-label-right {
+  color: #fff;
+}
+
+.toggle-slider {
+  position: relative;
+  width: 50px;
+  height: 24px;
+  background-color: #444;
+  border-radius: 9999px;
+  transition: background-color 0.3s ease;
+}
+
+.toggle-slider.active {
+  background-color: #4caf50;
+}
+
+.toggle-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease;
+  background-color: transparent;
+}
+
+.toggle-slider.active .toggle-knob {
+  transform: translateX(24px);
+}
+
+.clock-icon {
+  width: 20px;
+  height: 20px;
+  transition: stroke 0.3s ease;
+}

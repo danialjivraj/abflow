@@ -10,7 +10,6 @@ function formatDateWithoutGMT(dateValue) {
   if (!dateValue) return "";
   const dateObj = typeof dateValue === "string" ? new Date(dateValue) : dateValue;
   if (isNaN(dateObj)) return "";
-
   return dateObj.toLocaleString("en-US", {
     month: "long",
     day: "numeric",
@@ -21,7 +20,6 @@ function formatDateWithoutGMT(dateValue) {
   });
 }
 
-// Example allowed priorities
 const allowedPriorities = [
   "A1", "A2", "A3",
   "B1", "B2", "B3",
@@ -47,14 +45,94 @@ const DropdownField = ({ value, onChange, type = "priority", columns = {} }) => 
   );
 };
 
-const InlineEditable = ({
-  value,
-  onChange,
-  type = "text",
-  columns = {},
-  min,
-  ...rest
-}) => {
+const InlineTimeEditable = ({ value, onChange }) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const totalSeconds = parseInt(value, 10) || 0;
+  const initialHours = Math.floor(totalSeconds / 3600);
+  const initialMinutes = Math.floor((totalSeconds % 3600) / 60);
+  const initialSeconds = totalSeconds % 60;
+  const [localHours, setLocalHours] = useState(initialHours);
+  const [localMinutes, setLocalMinutes] = useState(initialMinutes);
+  const [localSeconds, setLocalSeconds] = useState(initialSeconds);
+
+  const createDisplayText = () => {
+    let text = "";
+    if (initialHours > 0) {
+      text += `${initialHours} hour${initialHours !== 1 ? "s" : ""}`;
+    }
+    if (initialMinutes > 0) {
+      text += (text ? " and " : "") + `${initialMinutes} minute${initialMinutes !== 1 ? "s" : ""}`;
+    }
+    return text || "0 minutes";
+  };
+
+  const startEditing = () => {
+    setLocalHours(initialHours);
+    setLocalMinutes(initialMinutes);
+    setLocalSeconds(initialSeconds);
+    setIsEditing(true);
+  };
+
+  const handleConfirm = () => {
+    const hours = parseInt(localHours, 10) || 0;
+    const minutes = parseInt(localMinutes, 10) || 0;
+    const seconds = parseInt(localSeconds, 10) || 0;
+    const newTotal = hours * 3600 + minutes * 60 + seconds;
+    onChange(newTotal);
+    setIsEditing(false);
+  };
+
+  const handleCancel = () => {
+    setLocalHours(initialHours);
+    setLocalMinutes(initialMinutes);
+    setLocalSeconds(initialSeconds);
+    setIsEditing(false);
+  };
+
+  return (
+    <div className="view-task-field">
+      {isEditing ? (
+        <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+          <input
+            type="number"
+            value={localHours}
+            onChange={(e) => setLocalHours(e.target.value)}
+            style={{ width: "50px" }}
+          />
+          <span>h</span>
+          <input
+            type="number"
+            value={localMinutes}
+            onChange={(e) => setLocalMinutes(e.target.value)}
+            style={{ width: "50px" }}
+          />
+          <span>m</span>
+          <input
+            type="number"
+            value={localSeconds}
+            onChange={(e) => setLocalSeconds(e.target.value)}
+            style={{ width: "50px" }}
+          />
+          <span>s</span>
+          <button className="tick-btn" onClick={handleConfirm}>
+            ✔️
+          </button>
+          <button className="cross-btn" onClick={handleCancel}>
+            ❌
+          </button>
+        </div>
+      ) : (
+        <div className="scroll-wrapper">
+          <div className="text-container" onClick={startEditing}>
+            {createDisplayText()}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const InlineEditable = ({ value, onChange, type = "text", columns = {}, min, ...rest }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [localValue, setLocalValue] = useState(value);
 
@@ -157,13 +235,8 @@ const InlineEditable = ({
         </>
       ) : (
         <div className="scroll-wrapper">
-          <div
-            className="text-container"
-            onClick={() => setIsEditing(true)}
-          >
-            {displayValue && displayValue.toString().trim() !== ""
-              ? displayValue.toString()
-              : "Click to edit"}
+          <div className="text-container" onClick={() => setIsEditing(true)}>
+            {displayValue && displayValue.toString().trim() !== "" ? displayValue.toString() : "Click to edit"}
           </div>
         </div>
       )}
@@ -174,7 +247,6 @@ const InlineEditable = ({
 const InlineTiptap = ({ value, onChange }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [localValue, setLocalValue] = useState(value);
-
   const containerStyle = {
     minHeight: "300px",
     width: "100%",
@@ -191,10 +263,7 @@ const InlineTiptap = ({ value, onChange }) => {
   };
 
   return (
-    <div
-      className={`view-task-field ${isEditing ? "is-editing" : ""}`}
-      style={containerStyle}
-    >
+    <div className={`view-task-field ${isEditing ? "is-editing" : ""}`} style={containerStyle}>
       {isEditing ? (
         <div style={containerStyle}>
           <TiptapEditor value={localValue} onChange={setLocalValue} />
@@ -209,18 +278,11 @@ const InlineTiptap = ({ value, onChange }) => {
         </div>
       ) : value && value.trim() !== "" ? (
         <div className="scroll-wrapper">
-          <div
-            className="text-container"
-            onClick={() => setIsEditing(true)}
-            dangerouslySetInnerHTML={{ __html: value }}
-          />
+          <div className="text-container" onClick={() => setIsEditing(true)} dangerouslySetInnerHTML={{ __html: value }} />
         </div>
       ) : (
         <div className="scroll-wrapper">
-          <div
-            className="text-container"
-            onClick={() => setIsEditing(true)}
-          >
+          <div className="text-container" onClick={() => setIsEditing(true)}>
             Click to edit description
           </div>
         </div>
@@ -235,9 +297,10 @@ const ViewTaskModal = ({
   task,
   handleUpdateTask,
   columns,
+  startTimer,
+  stopTimer,
 }) => {
   if (!isModalOpen || !task) return null;
-
   const [editableTask, setEditableTask] = useState({ ...task });
 
   const updateField = (field, value) => {
@@ -246,6 +309,18 @@ const ViewTaskModal = ({
       handleUpdateTask(updatedTask);
       return updatedTask;
     });
+  };
+
+  const toggleTimer = () => {
+    if (editableTask.isTimerRunning) {
+      stopTimer(editableTask._id);
+      updateField("isTimerRunning", false);
+      updateField("timerStartTime", null);
+    } else {
+      startTimer(editableTask._id);
+      updateField("isTimerRunning", true);
+      updateField("timerStartTime", new Date().toISOString());
+    }
   };
 
   return (
@@ -259,7 +334,6 @@ const ViewTaskModal = ({
           <h2>Task Overview</h2>
         </div>
         <div className="view-modal-body">
-
           <div className="view-modal-left">
             <div className="title-block">
               <h3 className="panel-heading">Title</h3>
@@ -269,7 +343,6 @@ const ViewTaskModal = ({
                 type="title"
               />
             </div>
-
             <div className="description-block">
               <h3 className="panel-heading">Description</h3>
               <InlineTiptap
@@ -281,15 +354,12 @@ const ViewTaskModal = ({
 
           <div className="view-modal-right">
             <h3 className="panel-heading">Details</h3>
-
             <div className="field-row">
               <label>Created At:</label>
               <div className="view-task-field non-editable-field">
                 <div className="scroll-wrapper">
                   <div className="text-container">
-                    {editableTask.createdAt
-                      ? formatDateWithoutGMT(editableTask.createdAt)
-                      : "N/A"}
+                    {editableTask.createdAt ? formatDateWithoutGMT(editableTask.createdAt) : "N/A"}
                   </div>
                 </div>
               </div>
@@ -325,13 +395,10 @@ const ViewTaskModal = ({
                 type="date"
               />
             </div>
-
             <div className="field-row due-status-row">
               <label className="empty-label"></label>
               <div className="due-status-text">
-                {editableTask.dueDate
-                  ? formatDueDate(editableTask.dueDate, new Date()).text
-                  : "No due date"}
+                {editableTask.dueDate ? formatDueDate(editableTask.dueDate, new Date()).text : "No due date"}
               </div>
             </div>
 
@@ -342,7 +409,6 @@ const ViewTaskModal = ({
                 onChange={(val) => updateField("assignedTo", val)}
               />
             </div>
-
             <div className="field-row">
               <label>Story Points:</label>
               <InlineEditable
@@ -354,11 +420,56 @@ const ViewTaskModal = ({
             </div>
 
             <div className="field-row">
+              <label>Timer:</label>
+              <div className="view-task-field">
+                <div
+                  className={`timer-toggle-container ${
+                    editableTask.isTimerRunning ? "on" : "off"
+                  }`}
+                  onClick={toggleTimer}
+                  role="switch"
+                  aria-checked={editableTask.isTimerRunning}
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      toggleTimer();
+                    }
+                  }}
+                >
+                  <span className="toggle-label-left">OFF</span>
+
+                  <div className={`toggle-slider ${editableTask.isTimerRunning ? "active" : ""}`}>
+                    <div className="toggle-knob">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke={editableTask.isTimerRunning ? "#fff" : "#666"}
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="clock-icon"
+                      >
+                        <circle cx="12" cy="13" r="8" />
+                        <path d="M12 9v4l2 2" />
+                        <path d="M5 3L2 6" />
+                        <path d="M22 6l-3-3" />
+                        <path d="M6 19l-2 2" />
+                        <path d="M18 19l2 2" />
+                      </svg>
+                    </div>
+                  </div>
+
+                  <span className="toggle-label-right">ON</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="field-row">
               <label>Time Spent:</label>
-              <InlineEditable
+              <InlineTimeEditable
                 value={editableTask.timeSpent || 0}
                 onChange={(val) => updateField("timeSpent", val)}
-                type="number"
               />
             </div>
           </div>
