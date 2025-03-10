@@ -12,6 +12,7 @@ function App() {
         <Route path="/login" element={<Login />} />
 
         <Route element={<PrivateRoute />}>
+          <Route path="/dashboard" element={<Navigate to="/dashboard/boards" replace />} />
           <Route path="/dashboard/*" element={<Dashboard />} />
           <Route path="/stats" element={<Stats />} />
           <Route path="/profile" element={<Profile />} />

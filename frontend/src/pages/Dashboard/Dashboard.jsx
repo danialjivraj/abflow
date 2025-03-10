@@ -1,12 +1,9 @@
 import React, { useEffect, useState, useRef } from "react";
-import { DragDropContext, Droppable } from "@hello-pangea/dnd";
 import Layout from "../../components/Layout";
 import TopBar from "../../components/TopBar";
 import { topBarConfig } from "../../config/topBarConfig";
 import CreateTaskModal from "./CreateTaskModal";
 import ViewTaskModal from "./ViewTaskModal";
-import Column from "./Column";
-import AddBoard from "./AddBoard";
 import { auth } from "../../firebase";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import {
@@ -24,6 +21,9 @@ import {
   updateTask,
 } from "../../services/tasksService";
 import { formatDueDate } from "../../utils/dateUtils";
+import BoardsView from "./BoardsView";
+import CompletedTasks from "./CompletedTasks";
+import ScheduleView from "./ScheduleView";
 import "../../components/styles.css";
 import "../../components/topBar.css";
 import "../../components/tipTapEditor.css";
@@ -42,9 +42,7 @@ const Dashboard = () => {
   const [isTaskHovered, setIsTaskHovered] = useState(null);
   const [currentTime, setCurrentTime] = useState(new Date());
   const dropdownRef = useRef(null);
-  // --- state for submitting tasks ---
   const [isSubmitting, setIsSubmitting] = useState(false);
-  // --- states for creating a task ---
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [selectedPriority, setSelectedPriority] = useState("A1");
   const [selectedStatus, setSelectedStatus] = useState("");
@@ -52,11 +50,8 @@ const Dashboard = () => {
   const [assignedTo, setAssignedTo] = useState("");
   const [taskDescription, setTaskDescription] = useState("");
   const [storyPoints, setStoryPoints] = useState(0);
-  // --- errors and warnings for creating a task ---
   const [errorMessage, setErrorMessage] = useState("");
   const [dueDateWarning, setDueDateWarning] = useState("");
-  
-  // --- state for viewing/updating a task ---
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
 
@@ -65,7 +60,6 @@ const Dashboard = () => {
   const location = useLocation();
 
   // ---------------------- side effects ----------------------
-  // sets current user from firebase
   useEffect(() => {
     const currentUser = auth.currentUser;
     if (currentUser) {
@@ -73,7 +67,6 @@ const Dashboard = () => {
     }
   }, []);
 
-  // fetches tasks and column order for the user
   useEffect(() => {
     if (!userId) return;
     const fetchData = async () => {
@@ -101,7 +94,6 @@ const Dashboard = () => {
           }
         });
         setColumns(groupedTasks);
-        // sets default selectedStatus to the first column, if not set
         if (columnOrder.length > 0 && !selectedStatus) {
           setSelectedStatus(columnOrder[0]);
         }
@@ -112,7 +104,6 @@ const Dashboard = () => {
     fetchData();
   }, [userId, selectedStatus]);
 
-  // updates current time every second for dynamic updates
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentTime(new Date());
@@ -120,7 +111,6 @@ const Dashboard = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // closes dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -130,10 +120,10 @@ const Dashboard = () => {
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    return () =>
+      document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // checks for task id and opens the modal if it finds it
   useEffect(() => {
     const taskId = location.pathname.split('/viewtask/')[1];
     if (taskId && Object.keys(columns).length > 0) {
@@ -148,8 +138,7 @@ const Dashboard = () => {
       }
     }
   }, [location, columns]);
-  
-  // checks for createtask and opens the modal if it finds it
+
   useEffect(() => {
     if (location.pathname.endsWith('/createtask')) {
       setIsModalOpen(true);
@@ -159,26 +148,31 @@ const Dashboard = () => {
   }, [location]);
 
   // ---------------------- handlers ----------------------
-  const openModal = () => {
-    navigate('/dashboard/createtask');
+  const getBaseRoute = () => {
+    const parts = location.pathname.split("/");
+    return parts[2] ? `/dashboard/${parts[2]}` : "/dashboard";
   };
-  
-  const closeModal = () => {
-    resetForm();
-    navigate('/dashboard');
+  const baseRoute = getBaseRoute();
+
+  const openModal = () => {
+    navigate(`${baseRoute}/createtask`);
   };
 
-  // handler for opening the view task modal
+  const closeModal = () => {
+    resetForm();
+    navigate(baseRoute);
+  };
+
   const openViewTaskModal = (task) => {
     setSelectedTask(task);
     setIsViewModalOpen(true);
-    navigate(`/dashboard/viewtask/${task._id}`);
+    navigate(`${baseRoute}/viewtask/${task._id}`);
   };
 
   const closeViewTaskModal = () => {
     setSelectedTask(null);
     setIsViewModalOpen(false);
-    navigate(`/dashboard`);
+    navigate(baseRoute);
   };
 
   const handleCreateBoard = async () => {
@@ -228,7 +222,6 @@ const Dashboard = () => {
     }
   };
 
-  // deletes task handler
   const handleDeleteTask = async (taskId) => {
     try {
       await deleteTaskAPI(taskId);
@@ -246,7 +239,6 @@ const Dashboard = () => {
     }
   };
 
-  // timer handler for starting the timer
   const updateTaskInColumns = (taskId, updates) => {
     setColumns((prevColumns) => {
       const updatedColumns = { ...prevColumns };
@@ -271,7 +263,7 @@ const Dashboard = () => {
       console.error("Error starting timer:", error);
     }
   };
-  
+
   const handleStopTimer = async (taskId) => {
     try {
       const response = await stopTimerAPI(taskId);
@@ -304,10 +296,10 @@ const Dashboard = () => {
       return;
     }
     if (!userId || isSubmitting) return;
-  
+
     setIsSubmitting(true);
     setErrorMessage("");
-  
+
     try {
       const taskData = {
         title: newTaskTitle,
@@ -343,12 +335,9 @@ const Dashboard = () => {
     try {
       const response = await updateTask(updatedTask);
       const updatedTaskFromBackend = response.data;
-  
       setColumns((prevColumns) => {
         const updatedColumns = { ...prevColumns };
         let oldStatus = null;
-  
-        // finds the current status (oldStatus) of the task in the columns
         Object.keys(updatedColumns).forEach((colId) => {
           updatedColumns[colId].items.forEach((task) => {
             if (task._id === updatedTaskFromBackend._id) {
@@ -356,9 +345,7 @@ const Dashboard = () => {
             }
           });
         });
-  
         if (oldStatus && oldStatus !== updatedTaskFromBackend.status) {
-          // remove from the old column and push to the new column
           updatedColumns[oldStatus].items = updatedColumns[oldStatus].items.filter(
             (task) => task._id !== updatedTaskFromBackend._id
           );
@@ -366,7 +353,6 @@ const Dashboard = () => {
             updatedColumns[updatedTaskFromBackend.status].items.push(updatedTaskFromBackend);
           }
         } else {
-          // update task in place to maintain its position
           if (updatedColumns[updatedTaskFromBackend.status]) {
             updatedColumns[updatedTaskFromBackend.status].items = updatedColumns[updatedTaskFromBackend.status].items.map(
               (task) =>
@@ -374,7 +360,6 @@ const Dashboard = () => {
             );
           }
         }
-  
         return updatedColumns;
       });
     } catch (error) {
@@ -428,88 +413,85 @@ const Dashboard = () => {
     }
   };
 
-  // ---------------------- render ----------------------
+  const renderContent = () => {
+    if (location.pathname.startsWith("/dashboard/completedtasks")) {
+      return <CompletedTasks />;
+    } else if (location.pathname.startsWith("/dashboard/schedule")) {
+      return <ScheduleView />;
+    } else if (location.pathname.startsWith("/dashboard/boards")) {
+      return (
+        <BoardsView
+          columns={columns}
+          renamingColumnId={renamingColumnId}
+          newBoardName={newBoardName}
+          setNewBoardName={setNewBoardName}
+          setRenamingColumnId={setRenamingColumnId}
+          isDropdownOpen={isDropdownOpen}
+          setIsDropdownOpen={setIsDropdownOpen}
+          deleteBoard={handleDeleteBoard}
+          renameBoard={handleRenameBoard}
+          dropdownRef={dropdownRef}
+          isTaskDropdownOpen={isTaskDropdownOpen}
+          setIsTaskDropdownOpen={setIsTaskDropdownOpen}
+          formatDueDate={formatDueDate}
+          currentTime={currentTime}
+          isTaskHovered={isTaskHovered}
+          setIsTaskHovered={setIsTaskHovered}
+          deleteTask={handleDeleteTask}
+          startTimer={handleStartTimer}
+          stopTimer={handleStopTimer}
+          openViewTaskModal={openViewTaskModal}
+          handleDragEnd={handleDragEnd}
+          isAddingBoard={isAddingBoard}
+          newBoardCreateName={newBoardCreateName}
+          setNewBoardCreateName={setNewBoardCreateName}
+          setIsAddingBoard={setIsAddingBoard}
+          handleCreateBoard={handleCreateBoard}
+        />
+      );
+    }
+  };
+
   return (
     <Layout openModal={openModal}>
-      <TopBar buttons={topBarConfig["/dashboard"]} openModal={openModal} />
-      <h1>Dashboard</h1>
-      <div className="kanban-container">
-        <DragDropContext onDragEnd={handleDragEnd}>
-          <Droppable droppableId="all-columns" direction="horizontal" type="COLUMN">
-            {(provided) => (
-              <div ref={provided.innerRef} {...provided.droppableProps} className="kanban-board">
-                {Object.keys(columns).map((columnId, index) => (
-                  <Column
-                    key={columnId}
-                    columnId={columnId}
-                    columnData={columns[columnId]}
-                    index={index}
-                    renamingColumnId={renamingColumnId}
-                    newBoardName={newBoardName}
-                    setNewBoardName={setNewBoardName}
-                    setRenamingColumnId={setRenamingColumnId}
-                    isDropdownOpen={isDropdownOpen}
-                    setIsDropdownOpen={setIsDropdownOpen}
-                    deleteBoard={handleDeleteBoard}
-                    renameBoard={handleRenameBoard}
-                    dropdownRef={dropdownRef}
-                    isTaskDropdownOpen={isTaskDropdownOpen}
-                    setIsTaskDropdownOpen={setIsTaskDropdownOpen}
-                    formatDueDate={formatDueDate}
-                    currentTime={currentTime}
-                    isTaskHovered={isTaskHovered}
-                    setIsTaskHovered={setIsTaskHovered}
-                    deleteTask={handleDeleteTask}
-                    startTimer={handleStartTimer}
-                    stopTimer={handleStopTimer}
-                    openViewTaskModal={openViewTaskModal}
-                  />
-                ))}
-                {provided.placeholder}
-                <AddBoard
-                  isAddingBoard={isAddingBoard}
-                  newBoardCreateName={newBoardCreateName}
-                  setNewBoardCreateName={setNewBoardCreateName}
-                  setIsAddingBoard={setIsAddingBoard}
-                  handleCreateBoard={handleCreateBoard}
-                />
-              </div>
-            )}
-          </Droppable>
-        </DragDropContext>
-        <CreateTaskModal
-          isModalOpen={isModalOpen}
-          closeModal={closeModal}
-          columns={columns}
-          newTaskTitle={newTaskTitle}
-          setNewTaskTitle={setNewTaskTitle}
-          selectedPriority={selectedPriority}
-          setSelectedPriority={setSelectedPriority}
-          selectedStatus={selectedStatus}
-          setSelectedStatus={setSelectedStatus}
-          dueDate={dueDate}
-          setDueDate={setDueDate}
-          assignedTo={assignedTo}
-          setAssignedTo={setAssignedTo}
-          taskDescription={taskDescription}
-          setTaskDescription={setTaskDescription}
-          handleCreateTask={handleCreateTask}
-          errorMessage={errorMessage}
-          dueDateWarning={dueDateWarning}
-          setDueDateWarning={setDueDateWarning}
-          storyPoints={storyPoints}
-          setStoryPoints={setStoryPoints}
-        />
-        <ViewTaskModal
-          isModalOpen={isViewModalOpen}
-          closeModal={closeViewTaskModal}
-          task={selectedTask}
-          handleUpdateTask={handleUpdateTask}
-          columns={columns}
-          startTimer={startTimerAPI}
-          stopTimer={stopTimerAPI}
-        />
-      </div>
+      <TopBar
+        buttons={topBarConfig["/dashboard"]}
+        openModal={openModal}
+        navigate={navigate}
+      />
+      {renderContent()}
+      <CreateTaskModal
+        isModalOpen={isModalOpen}
+        closeModal={closeModal}
+        columns={columns}
+        newTaskTitle={newTaskTitle}
+        setNewTaskTitle={setNewTaskTitle}
+        selectedPriority={selectedPriority}
+        setSelectedPriority={setSelectedPriority}
+        selectedStatus={selectedStatus}
+        setSelectedStatus={setSelectedStatus}
+        dueDate={dueDate}
+        setDueDate={setDueDate}
+        assignedTo={assignedTo}
+        setAssignedTo={setAssignedTo}
+        taskDescription={taskDescription}
+        setTaskDescription={setTaskDescription}
+        handleCreateTask={handleCreateTask}
+        errorMessage={errorMessage}
+        dueDateWarning={dueDateWarning}
+        setDueDateWarning={setDueDateWarning}
+        storyPoints={storyPoints}
+        setStoryPoints={setStoryPoints}
+      />
+      <ViewTaskModal
+        isModalOpen={isViewModalOpen}
+        closeModal={closeViewTaskModal}
+        task={selectedTask}
+        handleUpdateTask={handleUpdateTask}
+        columns={columns}
+        startTimer={startTimerAPI}
+        stopTimer={stopTimerAPI}
+      />
     </Layout>
   );
 };

@@ -29,3 +29,31 @@
 .create-top-bar-task-btn:hover {
   background-color: #0056b3;
 }
+
+.top-bar-button {
+  background: none;
+  border: none;
+  color: #ccc;
+  font-size: 15px;
+  cursor: pointer;
+  padding: 0 12px;
+  margin: 0;
+  transition: color 0.2s ease;
+  outline: none;
+  -webkit-appearance: none;
+}
+
+.top-bar-button:focus,
+.top-bar-button:active {
+  outline: none;
+  box-shadow: none;
+}
+
+.top-bar-button:hover {
+  color: #fff;
+}
+
+.top-bar-button.active {
+  color: #2d74d1;
+  font-weight: 500;
+}
