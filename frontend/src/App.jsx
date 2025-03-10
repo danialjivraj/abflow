@@ -12,10 +12,7 @@ function App() {
         <Route path="/login" element={<Login />} />
 
         <Route element={<PrivateRoute />}>
-          <Route path="/dashboard" element={<Dashboard />}>
-            <Route path="viewtask/:taskId" element={<Dashboard />} />
-            <Route path="createtask" element={<Dashboard />} />
-          </Route>
+          <Route path="/dashboard/*" element={<Dashboard />} />
           <Route path="/stats" element={<Stats />} />
           <Route path="/profile" element={<Profile />} />
         </Route>

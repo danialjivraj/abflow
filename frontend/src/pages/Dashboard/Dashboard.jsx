@@ -135,20 +135,19 @@ const Dashboard = () => {
 
   // checks for task id and opens the modal if it finds it
   useEffect(() => {
+    const taskId = location.pathname.split('/viewtask/')[1];
     if (taskId && Object.keys(columns).length > 0) {
-      console.log("Columns loaded:", columns);
       let foundTask = null;
       Object.values(columns).forEach((column) => {
         const task = column.items.find((t) => t._id === taskId);
         if (task) foundTask = task;
       });
-      console.log("Found task:", foundTask);
       if (foundTask) {
         setSelectedTask(foundTask);
         setIsViewModalOpen(true);
       }
     }
-  }, [taskId, columns]);
+  }, [location, columns]);
   
   // checks for createtask and opens the modal if it finds it
   useEffect(() => {
@@ -158,7 +157,7 @@ const Dashboard = () => {
       setIsModalOpen(false);
     }
   }, [location]);
-  
+
   // ---------------------- handlers ----------------------
   const openModal = () => {
     navigate('/dashboard/createtask');

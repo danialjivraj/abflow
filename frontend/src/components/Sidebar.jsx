@@ -14,7 +14,7 @@ const Sidebar = () => {
           <br />
           <ul>
             <li
-              className={location.pathname === "/dashboard" ? "active" : ""}
+              className={location.pathname.startsWith("/dashboard") ? "active" : ""}
               onClick={() => navigate("/dashboard")}
             >
               Dashboard
