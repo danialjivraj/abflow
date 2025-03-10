@@ -82,6 +82,7 @@ const CreateTaskModal = ({
                 dateFormat="MMMM d, yyyy h:mm aa"
                 className="custom-date-picker"
                 placeholderText="Select due date"
+                disabledKeyboardNavigation
               />
               {dueDateWarning && <p className="warning-message">{dueDateWarning}</p>}
             </div>

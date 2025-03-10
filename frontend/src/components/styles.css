@@ -608,3 +608,14 @@ select {
     padding: 10.8px;
     font-size: 16.2px;
 }
+
+.react-datepicker__day--today {
+    background-color: #3a7a3c !important;
+    color: rgb(255, 255, 255) !important;
+    border-radius: 50% !important;
+}
+
+.react-datepicker__day--today.react-datepicker__day--selected {
+    background-color: #2d74d1 !important;
+    color: #ffffff !important;
+}

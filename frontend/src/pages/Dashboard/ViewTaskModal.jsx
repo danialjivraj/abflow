@@ -165,6 +165,7 @@ const InlineEditable = ({ value, onChange, type = "text", columns = {}, min, ...
               showTimeSelect
               dateFormat="MMMM d, yyyy h:mm aa"
               className="custom-datepicker-input"
+              disabledKeyboardNavigation
             />
           ) : isDropdown ? (
             <select
