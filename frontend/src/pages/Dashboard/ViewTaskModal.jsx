@@ -310,7 +310,14 @@ const ViewTaskModal = ({
   const [editableTask, setEditableTask] = useState({ ...task });
 
   const updateField = (field, value) => {
-    if (field === "status") {
+    if (field === "timeSpent") {
+      const updatedTask = { ...editableTask, timeSpent: value };
+      if (editableTask.isTimerRunning) {
+        updatedTask.timerStartTime = new Date().toISOString();
+      }
+      setEditableTask(updatedTask);
+      handleUpdateTask(updatedTask);
+    } else if (field === "status") {
       const newColumnItems = columns[value]?.items || [];
       const newOrder = newColumnItems.length;
       const updatedTask = { ...editableTask, status: value, order: newOrder };
@@ -324,7 +331,6 @@ const ViewTaskModal = ({
       });
     }
   };
-  
 
   const toggleTimer = async () => {
     if (editableTask.isTimerRunning) {
