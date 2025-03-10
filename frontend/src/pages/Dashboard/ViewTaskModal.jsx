@@ -52,9 +52,10 @@ const InlineTimeEditable = ({ value, onChange }) => {
   };
 
   const handleConfirm = () => {
-    const hours = parseInt(localHours, 10) || 0;
-    const minutes = parseInt(localMinutes, 10) || 0;
-    const seconds = parseInt(localSeconds, 10) || 0;
+    // Ensure non-negative values and clamp minutes and seconds
+    const hours = Math.max(0, parseInt(localHours, 10) || 0);
+    const minutes = Math.max(0, Math.min(59, parseInt(localMinutes, 10) || 0));
+    const seconds = Math.max(0, Math.min(59, parseInt(localSeconds, 10) || 0));
     const newTotal = hours * 3600 + minutes * 60 + seconds;
     onChange(newTotal);
     setIsEditing(false);
@@ -74,21 +75,47 @@ const InlineTimeEditable = ({ value, onChange }) => {
           <input
             type="number"
             value={localHours}
-            onChange={(e) => setLocalHours(e.target.value)}
+            min="0"
+            onChange={(e) => {
+              const val = parseInt(e.target.value, 10);
+              setLocalHours(isNaN(val) || val < 0 ? 0 : val);
+            }}
             style={{ width: "50px" }}
           />
           <span>h</span>
           <input
             type="number"
             value={localMinutes}
-            onChange={(e) => setLocalMinutes(e.target.value)}
+            min="0"
+            max="59"
+            onChange={(e) => {
+              const val = parseInt(e.target.value, 10);
+              if (isNaN(val) || val < 0) {
+                setLocalMinutes(0);
+              } else if (val > 59) {
+                setLocalMinutes(59);
+              } else {
+                setLocalMinutes(val);
+              }
+            }}
             style={{ width: "50px" }}
           />
           <span>m</span>
           <input
             type="number"
             value={localSeconds}
-            onChange={(e) => setLocalSeconds(e.target.value)}
+            min="0"
+            max="59"
+            onChange={(e) => {
+              const val = parseInt(e.target.value, 10);
+              if (isNaN(val) || val < 0) {
+                setLocalSeconds(0);
+              } else if (val > 59) {
+                setLocalSeconds(59);
+              } else {
+                setLocalSeconds(val);
+              }
+            }}
             style={{ width: "50px" }}
           />
           <span>s</span>

@@ -347,18 +347,35 @@ const Dashboard = () => {
   
       setColumns((prevColumns) => {
         const updatedColumns = { ...prevColumns };
+        let oldStatus = null;
   
+        // finds the current status (oldStatus) of the task in the columns
         Object.keys(updatedColumns).forEach((colId) => {
-          updatedColumns[colId].items = updatedColumns[colId].items.filter(
-            (task) => task._id !== updatedTaskFromBackend._id
-          );
+          updatedColumns[colId].items.forEach((task) => {
+            if (task._id === updatedTaskFromBackend._id) {
+              oldStatus = task.status;
+            }
+          });
         });
   
-        if (updatedColumns[updatedTaskFromBackend.status]) {
-          updatedColumns[updatedTaskFromBackend.status].items.push(
-            updatedTaskFromBackend
+        if (oldStatus && oldStatus !== updatedTaskFromBackend.status) {
+          // remove from the old column and push to the new column
+          updatedColumns[oldStatus].items = updatedColumns[oldStatus].items.filter(
+            (task) => task._id !== updatedTaskFromBackend._id
           );
+          if (updatedColumns[updatedTaskFromBackend.status]) {
+            updatedColumns[updatedTaskFromBackend.status].items.push(updatedTaskFromBackend);
+          }
+        } else {
+          // update task in place to maintain its position
+          if (updatedColumns[updatedTaskFromBackend.status]) {
+            updatedColumns[updatedTaskFromBackend.status].items = updatedColumns[updatedTaskFromBackend.status].items.map(
+              (task) =>
+                task._id === updatedTaskFromBackend._id ? updatedTaskFromBackend : task
+            );
+          }
         }
+  
         return updatedColumns;
       });
     } catch (error) {
