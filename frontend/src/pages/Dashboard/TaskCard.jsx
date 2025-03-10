@@ -1,6 +1,14 @@
 import React from "react";
 import { Draggable } from "@hello-pangea/dnd";
 
+const priorityMapping = {
+  A: "A: Very Important",
+  B: "B: Important",
+  C: "C: Nice to do",
+  D: "D: Delegate",
+  E: "E: Eliminate"
+};
+
 const TaskCard = ({
   task,
   index,
@@ -20,6 +28,9 @@ const TaskCard = ({
     if (e.target.closest(".task-actions")) return;
     openViewTaskModal(task);
   };
+
+  const priorityLetter = task.priority.charAt(0);
+  const priorityTitle = priorityMapping[priorityLetter] || task.priority;
 
   return (
     <Draggable draggableId={task._id} index={index}>
@@ -63,7 +74,10 @@ const TaskCard = ({
                 <path d="M18 19l2 2" />
               </svg>
             )}
-            <b className={`priority-${task.priority.replace(/\s+/g, "")}`}>
+            <b
+              className={`priority-${task.priority.replace(/\s+/g, "")}`}
+              title={priorityTitle}
+            >
               {task.priority}
             </b>
             <div className="task-actions">
