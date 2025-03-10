@@ -31,9 +31,35 @@ const CreateTaskModal = ({
 }) => {
   if (!isModalOpen) return null;
 
+  const isEmpty = () => {
+    const defaultStatus = Object.keys(columns)[0] || "";
+    return (
+      newTaskTitle.trim() === "" &&
+      selectedPriority === "A1" &&
+      selectedStatus === defaultStatus &&
+      !dueDate &&
+      assignedTo.trim() === "" &&
+      taskDescription.trim() === "" &&
+      (!storyPoints || storyPoints === 0)
+    );
+  };
+
+  const handleOverlayClick = (e) => {
+    if (e.target.className.includes("modal-overlay")) {
+      if (isEmpty()) {
+        closeModal();
+      } else {
+        const confirmClose = window.confirm("You have unsaved changes. Are you sure you want to close?");
+        if (confirmClose) {
+          closeModal();
+        }
+      }
+    }
+  };
+
   return (
-    <div className="modal-overlay">
-      <div className="modal-content">
+    <div className="modal-overlay" onClick={handleOverlayClick}>
+      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <button className="close-modal" onClick={closeModal}>
           &times;
         </button>

@@ -1,9 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import TiptapEditor from "../../components/TiptapEditor";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import "./viewTaskModal.css";
-import { formatDueDate, formatTimeSpent, calculateTotalTimeSpent, formatDateWithoutGMT } from "../../utils/dateUtils";
+import {
+  formatDueDate,
+  formatTimeSpent,
+  calculateTotalTimeSpent,
+  formatDateWithoutGMT,
+} from "../../utils/dateUtils";
 
 const allowedPriorities = [
   "A1", "A2", "A3",
@@ -30,7 +35,7 @@ const DropdownField = ({ value, onChange, type = "priority", columns = {} }) => 
   );
 };
 
-const InlineTimeEditable = ({ value, onChange }) => {
+const InlineTimeEditable = ({ value, onChange, onEditingChange }) => {
   const [isEditing, setIsEditing] = useState(false);
   const totalSeconds = parseInt(value, 10) || 0;
   const initialHours = Math.floor(totalSeconds / 3600);
@@ -49,16 +54,17 @@ const InlineTimeEditable = ({ value, onChange }) => {
     setLocalMinutes(initialMinutes);
     setLocalSeconds(initialSeconds);
     setIsEditing(true);
+    if (onEditingChange) onEditingChange(true);
   };
 
   const handleConfirm = () => {
-    // Ensure non-negative values and clamp minutes and seconds
     const hours = Math.max(0, parseInt(localHours, 10) || 0);
     const minutes = Math.max(0, Math.min(59, parseInt(localMinutes, 10) || 0));
     const seconds = Math.max(0, Math.min(59, parseInt(localSeconds, 10) || 0));
     const newTotal = hours * 3600 + minutes * 60 + seconds;
     onChange(newTotal);
     setIsEditing(false);
+    if (onEditingChange) onEditingChange(false);
   };
 
   const handleCancel = () => {
@@ -66,6 +72,7 @@ const InlineTimeEditable = ({ value, onChange }) => {
     setLocalMinutes(initialMinutes);
     setLocalSeconds(initialSeconds);
     setIsEditing(false);
+    if (onEditingChange) onEditingChange(false);
   };
 
   return (
@@ -137,18 +144,20 @@ const InlineTimeEditable = ({ value, onChange }) => {
   );
 };
 
-const InlineEditable = ({ value, onChange, type = "text", columns = {}, min, ...rest }) => {
+const InlineEditable = ({ value, onChange, type = "text", columns = {}, min, onEditingChange, ...rest }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [localValue, setLocalValue] = useState(value);
 
   const handleConfirm = () => {
     setIsEditing(false);
+    if (onEditingChange) onEditingChange(false);
     onChange(localValue);
   };
 
   const handleCancel = () => {
     setLocalValue(value);
     setIsEditing(false);
+    if (onEditingChange) onEditingChange(false);
   };
 
   const handleKeyDown = (e) => {
@@ -201,6 +210,7 @@ const InlineEditable = ({ value, onChange, type = "text", columns = {}, min, ...
                 setLocalValue(e.target.value);
                 onChange(e.target.value);
                 setIsEditing(false);
+                if (onEditingChange) onEditingChange(false);
               }}
               onKeyDown={handleKeyDown}
               autoFocus
@@ -241,8 +251,16 @@ const InlineEditable = ({ value, onChange, type = "text", columns = {}, min, ...
         </>
       ) : (
         <div className="scroll-wrapper">
-            <div className="text-container title-text-container" onClick={() => setIsEditing(true)}>
-            {displayValue && displayValue.toString().trim() !== "" ? displayValue.toString() : "Click to edit"}
+          <div
+            className="text-container title-text-container"
+            onClick={() => {
+              setIsEditing(true);
+              if (onEditingChange) onEditingChange(true);
+            }}
+          >
+            {displayValue && displayValue.toString().trim() !== ""
+              ? displayValue.toString()
+              : "Click to edit"}
           </div>
         </div>
       )}
@@ -250,7 +268,7 @@ const InlineEditable = ({ value, onChange, type = "text", columns = {}, min, ...
   );
 };
 
-const InlineTiptap = ({ value, onChange }) => {
+const InlineTiptap = ({ value, onChange, onEditingChange }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [localValue, setLocalValue] = useState(value);
   const containerStyle = {
@@ -261,11 +279,13 @@ const InlineTiptap = ({ value, onChange }) => {
   const handleConfirm = () => {
     onChange(localValue);
     setIsEditing(false);
+    if (onEditingChange) onEditingChange(false);
   };
 
   const handleCancel = () => {
     setLocalValue(value);
     setIsEditing(false);
+    if (onEditingChange) onEditingChange(false);
   };
 
   return (
@@ -284,11 +304,17 @@ const InlineTiptap = ({ value, onChange }) => {
         </div>
       ) : value && value.trim() !== "" ? (
         <div className="scroll-wrapper">
-          <div className="text-container" onClick={() => setIsEditing(true)} dangerouslySetInnerHTML={{ __html: value }} />
+          <div className="text-container" onClick={() => {
+              setIsEditing(true);
+              if (onEditingChange) onEditingChange(true);
+            }} dangerouslySetInnerHTML={{ __html: value }} />
         </div>
       ) : (
         <div className="scroll-wrapper">
-          <div className="text-container" onClick={() => setIsEditing(true)}>
+          <div className="text-container" onClick={() => {
+              setIsEditing(true);
+              if (onEditingChange) onEditingChange(true);
+            }}>
             Click to edit description
           </div>
         </div>
@@ -307,7 +333,13 @@ const ViewTaskModal = ({
   stopTimer,
 }) => {
   if (!isModalOpen || !task) return null;
+  const modalContentRef = useRef(null);
   const [editableTask, setEditableTask] = useState({ ...task });
+  const [editingCount, setEditingCount] = useState(0);
+
+  const handleEditingChange = (isEditing) => {
+    setEditingCount((prev) => (isEditing ? prev + 1 : Math.max(prev - 1, 0)));
+  };
 
   const updateField = (field, value) => {
     if (field === "timeSpent") {
@@ -337,14 +369,12 @@ const ViewTaskModal = ({
       try {
         const response = await stopTimer(editableTask._id);
         const updatedTask = response.data;
-  
         setEditableTask((prev) => ({
           ...prev,
           isTimerRunning: false,
           timerStartTime: null,
           timeSpent: updatedTask.timeSpent,
         }));
-  
         handleUpdateTask({
           ...editableTask,
           isTimerRunning: false,
@@ -358,13 +388,11 @@ const ViewTaskModal = ({
       try {
         const response = await startTimer(editableTask._id);
         const updatedTask = response.data;
-  
         setEditableTask((prev) => ({
           ...prev,
           isTimerRunning: true,
           timerStartTime: updatedTask.timerStartTime || new Date().toISOString(),
         }));
-  
         handleUpdateTask({
           ...editableTask,
           isTimerRunning: true,
@@ -384,9 +412,23 @@ const ViewTaskModal = ({
     );
   };
 
+  const handleOverlayClick = (e) => {
+    // if click is on overlay, not inside modal content
+    if (modalContentRef.current && !modalContentRef.current.contains(e.target)) {
+      if (editingCount > 0) {
+        const confirmClose = window.confirm("You have unsaved edits. Are you sure you want to close?");
+        if (confirmClose) {
+          closeModal();
+        }
+      } else {
+        closeModal();
+      }
+    }
+  };
+
   return (
-    <div className="view-modal-overlay">
-      <div className="view-modal-content">
+    <div className="view-modal-overlay" onClick={handleOverlayClick}>
+      <div className="view-modal-content" ref={modalContentRef} onClick={(e) => e.stopPropagation()}>
         <button className="view-close-modal" onClick={closeModal}>
           &times;
         </button>
@@ -396,21 +438,21 @@ const ViewTaskModal = ({
         </div>
         <div className="view-modal-body">
           <div className="view-modal-left">
-
             <div className="title-block">
               <h3 className="panel-heading">Title</h3>
               <InlineEditable
                 value={editableTask.title || ""}
                 onChange={(val) => updateField("title", val)}
                 type="title"
+                onEditingChange={handleEditingChange}
               />
             </div>
-
             <div className="description-block">
               <h3 className="panel-heading">Description</h3>
               <InlineTiptap
                 value={editableTask.description || ""}
                 onChange={(val) => updateField("description", val)}
+                onEditingChange={handleEditingChange}
               />
             </div>
           </div>
@@ -422,12 +464,13 @@ const ViewTaskModal = ({
               <div className="view-task-field non-editable-field">
                 <div className="scroll-wrapper">
                   <div className="text-container">
-                    {editableTask.createdAt ? formatDateWithoutGMT(editableTask.createdAt) : "N/A"}
+                    {editableTask.createdAt
+                      ? formatDateWithoutGMT(editableTask.createdAt)
+                      : "N/A"}
                   </div>
                 </div>
               </div>
             </div>
-
             <div className="field-row">
               <label>Priority:</label>
               <div className="view-task-field">
@@ -438,7 +481,6 @@ const ViewTaskModal = ({
                 />
               </div>
             </div>
-
             <div className="field-row">
               <label>Status:</label>
               <div className="view-task-field">
@@ -450,13 +492,13 @@ const ViewTaskModal = ({
                 />
               </div>
             </div>
-
             <div className="field-row">
               <label>Due Date:</label>
               <InlineEditable
                 value={editableTask.dueDate || ""}
                 onChange={(val) => updateField("dueDate", val)}
                 type="date"
+                onEditingChange={handleEditingChange}
               />
             </div>
             <div className="field-row due-status-row">
@@ -474,15 +516,14 @@ const ViewTaskModal = ({
                   : "No due date"}
               </div>
             </div>
-
             <div className="field-row">
               <label>Assigned To:</label>
               <InlineEditable
                 value={editableTask.assignedTo || ""}
                 onChange={(val) => updateField("assignedTo", val)}
+                onEditingChange={handleEditingChange}
               />
             </div>
-
             <div className="field-row">
               <label>Story Points:</label>
               <InlineEditable
@@ -490,9 +531,9 @@ const ViewTaskModal = ({
                 onChange={(val) => updateField("storyPoints", val)}
                 type="number"
                 min="0"
+                onEditingChange={handleEditingChange}
               />
             </div>
-
             <div className="field-row">
               <label>Timer:</label>
               <div className="view-task-field">
@@ -511,7 +552,6 @@ const ViewTaskModal = ({
                   }}
                 >
                   <span className="toggle-label-left">OFF</span>
-
                   <div className={`toggle-slider ${editableTask.isTimerRunning ? "active" : ""}`}>
                     <div className="toggle-knob">
                       <svg
@@ -533,20 +573,18 @@ const ViewTaskModal = ({
                       </svg>
                     </div>
                   </div>
-
                   <span className="toggle-label-right">ON</span>
                 </div>
               </div>
             </div>
-
             <div className="field-row">
               <label>Time Spent:</label>
               <InlineTimeEditable
                 value={getTotalTimeSpent()}
                 onChange={(val) => updateField("timeSpent", val)}
+                onEditingChange={handleEditingChange}
               />
             </div>
-
           </div>
         </div>
       </div>
