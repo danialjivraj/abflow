@@ -120,3 +120,77 @@ export const formatDateWithoutGMT = (dateValue) => {
     hour12: true,
   });
 };
+
+/**
+ * Formats the completed task's due date message.
+ *
+ * Compares the due date with the completed date and returns a message like:
+ * - "Completed on 12/05/2025 (Overdue by 2 hours)"
+ * - "Completed on 12/05/2025 (Completed 30 minutes early)"
+ * - "Completed on 12/05/2025 (On time)" if there's no difference.
+ *
+ * @param {string|Date} dueDate - The task's due date.
+ * @param {string|Date} completedAt - The date when the task was completed.
+ * @returns {string} - A formatted message indicating how early or late the task was completed.
+ */
+export const formatCompletedDueDate = (dueDate, completedAt) => {
+  const due = new Date(dueDate);
+  const completed = new Date(completedAt);
+  const diffInMs = completed - due;
+
+  if (Math.abs(diffInMs) < 1000) {
+    return `Completed on ${completed.toLocaleDateString('en-GB')} (On time)`;
+  }
+
+  const absDiffInMs = Math.abs(diffInMs);
+  const diffInSeconds = absDiffInMs / 1000;
+
+  const formatValue = (value, singular, plural) => {
+    const formatted = value === Math.floor(value) ? Math.floor(value) : value.toFixed(1);
+    const num = formatted.toString().replace(/\.0$/, "");
+    return `${num} ${num === "1" ? singular : plural}`;
+  };
+
+  let timeText = "";
+  if (diffInSeconds < 60) {
+    timeText = `${Math.round(diffInSeconds)} second${Math.round(diffInSeconds) === 1 ? "" : "s"}`;
+  } else {
+    const diffInMinutes = diffInSeconds / 60;
+    if (diffInMinutes < 60) {
+      timeText = `${Math.round(diffInMinutes)} minute${Math.round(diffInMinutes) === 1 ? "" : "s"}`;
+    } else {
+      const diffInHours = diffInMinutes / 60;
+      if (diffInHours < 24) {
+        timeText = formatValue(diffInHours, "hour", "hours");
+      } else {
+        const diffInDays = diffInHours / 24;
+        if (diffInDays < 7) {
+          timeText = formatValue(diffInDays, "day", "days");
+        } else {
+          const diffInWeeks = diffInDays / 7;
+          if (diffInWeeks < 4) {
+            timeText = formatValue(diffInWeeks, "week", "weeks");
+          } else {
+            const diffInMonths = diffInDays / 30;
+            if (diffInMonths < 12) {
+              timeText = formatValue(diffInMonths, "month", "months");
+            } else {
+              const diffInYears = diffInDays / 365;
+              timeText = formatValue(diffInYears, "year", "years");
+            }
+          }
+        }
+      }
+    }
+  }
+
+  const formattedCompletedDate = completed.toLocaleDateString('en-GB');
+
+  if (diffInMs > 0) {
+    // Task was completed after its due date.
+    return `Completed on ${formattedCompletedDate} (Late by ${timeText})`;
+  } else {
+    // Task was completed before its due date.
+    return `Completed on ${formattedCompletedDate} (Early by ${timeText})`;
+  }
+};

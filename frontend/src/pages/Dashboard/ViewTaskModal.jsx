@@ -8,6 +8,7 @@ import {
   formatTimeSpent,
   calculateTotalTimeSpent,
   formatDateWithoutGMT,
+  formatCompletedDueDate,
 } from "../../utils/dateUtils";
 import { completeTask } from "../../services/tasksService";
 
@@ -145,7 +146,15 @@ const InlineTimeEditable = ({ value, onChange, onEditingChange }) => {
   );
 };
 
-const InlineEditable = ({ value, onChange, type = "text", columns = {}, min, onEditingChange, ...rest }) => {
+const InlineEditable = ({
+  value,
+  onChange,
+  type = "text",
+  columns = {},
+  min,
+  onEditingChange,
+  ...rest
+}) => {
   const [isEditing, setIsEditing] = useState(false);
   const [localValue, setLocalValue] = useState(value);
 
@@ -305,17 +314,24 @@ const InlineTiptap = ({ value, onChange, onEditingChange }) => {
         </div>
       ) : value && value.trim() !== "" ? (
         <div className="scroll-wrapper">
-          <div className="text-container" onClick={() => {
+          <div
+            className="text-container"
+            onClick={() => {
               setIsEditing(true);
               if (onEditingChange) onEditingChange(true);
-            }} dangerouslySetInnerHTML={{ __html: value }} />
+            }}
+            dangerouslySetInnerHTML={{ __html: value }}
+          />
         </div>
       ) : (
         <div className="scroll-wrapper">
-          <div className="text-container" onClick={() => {
+          <div
+            className="text-container"
+            onClick={() => {
               setIsEditing(true);
               if (onEditingChange) onEditingChange(true);
-            }}>
+            }}
+          >
             Click to edit description
           </div>
         </div>
@@ -341,20 +357,18 @@ const ViewTaskModal = ({
 
   const handleCompleteTask = async () => {
     try {
-      // If timer is running, stop it immediately
       if (editableTask.isTimerRunning) {
         await stopTimer(editableTask._id);
       }
       const response = await completeTask(task._id);
       const updatedTask = response.data;
-      // Update the central state (boards and completed tasks)
       handleUpdateTask(updatedTask);
       if (setCompletedTasks) {
-        setCompletedTasks(prevCompleted => {
-          if (!prevCompleted.some(t => t._id === updatedTask._id)) {
+        setCompletedTasks((prevCompleted) => {
+          if (!prevCompleted.some((t) => t._id === updatedTask._id)) {
             return [...prevCompleted, updatedTask];
           }
-          return prevCompleted.map(t =>
+          return prevCompleted.map((t) =>
             t._id === updatedTask._id ? updatedTask : t
           );
         });
@@ -364,7 +378,7 @@ const ViewTaskModal = ({
       console.error("Error completing task:", error);
     }
   };
-  
+
   const handleEditingChange = (isEditing) => {
     setEditingCount((prev) => (isEditing ? prev + 1 : Math.max(prev - 1, 0)));
   };
@@ -391,6 +405,11 @@ const ViewTaskModal = ({
       });
     }
   };
+
+  const referenceDate =
+    editableTask.status === "completed" && editableTask.completedAt
+      ? new Date(editableTask.completedAt)
+      : new Date();
 
   const toggleTimer = async () => {
     if (editableTask.isTimerRunning) {
@@ -441,15 +460,12 @@ const ViewTaskModal = ({
   };
 
   const handleMoveToBoards = () => {
-    // Example: set the status to the first board column (adjust as needed)
     const newStatus = Object.keys(columns)[0] || "backlog";
     updateField("status", newStatus);
     closeModal();
   };
-  
 
   const handleOverlayClick = (e) => {
-    // if click is on overlay, not inside modal content
     if (modalContentRef.current && !modalContentRef.current.contains(e.target)) {
       if (editingCount > 0) {
         const confirmClose = window.confirm("You have unsaved edits. Are you sure you want to close?");
@@ -461,6 +477,21 @@ const ViewTaskModal = ({
       }
     }
   };
+
+  let dueStatusText = "";
+  let dueStatusClass = "";
+  if (editableTask.dueDate) {
+    if (editableTask.status === "completed" && editableTask.completedAt) {
+      dueStatusText = formatCompletedDueDate(editableTask.dueDate, editableTask.completedAt);
+      const due = new Date(editableTask.dueDate);
+      const completed = new Date(editableTask.completedAt);
+      dueStatusClass = completed > due ? "overdue" : "";
+    } else {
+      const formatted = formatDueDate(editableTask.dueDate, referenceDate);
+      dueStatusText = formatted.text;
+      dueStatusClass = formatted.isOverdue ? "overdue" : "";
+    }
+  }
 
   return (
     <div className="view-modal-overlay" onClick={handleOverlayClick}>
@@ -556,19 +587,13 @@ const ViewTaskModal = ({
 
             <div className="field-row due-status-row">
               <label className="empty-label"></label>
-              <div
-                className={`due-status-text ${
-                  editableTask.dueDate &&
-                  formatDueDate(editableTask.dueDate, new Date()).isOverdue
-                    ? "overdue"
-                    : ""
-                }`}
-              >
+              <div className={`due-status-text ${dueStatusClass}`}>
                 {editableTask.dueDate
-                  ? formatDueDate(editableTask.dueDate, new Date()).text
+                  ? dueStatusText
                   : "No due date"}
               </div>
             </div>
+
             <div className="field-row">
               <label>Assigned To:</label>
               <InlineEditable
@@ -678,7 +703,6 @@ const ViewTaskModal = ({
                 </button>
               )}
             </div>
-
           </div>
         </div>
       </div>

@@ -308,7 +308,7 @@ router.put("/:id/complete", async (req, res) => {
   try {
     const task = await Task.findByIdAndUpdate(
       req.params.id,
-      { status: "completed" }, // Update the status to "completed"
+      { status: "completed", completedAt: new Date() },
       { new: true }
     );
     res.json(task);

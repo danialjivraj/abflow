@@ -81,7 +81,6 @@ const Dashboard = () => {
         const fetchedTasks = tasksRes.data;
         const groupedTasks = {};
   
-        // Create groups for board columns (exclude completed tasks)
         columnOrder.forEach((colId) => {
           groupedTasks[colId] = {
             name: columnNames[colId] || colId,
@@ -89,7 +88,7 @@ const Dashboard = () => {
           };
         });
   
-        // Separate out completed tasks
+        // separate out completed tasks
         const completed = [];
   
         fetchedTasks.forEach((task) => {
@@ -242,7 +241,6 @@ const Dashboard = () => {
   const handleDeleteTask = async (taskId) => {
     try {
       await deleteTaskAPI(taskId);
-      // Update board columns state
       setColumns((prevColumns) => {
         const updatedColumns = { ...prevColumns };
         Object.keys(updatedColumns).forEach((colId) => {
@@ -252,7 +250,6 @@ const Dashboard = () => {
         });
         return updatedColumns;
       });
-      // Update completed tasks state
       setCompletedTasks((prevCompleted) =>
         prevCompleted.filter((task) => task._id !== taskId)
       );
@@ -278,12 +275,12 @@ const Dashboard = () => {
     try {
       const response = await startTimerAPI(taskId);
       const updatedTask = response.data;
-      // Update boards state if needed
+      // updates boards state if needed
       updateTaskInColumns(taskId, {
         isTimerRunning: true,
         timerStartTime: updatedTask.timerStartTime || new Date().toISOString(),
       });
-      // Also update the completedTasks state if this task is completed
+      // also updates the completedTasks state if this task is completed
       setCompletedTasks((prev) =>
         prev.map((task) =>
           task._id === taskId
@@ -375,29 +372,23 @@ const Dashboard = () => {
       const response = await updateTask(updatedTask);
       const updatedTaskFromBackend = response.data;
   
-      // Update boards state as before.
       setColumns((prevColumns) => {
         const updatedColumns = { ...prevColumns };
-        // Remove the task from its previous column
         Object.keys(updatedColumns).forEach((colId) => {
           updatedColumns[colId].items = updatedColumns[colId].items.filter(
             (task) => task._id !== updatedTaskFromBackend._id
           );
         });
-        // If it's not a completed task, add it to its new column
         if (updatedTaskFromBackend.status !== "completed" && updatedColumns[updatedTaskFromBackend.status]) {
           updatedColumns[updatedTaskFromBackend.status].items.push(updatedTaskFromBackend);
         }
         return updatedColumns;
       });
   
-      // Update the completed tasks state:
       setCompletedTasks((prevCompleted) => {
-        // If the task is no longer completed, remove it.
         if (updatedTaskFromBackend.status !== "completed") {
           return prevCompleted.filter(task => task._id !== updatedTaskFromBackend._id);
         }
-        // Otherwise, update the task in place (or add it if not present)
         const exists = prevCompleted.some(task => task._id === updatedTaskFromBackend._id);
         if (exists) {
           return prevCompleted.map(task =>

@@ -619,3 +619,41 @@ select {
     background-color: #2d74d1 !important;
     color: #ffffff !important;
 }
+
+
+.completed-tasks-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .filter-container {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+  
+  .filter-option {
+    cursor: pointer;
+    background-color: #2a2a2a;
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid #444;
+    transition: background-color 0.2s;
+  }
+  
+  .filter-option:hover,
+  .filter-option.active {
+    background-color: #3a3a3a;
+  }
+  
+  .task-group-heading {
+    text-align: center;
+    margin: 30px 0 10px;
+    font-size: 1.2rem;
+    color: #ccc;
+    border-bottom: 1px solid #444;
+    padding-bottom: 5px;
+  }
+  
