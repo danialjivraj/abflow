@@ -9,6 +9,7 @@ import {
   calculateTotalTimeSpent,
   formatDateWithoutGMT,
 } from "../../utils/dateUtils";
+import { completeTask } from "../../services/tasksService";
 
 const allowedPriorities = [
   "A1", "A2", "A3",
@@ -337,6 +338,16 @@ const ViewTaskModal = ({
   const [editableTask, setEditableTask] = useState({ ...task });
   const [editingCount, setEditingCount] = useState(0);
 
+  const handleCompleteTask = async () => {
+    try {
+      await completeTask(task._id);
+      handleUpdateTask({ ...task, status: "completed" });
+      closeModal();
+    } catch (error) {
+      console.error("Error completing task:", error);
+    }
+  };
+
   const handleEditingChange = (isEditing) => {
     setEditingCount((prev) => (isEditing ? prev + 1 : Math.max(prev - 1, 0)));
   };
@@ -411,6 +422,14 @@ const ViewTaskModal = ({
       editableTask.timerStartTime
     );
   };
+
+  const handleMoveToBoards = () => {
+    // Example: set the status to the first board column (adjust as needed)
+    const newStatus = Object.keys(columns)[0] || "backlog";
+    updateField("status", newStatus);
+    closeModal();
+  };
+  
 
   const handleOverlayClick = (e) => {
     // if click is on overlay, not inside modal content
@@ -585,6 +604,19 @@ const ViewTaskModal = ({
                 onEditingChange={handleEditingChange}
               />
             </div>
+
+            <div className="view-modal-footer">
+              {task.status === "completed" ? (
+                <button className="back-to-boards-button" onClick={handleMoveToBoards}>
+                  Back to Boards
+                </button>
+              ) : (
+                <button className="complete-task-button" onClick={handleCompleteTask}>
+                  Complete Task
+                </button>
+              )}
+            </div>
+
           </div>
         </div>
       </div>

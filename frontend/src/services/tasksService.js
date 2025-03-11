@@ -126,3 +126,12 @@ export const saveColumnOrder = (userId, columnOrder) => {
 export const updateTask = (taskData) => {
   return axios.put(`${API_URL}/${taskData._id}/edit`, taskData);
 };
+
+/**
+ * Mark a task as completed.
+ * @param {string} taskId - The ID of the task to mark as completed.
+ * @returns {Promise} Axios PUT request that resolves with the updated task.
+ */
+export const completeTask = (taskId) => {
+  return axios.put(`${API_URL}/${taskId}/complete`);
+};

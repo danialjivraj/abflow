@@ -421,3 +421,48 @@
 .due-status-text.overdue {
   color: rgb(219, 71, 71);
 }
+
+
+.view-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding: 20px;
+    border-top: 1px solid #444;
+    margin-top: 16px;
+}
+  
+.complete-task-button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s ease;
+    position: absolute;
+    bottom: 12px;
+    right: 20px;
+}
+
+.complete-task-button:hover {
+    background-color: #218838;
+}
+
+.back-to-boards-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s ease;
+    position: absolute;
+    bottom: 16px;
+    right: 20px;
+}
+
+.back-to-boards-button:hover {
+    background-color: #0056b3;
+}

@@ -415,7 +415,20 @@ const Dashboard = () => {
 
   const renderContent = () => {
     if (location.pathname.startsWith("/dashboard/completedtasks")) {
-      return <CompletedTasks />;
+      return (
+        <CompletedTasks
+          userId={userId}
+          currentTime={currentTime}
+          openViewTaskModal={openViewTaskModal}
+          deleteTask={handleDeleteTask}
+          startTimer={handleStartTimer}
+          stopTimer={handleStopTimer}
+          isTaskHovered={isTaskHovered}
+          setIsTaskHovered={setIsTaskHovered}
+          isTaskDropdownOpen={isTaskDropdownOpen}
+          setIsTaskDropdownOpen={setIsTaskDropdownOpen}
+        />
+      );
     } else if (location.pathname.startsWith("/dashboard/schedule")) {
       return <ScheduleView />;
     } else if (location.pathname.startsWith("/dashboard/boards")) {

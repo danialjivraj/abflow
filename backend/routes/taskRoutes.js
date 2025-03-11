@@ -303,4 +303,19 @@ router.delete("/columns/delete", async (req, res) => {
   }
 });
 
+// Mark a task as completed
+router.put("/:id/complete", async (req, res) => {
+  try {
+    const task = await Task.findByIdAndUpdate(
+      req.params.id,
+      { status: "completed" }, // Update the status to "completed"
+      { new: true }
+    );
+    res.json(task);
+  } catch (error) {
+    console.error("Error completing task:", error);
+    res.status(500).json({ error: "Failed to complete task" });
+  }
+});
+
 module.exports = router;
