@@ -64,8 +64,36 @@ router.get("/:userId", async (req, res) => {
 // edit a task
 router.put("/:id/edit", async (req, res) => {
   try {
-    const { title, priority, status, dueDate, assignedTo, storyPoints, timeSpent, description, order, timerStartTime } = req.body;
-    const updatedFields = { title, priority, status, dueDate, assignedTo, storyPoints, timeSpent, description, order, timerStartTime };
+    const {
+      title,
+      priority,
+      status,
+      dueDate,
+      assignedTo,
+      storyPoints,
+      timeSpent,
+      description,
+      order,
+      timerStartTime,
+      scheduledAt,
+      scheduledEnd,
+    } = req.body;
+
+    const updatedFields = {
+      title,
+      priority,
+      status,
+      dueDate,
+      assignedTo,
+      storyPoints,
+      timeSpent,
+      description,
+      order,
+      timerStartTime,
+      scheduledAt,
+      scheduledEnd,
+    };
+
     const task = await Task.findByIdAndUpdate(req.params.id, updatedFields, { new: true });
     res.json(task);
   } catch (error) {

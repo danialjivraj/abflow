@@ -19,7 +19,9 @@ const TaskSchema = new mongoose.Schema({
   description: { type: String, default: "" },
   timeSpent: { type: Number, default: 0 },
   isTimerRunning: { type: Boolean, default: false },
-  timerStartTime: { type: Date }
+  timerStartTime: { type: Date },
+  scheduledAt: { type: Date, default: null },
+  scheduledEnd: { type: Date, default: null },
 });
 
 const Task = mongoose.model("Task", TaskSchema);

@@ -81,17 +81,17 @@ const Dashboard = () => {
         const { columnOrder, columnNames = {} } = columnOrderRes.data;
         const fetchedTasks = tasksRes.data;
         const groupedTasks = {};
-  
+
         columnOrder.forEach((colId) => {
           groupedTasks[colId] = {
             name: columnNames[colId] || colId,
             items: [],
           };
         });
-  
+
         // separate out completed tasks
         const completed = [];
-  
+
         fetchedTasks.forEach((task) => {
           if (task.status === "completed") {
             completed.push({
@@ -107,10 +107,10 @@ const Dashboard = () => {
             });
           }
         });
-  
+
         setColumns(groupedTasks);
         setCompletedTasks(completed);
-  
+
         if (columnOrder.length > 0 && !selectedStatus) {
           setSelectedStatus(columnOrder[0]);
         }
@@ -120,7 +120,7 @@ const Dashboard = () => {
     };
     fetchData();
   }, [userId, selectedStatus]);
-  
+
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentTime(new Date());
@@ -133,7 +133,7 @@ const Dashboard = () => {
     if (match) {
       const taskId = match[1];
       let foundTask = null;
-      if (location.pathname.includes('/dashboard/completedtasks')) {
+      if (location.pathname.includes("/dashboard/completedtasks")) {
         foundTask = completedTasks.find((t) => t._id === taskId);
       } else {
         Object.values(columns).forEach((column) => {
@@ -152,12 +152,25 @@ const Dashboard = () => {
   }, [location, columns, completedTasks]);
 
   useEffect(() => {
-    if (location.pathname.endsWith('/createtask')) {
+    if (location.pathname.endsWith("/createtask")) {
       setIsModalOpen(true);
     } else {
       setIsModalOpen(false);
     }
   }, [location]);
+
+  // ---------------------- updater for task changes ----------------------
+  const updateTaskInState = (updatedTask) => {
+    setColumns((prevColumns) => {
+      const newColumns = { ...prevColumns };
+      Object.keys(newColumns).forEach((colId) => {
+        newColumns[colId].items = newColumns[colId].items.map((task) =>
+          task._id === updatedTask._id ? updatedTask : task
+        );
+      });
+      return newColumns;
+    });
+  };
 
   // ---------------------- handlers ----------------------
   const getBaseRoute = () => {
@@ -167,7 +180,7 @@ const Dashboard = () => {
     }
     return parts[2] ? `/dashboard/${parts[2]}` : "/dashboard";
   };
-  
+
   const baseRoute = getBaseRoute();
 
   const openModal = () => {
@@ -257,7 +270,7 @@ const Dashboard = () => {
       console.error("Error deleting task:", error);
     }
   };
-  
+
   const handleCompleteTaskFromDropdown = async (task) => {
     try {
       if (task.isTimerRunning) {
@@ -270,20 +283,20 @@ const Dashboard = () => {
       console.error("Error completing task from dropdown:", error);
     }
   };
-  
+
   const handleBackToBoardsFromDropdown = async (task) => {
     try {
       const newStatus = Object.keys(columns)[0] || "backlog";
-  
+
       const boardTasks = columns[newStatus]?.items || [];
       const highestOrder = boardTasks.reduce((max, t) => Math.max(max, t.order || 0), -1);
       const newOrder = highestOrder + 1;
-  
+
       const updatedTask = { ...task, status: newStatus, order: newOrder };
-  
+
       const response = await updateTask(updatedTask);
       const updatedTaskFromBackend = response.data;
-  
+
       handleUpdateTask(updatedTaskFromBackend);
     } catch (error) {
       console.error("Error moving task back to boards:", error);
@@ -306,12 +319,10 @@ const Dashboard = () => {
     try {
       const response = await startTimerAPI(taskId);
       const updatedTask = response.data;
-      // updates boards state if needed
       updateTaskInColumns(taskId, {
         isTimerRunning: true,
         timerStartTime: updatedTask.timerStartTime || new Date().toISOString(),
       });
-      // also updates the completedTasks state if this task is completed
       setCompletedTasks((prev) =>
         prev.map((task) =>
           task._id === taskId
@@ -323,7 +334,7 @@ const Dashboard = () => {
       console.error("Error starting timer:", error);
     }
   };
-  
+
   const handleStopTimer = async (taskId) => {
     try {
       const response = await stopTimerAPI(taskId);
@@ -402,17 +413,17 @@ const Dashboard = () => {
     try {
       const response = await updateTask(updatedTask);
       const updatedTaskFromBackend = response.data;
-  
+
       setColumns((prevColumns) => {
         const updatedColumns = { ...prevColumns };
         let oldCol = null;
-  
+
         Object.keys(updatedColumns).forEach((colId) => {
           if (updatedColumns[colId].items.find((t) => t._id === updatedTaskFromBackend._id)) {
             oldCol = colId;
           }
         });
-  
+
         if (oldCol && oldCol === updatedTaskFromBackend.status) {
           updatedColumns[oldCol].items = updatedColumns[oldCol].items.map((t) =>
             t._id === updatedTaskFromBackend._id ? updatedTaskFromBackend : t
@@ -429,7 +440,7 @@ const Dashboard = () => {
         }
         return updatedColumns;
       });
-  
+
       setCompletedTasks((prevCompleted) => {
         if (updatedTaskFromBackend.status !== "completed") {
           return prevCompleted.filter((t) => t._id !== updatedTaskFromBackend._id);
@@ -447,7 +458,7 @@ const Dashboard = () => {
       console.error("Error updating task:", error);
     }
   };
-  
+
   const handleDragEnd = async (result) => {
     const { source, destination, type } = result;
     if (!destination) return;
@@ -512,9 +523,14 @@ const Dashboard = () => {
           handleBackToBoards={handleBackToBoardsFromDropdown}
         />
       );
-    }
-     else if (location.pathname.startsWith("/dashboard/schedule")) {
-      return <ScheduleView />;
+    } else if (location.pathname.startsWith("/dashboard/schedule")) {
+      const currentTasks = Object.values(columns).flatMap((col) => col.items);
+      return (
+        <ScheduleView
+          tasks={currentTasks}
+          updateTaskInState={updateTaskInState}
+        />
+      );
     } else if (location.pathname.startsWith("/dashboard/boards")) {
       return (
         <BoardsView
