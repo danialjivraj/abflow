@@ -554,38 +554,48 @@ const ViewTaskModal = ({
 
             <div className="field-row">
               <label>Status:</label>
-              <div className="view-task-field">
-                {editableTask.status === "completed" ? (
-                  <span>{columns[editableTask.status] ? columns[editableTask.status].name : "Completed"}</span>
-                ) : (
+              {editableTask.status === "completed" ? (
+                <div className="view-task-field non-editable-field">
+                  <div className="scroll-wrapper">
+                    <div className="text-container">
+                      {columns[editableTask.status] ? columns[editableTask.status].name : "Completed"}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="view-task-field">
                   <DropdownField
                     value={editableTask.status || ""}
                     onChange={(val) => updateField("status", val)}
                     type="status"
                     columns={columns}
                   />
-                )}
-              </div>
+                </div>
+              )}
             </div>
 
             <div className="field-row">
               <label>Due Date:</label>
-              <div className="view-task-field">
-                {editableTask.status === "completed" ? (
-                  <span>
-                    {editableTask.dueDate
-                      ? formatDateWithoutGMT(editableTask.dueDate)
-                      : "No due date"}
-                  </span>
-                ) : (
+              {editableTask.status === "completed" ? (
+                <div className="view-task-field non-editable-field">
+                  <div className="scroll-wrapper">
+                    <div className="text-container">
+                      {editableTask.dueDate
+                        ? formatDateWithoutGMT(editableTask.dueDate)
+                        : "No due date"}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="view-task-field">
                   <InlineEditable
                     value={editableTask.dueDate || ""}
                     onChange={(val) => updateField("dueDate", val)}
                     type="date"
                     onEditingChange={handleEditingChange}
                   />
-                )}
-              </div>
+                </div>
+              )}
             </div>
 
             <div className="field-row due-status-row">
@@ -619,32 +629,32 @@ const ViewTaskModal = ({
             <div className="field-row">
               <label>Timer:</label>
               <div className="view-task-field">
-                {editableTask.status === "completed" ? (
-                  <div className="timer-toggle-container disabled">
-                    <span className="toggle-label-left">OFF</span>
-                    <div className="toggle-slider">
-                      <div className="toggle-knob">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="#666"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          className="clock-icon"
-                        >
-                          <circle cx="12" cy="13" r="8" />
-                          <path d="M12 9v4l2 2" />
-                          <path d="M5 3L2 6" />
-                          <path d="M22 6l-3-3" />
-                          <path d="M6 19l-2 2" />
-                          <path d="M18 19l2 2" />
-                        </svg>
-                      </div>
+              {editableTask.status === "completed" ? (
+                <div className="timer-toggle-container off disabled" style={{ cursor: "not-allowed" }}>
+                  <span className="toggle-label-left">OFF</span>
+                  <div className="toggle-slider">
+                    <div className="toggle-knob">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="#666"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="clock-icon"
+                      >
+                        <circle cx="12" cy="13" r="8" />
+                        <path d="M12 9v4l2 2" />
+                        <path d="M5 3L2 6" />
+                        <path d="M22 6l-3-3" />
+                        <path d="M6 19l-2 2" />
+                        <path d="M18 19l2 2" />
+                      </svg>
                     </div>
-                    <span className="toggle-label-right">OFF</span>
                   </div>
+                  <span className="toggle-label-right">ON</span>
+                </div>
                 ) : (
                   <div
                     className={`timer-toggle-container ${editableTask.isTimerRunning ? "on" : "off"}`}

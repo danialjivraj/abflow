@@ -465,3 +465,13 @@
 .back-to-boards-button:hover {
     background-color: #0056b3;
 }
+
+.timer-toggle-container.disabled:hover {
+  cursor: not-allowed;
+}
+.timer-toggle-container.off .toggle-label-left {
+  color: #fff;
+}
+.timer-toggle-container.off .toggle-label-right {
+  color: #888;
+}

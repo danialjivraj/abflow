@@ -129,8 +129,9 @@ const Dashboard = () => {
   }, []);
 
   useEffect(() => {
-    const taskId = location.pathname.split('/viewtask/')[1];
-    if (taskId) {
+    const match = location.pathname.match(/\/viewtask\/([^/]+)/);
+    if (match) {
+      const taskId = match[1];
       let foundTask = null;
       if (location.pathname.includes('/dashboard/completedtasks')) {
         foundTask = completedTasks.find((t) => t._id === taskId);
@@ -144,9 +145,11 @@ const Dashboard = () => {
         setSelectedTask(foundTask);
         setIsViewModalOpen(true);
       }
+    } else {
+      setSelectedTask(null);
+      setIsViewModalOpen(false);
     }
   }, [location, columns, completedTasks]);
-  
 
   useEffect(() => {
     if (location.pathname.endsWith('/createtask')) {
@@ -159,8 +162,12 @@ const Dashboard = () => {
   // ---------------------- handlers ----------------------
   const getBaseRoute = () => {
     const parts = location.pathname.split("/");
+    if (parts[2] === "viewtask" || parts[2] === "createtask") {
+      return "/dashboard";
+    }
     return parts[2] ? `/dashboard/${parts[2]}` : "/dashboard";
   };
+  
   const baseRoute = getBaseRoute();
 
   const openModal = () => {
