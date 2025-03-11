@@ -129,32 +129,24 @@ const Dashboard = () => {
   }, []);
 
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsDropdownOpen(null);
-        setIsTaskDropdownOpen(null);
-        setIsTaskHovered(null);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () =>
-      document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  useEffect(() => {
     const taskId = location.pathname.split('/viewtask/')[1];
-    if (taskId && Object.keys(columns).length > 0) {
+    if (taskId) {
       let foundTask = null;
-      Object.values(columns).forEach((column) => {
-        const task = column.items.find((t) => t._id === taskId);
-        if (task) foundTask = task;
-      });
+      if (location.pathname.includes('/dashboard/completedtasks')) {
+        foundTask = completedTasks.find((t) => t._id === taskId);
+      } else {
+        Object.values(columns).forEach((column) => {
+          const task = column.items.find((t) => t._id === taskId);
+          if (task) foundTask = task;
+        });
+      }
       if (foundTask) {
         setSelectedTask(foundTask);
         setIsViewModalOpen(true);
       }
     }
-  }, [location, columns]);
+  }, [location, columns, completedTasks]);
+  
 
   useEffect(() => {
     if (location.pathname.endsWith('/createtask')) {

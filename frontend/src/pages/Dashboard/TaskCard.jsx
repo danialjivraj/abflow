@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useEffect } from "react";
 import { Draggable } from "@hello-pangea/dnd";
 import { formatDueDate, formatCompletedDueDate } from "../../utils/dateUtils";
 
@@ -19,7 +19,6 @@ const TaskCard = ({
   setIsTaskHovered,
   isTaskDropdownOpen,
   setIsTaskDropdownOpen,
-  dropdownRef,
   deleteTask,
   startTimer,
   stopTimer,
@@ -27,6 +26,26 @@ const TaskCard = ({
   handleCompleteTask,
   handleBackToBoards
 }) => {
+  const dropdownMenuRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        dropdownMenuRef.current &&
+        !dropdownMenuRef.current.contains(event.target)
+      ) {
+        if (isTaskDropdownOpen === task._id) {
+          setIsTaskDropdownOpen(null);
+        }
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isTaskDropdownOpen, setIsTaskDropdownOpen, task._id]);
+
   const handleClick = (e) => {
     if (e.target.closest(".task-actions")) return;
     openViewTaskModal(task);
@@ -56,7 +75,6 @@ const TaskCard = ({
     }
   }
 
-  // The inner content of the card (without its outer wrapper)
   const cardContent = (
     <>
       <span>{task.title}</span>
@@ -106,7 +124,7 @@ const TaskCard = ({
             &#8942;
           </button>
           {isTaskDropdownOpen === task._id && (
-            <div className="dropdown-menu open" ref={dropdownRef}>
+            <div className="dropdown-menu open" ref={dropdownMenuRef}>
               {/* "complete task for non-completed" */}
               {task.status !== "completed" && handleCompleteTask && (
                 <button
@@ -119,7 +137,7 @@ const TaskCard = ({
                   Complete Task
                 </button>
               )}
-              
+
               {/* timer toggle button */}
               {task.status !== "completed" && (
                 <button
@@ -134,8 +152,8 @@ const TaskCard = ({
                   {task.isTimerRunning ? "Stop Timer" : "Start Timer"}
                 </button>
               )}
-              
-              {/* back to boards for completed*/}
+
+              {/* back to boards for completed */}
               {task.status === "completed" && handleBackToBoards && (
                 <button
                   onClick={(e) => {
@@ -147,7 +165,7 @@ const TaskCard = ({
                   Back to Boards
                 </button>
               )}
-              
+
               {/* delete */}
               <button
                 onClick={(e) => {
@@ -160,8 +178,6 @@ const TaskCard = ({
               </button>
             </div>
           )}
-
-
         </div>
       </div>
     </>
