@@ -24,6 +24,8 @@ const TaskCard = ({
   startTimer,
   stopTimer,
   openViewTaskModal,
+  handleCompleteTask,
+  handleBackToBoards
 }) => {
   const handleClick = (e) => {
     if (e.target.closest(".task-actions")) return;
@@ -105,17 +107,48 @@ const TaskCard = ({
           </button>
           {isTaskDropdownOpen === task._id && (
             <div className="dropdown-menu open" ref={dropdownRef}>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  task.isTimerRunning
-                    ? stopTimer(task._id)
-                    : startTimer(task._id);
-                  setIsTaskDropdownOpen(null);
-                }}
-              >
-                {task.isTimerRunning ? "Stop Timer" : "Start Timer"}
-              </button>
+              {/* "complete task for non-completed" */}
+              {task.status !== "completed" && handleCompleteTask && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleCompleteTask(task);
+                    setIsTaskDropdownOpen(null);
+                  }}
+                >
+                  Complete Task
+                </button>
+              )}
+              
+              {/* timer toggle button */}
+              {task.status !== "completed" && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    task.isTimerRunning
+                      ? stopTimer(task._id)
+                      : startTimer(task._id);
+                    setIsTaskDropdownOpen(null);
+                  }}
+                >
+                  {task.isTimerRunning ? "Stop Timer" : "Start Timer"}
+                </button>
+              )}
+              
+              {/* back to boards for completed*/}
+              {task.status === "completed" && handleBackToBoards && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleBackToBoards(task);
+                    setIsTaskDropdownOpen(null);
+                  }}
+                >
+                  Back to Boards
+                </button>
+              )}
+              
+              {/* delete */}
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -127,12 +160,13 @@ const TaskCard = ({
               </button>
             </div>
           )}
+
+
         </div>
       </div>
     </>
   );
 
-  // render with draggable wrapper only if needed
   if (draggable) {
     return (
       <Draggable draggableId={task._id} index={index}>

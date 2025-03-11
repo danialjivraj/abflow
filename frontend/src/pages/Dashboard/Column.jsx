@@ -25,6 +25,7 @@ const Column = ({
   startTimer,
   stopTimer,
   openViewTaskModal,
+  handleCompleteTask
 }) => {
   return (
     <Draggable draggableId={columnId} index={index}>
@@ -93,6 +94,7 @@ const Column = ({
                     startTimer={startTimer}
                     stopTimer={stopTimer}
                     openViewTaskModal={openViewTaskModal}
+                    handleCompleteTask={handleCompleteTask}
                   />
                 ))}
                 {provided.placeholder}

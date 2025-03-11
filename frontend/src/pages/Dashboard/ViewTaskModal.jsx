@@ -393,7 +393,10 @@ const ViewTaskModal = ({
       handleUpdateTask(updatedTask);
     } else if (field === "status") {
       const newColumnItems = columns[value]?.items || [];
-      const newOrder = newColumnItems.length;
+      const newOrder = newColumnItems.reduce(
+        (max, t) => Math.max(max, t.order || 0),
+        -1
+      ) + 1;
       const updatedTask = { ...editableTask, status: value, order: newOrder };
       setEditableTask(updatedTask);
       handleUpdateTask(updatedTask);

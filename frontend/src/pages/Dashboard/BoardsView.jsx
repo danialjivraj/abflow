@@ -30,6 +30,7 @@ const BoardsView = ({
   setNewBoardCreateName,
   setIsAddingBoard,
   handleCreateBoard,
+  handleCompleteTask
 }) => {
   return (
     <>
@@ -68,6 +69,7 @@ const BoardsView = ({
                     startTimer={startTimer}
                     stopTimer={stopTimer}
                     openViewTaskModal={openViewTaskModal}
+                    handleCompleteTask={handleCompleteTask}
                   />
                 ))}
                 {provided.placeholder}

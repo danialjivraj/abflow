@@ -27,6 +27,7 @@ import ScheduleView from "./ScheduleView";
 import "../../components/styles.css";
 import "../../components/topBar.css";
 import "../../components/tipTapEditor.css";
+import { completeTask } from "../../services/tasksService";
 
 const Dashboard = () => {
   // ---------------------- state and refs ----------------------
@@ -258,6 +259,37 @@ const Dashboard = () => {
     }
   };
   
+  const handleCompleteTaskFromDropdown = async (task) => {
+    try {
+      if (task.isTimerRunning) {
+        await handleStopTimer(task._id);
+      }
+      const response = await completeTask(task._id);
+      const updatedTask = response.data;
+      handleUpdateTask(updatedTask);
+    } catch (error) {
+      console.error("Error completing task from dropdown:", error);
+    }
+  };
+  
+  const handleBackToBoardsFromDropdown = async (task) => {
+    try {
+      const newStatus = Object.keys(columns)[0] || "backlog";
+  
+      const boardTasks = columns[newStatus]?.items || [];
+      const highestOrder = boardTasks.reduce((max, t) => Math.max(max, t.order || 0), -1);
+      const newOrder = highestOrder + 1;
+  
+      const updatedTask = { ...task, status: newStatus, order: newOrder };
+  
+      const response = await updateTask(updatedTask);
+      const updatedTaskFromBackend = response.data;
+  
+      handleUpdateTask(updatedTaskFromBackend);
+    } catch (error) {
+      console.error("Error moving task back to boards:", error);
+    }
+  };
 
   const updateTaskInColumns = (taskId, updates) => {
     setColumns((prevColumns) => {
@@ -374,36 +406,49 @@ const Dashboard = () => {
   
       setColumns((prevColumns) => {
         const updatedColumns = { ...prevColumns };
+        let oldCol = null;
+  
         Object.keys(updatedColumns).forEach((colId) => {
-          updatedColumns[colId].items = updatedColumns[colId].items.filter(
-            (task) => task._id !== updatedTaskFromBackend._id
-          );
+          if (updatedColumns[colId].items.find((t) => t._id === updatedTaskFromBackend._id)) {
+            oldCol = colId;
+          }
         });
-        if (updatedTaskFromBackend.status !== "completed" && updatedColumns[updatedTaskFromBackend.status]) {
-          updatedColumns[updatedTaskFromBackend.status].items.push(updatedTaskFromBackend);
+  
+        if (oldCol && oldCol === updatedTaskFromBackend.status) {
+          updatedColumns[oldCol].items = updatedColumns[oldCol].items.map((t) =>
+            t._id === updatedTaskFromBackend._id ? updatedTaskFromBackend : t
+          );
+        } else {
+          Object.keys(updatedColumns).forEach((colId) => {
+            updatedColumns[colId].items = updatedColumns[colId].items.filter(
+              (t) => t._id !== updatedTaskFromBackend._id
+            );
+          });
+          if (updatedColumns[updatedTaskFromBackend.status]) {
+            updatedColumns[updatedTaskFromBackend.status].items.push(updatedTaskFromBackend);
+          }
         }
         return updatedColumns;
       });
   
       setCompletedTasks((prevCompleted) => {
         if (updatedTaskFromBackend.status !== "completed") {
-          return prevCompleted.filter(task => task._id !== updatedTaskFromBackend._id);
+          return prevCompleted.filter((t) => t._id !== updatedTaskFromBackend._id);
         }
-        const exists = prevCompleted.some(task => task._id === updatedTaskFromBackend._id);
+        const exists = prevCompleted.some((t) => t._id === updatedTaskFromBackend._id);
         if (exists) {
-          return prevCompleted.map(task =>
-            task._id === updatedTaskFromBackend._id ? updatedTaskFromBackend : task
+          return prevCompleted.map((t) =>
+            t._id === updatedTaskFromBackend._id ? updatedTaskFromBackend : t
           );
         } else {
           return [...prevCompleted, updatedTaskFromBackend];
         }
       });
-  
     } catch (error) {
       console.error("Error updating task:", error);
     }
   };
-    
+  
   const handleDragEnd = async (result) => {
     const { source, destination, type } = result;
     if (!destination) return;
@@ -453,20 +498,20 @@ const Dashboard = () => {
   const renderContent = () => {
     if (location.pathname.startsWith("/dashboard/completedtasks")) {
       return (
-<CompletedTasks
-  completedTasks={completedTasks}
-  setCompletedTasks={setCompletedTasks}
-  currentTime={currentTime}
-  openViewTaskModal={openViewTaskModal}
-  deleteTask={handleDeleteTask}
-  startTimer={handleStartTimer}
-  stopTimer={handleStopTimer}
-  isTaskHovered={isTaskHovered}
-  setIsTaskHovered={setIsTaskHovered}
-  isTaskDropdownOpen={isTaskDropdownOpen}
-  setIsTaskDropdownOpen={setIsTaskDropdownOpen}
-/>
-
+        <CompletedTasks
+          completedTasks={completedTasks}
+          setCompletedTasks={setCompletedTasks}
+          currentTime={currentTime}
+          openViewTaskModal={openViewTaskModal}
+          deleteTask={handleDeleteTask}
+          startTimer={handleStartTimer}
+          stopTimer={handleStopTimer}
+          isTaskHovered={isTaskHovered}
+          setIsTaskHovered={setIsTaskHovered}
+          isTaskDropdownOpen={isTaskDropdownOpen}
+          setIsTaskDropdownOpen={setIsTaskDropdownOpen}
+          handleBackToBoards={handleBackToBoardsFromDropdown}
+        />
       );
     }
      else if (location.pathname.startsWith("/dashboard/schedule")) {
@@ -500,6 +545,7 @@ const Dashboard = () => {
           setNewBoardCreateName={setNewBoardCreateName}
           setIsAddingBoard={setIsAddingBoard}
           handleCreateBoard={handleCreateBoard}
+          handleCompleteTask={handleCompleteTaskFromDropdown}
         />
       );
     }

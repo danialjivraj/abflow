@@ -84,6 +84,7 @@ const CompletedTasks = ({
   setIsTaskHovered,
   isTaskDropdownOpen,
   setIsTaskDropdownOpen,
+  handleBackToBoards
 }) => {
   const [localCompletedTasks, setLocalCompletedTasks] = useState(completedTasks);
   const [activeFilter, setActiveFilter] = useState("week");
@@ -131,6 +132,7 @@ const CompletedTasks = ({
                 startTimer={startTimer}
                 stopTimer={stopTimer}
                 openViewTaskModal={openViewTaskModal}
+                handleBackToBoards={handleBackToBoards}
               />
             ))}
           </div>
