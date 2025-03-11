@@ -319,26 +319,30 @@
 }
 
 .due-status-row {
-    margin-top: -0.1rem;
-    align-items: flex-start;
-  }
-  
-  .due-date-container {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .due-status-text {
-    margin-top: 2px;
-    margin-left: 11px;
-    font-size: 12px;
-    color: #aaaaaa;
-    line-height: 1.2;
-  }
-  
-  .non-editable-field {
-    pointer-events: none;
-    opacity: 1;
+  margin-top: -0.1rem;
+  align-items: flex-start;
+}
+
+.due-date-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.due-status-text {
+  margin-top: 2px;
+  margin-left: 11px;
+  font-size: 12px;
+  color: #aaaaaa;
+  line-height: 1.2;
+}
+
+.due-status-text.overdue {
+  color: rgb(219, 71, 71);
+}
+
+.non-editable-field {
+  pointer-events: none;
+  opacity: 1;
 }
 
 /*********************************
@@ -417,11 +421,6 @@
 .field-row .view-task-field .timer-toggle-container {
     margin-left: 10px;
 }
-
-.due-status-text.overdue {
-  color: rgb(219, 71, 71);
-}
-
 
 .view-modal-footer {
     display: flex;

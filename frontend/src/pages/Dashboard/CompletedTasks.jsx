@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { DragDropContext, Droppable } from "@hello-pangea/dnd";
 import TaskCard from "./TaskCard";
-import { fetchTasks, reorderTasks } from "../../services/tasksService";
+import { reorderTasks } from "../../services/tasksService";
 import { formatDueDate } from "../../utils/dateUtils";
 
 const CompletedTasks = ({
-  userId,
+  completedTasks,
   currentTime,
   openViewTaskModal,
   deleteTask,
@@ -16,41 +16,30 @@ const CompletedTasks = ({
   isTaskDropdownOpen,
   setIsTaskDropdownOpen,
 }) => {
-  const [completedTasks, setCompletedTasks] = useState([]);
+  const [localCompletedTasks, setLocalCompletedTasks] = useState(completedTasks);
 
+  // Sync local state with prop updates
   useEffect(() => {
-    if (!userId) return;
-    const fetchCompletedTasks = async () => {
-      try {
-        const response = await fetchTasks(userId);
-        const tasks = response.data.filter((task) => task.status === "completed");
-        setCompletedTasks(tasks);
-      } catch (err) {
-        console.error("Error fetching completed tasks:", err);
-      }
-    };
-  
-    // Initial fetch
-    fetchCompletedTasks();
-  
-    // Poll every 5 seconds
-    const interval = setInterval(fetchCompletedTasks, 5000);
-    return () => clearInterval(interval);
-  }, [userId]);
-  
+    setLocalCompletedTasks(completedTasks);
+  }, [completedTasks]);
 
   const handleDragEnd = async (result) => {
     const { source, destination } = result;
     if (!destination) return;
 
     // Reorder tasks locally
-    const updatedTasks = Array.from(completedTasks);
+    const updatedTasks = Array.from(localCompletedTasks);
     const [movedTask] = updatedTasks.splice(source.index, 1);
     updatedTasks.splice(destination.index, 0, movedTask);
 
-    // Update order for each task and persist if needed
-    const updatedTasksWithOrder = updatedTasks.map((task, idx) => ({ ...task, order: idx }));
-    setCompletedTasks(updatedTasksWithOrder);
+    // Update order for each task
+    const updatedTasksWithOrder = updatedTasks.map((task, idx) => ({
+      ...task,
+      order: idx,
+    }));
+
+    // Update local state so the UI reflects the new order
+    setLocalCompletedTasks(updatedTasksWithOrder);
 
     try {
       await reorderTasks(updatedTasksWithOrder);
@@ -66,7 +55,7 @@ const CompletedTasks = ({
         <Droppable droppableId="completedTasks" type="TASK">
           {(provided) => (
             <div ref={provided.innerRef} {...provided.droppableProps}>
-              {completedTasks.map((task, index) => (
+              {localCompletedTasks.map((task, index) => (
                 <TaskCard
                   key={task._id}
                   task={task}

@@ -332,6 +332,7 @@ const ViewTaskModal = ({
   columns,
   startTimer,
   stopTimer,
+  setCompletedTasks,
 }) => {
   if (!isModalOpen || !task) return null;
   const modalContentRef = useRef(null);
@@ -340,14 +341,30 @@ const ViewTaskModal = ({
 
   const handleCompleteTask = async () => {
     try {
-      await completeTask(task._id);
-      handleUpdateTask({ ...task, status: "completed" });
+      // If timer is running, stop it immediately
+      if (editableTask.isTimerRunning) {
+        await stopTimer(editableTask._id);
+      }
+      const response = await completeTask(task._id);
+      const updatedTask = response.data;
+      // Update the central state (boards and completed tasks)
+      handleUpdateTask(updatedTask);
+      if (setCompletedTasks) {
+        setCompletedTasks(prevCompleted => {
+          if (!prevCompleted.some(t => t._id === updatedTask._id)) {
+            return [...prevCompleted, updatedTask];
+          }
+          return prevCompleted.map(t =>
+            t._id === updatedTask._id ? updatedTask : t
+          );
+        });
+      }
       closeModal();
     } catch (error) {
       console.error("Error completing task:", error);
     }
   };
-
+  
   const handleEditingChange = (isEditing) => {
     setEditingCount((prev) => (isEditing ? prev + 1 : Math.max(prev - 1, 0)));
   };
@@ -500,26 +517,43 @@ const ViewTaskModal = ({
                 />
               </div>
             </div>
+
             <div className="field-row">
               <label>Status:</label>
               <div className="view-task-field">
-                <DropdownField
-                  value={editableTask.status || ""}
-                  onChange={(val) => updateField("status", val)}
-                  type="status"
-                  columns={columns}
-                />
+                {editableTask.status === "completed" ? (
+                  <span>{columns[editableTask.status] ? columns[editableTask.status].name : "Completed"}</span>
+                ) : (
+                  <DropdownField
+                    value={editableTask.status || ""}
+                    onChange={(val) => updateField("status", val)}
+                    type="status"
+                    columns={columns}
+                  />
+                )}
               </div>
             </div>
+
             <div className="field-row">
               <label>Due Date:</label>
-              <InlineEditable
-                value={editableTask.dueDate || ""}
-                onChange={(val) => updateField("dueDate", val)}
-                type="date"
-                onEditingChange={handleEditingChange}
-              />
+              <div className="view-task-field">
+                {editableTask.status === "completed" ? (
+                  <span>
+                    {editableTask.dueDate
+                      ? formatDateWithoutGMT(editableTask.dueDate)
+                      : "No due date"}
+                  </span>
+                ) : (
+                  <InlineEditable
+                    value={editableTask.dueDate || ""}
+                    onChange={(val) => updateField("dueDate", val)}
+                    type="date"
+                    onEditingChange={handleEditingChange}
+                  />
+                )}
+              </div>
             </div>
+
             <div className="field-row due-status-row">
               <label className="empty-label"></label>
               <div
@@ -553,49 +587,77 @@ const ViewTaskModal = ({
                 onEditingChange={handleEditingChange}
               />
             </div>
+
             <div className="field-row">
               <label>Timer:</label>
               <div className="view-task-field">
-                <div
-                  className={`timer-toggle-container ${
-                    editableTask.isTimerRunning ? "on" : "off"
-                  }`}
-                  onClick={toggleTimer}
-                  role="switch"
-                  aria-checked={editableTask.isTimerRunning}
-                  tabIndex={0}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      toggleTimer();
-                    }
-                  }}
-                >
-                  <span className="toggle-label-left">OFF</span>
-                  <div className={`toggle-slider ${editableTask.isTimerRunning ? "active" : ""}`}>
-                    <div className="toggle-knob">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke={editableTask.isTimerRunning ? "#fff" : "#666"}
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="clock-icon"
-                      >
-                        <circle cx="12" cy="13" r="8" />
-                        <path d="M12 9v4l2 2" />
-                        <path d="M5 3L2 6" />
-                        <path d="M22 6l-3-3" />
-                        <path d="M6 19l-2 2" />
-                        <path d="M18 19l2 2" />
-                      </svg>
+                {editableTask.status === "completed" ? (
+                  <div className="timer-toggle-container disabled">
+                    <span className="toggle-label-left">OFF</span>
+                    <div className="toggle-slider">
+                      <div className="toggle-knob">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="#666"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="clock-icon"
+                        >
+                          <circle cx="12" cy="13" r="8" />
+                          <path d="M12 9v4l2 2" />
+                          <path d="M5 3L2 6" />
+                          <path d="M22 6l-3-3" />
+                          <path d="M6 19l-2 2" />
+                          <path d="M18 19l2 2" />
+                        </svg>
+                      </div>
                     </div>
+                    <span className="toggle-label-right">OFF</span>
                   </div>
-                  <span className="toggle-label-right">ON</span>
-                </div>
+                ) : (
+                  <div
+                    className={`timer-toggle-container ${editableTask.isTimerRunning ? "on" : "off"}`}
+                    onClick={toggleTimer}
+                    role="switch"
+                    aria-checked={editableTask.isTimerRunning}
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        toggleTimer();
+                      }
+                    }}
+                  >
+                    <span className="toggle-label-left">OFF</span>
+                    <div className={`toggle-slider ${editableTask.isTimerRunning ? "active" : ""}`}>
+                      <div className="toggle-knob">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke={editableTask.isTimerRunning ? "#fff" : "#666"}
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="clock-icon"
+                        >
+                          <circle cx="12" cy="13" r="8" />
+                          <path d="M12 9v4l2 2" />
+                          <path d="M5 3L2 6" />
+                          <path d="M22 6l-3-3" />
+                          <path d="M6 19l-2 2" />
+                          <path d="M18 19l2 2" />
+                        </svg>
+                      </div>
+                    </div>
+                    <span className="toggle-label-right">ON</span>
+                  </div>
+                )}
               </div>
             </div>
+
             <div className="field-row">
               <label>Time Spent:</label>
               <InlineTimeEditable

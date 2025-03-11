@@ -59,6 +59,8 @@ const Dashboard = () => {
   const { taskId } = useParams();
   const location = useLocation();
 
+  const [completedTasks, setCompletedTasks] = useState([]);
+
   // ---------------------- side effects ----------------------
   useEffect(() => {
     const currentUser = auth.currentUser;
@@ -78,14 +80,26 @@ const Dashboard = () => {
         const { columnOrder, columnNames = {} } = columnOrderRes.data;
         const fetchedTasks = tasksRes.data;
         const groupedTasks = {};
+  
+        // Create groups for board columns (exclude completed tasks)
         columnOrder.forEach((colId) => {
           groupedTasks[colId] = {
             name: columnNames[colId] || colId,
             items: [],
           };
         });
+  
+        // Separate out completed tasks
+        const completed = [];
+  
         fetchedTasks.forEach((task) => {
-          if (groupedTasks[task.status]) {
+          if (task.status === "completed") {
+            completed.push({
+              ...task,
+              isTimerRunning: task.isTimerRunning || false,
+              timerStartTime: task.timerStartTime || null,
+            });
+          } else if (groupedTasks[task.status]) {
             groupedTasks[task.status].items.push({
               ...task,
               isTimerRunning: task.isTimerRunning || false,
@@ -93,7 +107,10 @@ const Dashboard = () => {
             });
           }
         });
+  
         setColumns(groupedTasks);
+        setCompletedTasks(completed);
+  
         if (columnOrder.length > 0 && !selectedStatus) {
           setSelectedStatus(columnOrder[0]);
         }
@@ -103,7 +120,7 @@ const Dashboard = () => {
     };
     fetchData();
   }, [userId, selectedStatus]);
-
+  
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentTime(new Date());
@@ -225,6 +242,7 @@ const Dashboard = () => {
   const handleDeleteTask = async (taskId) => {
     try {
       await deleteTaskAPI(taskId);
+      // Update board columns state
       setColumns((prevColumns) => {
         const updatedColumns = { ...prevColumns };
         Object.keys(updatedColumns).forEach((colId) => {
@@ -234,10 +252,15 @@ const Dashboard = () => {
         });
         return updatedColumns;
       });
+      // Update completed tasks state
+      setCompletedTasks((prevCompleted) =>
+        prevCompleted.filter((task) => task._id !== taskId)
+      );
     } catch (error) {
       console.error("Error deleting task:", error);
     }
   };
+  
 
   const updateTaskInColumns = (taskId, updates) => {
     setColumns((prevColumns) => {
@@ -255,15 +278,24 @@ const Dashboard = () => {
     try {
       const response = await startTimerAPI(taskId);
       const updatedTask = response.data;
+      // Update boards state if needed
       updateTaskInColumns(taskId, {
         isTimerRunning: true,
         timerStartTime: updatedTask.timerStartTime || new Date().toISOString(),
       });
+      // Also update the completedTasks state if this task is completed
+      setCompletedTasks((prev) =>
+        prev.map((task) =>
+          task._id === taskId
+            ? { ...task, isTimerRunning: true, timerStartTime: updatedTask.timerStartTime }
+            : task
+        )
+      );
     } catch (error) {
       console.error("Error starting timer:", error);
     }
   };
-
+  
   const handleStopTimer = async (taskId) => {
     try {
       const response = await stopTimerAPI(taskId);
@@ -273,11 +305,18 @@ const Dashboard = () => {
         timerStartTime: null,
         timeSpent: updatedTask.timeSpent,
       });
+      setCompletedTasks((prev) =>
+        prev.map((task) =>
+          task._id === taskId
+            ? { ...task, isTimerRunning: false, timerStartTime: null, timeSpent: updatedTask.timeSpent }
+            : task
+        )
+      );
     } catch (error) {
       console.error("Error stopping timer:", error);
     }
   };
-
+  
   const resetForm = () => {
     setNewTaskTitle("");
     setSelectedPriority("A1");
@@ -335,38 +374,45 @@ const Dashboard = () => {
     try {
       const response = await updateTask(updatedTask);
       const updatedTaskFromBackend = response.data;
+  
+      // Update boards state as before.
       setColumns((prevColumns) => {
         const updatedColumns = { ...prevColumns };
-        let oldStatus = null;
+        // Remove the task from its previous column
         Object.keys(updatedColumns).forEach((colId) => {
-          updatedColumns[colId].items.forEach((task) => {
-            if (task._id === updatedTaskFromBackend._id) {
-              oldStatus = task.status;
-            }
-          });
-        });
-        if (oldStatus && oldStatus !== updatedTaskFromBackend.status) {
-          updatedColumns[oldStatus].items = updatedColumns[oldStatus].items.filter(
+          updatedColumns[colId].items = updatedColumns[colId].items.filter(
             (task) => task._id !== updatedTaskFromBackend._id
           );
-          if (updatedColumns[updatedTaskFromBackend.status]) {
-            updatedColumns[updatedTaskFromBackend.status].items.push(updatedTaskFromBackend);
-          }
-        } else {
-          if (updatedColumns[updatedTaskFromBackend.status]) {
-            updatedColumns[updatedTaskFromBackend.status].items = updatedColumns[updatedTaskFromBackend.status].items.map(
-              (task) =>
-                task._id === updatedTaskFromBackend._id ? updatedTaskFromBackend : task
-            );
-          }
+        });
+        // If it's not a completed task, add it to its new column
+        if (updatedTaskFromBackend.status !== "completed" && updatedColumns[updatedTaskFromBackend.status]) {
+          updatedColumns[updatedTaskFromBackend.status].items.push(updatedTaskFromBackend);
         }
         return updatedColumns;
       });
+  
+      // Update the completed tasks state:
+      setCompletedTasks((prevCompleted) => {
+        // If the task is no longer completed, remove it.
+        if (updatedTaskFromBackend.status !== "completed") {
+          return prevCompleted.filter(task => task._id !== updatedTaskFromBackend._id);
+        }
+        // Otherwise, update the task in place (or add it if not present)
+        const exists = prevCompleted.some(task => task._id === updatedTaskFromBackend._id);
+        if (exists) {
+          return prevCompleted.map(task =>
+            task._id === updatedTaskFromBackend._id ? updatedTaskFromBackend : task
+          );
+        } else {
+          return [...prevCompleted, updatedTaskFromBackend];
+        }
+      });
+  
     } catch (error) {
       console.error("Error updating task:", error);
     }
   };
-
+    
   const handleDragEnd = async (result) => {
     const { source, destination, type } = result;
     if (!destination) return;
@@ -416,20 +462,23 @@ const Dashboard = () => {
   const renderContent = () => {
     if (location.pathname.startsWith("/dashboard/completedtasks")) {
       return (
-        <CompletedTasks
-          userId={userId}
-          currentTime={currentTime}
-          openViewTaskModal={openViewTaskModal}
-          deleteTask={handleDeleteTask}
-          startTimer={handleStartTimer}
-          stopTimer={handleStopTimer}
-          isTaskHovered={isTaskHovered}
-          setIsTaskHovered={setIsTaskHovered}
-          isTaskDropdownOpen={isTaskDropdownOpen}
-          setIsTaskDropdownOpen={setIsTaskDropdownOpen}
-        />
+<CompletedTasks
+  completedTasks={completedTasks}
+  setCompletedTasks={setCompletedTasks}
+  currentTime={currentTime}
+  openViewTaskModal={openViewTaskModal}
+  deleteTask={handleDeleteTask}
+  startTimer={handleStartTimer}
+  stopTimer={handleStopTimer}
+  isTaskHovered={isTaskHovered}
+  setIsTaskHovered={setIsTaskHovered}
+  isTaskDropdownOpen={isTaskDropdownOpen}
+  setIsTaskDropdownOpen={setIsTaskDropdownOpen}
+/>
+
       );
-    } else if (location.pathname.startsWith("/dashboard/schedule")) {
+    }
+     else if (location.pathname.startsWith("/dashboard/schedule")) {
       return <ScheduleView />;
     } else if (location.pathname.startsWith("/dashboard/boards")) {
       return (
@@ -504,6 +553,7 @@ const Dashboard = () => {
         columns={columns}
         startTimer={startTimerAPI}
         stopTimer={stopTimerAPI}
+        setCompletedTasks={setCompletedTasks}
       />
     </Layout>
   );
