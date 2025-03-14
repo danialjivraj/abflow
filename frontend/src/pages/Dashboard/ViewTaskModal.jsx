@@ -9,6 +9,7 @@ import {
   calculateTotalTimeSpent,
   formatDateWithoutGMT,
   formatCompletedDueDate,
+  getCalendarIconColor,
 } from "../../utils/dateUtils";
 import { completeTask } from "../../services/tasksService";
 
@@ -355,6 +356,8 @@ const ViewTaskModal = ({
   const [editableTask, setEditableTask] = useState({ ...task });
   const [editingCount, setEditingCount] = useState(0);
 
+  const calendarColor = getCalendarIconColor(editableTask.scheduledAt, editableTask.scheduledEnd, new Date());
+
   const handleCompleteTask = async () => {
     try {
       if (editableTask.isTimerRunning) {
@@ -504,7 +507,31 @@ const ViewTaskModal = ({
         </button>
 
         <div className="modal-header">
-          <h2>Task Overview</h2>
+          <h2>
+            Task Overview
+            {calendarColor && (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                style={{
+                  width: "22.5px",
+                  height: "22.5px",
+                  marginLeft: "8px",
+                  color: calendarColor,
+                }}
+              >
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                <line x1="16" y1="2" x2="16" y2="6" />
+                <line x1="8" y1="2" x2="8" y2="6" />
+                <line x1="3" y1="10" x2="21" y2="10" />
+              </svg>
+            )}
+          </h2>
         </div>
         <div className="view-modal-body">
           <div className="view-modal-left">
@@ -558,7 +585,9 @@ const ViewTaskModal = ({
                 <div className="view-task-field non-editable-field">
                   <div className="scroll-wrapper">
                     <div className="text-container">
-                      {columns[editableTask.status] ? columns[editableTask.status].name : "Completed"}
+                      {columns[editableTask.status]
+                        ? columns[editableTask.status].name
+                        : "Completed"}
                     </div>
                   </div>
                 </div>
@@ -629,32 +658,32 @@ const ViewTaskModal = ({
             <div className="field-row">
               <label>Timer:</label>
               <div className="view-task-field">
-              {editableTask.status === "completed" ? (
-                <div className="timer-toggle-container off disabled" style={{ cursor: "not-allowed" }}>
-                  <span className="toggle-label-left">OFF</span>
-                  <div className="toggle-slider">
-                    <div className="toggle-knob">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="#666"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="clock-icon"
-                      >
-                        <circle cx="12" cy="13" r="8" />
-                        <path d="M12 9v4l2 2" />
-                        <path d="M5 3L2 6" />
-                        <path d="M22 6l-3-3" />
-                        <path d="M6 19l-2 2" />
-                        <path d="M18 19l2 2" />
-                      </svg>
+                {editableTask.status === "completed" ? (
+                  <div className="timer-toggle-container off disabled" style={{ cursor: "not-allowed" }}>
+                    <span className="toggle-label-left">OFF</span>
+                    <div className="toggle-slider">
+                      <div className="toggle-knob">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="#666"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="clock-icon"
+                        >
+                          <circle cx="12" cy="13" r="8" />
+                          <path d="M12 9v4l2 2" />
+                          <path d="M5 3L2 6" />
+                          <path d="M22 6l-3-3" />
+                          <path d="M6 19l-2 2" />
+                          <path d="M18 19l2 2" />
+                        </svg>
+                      </div>
                     </div>
+                    <span className="toggle-label-right">ON</span>
                   </div>
-                  <span className="toggle-label-right">ON</span>
-                </div>
                 ) : (
                   <div
                     className={`timer-toggle-container ${editableTask.isTimerRunning ? "on" : "off"}`}

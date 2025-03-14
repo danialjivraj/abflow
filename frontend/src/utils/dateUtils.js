@@ -187,10 +187,61 @@ export const formatCompletedDueDate = (dueDate, completedAt) => {
   const formattedCompletedDate = completed.toLocaleDateString('en-GB');
 
   if (diffInMs > 0) {
-    // Task was completed after its due date.
     return `Completed on ${formattedCompletedDate} (Late by ${timeText})`;
   } else {
-    // Task was completed before its due date.
     return `Completed on ${formattedCompletedDate} (Early by ${timeText})`;
   }
 };
+
+/**
+ * Checks if two dates fall on the same calendar day.
+ *
+ * @param {Date} date1
+ * @param {Date} date2
+ * @returns {boolean}
+ */
+function isSameDay(date1, date2) {
+  return (
+    date1.getFullYear() === date2.getFullYear() &&
+    date1.getMonth() === date2.getMonth() &&
+    date1.getDate() === date2.getDate()
+  );
+}
+
+/**
+ * Determines the color for the calendar icon based on scheduled times and the current time.
+ * Rules:
+ *  - Only show the icon if the task is scheduled for TODAY.
+ *  - If currentTime < scheduledAt => grey (#aaa)
+ *  - If scheduledAt <= currentTime <= scheduledEnd => green (#4caf50)
+ *  - Otherwise => null (no icon)
+ *
+ * @param {string|Date|null} scheduledAt - Start time of the schedule
+ * @param {string|Date|null} scheduledEnd - End time of the schedule
+ * @param {Date} currentTime - Current date/time
+ * @returns {string|null} - A color string if the icon should be displayed, or null if it shouldn't.
+ */
+export function getCalendarIconColor(scheduledAt, scheduledEnd, currentTime) {
+  if (!scheduledAt || !scheduledEnd) return null; // not scheduled => no icon
+
+  const start = new Date(scheduledAt);
+  const end = new Date(scheduledEnd);
+
+  // Must be on the same day as currentTime
+  if (!isSameDay(start, currentTime)) {
+    return null;
+  }
+
+  // If it's still in the future (today) => grey
+  if (currentTime < start) {
+    return "#aaa";
+  }
+
+  // If it's currently within [start, end] => green
+  if (currentTime >= start && currentTime <= end) {
+    return "#4caf50";
+  }
+
+  // If it's already past end => no icon
+  return null;
+}

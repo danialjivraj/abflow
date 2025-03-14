@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from "react";
 import { Draggable } from "@hello-pangea/dnd";
-import { formatDueDate, formatCompletedDueDate } from "../../utils/dateUtils";
+import { formatDueDate, formatCompletedDueDate, getCalendarIconColor } from "../../utils/dateUtils"; 
 
 const priorityMapping = {
   A: "A: Very Important",
@@ -75,6 +75,8 @@ const TaskCard = ({
     }
   }
 
+  const calendarColor = getCalendarIconColor(task.scheduledAt, task.scheduledEnd, currentTime);
+
   const cardContent = (
     <>
       <span>{task.title}</span>
@@ -82,6 +84,30 @@ const TaskCard = ({
         {task.dueDate && (
           <span className={`due-date ${dueDateClass}`}>{dueDateText}</span>
         )}
+
+        {calendarColor && (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            style={{
+              width: "22.5px",
+              height: "22.5px",
+              marginRight: "4px",
+              color: calendarColor,
+            }}
+          >
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+            <line x1="16" y1="2" x2="16" y2="6" />
+            <line x1="8" y1="2" x2="8" y2="6" />
+            <line x1="3" y1="10" x2="21" y2="10" />
+          </svg>
+        )}
+
         {task.isTimerRunning && (
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -101,6 +127,7 @@ const TaskCard = ({
             <path d="M18 19l2 2" />
           </svg>
         )}
+
         <b
           className={`priority-${task.priority.replace(/\s+/g, "")}`}
           title={priorityTitle}
@@ -125,7 +152,6 @@ const TaskCard = ({
           </button>
           {isTaskDropdownOpen === task._id && (
             <div className="dropdown-menu open" ref={dropdownMenuRef}>
-              {/* "complete task for non-completed" */}
               {task.status !== "completed" && handleCompleteTask && (
                 <button
                   onClick={(e) => {
@@ -137,8 +163,6 @@ const TaskCard = ({
                   Complete Task
                 </button>
               )}
-
-              {/* timer toggle button */}
               {task.status !== "completed" && (
                 <button
                   onClick={(e) => {
@@ -152,8 +176,6 @@ const TaskCard = ({
                   {task.isTimerRunning ? "Stop Timer" : "Start Timer"}
                 </button>
               )}
-
-              {/* back to boards for completed */}
               {task.status === "completed" && handleBackToBoards && (
                 <button
                   onClick={(e) => {
@@ -165,8 +187,6 @@ const TaskCard = ({
                   Back to Boards
                 </button>
               )}
-
-              {/* delete */}
               <button
                 onClick={(e) => {
                   e.stopPropagation();

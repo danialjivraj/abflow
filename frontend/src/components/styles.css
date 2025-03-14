@@ -887,8 +887,17 @@ select {
   overflow-wrap: break-word;
 }
 
-.custom-agenda-event {
+.custom-agenda-event,
+.custom-event-month {
   position: relative;
+}
+
+.rbc-month-view .rbc-today {
+  background-color: #3a3a3a !important;
+}
+
+.rbc-agenda-view .rbc-today {
+  background-color: #333333 !important;
 }
 
 .custom-event-month {

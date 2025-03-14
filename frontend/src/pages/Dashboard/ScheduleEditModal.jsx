@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { getCalendarIconColor } from "../../utils/dateUtils";
 
 const ScheduleEditModal = ({ eventData, onSave, onClose, onUnschedule }) => {
   const [start, setStart] = useState("");
@@ -66,13 +67,39 @@ const ScheduleEditModal = ({ eventData, onSave, onClose, onUnschedule }) => {
     onUnschedule(eventData);
   };
 
+  const calendarColor = getCalendarIconColor(eventData.start, eventData.end, new Date());
+
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <button className="close-modal" onClick={onClose}>
           &times;
         </button>
-        <h2>{eventData.isUnscheduled ? "Schedule Task" : "Edit Scheduled Task"}</h2>
+        <h2>
+          {eventData.isUnscheduled ? "Schedule Task" : "Edit Scheduled Task"}
+          {!eventData.isUnscheduled && calendarColor && (
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              style={{
+                width: "22.5px",
+                height: "22.5px",
+                marginLeft: "8px",
+                color: calendarColor,
+              }}
+            >
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+              <line x1="16" y1="2" x2="16" y2="6" />
+              <line x1="8" y1="2" x2="8" y2="6" />
+              <line x1="3" y1="10" x2="21" y2="10" />
+            </svg>
+          )}
+        </h2>
 
         <div className="modal-body" style={{ flexDirection: "column" }}>
           {/* Title and Priority */}
