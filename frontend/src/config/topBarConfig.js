@@ -6,14 +6,14 @@ export const topBarConfig = {
       className: "top-bar-button boards-btn",
     },
     {
-      label: "Completed Tasks",
-      onClick: (_, navigate) => navigate("/dashboard/completedtasks"),
-      className: "top-bar-button completed-tasks-btn",
-    },
-    {
       label: "Schedule",
       onClick: (_, navigate) => navigate("/dashboard/schedule"),
       className: "top-bar-button schedule-btn",
+    },
+    {
+      label: "Completed Tasks",
+      onClick: (_, navigate) => navigate("/dashboard/completedtasks"),
+      className: "top-bar-button completed-tasks-btn",
     },
     {
       label: "Create Task",
