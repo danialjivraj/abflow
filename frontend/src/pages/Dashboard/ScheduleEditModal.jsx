@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 const ScheduleEditModal = ({ eventData, onSave, onClose, onUnschedule }) => {
   const [start, setStart] = useState("");
   const [end, setEnd] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     if (eventData) {
@@ -16,16 +17,47 @@ const ScheduleEditModal = ({ eventData, onSave, onClose, onUnschedule }) => {
         return `${year}-${month}-${day}T${hours}:${minutes}`;
       };
 
-      setStart(formatDateTime(eventData.start));
-      setEnd(formatDateTime(eventData.end));
+      if (eventData.start) {
+        setStart(formatDateTime(eventData.start));
+      }
+      if (eventData.end) {
+        setEnd(formatDateTime(eventData.end));
+      }
     }
   }, [eventData]);
 
   const handleSave = () => {
+    if (!start || !end) {
+      setErrorMessage("Please select both Start and End time.");
+      return;
+    }
+
+    const startTime = new Date(start);
+    const endTime = new Date(end);
+
+    if (startTime.getTime() === endTime.getTime()) {
+      setErrorMessage("Start time and End time cannot be the same.");
+      return;
+    }
+
+    if (endTime < startTime) {
+      setErrorMessage("End time cannot be earlier than Start time.");
+      return;
+    }
+
+    // New validation: Ensure both times fall on the same day.
+    const startDay = startTime.toISOString().slice(0, 10);
+    const endDay = endTime.toISOString().slice(0, 10);
+    if (startDay !== endDay) {
+      setErrorMessage("Task must start and end on the same day.");
+      return;
+    }
+
+    setErrorMessage("");
     const updatedEvent = {
       ...eventData,
-      start: new Date(start),
-      end: new Date(end),
+      start: startTime,
+      end: endTime,
     };
     onSave(updatedEvent);
   };
@@ -40,10 +72,10 @@ const ScheduleEditModal = ({ eventData, onSave, onClose, onUnschedule }) => {
         <button className="close-modal" onClick={onClose}>
           &times;
         </button>
-        <h2>Edit Scheduled Task</h2>
+        <h2>{eventData.isUnscheduled ? "Schedule Task" : "Edit Scheduled Task"}</h2>
 
         <div className="modal-body" style={{ flexDirection: "column" }}>
-          {/* Title Row with badge to the far right */}
+          {/* Title and Priority */}
           <div
             style={{
               display: "flex",
@@ -69,15 +101,13 @@ const ScheduleEditModal = ({ eventData, onSave, onClose, onUnschedule }) => {
                   color: "#fff",
                   fontSize: "14.4px",
                   padding: "4px",
-                  whiteSpace: "normal",    // allow line breaks
-                  wordBreak: "break-word", // break long words if needed
+                  whiteSpace: "normal",
+                  wordBreak: "break-word",
                 }}
               >
                 {eventData.title}
               </div>
             </div>
-
-            {/* Priority badge on the far right */}
             <div
               className={`priority-circle priority-${eventData.task.priority?.replace(
                 /\s+/g,
@@ -89,7 +119,7 @@ const ScheduleEditModal = ({ eventData, onSave, onClose, onUnschedule }) => {
             </div>
           </div>
 
-          {/* Start/End Time fields */}
+          {/* Start Time Field */}
           <label
             style={{
               color: "#ddd",
@@ -107,6 +137,7 @@ const ScheduleEditModal = ({ eventData, onSave, onClose, onUnschedule }) => {
             style={{ marginBottom: "10px" }}
           />
 
+          {/* End Time Field */}
           <label
             style={{
               color: "#ddd",
@@ -122,15 +153,20 @@ const ScheduleEditModal = ({ eventData, onSave, onClose, onUnschedule }) => {
             value={end}
             onChange={(e) => setEnd(e.target.value)}
           />
+
+          {/* Inline Error Message */}
+          {errorMessage && <p className="error-message">{errorMessage}</p>}
         </div>
 
         <div className="modal-footer" style={{ marginTop: "16px" }}>
           <button className="create-task-btn" onClick={handleSave}>
-            Save
+            {eventData.isUnscheduled ? "Schedule" : "Save"}
           </button>
-          <button className="unschedule-btn" onClick={handleUnschedule}>
-            Unschedule
-          </button>
+          {!eventData.isUnscheduled && (
+            <button className="unschedule-btn" onClick={handleUnschedule}>
+              Unschedule
+            </button>
+          )}
           <button className="cancel-btn" onClick={onClose}>
             Cancel
           </button>

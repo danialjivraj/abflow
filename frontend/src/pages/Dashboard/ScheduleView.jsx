@@ -14,8 +14,10 @@ const DnDCalendar = withDragAndDrop(Calendar);
 const ScheduleView = ({ tasks, updateTaskInState }) => {
   const mapTaskToEvent = (task) => {
     const start = task.scheduledAt ? new Date(task.scheduledAt) : new Date();
-    const end = task.scheduledEnd ? new Date(task.scheduledEnd) : new Date(start.getTime() + 60 * 60 * 1000);
-    
+    const end = task.scheduledEnd
+      ? new Date(task.scheduledEnd)
+      : new Date(start.getTime() + 60 * 60 * 1000);
+
     return {
       id: task._id,
       title: task.title,
@@ -54,59 +56,69 @@ const ScheduleView = ({ tasks, updateTaskInState }) => {
     C2: "#66ff66",
     C3: "#99ff99",
     D: "#cc66ff",
-    E: "#ff9966"
+    E: "#ff9966",
   };
 
+  // Custom event renderers
   const CustomEvent = ({ event }) => {
-    const priorityColor = priorityColors[event.priority] || "#ffffff";
+    const priorityColor = priorityColors[event.priority] || "#555";
+    const eventTime = `${moment(event.start).format("h:mm A")} - ${moment(
+      event.end
+    ).format("h:mm A")}`;
+
     return (
       <div className="custom-event">
+        <span className="event-time">{eventTime}</span>
         <span>{event.title}</span>
-        {event.priority && (
-          <span
-            className="priority-label"
-            style={{ background: priorityColor }}
-          >
-            {event.priority}
-          </span>
-        )}
+        <div
+          className="priority-strip"
+          style={{ backgroundColor: priorityColor }}
+        >
+          <span className="priority-label">{event.priority}</span>
+        </div>
       </div>
     );
   };
 
-  function CustomEventForMonth({ event }) {
-    const priorityColor = priorityColors[event.priority] || "#fff";
+  const CustomEventForMonth = ({ event }) => {
+    const priorityColor = priorityColors[event.priority] || "#555";
+    const eventTime = `${moment(event.start).format("h:mm A")} - ${moment(
+      event.end
+    ).format("h:mm A")}`;
+
     return (
       <div className="custom-event-month">
+        <span className="event-time">{eventTime}</span>
         <span>{event.title}</span>
-        {event.priority && (
-          <span
-            className="priority-label"
-            style={{ background: priorityColor }}
-          >
-            {event.priority}
-          </span>
-        )}
+        <div
+          className="priority-strip"
+          style={{ backgroundColor: priorityColor }}
+        >
+          <span className="priority-label">{event.priority}</span>
+        </div>
       </div>
     );
-  }
+  };
 
-  function CustomAgendaEvent({ event }) {
-    const priorityColor = priorityColors[event.priority] || "#fff";
+  const CustomAgendaEvent = ({ event }) => {
+    const priorityColor = priorityColors[event.priority] || "#555";
+    const eventTime = `${moment(event.start).format("h:mm A")} - ${moment(
+      event.end
+    ).format("h:mm A")}`;
+
     return (
       <div className="custom-agenda-event">
+        <span className="event-time">{eventTime}</span>
         <span>{event.title}</span>
-        {event.priority && (
-          <span
-            className="priority-label"
-            style={{ background: priorityColor }}
-          >
-            {event.priority}
-          </span>
-        )}
+        <div
+          className="priority-strip"
+          style={{ backgroundColor: priorityColor }}
+        >
+          <span className="priority-label">{event.priority}</span>
+        </div>
       </div>
     );
-  }
+  };
 
   const filteredUnscheduledTasks = unscheduledTasks.filter((task) =>
     task.title.toLowerCase().includes(searchQuery.toLowerCase())
@@ -123,6 +135,13 @@ const ScheduleView = ({ tasks, updateTaskInState }) => {
   };
 
   const handleEventDrop = async ({ event, start, end }) => {
+    const startDay = start.toISOString().slice(0, 10);
+    const endDay = end.toISOString().slice(0, 10);
+    if (startDay !== endDay) {
+      console.warn("Drop results in a multi-day event; ignoring drop.");
+      return;
+    }
+
     try {
       const nextEvents = events.map((evt) =>
         evt.id === event.id ? { ...evt, start, end } : evt
@@ -143,6 +162,13 @@ const ScheduleView = ({ tasks, updateTaskInState }) => {
   };
 
   const handleEventResize = async ({ event, start, end }) => {
+    const startDay = start.toISOString().slice(0, 10);
+    const endDay = end.toISOString().slice(0, 10);
+    if (startDay !== endDay) {
+      console.warn("Resize results in a multi-day event; ignoring resize.");
+      return;
+    }
+
     try {
       const nextEvents = events.map((evt) =>
         evt.id === event.id ? { ...evt, start, end } : evt
@@ -161,70 +187,27 @@ const ScheduleView = ({ tasks, updateTaskInState }) => {
     }
   };
 
-  const handleSelectEvent = (event) => {
-    setSelectedEvent(event);
-    setModalOpen(true);
-  };
-
-  const handleModalSave = (updatedEvent) => {
-    const nextEvents = events.map((evt) =>
-      evt.id === updatedEvent.id ? updatedEvent : evt
-    );
-    setEvents(nextEvents);
-
-    const updatedTask = {
-      ...updatedEvent.task,
-      scheduledAt: updatedEvent.start.toISOString(),
-      scheduledEnd: updatedEvent.end.toISOString(),
-    };
-    updateTask(updatedTask)
-      .then(() => {
-        updateTaskInState(updatedTask);
-      })
-      .catch((error) => {
-        console.error("Error updating task:", error);
-      });
-
-    setModalOpen(false);
-    setSelectedEvent(null);
-  };
-
-  const handleUnscheduleTask = (event) => {
-    const updatedTask = {
-      ...event.task,
-      scheduledAt: null,
-      scheduledEnd: null,
-    };
-
-    updateTask(updatedTask)
-      .then(() => {
-        updateTaskInState(updatedTask);
-        setEvents(events.filter((evt) => evt.id !== event.id));
-        setUnscheduledTasks([...unscheduledTasks, updatedTask]);
-      })
-      .catch((error) => {
-        console.error("Error unscheduling task:", error);
-      });
-
-    setModalOpen(false);
-    setSelectedEvent(null);
-  };
-
   const handleDropFromOutside = ({ start, end }) => {
     if (!draggedTask) return;
-  
+
+    const startDay = start.toISOString().slice(0, 10);
+    const endDay = end.toISOString().slice(0, 10);
+    if (startDay !== endDay) {
+      console.warn("Drop from outside results in a multi-day event; ignoring drop.");
+      return;
+    }
+
     const newEvent = mapTaskToEvent({
       ...draggedTask,
       scheduledAt: start,
       scheduledEnd: end,
     });
-    // update the events state with a new array reference
-    setEvents([...events, newEvent]);
-  
-    // remove the task from unscheduled tasks
-    setUnscheduledTasks(unscheduledTasks.filter((t) => t._id !== draggedTask._id));
-  
-    // update the task on the backend
+
+    setEvents((prevEvents) => [...prevEvents, newEvent]);
+    setUnscheduledTasks((prev) =>
+      prev.filter((t) => t._id !== draggedTask._id)
+    );
+
     const updatedTask = {
       ...draggedTask,
       scheduledAt: start.toISOString(),
@@ -237,10 +220,8 @@ const ScheduleView = ({ tasks, updateTaskInState }) => {
       .catch((error) => {
         console.error("Error updating task:", error);
       });
-  
-    // Force the calendar to re-render by changing the key
-    setRefreshKey((prev) => prev + 1);
-  
+
+    setRefreshKey((prev) => prev + 1); // Force re-render
     setDraggedTask(null);
     setDropPosition(null);
   };
@@ -250,24 +231,81 @@ const ScheduleView = ({ tasks, updateTaskInState }) => {
     setDropPosition(null);
   };
 
-  const handleDragOver = (e) => {
-    if (!draggedTask) return;
-
-    const rect = e.target.getBoundingClientRect();
-    const offsetX = e.clientX - rect.left;
-    const offsetY = e.clientY - rect.top;
-
-    const date = localizer.getSlotDate(
-      e.target,
-      { x: offsetX, y: offsetY },
-      localizer
-    );
-
-    setDropPosition(date);
-  };
-
   const dragFromOutsideItem = () => {
     return draggedTask ? mapTaskToEvent(draggedTask) : null;
+  };
+
+  const handleUnscheduledTaskClick = (task) => {
+    const eventData = {
+      id: task._id,
+      title: task.title,
+      priority: task.priority,
+      task: task,
+      start: new Date(),
+      end: new Date(new Date().getTime() + 60 * 60 * 1000),
+      isUnscheduled: true,
+    };
+    setSelectedEvent(eventData);
+    setModalOpen(true);
+  };
+
+  const handleSelectEvent = (event) => {
+    setSelectedEvent(event);
+    setModalOpen(true);
+  };
+
+  const handleModalSave = (updatedEvent) => {
+    const isUnscheduled = updatedEvent.isUnscheduled;
+    if (isUnscheduled) {
+      setEvents((prevEvents) => [...prevEvents, updatedEvent]);
+      setUnscheduledTasks((prev) =>
+        prev.filter((t) => t._id !== updatedEvent.id)
+      );
+    } else {
+      const nextEvents = events.map((evt) =>
+        evt.id === updatedEvent.id ? updatedEvent : evt
+      );
+      setEvents(nextEvents);
+    }
+
+    const updatedTask = {
+      ...updatedEvent.task,
+      scheduledAt: updatedEvent.start.toISOString(),
+      scheduledEnd: updatedEvent.end.toISOString(),
+    };
+
+    updateTask(updatedTask)
+      .then(() => {
+        updateTaskInState(updatedTask);
+      })
+      .catch((error) => {
+        console.error("Error updating task:", error);
+      });
+
+    setModalOpen(false);
+    setSelectedEvent(null);
+  };
+
+  // Called by the modal's Unschedule button.
+  const handleUnscheduleTask = (event) => {
+    const updatedTask = {
+      ...event.task,
+      scheduledAt: null,
+      scheduledEnd: null,
+    };
+
+    updateTask(updatedTask)
+      .then(() => {
+        updateTaskInState(updatedTask);
+        setEvents((prev) => prev.filter((evt) => evt.id !== event.id));
+        setUnscheduledTasks((prev) => [...prev, updatedTask]);
+      })
+      .catch((error) => {
+        console.error("Error unscheduling task:", error);
+      });
+
+    setModalOpen(false);
+    setSelectedEvent(null);
   };
 
   return (
@@ -285,7 +323,6 @@ const ScheduleView = ({ tasks, updateTaskInState }) => {
       {showUnscheduledPanel && (
         <div className="unscheduled-panel">
           <h3 className="unscheduled-panel-heading">Unscheduled Tasks</h3>
-
           <div className="search-container">
             <input
               type="text"
@@ -300,7 +337,6 @@ const ScheduleView = ({ tasks, updateTaskInState }) => {
               </button>
             )}
           </div>
-
           <ul className="unscheduled-tasks-list">
             {filteredUnscheduledTasks.map((task) => {
               const maxLength = 200;
@@ -318,6 +354,7 @@ const ScheduleView = ({ tasks, updateTaskInState }) => {
                     setDraggedTask(task);
                   }}
                   onDragEnd={handleDragEnd}
+                  onClick={() => handleUnscheduledTaskClick(task)}
                 >
                   {truncatedTitle}
                 </li>
@@ -361,10 +398,7 @@ const ScheduleView = ({ tasks, updateTaskInState }) => {
       {draggedTask && dropPosition && (
         <div
           className="event-preview"
-          style={{
-            top: dropPosition.y,
-            left: dropPosition.x,
-          }}
+          style={{ top: dropPosition.y, left: dropPosition.x }}
         >
           {draggedTask.title}
         </div>
