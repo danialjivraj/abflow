@@ -20,7 +20,28 @@ const allowedPriorities = [
   "D", "E",
 ];
 
-const DropdownField = ({ value, onChange, type = "priority", columns = {} }) => {
+const DropdownField = ({ value, onChange, type = "priority", columns = {}, readOnly }) => {
+  if (readOnly) {
+    // Display non-editable text for read-only mode
+    if (type === "status") {
+      return (
+        <div className="view-task-field non-editable-field">
+          <div className="scroll-wrapper">
+            <div className="text-container">
+              {columns[value] ? columns[value].name : value}
+            </div>
+          </div>
+        </div>
+      );
+    }
+    return (
+      <div className="view-task-field non-editable-field">
+        <div className="scroll-wrapper">
+          <div className="text-container">{value}</div>
+        </div>
+      </div>
+    );
+  }
   return (
     <select value={value} onChange={(e) => onChange(e.target.value)}>
       {type === "status"
@@ -38,9 +59,19 @@ const DropdownField = ({ value, onChange, type = "priority", columns = {} }) => 
   );
 };
 
-const InlineTimeEditable = ({ value, onChange, onEditingChange }) => {
-  const [isEditing, setIsEditing] = useState(false);
+const InlineTimeEditable = ({ value, onChange, onEditingChange, readOnly }) => {
   const totalSeconds = parseInt(value, 10) || 0;
+  const displayText = formatTimeSpent(totalSeconds);
+  if (readOnly) {
+    return (
+      <div className="view-task-field non-editable-field">
+        <div className="scroll-wrapper">
+          <div className="text-container">{displayText}</div>
+        </div>
+      </div>
+    );
+  }
+  const [isEditing, setIsEditing] = useState(false);
   const initialHours = Math.floor(totalSeconds / 3600);
   const initialMinutes = Math.floor((totalSeconds % 3600) / 60);
   const initialSeconds = totalSeconds % 60;
@@ -48,9 +79,7 @@ const InlineTimeEditable = ({ value, onChange, onEditingChange }) => {
   const [localMinutes, setLocalMinutes] = useState(initialMinutes);
   const [localSeconds, setLocalSeconds] = useState(initialSeconds);
 
-  const createDisplayText = () => {
-    return formatTimeSpent(totalSeconds);
-  };
+  const createDisplayText = () => formatTimeSpent(totalSeconds);
 
   const startEditing = () => {
     setLocalHours(initialHours);
@@ -86,10 +115,13 @@ const InlineTimeEditable = ({ value, onChange, onEditingChange }) => {
             type="number"
             value={localHours}
             min="0"
-            onChange={(e) => {
-              const val = parseInt(e.target.value, 10);
-              setLocalHours(isNaN(val) || val < 0 ? 0 : val);
-            }}
+            onChange={(e) =>
+              setLocalHours(
+                isNaN(parseInt(e.target.value, 10))
+                  ? 0
+                  : parseInt(e.target.value, 10)
+              )
+            }
             style={{ width: "50px" }}
           />
           <span>h</span>
@@ -100,13 +132,9 @@ const InlineTimeEditable = ({ value, onChange, onEditingChange }) => {
             max="59"
             onChange={(e) => {
               const val = parseInt(e.target.value, 10);
-              if (isNaN(val) || val < 0) {
-                setLocalMinutes(0);
-              } else if (val > 59) {
-                setLocalMinutes(59);
-              } else {
-                setLocalMinutes(val);
-              }
+              setLocalMinutes(
+                isNaN(val) || val < 0 ? 0 : val > 59 ? 59 : val
+              );
             }}
             style={{ width: "50px" }}
           />
@@ -118,13 +146,9 @@ const InlineTimeEditable = ({ value, onChange, onEditingChange }) => {
             max="59"
             onChange={(e) => {
               const val = parseInt(e.target.value, 10);
-              if (isNaN(val) || val < 0) {
-                setLocalSeconds(0);
-              } else if (val > 59) {
-                setLocalSeconds(59);
-              } else {
-                setLocalSeconds(val);
-              }
+              setLocalSeconds(
+                isNaN(val) || val < 0 ? 0 : val > 59 ? 59 : val
+              );
             }}
             style={{ width: "50px" }}
           />
@@ -154,8 +178,26 @@ const InlineEditable = ({
   columns = {},
   min,
   onEditingChange,
+  readOnly,
   ...rest
 }) => {
+  if (readOnly) {
+    let displayValue = value;
+    if (type === "date" && value) {
+      displayValue = formatDateWithoutGMT(value);
+    } else if (type === "status" && value && columns[value]) {
+      displayValue = columns[value].name;
+    } else if (!value) {
+      displayValue = "";
+    }
+    return (
+      <div className="view-task-field non-editable-field">
+        <div className="scroll-wrapper">
+          <div className="text-container">{displayValue}</div>
+        </div>
+      </div>
+    );
+  }
   const [isEditing, setIsEditing] = useState(false);
   const [localValue, setLocalValue] = useState(value);
 
@@ -279,13 +321,25 @@ const InlineEditable = ({
   );
 };
 
-const InlineTiptap = ({ value, onChange, onEditingChange }) => {
+const InlineTiptap = ({ value, onChange, onEditingChange, readOnly }) => {
+  if (readOnly) {
+    return (
+      <div
+        className="view-task-field non-editable-field"
+        style={{ minHeight: "300px", width: "100%" }}
+      >
+        <div className="scroll-wrapper">
+          <div
+            className="text-container"
+            dangerouslySetInnerHTML={{ __html: value }}
+          />
+        </div>
+      </div>
+    );
+  }
   const [isEditing, setIsEditing] = useState(false);
   const [localValue, setLocalValue] = useState(value);
-  const containerStyle = {
-    minHeight: "300px",
-    width: "100%",
-  };
+  const containerStyle = { minHeight: "300px", width: "100%" };
 
   const handleConfirm = () => {
     onChange(localValue);
@@ -300,7 +354,10 @@ const InlineTiptap = ({ value, onChange, onEditingChange }) => {
   };
 
   return (
-    <div className={`view-task-field ${isEditing ? "is-editing" : ""}`} style={containerStyle}>
+    <div
+      className={`view-task-field ${isEditing ? "is-editing" : ""}`}
+      style={containerStyle}
+    >
       {isEditing ? (
         <div style={containerStyle}>
           <TiptapEditor value={localValue} onChange={setLocalValue} />
@@ -350,13 +407,18 @@ const ViewTaskModal = ({
   startTimer,
   stopTimer,
   setCompletedTasks,
+  readOnly = false,
 }) => {
   if (!isModalOpen || !task) return null;
   const modalContentRef = useRef(null);
   const [editableTask, setEditableTask] = useState({ ...task });
   const [editingCount, setEditingCount] = useState(0);
 
-  const calendarColor = getCalendarIconColor(editableTask.scheduledAt, editableTask.scheduledEnd, new Date());
+  const calendarColor = getCalendarIconColor(
+    editableTask.scheduledAt,
+    editableTask.scheduledEnd,
+    new Date()
+  );
 
   const handleCompleteTask = async () => {
     try {
@@ -387,6 +449,7 @@ const ViewTaskModal = ({
   };
 
   const updateField = (field, value) => {
+    if (readOnly) return; // Prevent changes in read-only mode
     if (field === "timeSpent") {
       const updatedTask = { ...editableTask, timeSpent: value };
       if (editableTask.isTimerRunning) {
@@ -396,10 +459,8 @@ const ViewTaskModal = ({
       handleUpdateTask(updatedTask);
     } else if (field === "status") {
       const newColumnItems = columns[value]?.items || [];
-      const newOrder = newColumnItems.reduce(
-        (max, t) => Math.max(max, t.order || 0),
-        -1
-      ) + 1;
+      const newOrder =
+        newColumnItems.reduce((max, t) => Math.max(max, t.order || 0), -1) + 1;
       const updatedTask = { ...editableTask, status: value, order: newOrder };
       setEditableTask(updatedTask);
       handleUpdateTask(updatedTask);
@@ -418,6 +479,7 @@ const ViewTaskModal = ({
       : new Date();
 
   const toggleTimer = async () => {
+    if (readOnly) return;
     if (editableTask.isTimerRunning) {
       try {
         const response = await stopTimer(editableTask._id);
@@ -444,12 +506,14 @@ const ViewTaskModal = ({
         setEditableTask((prev) => ({
           ...prev,
           isTimerRunning: true,
-          timerStartTime: updatedTask.timerStartTime || new Date().toISOString(),
+          timerStartTime:
+            updatedTask.timerStartTime || new Date().toISOString(),
         }));
         handleUpdateTask({
           ...editableTask,
           isTimerRunning: true,
-          timerStartTime: updatedTask.timerStartTime || new Date().toISOString(),
+          timerStartTime:
+            updatedTask.timerStartTime || new Date().toISOString(),
         });
       } catch (error) {
         console.error("Error starting timer:", error);
@@ -466,15 +530,21 @@ const ViewTaskModal = ({
   };
 
   const handleMoveToBoards = () => {
+    if (readOnly) return;
     const newStatus = Object.keys(columns)[0] || "backlog";
     updateField("status", newStatus);
     closeModal();
   };
 
   const handleOverlayClick = (e) => {
-    if (modalContentRef.current && !modalContentRef.current.contains(e.target)) {
+    if (
+      modalContentRef.current &&
+      !modalContentRef.current.contains(e.target)
+    ) {
       if (editingCount > 0) {
-        const confirmClose = window.confirm("You have unsaved edits. Are you sure you want to close?");
+        const confirmClose = window.confirm(
+          "You have unsaved edits. Are you sure you want to close?"
+        );
         if (confirmClose) {
           closeModal();
         }
@@ -488,7 +558,10 @@ const ViewTaskModal = ({
   let dueStatusClass = "";
   if (editableTask.dueDate) {
     if (editableTask.status === "completed" && editableTask.completedAt) {
-      dueStatusText = formatCompletedDueDate(editableTask.dueDate, editableTask.completedAt);
+      dueStatusText = formatCompletedDueDate(
+        editableTask.dueDate,
+        editableTask.completedAt
+      );
       const due = new Date(editableTask.dueDate);
       const completed = new Date(editableTask.completedAt);
       dueStatusClass = completed > due ? "overdue" : "";
@@ -501,7 +574,11 @@ const ViewTaskModal = ({
 
   return (
     <div className="view-modal-overlay" onClick={handleOverlayClick}>
-      <div className="view-modal-content" ref={modalContentRef} onClick={(e) => e.stopPropagation()}>
+      <div
+        className="view-modal-content"
+        ref={modalContentRef}
+        onClick={(e) => e.stopPropagation()}
+      >
         <button className="view-close-modal" onClick={closeModal}>
           &times;
         </button>
@@ -537,20 +614,43 @@ const ViewTaskModal = ({
           <div className="view-modal-left">
             <div className="title-block">
               <h3 className="panel-heading">Title</h3>
-              <InlineEditable
-                value={editableTask.title || ""}
-                onChange={(val) => updateField("title", val)}
-                type="title"
-                onEditingChange={handleEditingChange}
-              />
+              {readOnly ? (
+                <div className="view-task-field non-editable-field">
+                  <div className="scroll-wrapper">
+                    <div className="text-container title-text-container">
+                      {editableTask.title || "No title"}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <InlineEditable
+                  value={editableTask.title || ""}
+                  onChange={(val) => updateField("title", val)}
+                  type="title"
+                  onEditingChange={handleEditingChange}
+                />
+              )}
             </div>
             <div className="description-block">
               <h3 className="panel-heading">Description</h3>
-              <InlineTiptap
-                value={editableTask.description || ""}
-                onChange={(val) => updateField("description", val)}
-                onEditingChange={handleEditingChange}
-              />
+              {readOnly ? (
+                <div className="view-task-field non-editable-field">
+                  <div className="scroll-wrapper">
+                    <div
+                      className="text-container"
+                      dangerouslySetInnerHTML={{
+                        __html: editableTask.description || "",
+                      }}
+                    />
+                  </div>
+                </div>
+              ) : (
+                <InlineTiptap
+                  value={editableTask.description || ""}
+                  onChange={(val) => updateField("description", val)}
+                  onEditingChange={handleEditingChange}
+                />
+              )}
             </div>
           </div>
 
@@ -570,23 +670,24 @@ const ViewTaskModal = ({
             </div>
             <div className="field-row">
               <label>Priority:</label>
-              <div className="view-task-field">
-                <DropdownField
-                  value={editableTask.priority || ""}
-                  onChange={(val) => updateField("priority", val)}
-                  type="priority"
-                />
-              </div>
+              <DropdownField
+                value={editableTask.priority || ""}
+                onChange={(val) => updateField("priority", val)}
+                type="priority"
+                readOnly={readOnly}
+              />
             </div>
 
             <div className="field-row">
               <label>Status:</label>
-              {editableTask.status === "completed" ? (
+              {editableTask.status === "completed" || readOnly ? (
                 <div className="view-task-field non-editable-field">
                   <div className="scroll-wrapper">
                     <div className="text-container">
                       {columns[editableTask.status]
-                        ? columns[editableTask.status].name
+                        ? typeof columns[editableTask.status] === "string"
+                          ? columns[editableTask.status]
+                          : columns[editableTask.status].name
                         : "Completed"}
                     </div>
                   </div>
@@ -598,6 +699,7 @@ const ViewTaskModal = ({
                     onChange={(val) => updateField("status", val)}
                     type="status"
                     columns={columns}
+                    readOnly={readOnly}
                   />
                 </div>
               )}
@@ -605,7 +707,7 @@ const ViewTaskModal = ({
 
             <div className="field-row">
               <label>Due Date:</label>
-              {editableTask.status === "completed" ? (
+              {editableTask.status === "completed" || readOnly ? (
                 <div className="view-task-field non-editable-field">
                   <div className="scroll-wrapper">
                     <div className="text-container">
@@ -630,36 +732,57 @@ const ViewTaskModal = ({
             <div className="field-row due-status-row">
               <label className="empty-label"></label>
               <div className={`due-status-text ${dueStatusClass}`}>
-                {editableTask.dueDate
-                  ? dueStatusText
-                  : "No due date"}
+                {editableTask.dueDate ? dueStatusText : "No due date"}
               </div>
+            </div>
+            <div className="field-row">
+              <label>Assigned To:</label>
+              {readOnly ? (
+                <div className="view-task-field non-editable-field">
+                  <div className="scroll-wrapper assigned-to-container">
+                    <div className="text-container">
+                      {editableTask.assignedTo || ""}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <InlineEditable
+                  value={editableTask.assignedTo || ""}
+                  onChange={(val) => updateField("assignedTo", val)}
+                  onEditingChange={handleEditingChange}
+                />
+              )}
             </div>
 
             <div className="field-row">
-              <label>Assigned To:</label>
-              <InlineEditable
-                value={editableTask.assignedTo || ""}
-                onChange={(val) => updateField("assignedTo", val)}
-                onEditingChange={handleEditingChange}
-              />
-            </div>
-            <div className="field-row">
               <label>Story Points:</label>
-              <InlineEditable
-                value={editableTask.storyPoints || 0}
-                onChange={(val) => updateField("storyPoints", val)}
-                type="number"
-                min="0"
-                onEditingChange={handleEditingChange}
-              />
+              {readOnly ? (
+                <div className="view-task-field non-editable-field">
+                  <div className="scroll-wrapper">
+                    <div className="text-container">
+                      {editableTask.storyPoints || 0}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <InlineEditable
+                  value={editableTask.storyPoints || 0}
+                  onChange={(val) => updateField("storyPoints", val)}
+                  type="number"
+                  min="0"
+                  onEditingChange={handleEditingChange}
+                />
+              )}
             </div>
 
             <div className="field-row">
               <label>Timer:</label>
-              <div className="view-task-field">
-                {editableTask.status === "completed" ? (
-                  <div className="timer-toggle-container off disabled" style={{ cursor: "not-allowed" }}>
+              {readOnly || editableTask.status === "completed" ? (
+                <div className="view-task-field non-editable-field">
+                  <div
+                    className="timer-toggle-container off disabled"
+                    style={{ cursor: "not-allowed" }}
+                  >
                     <span className="toggle-label-left">OFF</span>
                     <div className="toggle-slider">
                       <div className="toggle-knob">
@@ -684,45 +807,53 @@ const ViewTaskModal = ({
                     </div>
                     <span className="toggle-label-right">ON</span>
                   </div>
-                ) : (
+                </div>
+              ) : (
+                <div
+                  className={`timer-toggle-container ${
+                    editableTask.isTimerRunning ? "on" : "off"
+                  }`}
+                  onClick={toggleTimer}
+                  role="switch"
+                  aria-checked={editableTask.isTimerRunning}
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      toggleTimer();
+                    }
+                  }}
+                >
+                  <span className="toggle-label-left">OFF</span>
                   <div
-                    className={`timer-toggle-container ${editableTask.isTimerRunning ? "on" : "off"}`}
-                    onClick={toggleTimer}
-                    role="switch"
-                    aria-checked={editableTask.isTimerRunning}
-                    tabIndex={0}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        toggleTimer();
-                      }
-                    }}
+                    className={`toggle-slider ${
+                      editableTask.isTimerRunning ? "active" : ""
+                    }`}
                   >
-                    <span className="toggle-label-left">OFF</span>
-                    <div className={`toggle-slider ${editableTask.isTimerRunning ? "active" : ""}`}>
-                      <div className="toggle-knob">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke={editableTask.isTimerRunning ? "#fff" : "#666"}
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          className="clock-icon"
-                        >
-                          <circle cx="12" cy="13" r="8" />
-                          <path d="M12 9v4l2 2" />
-                          <path d="M5 3L2 6" />
-                          <path d="M22 6l-3-3" />
-                          <path d="M6 19l-2 2" />
-                          <path d="M18 19l2 2" />
-                        </svg>
-                      </div>
+                    <div className="toggle-knob">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke={
+                          editableTask.isTimerRunning ? "#fff" : "#666"
+                        }
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="clock-icon"
+                      >
+                        <circle cx="12" cy="13" r="8" />
+                        <path d="M12 9v4l2 2" />
+                        <path d="M5 3L2 6" />
+                        <path d="M22 6l-3-3" />
+                        <path d="M6 19l-2 2" />
+                        <path d="M18 19l2 2" />
+                      </svg>
                     </div>
-                    <span className="toggle-label-right">ON</span>
                   </div>
-                )}
-              </div>
+                  <span className="toggle-label-right">ON</span>
+                </div>
+              )}
             </div>
 
             <div className="field-row">
@@ -731,20 +862,29 @@ const ViewTaskModal = ({
                 value={getTotalTimeSpent()}
                 onChange={(val) => updateField("timeSpent", val)}
                 onEditingChange={handleEditingChange}
+                readOnly={readOnly}
               />
             </div>
 
-            <div className="view-modal-footer">
-              {task.status === "completed" ? (
-                <button className="back-to-boards-button" onClick={handleMoveToBoards}>
-                  Back to Boards
-                </button>
-              ) : (
-                <button className="complete-task-button" onClick={handleCompleteTask}>
-                  Complete Task
-                </button>
-              )}
-            </div>
+            {!readOnly && (
+              <div className="view-modal-footer">
+                {task.status === "completed" ? (
+                  <button
+                    className="back-to-boards-button"
+                    onClick={handleMoveToBoards}
+                  >
+                    Back to Boards
+                  </button>
+                ) : (
+                  <button
+                    className="complete-task-button"
+                    onClick={handleCompleteTask}
+                  >
+                    Complete Task
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>

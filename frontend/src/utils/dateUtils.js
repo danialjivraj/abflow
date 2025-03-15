@@ -245,3 +245,31 @@ export function getCalendarIconColor(scheduledAt, scheduledEnd, currentTime) {
   // If it's already past end => no icon
   return null;
 }
+
+/**
+ * Converts seconds to hours.
+ *
+ * @param {number} totalSeconds - The total duration in seconds.
+ * @returns {string} - The duration in hours.
+ */
+export const formatTimeSpentInHours = (totalSeconds) => {
+  const hours = totalSeconds / 3600; // Convert seconds to hours
+  return `${hours}`; // Return the hours as a string
+};
+
+/**
+ * Formats a numeric value as hours if the provided metric is "timeSpent".
+ * Otherwise, returns the value unchanged.
+ *
+ * @param {number} value - The numeric value (e.g. seconds) to be formatted.
+ * @param {string} metric - The metric type (e.g. "timeSpent").
+ * @returns {string|number} - Returns a formatted string (e.g. "3.50h") if metric is timeSpent, 
+ *                            or the original value for other metrics.
+ */
+export const formatToHoursIfTimeSpent = (value, metric) => {
+  if (metric === "timeSpent") {
+    const hours = (value / 3600).toFixed(2);
+    return `${hours}h`;
+  }
+  return value;
+};
