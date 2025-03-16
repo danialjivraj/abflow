@@ -37,6 +37,7 @@ const ScheduleView = ({ tasks, updateTaskInState, onCreateTaskShortcut }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [dropPosition, setDropPosition] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [currentView, setCurrentView] = useState("week");
 
   useEffect(() => {
     const scheduledTasks = tasks.filter((task) => task.scheduledAt);
@@ -376,13 +377,14 @@ const ScheduleView = ({ tasks, updateTaskInState, onCreateTaskShortcut }) => {
         onSelectEvent={handleSelectEvent}
         selectable
         onSelectSlot={(slotInfo) => {
-          if (slotInfo.action !== "select") {
+          if (slotInfo.action !== "select" || currentView === "month") {
             return;
           }
           if (onCreateTaskShortcut) {
             onCreateTaskShortcut(slotInfo.start, slotInfo.end);
           }
         }}
+        onView={(view) => setCurrentView(view)}
         draggableAccessor={() => true}
         onDropFromOutside={handleDropFromOutside}
         dragFromOutsideItem={dragFromOutsideItem}
