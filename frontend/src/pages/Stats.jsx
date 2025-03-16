@@ -918,8 +918,8 @@ const Stats = () => {
               label={(entry) => {
                 const percentage = total > 0 ? (entry.value / total) * 100 : 0;
                 return yAxisMetric === "timeSpent"
-                  ? `${entry.value.toFixed(2)}h (${percentage.toFixed(0)}%)`
-                  : `${entry.value.toFixed(0)} (${percentage.toFixed(0)}%)`;
+                  ? `${entry.value.toFixed(2)}h (${percentage.toFixed(2)}%)`
+                  : `${entry.value.toFixed(2)} (${percentage.toFixed(2)}%)`;
               }}
               onClick={handleChartClick}
             >
