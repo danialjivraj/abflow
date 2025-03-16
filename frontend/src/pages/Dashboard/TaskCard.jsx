@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from "react";
 import { Draggable } from "@hello-pangea/dnd";
-import { formatDueDate, formatCompletedDueDate, getCalendarIconColor } from "../../utils/dateUtils"; 
+import { formatDueDate, formatCompletedDueDate, getCalendarIconColor } from "../../utils/dateUtils";
 
 const priorityMapping = {
   A: "A: Very Important",
@@ -24,7 +24,8 @@ const TaskCard = ({
   stopTimer,
   openViewTaskModal,
   handleCompleteTask,
-  handleBackToBoards
+  handleBackToBoards,
+  hideDots,
 }) => {
   const dropdownMenuRef = useRef(null);
 
@@ -133,71 +134,73 @@ const TaskCard = ({
         >
           {task.priority}
         </b>
-        <div className="task-actions">
-          <button
-            className={`dots-button ${
-              isTaskHovered === task._id || isTaskDropdownOpen === task._id
-                ? "visible"
-                : ""
-            } ${isTaskDropdownOpen === task._id ? "dropdown-active" : ""}`}
-            onClick={(e) => {
-              e.stopPropagation();
-              setIsTaskDropdownOpen(
-                isTaskDropdownOpen === task._id ? null : task._id
-              );
-            }}
-          >
-            &#8942;
-          </button>
-          {isTaskDropdownOpen === task._id && (
-            <div className="dropdown-menu open" ref={dropdownMenuRef}>
-              {task.status !== "completed" && handleCompleteTask && (
+        {!hideDots && (
+          <div className="task-actions">
+            <button
+              className={`dots-button ${
+                isTaskHovered === task._id || isTaskDropdownOpen === task._id
+                  ? "visible"
+                  : ""
+              } ${isTaskDropdownOpen === task._id ? "dropdown-active" : ""}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsTaskDropdownOpen(
+                  isTaskDropdownOpen === task._id ? null : task._id
+                );
+              }}
+            >
+              &#8942;
+            </button>
+            {isTaskDropdownOpen === task._id && (
+              <div className="dropdown-menu open" ref={dropdownMenuRef}>
+                {task.status !== "completed" && handleCompleteTask && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleCompleteTask(task);
+                      setIsTaskDropdownOpen(null);
+                    }}
+                  >
+                    Complete Task
+                  </button>
+                )}
+                {task.status !== "completed" && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      task.isTimerRunning
+                        ? stopTimer(task._id)
+                        : startTimer(task._id);
+                      setIsTaskDropdownOpen(null);
+                    }}
+                  >
+                    {task.isTimerRunning ? "Stop Timer" : "Start Timer"}
+                  </button>
+                )}
+                {task.status === "completed" && handleBackToBoards && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleBackToBoards(task);
+                      setIsTaskDropdownOpen(null);
+                    }}
+                  >
+                    Back to Boards
+                  </button>
+                )}
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleCompleteTask(task);
+                    deleteTask(task._id);
                     setIsTaskDropdownOpen(null);
                   }}
                 >
-                  Complete Task
+                  Delete
                 </button>
-              )}
-              {task.status !== "completed" && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    task.isTimerRunning
-                      ? stopTimer(task._id)
-                      : startTimer(task._id);
-                    setIsTaskDropdownOpen(null);
-                  }}
-                >
-                  {task.isTimerRunning ? "Stop Timer" : "Start Timer"}
-                </button>
-              )}
-              {task.status === "completed" && handleBackToBoards && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleBackToBoards(task);
-                    setIsTaskDropdownOpen(null);
-                  }}
-                >
-                  Back to Boards
-                </button>
-              )}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  deleteTask(task._id);
-                  setIsTaskDropdownOpen(null);
-                }}
-              >
-                Delete
-              </button>
-            </div>
-          )}
-        </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </>
   );

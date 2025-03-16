@@ -46,6 +46,7 @@ const GroupTasksModal = ({
                     setIsTaskHovered={() => {}}
                     setIsTaskDropdownOpen={() => {}}
                     openViewTaskModal={() => {}}
+                    hideDots={true}
                   />
                 </div>
               ))
