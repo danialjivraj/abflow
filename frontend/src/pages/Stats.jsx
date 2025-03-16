@@ -16,6 +16,7 @@ import {
 } from "recharts";
 import DatePicker from "react-datepicker";
 import { fetchTasks, fetchColumnOrder } from "../services/tasksService";
+import { fetchPreferences, updatePreferences } from "../services/preferencesService";
 import { auth } from "../firebase";
 import Layout from "../components/Layout";
 import { startOfISOWeek, format } from "date-fns";
@@ -23,6 +24,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { formatToHoursIfTimeSpent } from "../utils/dateUtils";
 import ViewTaskModal from "./Dashboard/ViewTaskModal";
 import GroupTasksModal from "./GroupTasksModal";
+import { useParams, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 
 // Options for multi-selects
 const allowedPriorities = ["A1", "A2", "A3", "B1", "B2", "B3", "C1", "C2", "C3", "D", "E"];
@@ -90,6 +92,7 @@ const Stats = () => {
   const [tasks, setTasks] = useState([]);
   const [columnsMapping, setColumnsMapping] = useState({});
   const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState("");
 
   // Chart and Filter States
   const [chartType, setChartType] = useState("bar");
@@ -118,15 +121,116 @@ const Stats = () => {
   // Chart Data
   const [chartData, setChartData] = useState([]);
 
-  // Modal for "Tasks for Group"
+  // Modal States
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedGroupTasks, setSelectedGroupTasks] = useState([]);
-
-  // Read-only Task Modal
   const [selectedTask, setSelectedTask] = useState(null);
   const [isViewTaskModalOpen, setIsViewTaskModalOpen] = useState(false);
 
-  // -------------------- Effects: Fetch Tasks + Columns --------------------
+  // -------------------- Hooks from React Router --------------------
+  const { taskId } = useParams();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // -------------------- Default Filter Settings --------------------
+  const defaultFilterSettings = {
+    timeRangeType: "week",
+    taskType: "active",
+    chartType: "bar",
+    xAxisField: "day",
+    yAxisMetric: "count",
+    sortOrder: "none",
+    dueFilter: "both",
+    priorityFilters: [],
+    dayOfWeekFilters: [],
+    statusFilters: [],
+    assignedToFilter: "",
+    minStoryPoints: "",
+    minTimeSpent: "",
+    minTimeUnit: "seconds",
+    scheduledOnly: false,
+    includeNoDueDate: true,
+    comparisonMode: false,
+    compStartDate: null,
+    compEndDate: null,
+    customStartDate: null,
+    customEndDate: null,
+  };
+
+  // -------------------- Initialize Filters from URL --------------------
+  useEffect(() => {
+    const params = Object.fromEntries([...searchParams]);
+    if (params.timeRangeType) setTimeRangeType(params.timeRangeType);
+    if (params.taskType) setTaskType(params.taskType);
+    if (params.chartType) setChartType(params.chartType);
+    if (params.xAxisField) setXAxisField(params.xAxisField);
+    if (params.yAxisMetric) setYAxisMetric(params.yAxisMetric);
+    if (params.sortOrder) setSortOrder(params.sortOrder);
+    if (params.dueFilter) setDueFilter(params.dueFilter);
+    if (params.priorityFilters) setPriorityFilters(params.priorityFilters.split(","));
+    if (params.dayOfWeekFilters) setDayOfWeekFilters(params.dayOfWeekFilters.split(","));
+    if (params.statusFilters) setStatusFilters(params.statusFilters.split(","));
+    if (params.assignedToFilter) setAssignedToFilter(params.assignedToFilter);
+    if (params.minStoryPoints) setMinStoryPoints(params.minStoryPoints);
+    if (params.minTimeSpent) setMinTimeSpent(params.minTimeSpent);
+    if (params.minTimeUnit) setMinTimeUnit(params.minTimeUnit);
+    if (params.scheduledOnly) setScheduledOnly(params.scheduledOnly === "true");
+    if (params.includeNoDueDate) setIncludeNoDueDate(params.includeNoDueDate === "true");
+    if (params.comparisonMode) setComparisonMode(params.comparisonMode === "true");
+    if (params.compStartDate) setCompStartDate(new Date(params.compStartDate));
+    if (params.compEndDate) setCompEndDate(new Date(params.compEndDate));
+  }, []); // run on mount
+
+  // -------------------- Update URL on Filter Changes --------------------
+  useEffect(() => {
+    const params = {
+      timeRangeType,
+      taskType,
+      chartType,
+      xAxisField,
+      yAxisMetric,
+      sortOrder,
+      dueFilter,
+      priorityFilters: priorityFilters.join(","),
+      dayOfWeekFilters: dayOfWeekFilters.join(","),
+      statusFilters: statusFilters.join(","),
+      assignedToFilter,
+      minStoryPoints,
+      minTimeSpent,
+      minTimeUnit,
+      scheduledOnly,
+      includeNoDueDate,
+      comparisonMode,
+    };
+    if (comparisonMode && compStartDate && compEndDate) {
+      params.compStartDate = compStartDate.toISOString();
+      params.compEndDate = compEndDate.toISOString();
+    }
+    setSearchParams(params);
+  }, [
+    timeRangeType,
+    taskType,
+    chartType,
+    xAxisField,
+    yAxisMetric,
+    sortOrder,
+    dueFilter,
+    priorityFilters,
+    dayOfWeekFilters,
+    statusFilters,
+    assignedToFilter,
+    minStoryPoints,
+    minTimeSpent,
+    minTimeUnit,
+    scheduledOnly,
+    includeNoDueDate,
+    comparisonMode,
+    compStartDate,
+    compEndDate,
+  ]);
+
+  // -------------------- Effects: Fetch Tasks & Columns --------------------
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -166,11 +270,49 @@ const Stats = () => {
     label: colName,
   }));
 
+  // -------------------- Load Preferences from Backend --------------------
+  useEffect(() => {
+    const loadPreferences = async () => {
+      const currentUser = auth.currentUser;
+      if (currentUser) {
+        try {
+          const res = await fetchPreferences(currentUser.uid);
+          const prefs = res.data.preferences;
+          if (prefs.timeRangeType) setTimeRangeType(prefs.timeRangeType);
+          if (prefs.taskType) setTaskType(prefs.taskType);
+          if (prefs.chartType) setChartType(prefs.chartType);
+          if (prefs.xAxisField) setXAxisField(prefs.xAxisField);
+          if (prefs.yAxisMetric) setYAxisMetric(prefs.yAxisMetric);
+          if (prefs.sortOrder) setSortOrder(prefs.sortOrder);
+          if (prefs.dueFilter) setDueFilter(prefs.dueFilter);
+          if (prefs.priorityFilters) setPriorityFilters(prefs.priorityFilters);
+          if (prefs.dayOfWeekFilters) setDayOfWeekFilters(prefs.dayOfWeekFilters);
+          if (prefs.statusFilters) setStatusFilters(prefs.statusFilters);
+          if (prefs.assignedToFilter) setAssignedToFilter(prefs.assignedToFilter);
+          if (prefs.minStoryPoints) setMinStoryPoints(prefs.minStoryPoints);
+          if (prefs.minTimeSpent) setMinTimeSpent(prefs.minTimeSpent);
+          if (prefs.minTimeUnit) setMinTimeUnit(prefs.minTimeUnit);
+          if (prefs.scheduledOnly !== undefined) setScheduledOnly(prefs.scheduledOnly);
+          if (prefs.includeNoDueDate !== undefined)
+            setIncludeNoDueDate(prefs.includeNoDueDate);
+          if (prefs.comparisonMode !== undefined)
+            setComparisonMode(prefs.comparisonMode);
+          if (prefs.compStartDate) setCompStartDate(new Date(prefs.compStartDate));
+          if (prefs.compEndDate) setCompEndDate(new Date(prefs.compEndDate));
+          if (prefs.customStartDate) setCustomStartDate(new Date(prefs.customStartDate));
+          if (prefs.customEndDate) setCustomEndDate(new Date(prefs.customEndDate));
+        } catch (error) {
+          console.error("Error loading preferences:", error);
+        }
+      }
+    };
+    loadPreferences();
+  }, []);
+
   // -------------------- Compute Date Range --------------------
   const computeDateRange = () => {
     const today = new Date();
     let startDate, endDate;
-
     switch (timeRangeType) {
       case "week": {
         startDate = startOfISOWeek(today);
@@ -214,13 +356,11 @@ const Stats = () => {
       default:
         break;
     }
-
     return { startDate, endDate };
   };
 
   // -------------------- Filter Logic --------------------
   const applyAllFilters = (tasksList, startDate, endDate) => {
-    // Filter by date range + active/completed
     let filtered = tasksList.filter((task) => {
       if (taskType === "active") {
         if (task.status === "completed") return false;
@@ -233,7 +373,6 @@ const Stats = () => {
         const d = new Date(task.completedAt);
         return d >= startDate && d <= endDate;
       } else {
-        // both
         let d;
         if (task.status === "completed") {
           if (!task.completedAt) return false;
@@ -246,7 +385,6 @@ const Stats = () => {
       }
     });
 
-    // dueFilter: "both" | "due" | "overdue"
     if (dueFilter !== "both") {
       const now = new Date();
       filtered = filtered.filter((task) => {
@@ -258,12 +396,10 @@ const Stats = () => {
       filtered = filtered.filter((task) => task.dueDate);
     }
 
-    // Priority
     if (priorityFilters.length > 0) {
       filtered = filtered.filter((task) => priorityFilters.includes(task.priority));
     }
 
-    // Day of week
     if (dayOfWeekFilters.length > 0) {
       filtered = filtered.filter((task) => {
         const d =
@@ -272,12 +408,10 @@ const Stats = () => {
       });
     }
 
-    // Status
     if (statusFilters.length > 0) {
       filtered = filtered.filter((task) => statusFilters.includes(task.status));
     }
 
-    // Assigned To
     if (assignedToFilter.trim() !== "") {
       const term = assignedToFilter.trim().toLowerCase();
       filtered = filtered.filter(
@@ -285,23 +419,19 @@ const Stats = () => {
       );
     }
 
-    // Min Story Points
     if (minStoryPoints !== "" && !isNaN(parseInt(minStoryPoints, 10))) {
       const minVal = parseInt(minStoryPoints, 10);
       filtered = filtered.filter((task) => (task.storyPoints || 0) >= minVal);
     }
 
-    // Min Time Spent
     if (minTimeSpent !== "" && !isNaN(parseFloat(minTimeSpent))) {
       const value = parseFloat(minTimeSpent);
       let threshold = value;
       if (minTimeUnit === "minutes") threshold = value * 60;
       else if (minTimeUnit === "hours") threshold = value * 3600;
-
       filtered = filtered.filter((task) => (task.timeSpent || 0) >= threshold);
     }
 
-    // Scheduled Only
     if (scheduledOnly) {
       filtered = filtered.filter((task) => task.scheduledAt != null && task.scheduledAt !== "");
     }
@@ -312,7 +442,6 @@ const Stats = () => {
   // -------------------- Grouping Functions --------------------
   const groupTasks = (tasksList) => {
     const groupMap = {};
-
     tasksList.forEach((task) => {
       let d;
       if (task.status === "completed") {
@@ -320,7 +449,6 @@ const Stats = () => {
       } else {
         d = new Date(task.createdAt);
       }
-
       let key;
       if (xAxisField === "day") {
         key = format(d, "EEEE");
@@ -332,7 +460,6 @@ const Stats = () => {
             ? "Completed"
             : columnsMapping[task.status] || task.status;
       }
-
       if (!groupMap[key]) {
         groupMap[key] = { key, count: 0, timeSpent: 0, storyPoints: 0 };
       }
@@ -340,7 +467,6 @@ const Stats = () => {
       groupMap[key].timeSpent += task.timeSpent || 0;
       groupMap[key].storyPoints += task.storyPoints || 0;
     });
-
     return Object.values(groupMap);
   };
 
@@ -366,16 +492,12 @@ const Stats = () => {
       setChartData([]);
       return;
     }
-
     const mainFiltered = applyAllFilters(tasks, startDate, endDate);
     const mainGrouped = groupTasks(mainFiltered);
-
     if (comparisonMode && compStartDate && compEndDate) {
       const compFiltered = applyAllFilters(tasks, compStartDate, compEndDate);
       const compGrouped = groupTasks(compFiltered);
       const merged = mergeData(mainGrouped, compGrouped);
-
-      // Convert timeSpent to hours if needed
       const converted = merged.map((item) => {
         if (yAxisMetric === "timeSpent") {
           return {
@@ -386,20 +508,13 @@ const Stats = () => {
         }
         return item;
       });
-
       setChartData(converted);
     } else {
       const single = mainGrouped.map((item) => {
         if (yAxisMetric === "timeSpent") {
-          return {
-            key: item.key,
-            mainValue: item[yAxisMetric] / 3600,
-          };
+          return { key: item.key, mainValue: item[yAxisMetric] / 3600 };
         }
-        return {
-          key: item.key,
-          mainValue: item[yAxisMetric],
-        };
+        return { key: item.key, mainValue: item[yAxisMetric] };
       });
       setChartData(single);
     }
@@ -428,28 +543,36 @@ const Stats = () => {
     compEndDate,
   ]);
 
-  // Sort by mainValue after building chart data
+  // Sort chart data based on sortOrder
   useEffect(() => {
     setChartData((prev) => {
       const sorted = [...prev];
-      if (sortOrder === "asc") {
-        sorted.sort((a, b) => a.mainValue - b.mainValue);
-      } else if (sortOrder === "desc") {
-        sorted.sort((a, b) => b.mainValue - a.mainValue);
-      }
+      if (sortOrder === "asc") sorted.sort((a, b) => a.mainValue - b.mainValue);
+      else if (sortOrder === "desc") sorted.sort((a, b) => b.mainValue - a.mainValue);
       return sorted;
     });
   }, [sortOrder]);
 
-  // -------------------- Chart Rendering --------------------
+  // -------------------- Modal Effects: Open/Close Task Modals --------------------
+  useEffect(() => {
+    if (location.pathname.includes("/viewtask/")) {
+      const foundTask = tasks.find((t) => t._id === taskId);
+      if (foundTask) {
+        setSelectedTask(foundTask);
+        setIsViewTaskModalOpen(true);
+      }
+    } else {
+      setIsViewTaskModalOpen(false);
+      setSelectedTask(null);
+    }
+  }, [location, taskId, tasks]);
+
   const tooltipFormatter = (value) =>
     yAxisMetric === "timeSpent" ? `${value.toFixed(2)}h` : value;
 
-  // When user clicks on a bar/line/pie slice
   const handleChartClick = (data) => {
     if (!data || !data.payload) return;
     const groupKey = data.payload.key;
-
     const { startDate, endDate } = computeDateRange();
     const filteredTasks = applyAllFilters(tasks, startDate, endDate).filter((task) => {
       if (xAxisField === "day") {
@@ -466,18 +589,16 @@ const Stats = () => {
       }
       return false;
     });
-
-    // Tag tasks with groupKey, then show them in the "Tasks for Group" modal
     const tasksWithGroup = filteredTasks.map((task) => ({ ...task, groupKey }));
     setSelectedGroupTasks(tasksWithGroup);
     setModalOpen(true);
+    navigate(`/stats/grouptasks`);
   };
 
   const renderChart = () => {
     if (loading) return <p>Loading...</p>;
     if (!chartData || chartData.length === 0)
       return <p>No data available for the selected time range.</p>;
-
     if (chartType === "bar") {
       const hasComparison = comparisonMode && compStartDate && compEndDate;
       return (
@@ -485,27 +606,17 @@ const Stats = () => {
           <BarChart data={chartData}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="key" tick={{ fill: "white" }} />
-            <YAxis
-              tick={{ fill: "white" }}
-              tickFormatter={(value) => formatToHoursIfTimeSpent(value, yAxisMetric)}
-            />
+            <YAxis tick={{ fill: "white" }} tickFormatter={(value) => formatToHoursIfTimeSpent(value, yAxisMetric)} />
             <Tooltip
               formatter={tooltipFormatter}
               cursor={{ fill: "#4a4a4a" }}
-              contentStyle={{
-                backgroundColor: "#2a2a2a",
-                border: "1px solid #444",
-                borderRadius: "8px",
-                color: "#fff",
-              }}
+              contentStyle={{ backgroundColor: "#2a2a2a", border: "1px solid #444", borderRadius: "8px", color: "#fff" }}
               labelStyle={{ color: "#fff" }}
               itemStyle={{ color: "#fff" }}
             />
             <Legend />
             <Bar dataKey="mainValue" fill="#446688" name="Main Range" onClick={handleChartClick} />
-            {hasComparison && (
-              <Bar dataKey="compValue" fill="#FF8042" name="Comparison Range" />
-            )}
+            {hasComparison && <Bar dataKey="compValue" fill="#FF8042" name="Comparison Range" />}
           </BarChart>
         </ResponsiveContainer>
       );
@@ -516,19 +627,11 @@ const Stats = () => {
           <LineChart data={chartData}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="key" tick={{ fill: "white" }} />
-            <YAxis
-              tick={{ fill: "white" }}
-              tickFormatter={(value) => formatToHoursIfTimeSpent(value, yAxisMetric)}
-            />
+            <YAxis tick={{ fill: "white" }} tickFormatter={(value) => formatToHoursIfTimeSpent(value, yAxisMetric)} />
             <Tooltip
               formatter={tooltipFormatter}
               cursor={{ fill: "#4a4a4a" }}
-              contentStyle={{
-                backgroundColor: "#2a2a2a",
-                border: "1px solid #444",
-                borderRadius: "8px",
-                color: "#fff",
-              }}
+              contentStyle={{ backgroundColor: "#2a2a2a", border: "1px solid #444", borderRadius: "8px", color: "#fff" }}
               labelStyle={{ color: "#fff" }}
               itemStyle={{ color: "#fff" }}
             />
@@ -582,12 +685,7 @@ const Stats = () => {
             </Pie>
             <Tooltip
               formatter={tooltipFormatter}
-              contentStyle={{
-                backgroundColor: "#2a2a2a",
-                border: "1px solid #444",
-                borderRadius: "8px",
-                color: "#fff",
-              }}
+              contentStyle={{ backgroundColor: "#2a2a2a", border: "1px solid #444", borderRadius: "8px", color: "#fff" }}
               labelStyle={{ color: "#fff" }}
               itemStyle={{ color: "#fff" }}
             />
@@ -599,13 +697,103 @@ const Stats = () => {
     return <p>Comparison not supported for this chart type.</p>;
   };
 
-  // -------------------- Read-only ViewTaskModal from Group Modal --------------------
   const openReadOnlyViewTaskModal = (task) => {
     setSelectedTask(task);
     setIsViewTaskModalOpen(true);
-    setModalOpen(false);
+    navigate(`/stats/viewtask/${task._id}`);
   };
 
+  const closeViewTaskModal = () => {
+    setSelectedTask(null);
+    setIsViewTaskModalOpen(false);
+    navigate(`/stats`);
+  };
+
+  const openGroupTasksModal = (groupTasks) => {
+    setSelectedGroupTasks(groupTasks);
+    setModalOpen(true);
+    navigate(`/stats/grouptasks`);
+  };
+
+  const closeGroupTasksModal = () => {
+    setSelectedGroupTasks([]);
+    setModalOpen(false);
+    navigate(`/stats`);
+  };
+
+  // -------------------- Save & Reset Preferences --------------------
+  const saveUserPreferences = async () => {
+    const currentUser = auth.currentUser;
+    if (!currentUser) return;
+    const prefs = {
+      timeRangeType,
+      taskType,
+      chartType,
+      xAxisField,
+      yAxisMetric,
+      sortOrder,
+      dueFilter,
+      priorityFilters,
+      dayOfWeekFilters,
+      statusFilters,
+      assignedToFilter,
+      minStoryPoints,
+      minTimeSpent,
+      minTimeUnit,
+      scheduledOnly,
+      includeNoDueDate,
+      comparisonMode,
+      compStartDate: compStartDate ? compStartDate.toISOString() : null,
+      compEndDate: compEndDate ? compEndDate.toISOString() : null,
+      customStartDate: customStartDate ? customStartDate.toISOString() : null,
+      customEndDate: customEndDate ? customEndDate.toISOString() : null,
+    };
+    try {
+      await updatePreferences(currentUser.uid, prefs);
+      setMessage("Preferences saved successfully!");
+    } catch (error) {
+      console.error("Error saving preferences:", error);
+      setMessage("Error saving preferences!");
+    }
+  };
+  
+  const resetUserPreferences = async () => {
+    // Reset state values to defaults
+    setTimeRangeType(defaultFilterSettings.timeRangeType);
+    setTaskType(defaultFilterSettings.taskType);
+    setChartType(defaultFilterSettings.chartType);
+    setXAxisField(defaultFilterSettings.xAxisField);
+    setYAxisMetric(defaultFilterSettings.yAxisMetric);
+    setSortOrder(defaultFilterSettings.sortOrder);
+    setDueFilter(defaultFilterSettings.dueFilter);
+    setPriorityFilters(defaultFilterSettings.priorityFilters);
+    setDayOfWeekFilters(defaultFilterSettings.dayOfWeekFilters);
+    setStatusFilters(defaultFilterSettings.statusFilters);
+    setAssignedToFilter(defaultFilterSettings.assignedToFilter);
+    setMinStoryPoints(defaultFilterSettings.minStoryPoints);
+    setMinTimeSpent(defaultFilterSettings.minTimeSpent);
+    setMinTimeUnit(defaultFilterSettings.minTimeUnit);
+    setScheduledOnly(defaultFilterSettings.scheduledOnly);
+    setIncludeNoDueDate(defaultFilterSettings.includeNoDueDate);
+    setComparisonMode(defaultFilterSettings.comparisonMode);
+    setCompStartDate(defaultFilterSettings.compStartDate);
+    setCompEndDate(defaultFilterSettings.compEndDate);
+    setCustomStartDate(defaultFilterSettings.customStartDate);
+    setCustomEndDate(defaultFilterSettings.customEndDate);
+  
+    const currentUser = auth.currentUser;
+    if (!currentUser) return;
+    try {
+      await updatePreferences(currentUser.uid, defaultFilterSettings);
+      setMessage("Preferences reset to default!");
+    } catch (error) {
+      console.error("Error resetting preferences:", error);
+      setMessage("Error resetting preferences!");
+    }
+  };
+  
+
+  // -------------------- Render --------------------
   return (
     <Layout>
       <div className="stats-page">
@@ -613,13 +801,11 @@ const Stats = () => {
         <div className="stats-container">
           <div className="stats-left">
             <div className="filters-card">
+              {/* Save/Reset Buttons */}
               {/* Filter UI */}
               <div className="filter-group">
                 <label>Time Range</label>
-                <select
-                  value={timeRangeType}
-                  onChange={(e) => setTimeRangeType(e.target.value)}
-                >
+                <select value={timeRangeType} onChange={(e) => setTimeRangeType(e.target.value)}>
                   <option value="week">This Week</option>
                   <option value="2weeks">Last 2 Weeks</option>
                   <option value="month">This Month</option>
@@ -842,14 +1028,23 @@ const Stats = () => {
                   )}
                 </div>
               )}
+                {/* Save/Reset Buttons */}
+            <div className="preferences-buttons">
+              <button onClick={saveUserPreferences} className="save-btn">
+                Save Preferences
+              </button>
+              <button onClick={resetUserPreferences} className="reset-btn">
+                Default Preferences
+              </button>
+              {message && <div className="preferences-message">{message}</div>}
             </div>
+            </div>
+            
           </div>
-
           <div className="stats-right">{renderChart()}</div>
         </div>
       </div>
 
-      {/* ---- Group Tasks Modal ---- */}
       <GroupTasksModal
         modalOpen={modalOpen}
         setModalOpen={setModalOpen}
@@ -857,11 +1052,10 @@ const Stats = () => {
         openReadOnlyViewTaskModal={openReadOnlyViewTaskModal}
       />
 
-      {/* ---- Read-only ViewTaskModal ---- */}
       {isViewTaskModalOpen && (
         <ViewTaskModal
           isModalOpen={isViewTaskModalOpen}
-          closeModal={() => setIsViewTaskModalOpen(false)}
+          closeModal={closeViewTaskModal}
           task={selectedTask}
           handleUpdateTask={() => {}}
           columns={columnsMapping}

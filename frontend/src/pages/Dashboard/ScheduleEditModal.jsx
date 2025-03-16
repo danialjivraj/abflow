@@ -70,8 +70,9 @@ const ScheduleEditModal = ({ eventData, onSave, onClose, onUnschedule }) => {
   const calendarColor = getCalendarIconColor(eventData.start, eventData.end, new Date());
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+<div className="modal-overlay" onClick={onClose}>
+  <div className="schedule-modal">
+    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <button className="close-modal" onClick={onClose}>
           &times;
         </button>
@@ -185,20 +186,35 @@ const ScheduleEditModal = ({ eventData, onSave, onClose, onUnschedule }) => {
           {errorMessage && <p className="error-message">{errorMessage}</p>}
         </div>
 
-        <div className="modal-footer" style={{ marginTop: "16px" }}>
-          <button className="create-task-btn" onClick={handleSave}>
-            {eventData.isUnscheduled ? "Schedule" : "Save"}
-          </button>
-          {!eventData.isUnscheduled && (
-            <button className="unschedule-btn" onClick={handleUnschedule}>
-              Unschedule
+        <div
+          className="modal-footer"
+          style={{
+            marginTop: "16px",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <div>
+            {!eventData.isUnscheduled && (
+              <button className="unschedule-btn" onClick={handleUnschedule}>
+                Unschedule
+              </button>
+            )}
+          </div>
+
+          <div style={{ display: "flex", gap: "10px" }}>
+            <button className="create-task-btn" onClick={handleSave}>
+              {eventData.isUnscheduled ? "Schedule" : "Save"}
             </button>
-          )}
-          <button className="cancel-btn" onClick={onClose}>
-            Cancel
-          </button>
+            <button className="cancel-btn" onClick={onClose}>
+              Cancel
+            </button>
+          </div>
         </div>
+
       </div>
+    </div>
     </div>
   );
 };

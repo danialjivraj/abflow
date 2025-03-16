@@ -12,6 +12,9 @@ const GroupTasksModal = ({
   return (
     <div className="modal-overlay" onClick={() => setModalOpen(false)}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <button className="close-modal" onClick={() => setModalOpen(false)}>
+          &times;
+        </button>
         <h2>
           Tasks for Group:{" "}
           {selectedGroupTasks.length > 0
@@ -40,7 +43,9 @@ const GroupTasksModal = ({
           ))}
         </div>
 
-        <button className="view-cancel-btn" onClick={() => setModalOpen(false)}>Close</button>
+        <button className="view-cancel-btn" onClick={() => setModalOpen(false)}>
+          Close
+        </button>
       </div>
     </div>
   );

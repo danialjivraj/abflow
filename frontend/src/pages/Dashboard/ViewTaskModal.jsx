@@ -2,7 +2,6 @@ import React, { useState, useRef } from "react";
 import TiptapEditor from "../../components/TiptapEditor";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import "./viewTaskModal.css";
 import {
   formatDueDate,
   formatTimeSpent,

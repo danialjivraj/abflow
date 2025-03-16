@@ -2,7 +2,6 @@ import React from "react";
 import DatePicker from "react-datepicker";
 import TiptapEditor from "../../components/TiptapEditor";
 import "react-datepicker/dist/react-datepicker.css";
-import "./createTaskModal.css";
 
 const allowedPriorities = ["A1", "A2", "A3", "B1", "B2", "B3", "C1", "C2", "C3", "D", "E"];
 
@@ -58,8 +57,9 @@ const CreateTaskModal = ({
   };
 
   return (
-    <div className="modal-overlay" onClick={handleOverlayClick}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+<div className="modal-overlay" onClick={handleOverlayClick}>
+  <div className="create-task-modal">
+    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <button className="close-modal" onClick={closeModal}>
           &times;
         </button>
@@ -144,6 +144,7 @@ const CreateTaskModal = ({
           </button>
         </div>
       </div>
+    </div>
     </div>
   );
 };
