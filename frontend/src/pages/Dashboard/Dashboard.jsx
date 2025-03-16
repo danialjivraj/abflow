@@ -62,6 +62,9 @@ const Dashboard = () => {
 
   const [completedTasks, setCompletedTasks] = useState([]);
 
+  const [scheduledAtShortcut, setScheduledAtShortcut] = useState(null);
+  const [scheduledEndShortcut, setScheduledEndShortcut] = useState(null);
+
   // ---------------------- side effects ----------------------
   useEffect(() => {
     const currentUser = auth.currentUser;
@@ -388,7 +391,10 @@ const Dashboard = () => {
         assignedTo,
         description: taskDescription,
         storyPoints,
+        scheduledAt: scheduledAtShortcut ? scheduledAtShortcut.toISOString() : null,
+        scheduledEnd: scheduledEndShortcut ? scheduledEndShortcut.toISOString() : null,
       };
+
       const response = await createTask(taskData);
       const newTask = response.data;
       setColumns((prev) => {
@@ -402,6 +408,8 @@ const Dashboard = () => {
       });
       resetForm();
       closeModal();
+      setScheduledAtShortcut(null);
+      setScheduledEndShortcut(null);
     } catch (error) {
       console.error("Error creating task:", error);
     } finally {
@@ -526,10 +534,15 @@ const Dashboard = () => {
     } else if (location.pathname.startsWith("/dashboard/schedule")) {
       const currentTasks = Object.values(columns).flatMap((col) => col.items);
       return (
-        <ScheduleView
-          tasks={currentTasks}
-          updateTaskInState={updateTaskInState}
-        />
+      <ScheduleView
+        tasks={currentTasks}
+        updateTaskInState={updateTaskInState}
+        onCreateTaskShortcut={(start, end) => {
+          setScheduledAtShortcut(start);
+          setScheduledEndShortcut(end);
+          navigate(`${baseRoute}/createtask`);
+        }}
+      />
       );
     } else if (location.pathname.startsWith("/dashboard/boards")) {
       return (

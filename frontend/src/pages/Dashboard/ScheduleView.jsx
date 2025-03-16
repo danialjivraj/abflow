@@ -11,7 +11,7 @@ import ScheduleEditModal from "./ScheduleEditModal";
 const localizer = momentLocalizer(moment);
 const DnDCalendar = withDragAndDrop(Calendar);
 
-const ScheduleView = ({ tasks, updateTaskInState }) => {
+const ScheduleView = ({ tasks, updateTaskInState, onCreateTaskShortcut }) => {
   const mapTaskToEvent = (task) => {
     const start = task.scheduledAt ? new Date(task.scheduledAt) : new Date();
     const end = task.scheduledEnd
@@ -374,10 +374,18 @@ const ScheduleView = ({ tasks, updateTaskInState }) => {
         onEventDrop={handleEventDrop}
         onEventResize={handleEventResize}
         onSelectEvent={handleSelectEvent}
+        selectable
+        onSelectSlot={(slotInfo) => {
+          if (slotInfo.action !== "select") {
+            return;
+          }
+          if (onCreateTaskShortcut) {
+            onCreateTaskShortcut(slotInfo.start, slotInfo.end);
+          }
+        }}
         draggableAccessor={() => true}
         onDropFromOutside={handleDropFromOutside}
         dragFromOutsideItem={dragFromOutsideItem}
-        selectable
         className="rbc-calendar"
         components={{
           month: {

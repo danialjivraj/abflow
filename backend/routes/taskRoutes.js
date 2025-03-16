@@ -6,7 +6,7 @@ const User = require("../models/User");
 // create a new task
 router.post("/", async (req, res) => {
   try {
-    const { title, priority, userId, description, assignedTo, status, dueDate, storyPoints } = req.body;
+    const { title, priority, userId, description, assignedTo, status, dueDate, storyPoints, scheduledAt, scheduledEnd } = req.body;
     if (!title || !priority || !userId || !status) {
       return res.status(400).json({ error: "All fields are required" });
     }
@@ -30,13 +30,15 @@ router.post("/", async (req, res) => {
       title,
       priority,
       userId,
-      status: status,
+      status,
       points: pointsMap[priority] || 0,
       description: description || "",
       assignedTo: assignedTo || "",
       dueDate: dueDate || null,
       order: newOrder,
       storyPoints: storyPoints !== undefined ? storyPoints : 0,
+      scheduledAt: scheduledAt || null,
+      scheduledEnd: scheduledEnd || null,
     });
 
     await newTask.save();
