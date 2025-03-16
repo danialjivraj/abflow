@@ -5,6 +5,7 @@ require("dotenv").config();
 const taskRoutes = require("./routes/taskRoutes");
 const statsRoutes = require("./routes/statsRoutes");
 const profileRoutes = require("./routes/profileRoutes");
+const preferencesRoutes = require("./routes/preferences");
 
 const app = express();
 app.use(cors());
@@ -17,6 +18,7 @@ mongoose.connect(process.env.MONGO_URI, { serverSelectionTimeoutMS: 5000 })
 app.use("/api/tasks", taskRoutes);
 app.use("/api/stats", statsRoutes);
 app.use("/api/profile", profileRoutes);
+app.use("/api/preferences", preferencesRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));

@@ -20,7 +20,7 @@ const Sidebar = () => {
               Dashboard
             </li>
             <li
-              className={location.pathname === "/stats" ? "active" : ""}
+              className={location.pathname.startsWith("/stats") ? "active" : ""}
               onClick={() => navigate("/stats")}
             >
               Stats

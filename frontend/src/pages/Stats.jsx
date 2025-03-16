@@ -8,11 +8,18 @@ import {
   Legend,
   LineChart,
   Line,
+  AreaChart,
+  Area,
   CartesianGrid,
   ResponsiveContainer,
   PieChart,
   Pie,
   Cell,
+  RadarChart,
+  Radar,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis
 } from "recharts";
 import DatePicker from "react-datepicker";
 import { fetchTasks, fetchColumnOrder } from "../services/tasksService";
@@ -109,6 +116,7 @@ const Stats = () => {
   const [dayOfWeekFilters, setDayOfWeekFilters] = useState([]);
   const [statusFilters, setStatusFilters] = useState([]);
   const [assignedToFilter, setAssignedToFilter] = useState("");
+  const [minTaskCount, setMinTaskCount] = useState("");
   const [minStoryPoints, setMinStoryPoints] = useState("");
   const [minTimeSpent, setMinTimeSpent] = useState("");
   const [minTimeUnit, setMinTimeUnit] = useState("seconds");
@@ -123,7 +131,8 @@ const Stats = () => {
 
   // Modal States
   const [modalOpen, setModalOpen] = useState(false);
-  const [selectedGroupTasks, setSelectedGroupTasks] = useState([]);
+  const [selectedMainGroupTasks, setSelectedMainGroupTasks] = useState([]);
+  const [selectedCompGroupTasks, setSelectedCompGroupTasks] = useState([]);
   const [selectedTask, setSelectedTask] = useState(null);
   const [isViewTaskModalOpen, setIsViewTaskModalOpen] = useState(false);
 
@@ -146,6 +155,7 @@ const Stats = () => {
     dayOfWeekFilters: [],
     statusFilters: [],
     assignedToFilter: "",
+    minTaskCount: "",
     minStoryPoints: "",
     minTimeSpent: "",
     minTimeUnit: "seconds",
@@ -172,6 +182,7 @@ const Stats = () => {
     if (params.dayOfWeekFilters) setDayOfWeekFilters(params.dayOfWeekFilters.split(","));
     if (params.statusFilters) setStatusFilters(params.statusFilters.split(","));
     if (params.assignedToFilter) setAssignedToFilter(params.assignedToFilter);
+    if (params.minTaskCount) setMinTaskCount(params.minTaskCount);
     if (params.minStoryPoints) setMinStoryPoints(params.minStoryPoints);
     if (params.minTimeSpent) setMinTimeSpent(params.minTimeSpent);
     if (params.minTimeUnit) setMinTimeUnit(params.minTimeUnit);
@@ -196,6 +207,7 @@ const Stats = () => {
       dayOfWeekFilters: dayOfWeekFilters.join(","),
       statusFilters: statusFilters.join(","),
       assignedToFilter,
+      minTaskCount,
       minStoryPoints,
       minTimeSpent,
       minTimeUnit,
@@ -220,6 +232,7 @@ const Stats = () => {
     dayOfWeekFilters,
     statusFilters,
     assignedToFilter,
+    minTaskCount,
     minStoryPoints,
     minTimeSpent,
     minTimeUnit,
@@ -289,6 +302,7 @@ const Stats = () => {
           if (prefs.dayOfWeekFilters) setDayOfWeekFilters(prefs.dayOfWeekFilters);
           if (prefs.statusFilters) setStatusFilters(prefs.statusFilters);
           if (prefs.assignedToFilter) setAssignedToFilter(prefs.assignedToFilter);
+          if (prefs.minTaskCount) setMinTaskCount(prefs.minTaskCount);
           if (prefs.minStoryPoints) setMinStoryPoints(prefs.minStoryPoints);
           if (prefs.minTimeSpent) setMinTimeSpent(prefs.minTimeSpent);
           if (prefs.minTimeUnit) setMinTimeUnit(prefs.minTimeUnit);
@@ -402,8 +416,7 @@ const Stats = () => {
 
     if (dayOfWeekFilters.length > 0) {
       filtered = filtered.filter((task) => {
-        const d =
-          task.status === "completed" ? new Date(task.completedAt) : new Date(task.createdAt);
+        const d = task.status === "completed" ? new Date(task.completedAt) : new Date(task.createdAt);
         return dayOfWeekFilters.includes(format(d, "EEEE"));
       });
     }
@@ -493,10 +506,18 @@ const Stats = () => {
       return;
     }
     const mainFiltered = applyAllFilters(tasks, startDate, endDate);
-    const mainGrouped = groupTasks(mainFiltered);
+    let mainGrouped = groupTasks(mainFiltered);
+    if (minTaskCount !== "" && !isNaN(parseInt(minTaskCount, 10))) {
+      const minCount = parseInt(minTaskCount, 10);
+      mainGrouped = mainGrouped.filter((item) => item.count >= minCount);
+    }
     if (comparisonMode && compStartDate && compEndDate) {
       const compFiltered = applyAllFilters(tasks, compStartDate, compEndDate);
-      const compGrouped = groupTasks(compFiltered);
+      let compGrouped = groupTasks(compFiltered);
+      if (minTaskCount !== "" && !isNaN(parseInt(minTaskCount, 10))) {
+        const minCount = parseInt(minTaskCount, 10);
+        compGrouped = compGrouped.filter((item) => item.count >= minCount);
+      }
       const merged = mergeData(mainGrouped, compGrouped);
       const converted = merged.map((item) => {
         if (yAxisMetric === "timeSpent") {
@@ -534,6 +555,7 @@ const Stats = () => {
     dayOfWeekFilters,
     statusFilters,
     assignedToFilter,
+    minTaskCount,
     minStoryPoints,
     minTimeSpent,
     minTimeUnit,
@@ -570,37 +592,243 @@ const Stats = () => {
   const tooltipFormatter = (value) =>
     yAxisMetric === "timeSpent" ? `${value.toFixed(2)}h` : value;
 
+  // -------------------- Custom Dot Components --------------------
+  // For Line and Area charts, using custom dots to enable clicking.
+  const CustomMainDot = (props) => {
+    const { cx, cy, payload, fill } = props;
+    const [hover, setHover] = useState(false);
+    return (
+      <circle
+        cx={cx}
+        cy={cy}
+        r={hover ? 8 : 6}
+        fill={fill}
+        stroke="white"
+        strokeWidth={2}
+        style={{ cursor: "pointer", pointerEvents: "all" }}
+        onMouseEnter={() => setHover(true)}
+        onMouseLeave={() => setHover(false)}
+        onClick={() => {
+          if (payload.mainValue > 0) {
+            handleChartClick({ payload });
+          }
+        }}
+      />
+    );
+  };
+
+  const CustomCompDot = (props) => {
+    const { cx, cy, payload, fill } = props;
+    const [hover, setHover] = useState(false);
+    return (
+      <circle
+        cx={cx}
+        cy={cy}
+        r={hover ? 8 : 6}
+        fill={fill}
+        stroke="white"
+        strokeWidth={2}
+        style={{ cursor: "pointer", pointerEvents: "all" }}
+        onMouseEnter={() => setHover(true)}
+        onMouseLeave={() => setHover(false)}
+        onClick={() => {
+          if (payload.compValue > 0) {
+            handleChartClick({ payload });
+          }
+        }}
+      />
+    );
+  };
+
+  // -------------------- Unified Chart Click Handler --------------------
+  // This function gets both main and comparison tasks and opens one modal.
   const handleChartClick = (data) => {
     if (!data || !data.payload) return;
     const groupKey = data.payload.key;
+  
+    // Get main range tasks using computeDateRange:
     const { startDate, endDate } = computeDateRange();
-    const filteredTasks = applyAllFilters(tasks, startDate, endDate).filter((task) => {
-      if (xAxisField === "day") {
-        const d = new Date(task.status === "completed" ? task.completedAt : task.createdAt);
-        return format(d, "EEEE") === groupKey;
-      } else if (xAxisField === "priority") {
-        return (task.priority || "None") === groupKey;
-      } else if (xAxisField === "status") {
-        const statusLabel =
-          task.status === "completed"
-            ? "Completed"
-            : columnsMapping[task.status] || task.status;
-        return statusLabel === groupKey;
-      }
-      return false;
-    });
-    const tasksWithGroup = filteredTasks.map((task) => ({ ...task, groupKey }));
-    setSelectedGroupTasks(tasksWithGroup);
+    const mainTasks = applyAllFilters(tasks, startDate, endDate)
+      .filter((task) => {
+        if (xAxisField === "day") {
+          const d = new Date(task.status === "completed" ? task.completedAt : task.createdAt);
+          return format(d, "EEEE") === groupKey;
+        } else if (xAxisField === "priority") {
+          return (task.priority || "None") === groupKey;
+        } else if (xAxisField === "status") {
+          const statusLabel =
+            task.status === "completed"
+              ? "Completed"
+              : columnsMapping[task.status] || task.status;
+          return statusLabel === groupKey;
+        }
+        return false;
+      })
+      .map((task) => ({ ...task, groupKey })); // add groupKey to each task
+  
+    // Get comparison tasks if comparison mode is enabled:
+    let compTasks = [];
+    if (comparisonMode && compStartDate && compEndDate) {
+      compTasks = applyAllFilters(tasks, compStartDate, compEndDate)
+        .filter((task) => {
+          if (xAxisField === "day") {
+            const d = new Date(task.status === "completed" ? task.completedAt : task.createdAt);
+            return format(d, "EEEE") === groupKey;
+          } else if (xAxisField === "priority") {
+            return (task.priority || "None") === groupKey;
+          } else if (xAxisField === "status") {
+            const statusLabel =
+              task.status === "completed"
+                ? "Completed"
+                : columnsMapping[task.status] || task.status;
+            return statusLabel === groupKey;
+          }
+          return false;
+        })
+        .map((task) => ({ ...task, groupKey })); // add groupKey here as well
+    }
+  
+    setSelectedMainGroupTasks(mainTasks);
+    setSelectedCompGroupTasks(compTasks);
     setModalOpen(true);
     navigate(`/stats/grouptasks`);
   };
+  
 
+  const openReadOnlyViewTaskModal = (task) => {
+    setSelectedTask(task);
+    setIsViewTaskModalOpen(true);
+    navigate(`/stats/viewtask/${task._id}`);
+  };
+
+  const closeViewTaskModal = () => {
+    setSelectedTask(null);
+    setIsViewTaskModalOpen(false);
+    navigate(`/stats`);
+  };
+
+  // -------------------- Save & Reset Preferences --------------------
+  const saveUserPreferences = async () => {
+    const currentUser = auth.currentUser;
+    if (!currentUser) return;
+    const prefs = {
+      timeRangeType,
+      taskType,
+      chartType,
+      xAxisField,
+      yAxisMetric,
+      sortOrder,
+      dueFilter,
+      priorityFilters,
+      dayOfWeekFilters,
+      statusFilters,
+      assignedToFilter,
+      minTaskCount,
+      minStoryPoints,
+      minTimeSpent,
+      minTimeUnit,
+      scheduledOnly,
+      includeNoDueDate,
+      comparisonMode,
+      compStartDate: compStartDate ? compStartDate.toISOString() : null,
+      compEndDate: compEndDate ? compEndDate.toISOString() : null,
+      customStartDate: customStartDate ? customStartDate.toISOString() : null,
+      customEndDate: customEndDate ? customEndDate.toISOString() : null,
+    };
+    try {
+      await updatePreferences(currentUser.uid, prefs);
+      setMessage("Preferences saved successfully!");
+    } catch (error) {
+      console.error("Error saving preferences:", error);
+      setMessage("Error saving preferences!");
+    }
+  };
+
+  const resetUserPreferences = async () => {
+    setTimeRangeType(defaultFilterSettings.timeRangeType);
+    setTaskType(defaultFilterSettings.taskType);
+    setChartType(defaultFilterSettings.chartType);
+    setXAxisField(defaultFilterSettings.xAxisField);
+    setYAxisMetric(defaultFilterSettings.yAxisMetric);
+    setSortOrder(defaultFilterSettings.sortOrder);
+    setDueFilter(defaultFilterSettings.dueFilter);
+    setPriorityFilters(defaultFilterSettings.priorityFilters);
+    setDayOfWeekFilters(defaultFilterSettings.dayOfWeekFilters);
+    setStatusFilters(defaultFilterSettings.statusFilters);
+    setAssignedToFilter(defaultFilterSettings.assignedToFilter);
+    setMinTaskCount(defaultFilterSettings.minTaskCount);
+    setMinStoryPoints(defaultFilterSettings.minStoryPoints);
+    setMinTimeSpent(defaultFilterSettings.minTimeSpent);
+    setMinTimeUnit(defaultFilterSettings.minTimeUnit);
+    setScheduledOnly(defaultFilterSettings.scheduledOnly);
+    setIncludeNoDueDate(defaultFilterSettings.includeNoDueDate);
+    setComparisonMode(defaultFilterSettings.comparisonMode);
+    setCompStartDate(defaultFilterSettings.compStartDate);
+    setCompEndDate(defaultFilterSettings.compEndDate);
+    setCustomStartDate(defaultFilterSettings.customStartDate);
+    setCustomEndDate(defaultFilterSettings.customEndDate);
+
+    const currentUser = auth.currentUser;
+    if (!currentUser) return;
+    try {
+      await updatePreferences(currentUser.uid, defaultFilterSettings);
+      setMessage("Preferences reset to default!");
+    } catch (error) {
+      console.error("Error resetting preferences:", error);
+      setMessage("Error resetting preferences!");
+    }
+  };
+
+  // -------------------- Render Chart --------------------
   const renderChart = () => {
     if (loading) return <p>Loading...</p>;
     if (!chartData || chartData.length === 0)
       return <p>No data available for the selected time range.</p>;
-    if (chartType === "bar") {
-      const hasComparison = comparisonMode && compStartDate && compEndDate;
+    const hasComparison = comparisonMode && compStartDate && compEndDate;
+    if (chartType === "area") {
+      return (
+        <ResponsiveContainer width="100%" height={500}>
+          <AreaChart data={chartData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="key" tick={{ fill: "white" }} />
+            <YAxis tick={{ fill: "white" }} tickFormatter={(value) => formatToHoursIfTimeSpent(value, yAxisMetric)} />
+            <Tooltip
+              formatter={tooltipFormatter}
+              cursor={{ fill: "#4a4a4a" }}
+              contentStyle={{
+                backgroundColor: "#2a2a2a",
+                border: "1px solid #444",
+                borderRadius: "8px",
+                color: "#fff",
+              }}
+              labelStyle={{ color: "#fff" }}
+              itemStyle={{ color: "#fff" }}
+            />
+            <Legend />
+            <Area
+              type="monotone"
+              dataKey="mainValue"
+              stroke="#446688"
+              fill="#446688"
+              name="Main Range"
+              dot={<CustomMainDot />}
+              activeDot={<CustomMainDot />}
+            />
+            {hasComparison && (
+              <Area
+                type="monotone"
+                dataKey="compValue"
+                stroke="#FF8042"
+                fill="#FF8042"
+                name="Comparison Range"
+                dot={<CustomCompDot />}
+                activeDot={<CustomCompDot />}
+              />
+            )}
+          </AreaChart>
+        </ResponsiveContainer>
+      );
+    } else if (chartType === "bar") {
       return (
         <ResponsiveContainer width="100%" height={500}>
           <BarChart data={chartData}>
@@ -610,18 +838,34 @@ const Stats = () => {
             <Tooltip
               formatter={tooltipFormatter}
               cursor={{ fill: "#4a4a4a" }}
-              contentStyle={{ backgroundColor: "#2a2a2a", border: "1px solid #444", borderRadius: "8px", color: "#fff" }}
+              contentStyle={{
+                backgroundColor: "#2a2a2a",
+                border: "1px solid #444",
+                borderRadius: "8px",
+                color: "#fff",
+              }}
               labelStyle={{ color: "#fff" }}
               itemStyle={{ color: "#fff" }}
             />
             <Legend />
-            <Bar dataKey="mainValue" fill="#446688" name="Main Range" onClick={handleChartClick} />
-            {hasComparison && <Bar dataKey="compValue" fill="#FF8042" name="Comparison Range" />}
+            <Bar
+              dataKey="mainValue"
+              fill="#446688"
+              name="Main Range"
+              onClick={(data) => handleChartClick(data)}
+            />
+            {hasComparison && (
+              <Bar
+                dataKey="compValue"
+                fill="#FF8042"
+                name="Comparison Range"
+                onClick={(data) => handleChartClick(data)}
+              />
+            )}
           </BarChart>
         </ResponsiveContainer>
       );
     } else if (chartType === "line") {
-      const hasComparison = comparisonMode && compStartDate && compEndDate;
       return (
         <ResponsiveContainer width="100%" height={500}>
           <LineChart data={chartData}>
@@ -631,7 +875,12 @@ const Stats = () => {
             <Tooltip
               formatter={tooltipFormatter}
               cursor={{ fill: "#4a4a4a" }}
-              contentStyle={{ backgroundColor: "#2a2a2a", border: "1px solid #444", borderRadius: "8px", color: "#fff" }}
+              contentStyle={{
+                backgroundColor: "#2a2a2a",
+                border: "1px solid #444",
+                borderRadius: "8px",
+                color: "#fff",
+              }}
               labelStyle={{ color: "#fff" }}
               itemStyle={{ color: "#fff" }}
             />
@@ -642,8 +891,8 @@ const Stats = () => {
               stroke="#446688"
               name="Main Range"
               strokeWidth={3}
-              dot={{ r: 6, onClick: handleChartClick }}
-              activeDot={{ r: 8 }}
+              dot={<CustomMainDot />}
+              activeDot={<CustomMainDot />}
             />
             {hasComparison && (
               <Line
@@ -652,15 +901,15 @@ const Stats = () => {
                 stroke="#FF8042"
                 name="Comparison Range"
                 strokeWidth={3}
-                dot={{ r: 6 }}
-                activeDot={{ r: 8 }}
+                dot={<CustomCompDot />}
+                activeDot={<CustomCompDot />}
               />
             )}
           </LineChart>
         </ResponsiveContainer>
       );
     } else if (chartType === "pie") {
-      if (comparisonMode && compStartDate && compEndDate) {
+      if (hasComparison) {
         return <p>Comparison not supported for this chart type.</p>;
       }
       return (
@@ -685,7 +934,12 @@ const Stats = () => {
             </Pie>
             <Tooltip
               formatter={tooltipFormatter}
-              contentStyle={{ backgroundColor: "#2a2a2a", border: "1px solid #444", borderRadius: "8px", color: "#fff" }}
+              contentStyle={{
+                backgroundColor: "#2a2a2a",
+                border: "1px solid #444",
+                borderRadius: "8px",
+                color: "#fff",
+              }}
               labelStyle={{ color: "#fff" }}
               itemStyle={{ color: "#fff" }}
             />
@@ -693,105 +947,64 @@ const Stats = () => {
           </PieChart>
         </ResponsiveContainer>
       );
+    } else if (chartType === "radar") {
+      return (
+        <ResponsiveContainer width="100%" height={500}>
+          <RadarChart
+            data={chartData}
+            onClick={(e) => {
+              const activeLabel = e.activeLabel;
+              if (activeLabel) {
+                const dataPoint = chartData.find((d) => d.key === activeLabel);
+                if (dataPoint) {
+                  handleChartClick({ payload: dataPoint });
+                }
+              }
+            }}
+          >
+            <PolarGrid strokeDasharray="3 3" />
+            <PolarAngleAxis dataKey="key" tick={{ fill: "white" }} />
+            <PolarRadiusAxis
+              tick={{ fill: "white" }}
+              tickFormatter={(value) =>
+                yAxisMetric === "timeSpent" ? `${value.toFixed(2)}h` : value
+              }
+            />
+            <Tooltip
+              formatter={tooltipFormatter}
+              contentStyle={{
+                backgroundColor: "#2a2a2a",
+                border: "1px solid #444",
+                borderRadius: "8px",
+                color: "#fff",
+              }}
+              labelStyle={{ color: "#fff" }}
+              itemStyle={{ color: "#fff" }}
+            />
+            <Legend />
+            <Radar
+              name="Main Range"
+              dataKey="mainValue"
+              stroke="#446688"
+              fill="#446688"
+              fillOpacity={0.6}
+            />
+            {hasComparison && (
+              <Radar
+                name="Comparison Range"
+                dataKey="compValue"
+                stroke="#FF8042"
+                fill="#FF8042"
+                fillOpacity={0.6}
+              />
+            )}
+          </RadarChart>
+        </ResponsiveContainer>
+      );
     }
+    
     return <p>Comparison not supported for this chart type.</p>;
   };
-
-  const openReadOnlyViewTaskModal = (task) => {
-    setSelectedTask(task);
-    setIsViewTaskModalOpen(true);
-    navigate(`/stats/viewtask/${task._id}`);
-  };
-
-  const closeViewTaskModal = () => {
-    setSelectedTask(null);
-    setIsViewTaskModalOpen(false);
-    navigate(`/stats`);
-  };
-
-  const openGroupTasksModal = (groupTasks) => {
-    setSelectedGroupTasks(groupTasks);
-    setModalOpen(true);
-    navigate(`/stats/grouptasks`);
-  };
-
-  const closeGroupTasksModal = () => {
-    setSelectedGroupTasks([]);
-    setModalOpen(false);
-    navigate(`/stats`);
-  };
-
-  // -------------------- Save & Reset Preferences --------------------
-  const saveUserPreferences = async () => {
-    const currentUser = auth.currentUser;
-    if (!currentUser) return;
-    const prefs = {
-      timeRangeType,
-      taskType,
-      chartType,
-      xAxisField,
-      yAxisMetric,
-      sortOrder,
-      dueFilter,
-      priorityFilters,
-      dayOfWeekFilters,
-      statusFilters,
-      assignedToFilter,
-      minStoryPoints,
-      minTimeSpent,
-      minTimeUnit,
-      scheduledOnly,
-      includeNoDueDate,
-      comparisonMode,
-      compStartDate: compStartDate ? compStartDate.toISOString() : null,
-      compEndDate: compEndDate ? compEndDate.toISOString() : null,
-      customStartDate: customStartDate ? customStartDate.toISOString() : null,
-      customEndDate: customEndDate ? customEndDate.toISOString() : null,
-    };
-    try {
-      await updatePreferences(currentUser.uid, prefs);
-      setMessage("Preferences saved successfully!");
-    } catch (error) {
-      console.error("Error saving preferences:", error);
-      setMessage("Error saving preferences!");
-    }
-  };
-  
-  const resetUserPreferences = async () => {
-    // Reset state values to defaults
-    setTimeRangeType(defaultFilterSettings.timeRangeType);
-    setTaskType(defaultFilterSettings.taskType);
-    setChartType(defaultFilterSettings.chartType);
-    setXAxisField(defaultFilterSettings.xAxisField);
-    setYAxisMetric(defaultFilterSettings.yAxisMetric);
-    setSortOrder(defaultFilterSettings.sortOrder);
-    setDueFilter(defaultFilterSettings.dueFilter);
-    setPriorityFilters(defaultFilterSettings.priorityFilters);
-    setDayOfWeekFilters(defaultFilterSettings.dayOfWeekFilters);
-    setStatusFilters(defaultFilterSettings.statusFilters);
-    setAssignedToFilter(defaultFilterSettings.assignedToFilter);
-    setMinStoryPoints(defaultFilterSettings.minStoryPoints);
-    setMinTimeSpent(defaultFilterSettings.minTimeSpent);
-    setMinTimeUnit(defaultFilterSettings.minTimeUnit);
-    setScheduledOnly(defaultFilterSettings.scheduledOnly);
-    setIncludeNoDueDate(defaultFilterSettings.includeNoDueDate);
-    setComparisonMode(defaultFilterSettings.comparisonMode);
-    setCompStartDate(defaultFilterSettings.compStartDate);
-    setCompEndDate(defaultFilterSettings.compEndDate);
-    setCustomStartDate(defaultFilterSettings.customStartDate);
-    setCustomEndDate(defaultFilterSettings.customEndDate);
-  
-    const currentUser = auth.currentUser;
-    if (!currentUser) return;
-    try {
-      await updatePreferences(currentUser.uid, defaultFilterSettings);
-      setMessage("Preferences reset to default!");
-    } catch (error) {
-      console.error("Error resetting preferences:", error);
-      setMessage("Error resetting preferences!");
-    }
-  };
-  
 
   // -------------------- Render --------------------
   return (
@@ -801,7 +1014,6 @@ const Stats = () => {
         <div className="stats-container">
           <div className="stats-left">
             <div className="filters-card">
-              {/* Save/Reset Buttons */}
               {/* Filter UI */}
               <div className="filter-group">
                 <label>Time Range</label>
@@ -848,6 +1060,8 @@ const Stats = () => {
                   <option value="bar">Bar Chart</option>
                   <option value="line">Line Chart</option>
                   <option value="pie">Pie Chart</option>
+                  <option value="area">Area Chart</option>
+                  <option value="radar">Radar Chart</option>
                 </select>
               </div>
               <div className="filter-group">
@@ -875,10 +1089,7 @@ const Stats = () => {
                 </select>
               </div>
               <div className="filter-group">
-                <button
-                  onClick={() => setShowAdvancedFilters((prev) => !prev)}
-                  className="toggle-btn"
-                >
+                <button onClick={() => setShowAdvancedFilters((prev) => !prev)} className="toggle-btn">
                   {showAdvancedFilters ? "Hide Advanced ▲" : "Show Advanced ▼"}
                 </button>
               </div>
@@ -926,9 +1137,20 @@ const Stats = () => {
                     />
                   </div>
                   <div className="filter-group">
+                    <label>Minimum Task Count</label>
+                    <input
+                      type="number"
+                      min="0"
+                      placeholder="0"
+                      value={minTaskCount}
+                      onChange={(e) => setMinTaskCount(e.target.value)}
+                    />
+                  </div>
+                  <div className="filter-group">
                     <label>Minimum Story Points</label>
                     <input
                       type="number"
+                      min="0"
                       placeholder="0"
                       value={minStoryPoints}
                       onChange={(e) => setMinStoryPoints(e.target.value)}
@@ -939,6 +1161,7 @@ const Stats = () => {
                     <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
                       <input
                         type="number"
+                        min="0"
                         placeholder="0"
                         value={minTimeSpent}
                         onChange={(e) => setMinTimeSpent(e.target.value)}
@@ -1028,18 +1251,16 @@ const Stats = () => {
                   )}
                 </div>
               )}
-                {/* Save/Reset Buttons */}
-            <div className="preferences-buttons">
-              <button onClick={saveUserPreferences} className="save-btn">
-                Save Preferences
-              </button>
-              <button onClick={resetUserPreferences} className="reset-btn">
-                Default Preferences
-              </button>
-              {message && <div className="preferences-message">{message}</div>}
+              <div className="preferences-buttons">
+                <button onClick={saveUserPreferences} className="save-btn">
+                  Save Preferences
+                </button>
+                <button onClick={resetUserPreferences} className="reset-btn">
+                  Default Preferences
+                </button>
+                {message && <div className="preferences-message">{message}</div>}
+              </div>
             </div>
-            </div>
-            
           </div>
           <div className="stats-right">{renderChart()}</div>
         </div>
@@ -1048,7 +1269,8 @@ const Stats = () => {
       <GroupTasksModal
         modalOpen={modalOpen}
         setModalOpen={setModalOpen}
-        selectedGroupTasks={selectedGroupTasks}
+        mainGroupTasks={selectedMainGroupTasks}
+        compGroupTasks={selectedCompGroupTasks}
         openReadOnlyViewTaskModal={openReadOnlyViewTaskModal}
       />
 

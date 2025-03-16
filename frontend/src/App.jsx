@@ -14,7 +14,11 @@ function App() {
         <Route element={<PrivateRoute />}>
           <Route path="/dashboard" element={<Navigate to="/dashboard/boards" replace />} />
           <Route path="/dashboard/*" element={<Dashboard />} />
+
           <Route path="/stats" element={<Stats />} />
+          <Route path="/stats/viewtask/:taskId" element={<Stats />} />
+          <Route path="/stats/grouptasks" element={<Stats />} />
+
           <Route path="/profile" element={<Profile />} />
         </Route>
 
