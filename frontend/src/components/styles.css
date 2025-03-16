@@ -179,6 +179,7 @@ select {
   border-radius: 50%;
   background-color: rgba(0, 0, 0, 0.5);
   color: white;
+  flex-shrink: 0;
 }
 
 .add-board-wrapper {
@@ -1030,6 +1031,7 @@ select {
   background-color: rgba(0, 0, 0, 0.5);
   font-size: 14px;
   font-weight: bold;
+  flex-shrink: 0;
 }
 
 .priority-circle.priority-A1 {
@@ -1987,12 +1989,17 @@ select {
   flex-direction: column;
 }
 
-.schedule-modal h2 {
-  margin-top: 0;
-  padding-top: 4.5px;
-  font-size: 21.6px;
-  display: flex;
-  align-items: center;
+.schedule-modal .modal-content {
+  overflow: visible !important;
+}
+
+.schedule-modal .modal-body .react-datepicker-wrapper,
+.schedule-modal .modal-body .react-datepicker__input-container {
+  width: 99% !important;
+}
+
+.schedule-modal .modal-body .react-datepicker__input-container input {
+  width: 99% !important;
 }
 
 .schedule-modal .modal-body {
@@ -2052,7 +2059,7 @@ select {
 
 /* Unschedule button – styled as a warning/action button */
 .schedule-modal .modal-footer button.unschedule-btn {
-  background-color: #ffc107;
+  background-color: rgb(206, 171, 65);
   color: #000;
   border: none;
   padding: 10.8px 16.2px;
@@ -2065,6 +2072,12 @@ select {
 
 .schedule-modal .modal-footer button.unschedule-btn:hover {
   background-color: #e0a800;
+}
+
+.schedule-modal .modal-footer.footer-custom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 /* Cancel button */
@@ -2082,6 +2095,77 @@ select {
 
 .schedule-modal .modal-footer button.cancel-btn:hover {
   background-color: #cc0000;
+}
+
+.calendar-icon {
+  width: 22.5px;
+  height: 22.5px;
+  margin-left: 8px;
+  color: var(--calendar-color);
+}
+
+.schedule-modal .title-priority {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 6px;
+}
+
+.schedule-modal .title-container .title-label {
+  color: #ddd;
+  font-size: 16.2px;
+  font-weight: bold;
+  margin-bottom: 2px;
+  display: block;
+}
+
+.schedule-modal .title-container .title-text {
+  color: #fff;
+  font-size: 14.4px;
+  padding: 4px;
+  white-space: normal;
+  word-break: break-word;
+}
+
+.schedule-modal .time-label {
+  color: #ddd;
+  font-size: 16.2px;
+  font-weight: bold;
+  margin-bottom: 2px;
+  display: block;
+}
+
+.schedule-modal .date-picker-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.input-mb {
+  margin-bottom: 10px;
+}
+
+.footer-custom {
+  margin-top: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.button-group {
+  display: flex;
+  gap: 10px;
+}
+
+
+/* Group Modal Specific Styles */
+.group-modal-task-list {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+}
+
+.group-modal-task-list > div {
+  flex: 1;
 }
 
 @media (max-width: 768px) {
@@ -2110,5 +2194,9 @@ select {
     width: 100%;
     margin-left: 0;
     margin-top: 10px;
+  }
+
+  .group-modal-task-list {
+    flex-direction: column;
   }
 }

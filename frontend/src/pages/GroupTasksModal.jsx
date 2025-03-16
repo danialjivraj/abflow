@@ -7,11 +7,10 @@ const GroupTasksModal = ({
   mainGroupTasks,
   compGroupTasks,
   openReadOnlyViewTaskModal,
+  comparisonMode,
 }) => {
   if (!modalOpen) return null;
 
-  // Use the groupKey from the main tasks if available, otherwise check comparison tasks,
-  // and fall back to "(group)" if none is found.
   const groupKey =
     mainGroupTasks.length > 0
       ? mainGroupTasks[0].groupKey || "(group)"
@@ -27,7 +26,8 @@ const GroupTasksModal = ({
         </button>
         <h2>Tasks for Group: {groupKey}</h2>
 
-        <div className="modal-task-list">
+        <div className="group-modal-task-list" style={{ display: "flex", gap: "20px" }}>
+          {/* Main Range always shown */}
           <div className="main-tasks-section">
             <h3>Main Range</h3>
             {mainGroupTasks.length > 0 ? (
@@ -54,31 +54,34 @@ const GroupTasksModal = ({
             )}
           </div>
 
-          <div className="comparison-tasks-section">
-            <h3>Comparison Range</h3>
-            {compGroupTasks.length > 0 ? (
-              compGroupTasks.map((task) => (
-                <div
-                  key={task._id}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    openReadOnlyViewTaskModal(task);
-                  }}
-                >
-                  <TaskCard
-                    task={task}
-                    draggable={false}
-                    currentTime={new Date()}
-                    setIsTaskHovered={() => {}}
-                    setIsTaskDropdownOpen={() => {}}
-                    openViewTaskModal={() => {}}
-                  />
-                </div>
-              ))
-            ) : (
-              <p>No tasks for this group in Comparison Range.</p>
-            )}
-          </div>
+          {/* Only show Comparison Range if comparisonMode is ON */}
+          {comparisonMode && (
+            <div className="comparison-tasks-section">
+              <h3>Comparison Range</h3>
+              {compGroupTasks.length > 0 ? (
+                compGroupTasks.map((task) => (
+                  <div
+                    key={task._id}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openReadOnlyViewTaskModal(task);
+                    }}
+                  >
+                    <TaskCard
+                      task={task}
+                      draggable={false}
+                      currentTime={new Date()}
+                      setIsTaskHovered={() => {}}
+                      setIsTaskDropdownOpen={() => {}}
+                      openViewTaskModal={() => {}}
+                    />
+                  </div>
+                ))
+              ) : (
+                <p>No tasks for this group in Comparison Range.</p>
+              )}
+            </div>
+          )}
         </div>
 
         <button className="view-cancel-btn" onClick={() => setModalOpen(false)}>

@@ -87,6 +87,7 @@ const TaskCard = ({
 
         {calendarColor && (
           <svg
+            className="calendar-icon"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
             fill="none"
@@ -95,10 +96,8 @@ const TaskCard = ({
             strokeLinecap="round"
             strokeLinejoin="round"
             style={{
-              width: "22.5px",
-              height: "22.5px",
+              "--calendar-color": calendarColor,
               marginRight: "4px",
-              color: calendarColor,
             }}
           >
             <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />

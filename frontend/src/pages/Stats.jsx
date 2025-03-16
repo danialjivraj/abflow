@@ -19,7 +19,7 @@ import {
   Radar,
   PolarGrid,
   PolarAngleAxis,
-  PolarRadiusAxis
+  PolarRadiusAxis,
 } from "recharts";
 import DatePicker from "react-datepicker";
 import { fetchTasks, fetchColumnOrder } from "../services/tasksService";
@@ -307,10 +307,8 @@ const Stats = () => {
           if (prefs.minTimeSpent) setMinTimeSpent(prefs.minTimeSpent);
           if (prefs.minTimeUnit) setMinTimeUnit(prefs.minTimeUnit);
           if (prefs.scheduledOnly !== undefined) setScheduledOnly(prefs.scheduledOnly);
-          if (prefs.includeNoDueDate !== undefined)
-            setIncludeNoDueDate(prefs.includeNoDueDate);
-          if (prefs.comparisonMode !== undefined)
-            setComparisonMode(prefs.comparisonMode);
+          if (prefs.includeNoDueDate !== undefined) setIncludeNoDueDate(prefs.includeNoDueDate);
+          if (prefs.comparisonMode !== undefined) setComparisonMode(prefs.comparisonMode);
           if (prefs.compStartDate) setCompStartDate(new Date(prefs.compStartDate));
           if (prefs.compEndDate) setCompEndDate(new Date(prefs.compEndDate));
           if (prefs.customStartDate) setCustomStartDate(new Date(prefs.customStartDate));
@@ -327,27 +325,34 @@ const Stats = () => {
   const computeDateRange = () => {
     const today = new Date();
     let startDate, endDate;
+
     switch (timeRangeType) {
       case "week": {
+        // Start on Monday 00:00:00, end on Sunday 23:59:59
         startDate = startOfISOWeek(today);
+        startDate.setHours(0, 0, 0, 0);
         endDate = new Date(startDate);
-        endDate.setDate(startDate.getDate() + 6);
+        endDate.setDate(endDate.getDate() + 6);
+        endDate.setHours(23, 59, 59, 999);
         break;
       }
       case "2weeks": {
+        // Start on Monday 00:00:00, end on Sunday (2 weeks later) 23:59:59
         startDate = startOfISOWeek(today);
+        startDate.setHours(0, 0, 0, 0);
         endDate = new Date(startDate);
-        endDate.setDate(startDate.getDate() + 13);
+        endDate.setDate(endDate.getDate() + 13);
+        endDate.setHours(23, 59, 59, 999);
         break;
       }
       case "month": {
-        startDate = new Date(today.getFullYear(), today.getMonth(), 1);
-        endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+        startDate = new Date(today.getFullYear(), today.getMonth(), 1, 0, 0, 0, 0);
+        endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0, 23, 59, 59, 999);
         break;
       }
       case "year": {
-        startDate = new Date(today.getFullYear(), 0, 1);
-        endDate = new Date(today.getFullYear(), 11, 31);
+        startDate = new Date(today.getFullYear(), 0, 1, 0, 0, 0, 0);
+        endDate = new Date(today.getFullYear(), 11, 31, 23, 59, 59, 999);
         break;
       }
       case "all-time": {
@@ -358,14 +363,20 @@ const Stats = () => {
           );
           startDate = earliest;
         } else {
-          startDate = new Date(today.getFullYear(), 0, 1);
+          startDate = new Date(today.getFullYear(), 0, 1, 0, 0, 0, 0);
         }
-        endDate = today;
+        endDate = new Date();
         break;
       }
       case "custom":
-        startDate = customStartDate;
-        endDate = customEndDate;
+        startDate = customStartDate ? new Date(customStartDate) : null;
+        endDate = customEndDate ? new Date(customEndDate) : null;
+        if (startDate) {
+          startDate.setHours(0, 0, 0, 0);
+        }
+        if (endDate) {
+          endDate.setHours(23, 59, 59, 999);
+        }
         break;
       default:
         break;
@@ -416,7 +427,8 @@ const Stats = () => {
 
     if (dayOfWeekFilters.length > 0) {
       filtered = filtered.filter((task) => {
-        const d = task.status === "completed" ? new Date(task.completedAt) : new Date(task.createdAt);
+        const d =
+          task.status === "completed" ? new Date(task.completedAt) : new Date(task.createdAt);
         return dayOfWeekFilters.includes(format(d, "EEEE"));
       });
     }
@@ -507,10 +519,12 @@ const Stats = () => {
     }
     const mainFiltered = applyAllFilters(tasks, startDate, endDate);
     let mainGrouped = groupTasks(mainFiltered);
+
     if (minTaskCount !== "" && !isNaN(parseInt(minTaskCount, 10))) {
       const minCount = parseInt(minTaskCount, 10);
       mainGrouped = mainGrouped.filter((item) => item.count >= minCount);
     }
+
     if (comparisonMode && compStartDate && compEndDate) {
       const compFiltered = applyAllFilters(tasks, compStartDate, compEndDate);
       let compGrouped = groupTasks(compFiltered);
@@ -519,6 +533,8 @@ const Stats = () => {
         compGrouped = compGrouped.filter((item) => item.count >= minCount);
       }
       const merged = mergeData(mainGrouped, compGrouped);
+
+      // Convert timeSpent from seconds to hours if needed:
       const converted = merged.map((item) => {
         if (yAxisMetric === "timeSpent") {
           return {
@@ -565,7 +581,6 @@ const Stats = () => {
     compEndDate,
   ]);
 
-  // Sort chart data based on sortOrder
   useEffect(() => {
     setChartData((prev) => {
       const sorted = [...prev];
@@ -590,63 +605,16 @@ const Stats = () => {
   }, [location, taskId, tasks]);
 
   const tooltipFormatter = (value) =>
-    yAxisMetric === "timeSpent" ? `${value.toFixed(2)}h` : value;
+    yAxisMetric === "timeSpent" ? `${value.toFixed(2)}h` : value.toFixed(0);
 
-  // -------------------- Custom Dot Components --------------------
-  // For Line and Area charts, using custom dots to enable clicking.
-  const CustomMainDot = (props) => {
-    const { cx, cy, payload, fill } = props;
-    const [hover, setHover] = useState(false);
-    return (
-      <circle
-        cx={cx}
-        cy={cy}
-        r={hover ? 8 : 6}
-        fill={fill}
-        stroke="white"
-        strokeWidth={2}
-        style={{ cursor: "pointer", pointerEvents: "all" }}
-        onMouseEnter={() => setHover(true)}
-        onMouseLeave={() => setHover(false)}
-        onClick={() => {
-          if (payload.mainValue > 0) {
-            handleChartClick({ payload });
-          }
-        }}
-      />
-    );
-  };
+  const axisFormatter = (value) =>
+    yAxisMetric === "timeSpent" ? `${value.toFixed(2)}h` : value.toFixed(0);
 
-  const CustomCompDot = (props) => {
-    const { cx, cy, payload, fill } = props;
-    const [hover, setHover] = useState(false);
-    return (
-      <circle
-        cx={cx}
-        cy={cy}
-        r={hover ? 8 : 6}
-        fill={fill}
-        stroke="white"
-        strokeWidth={2}
-        style={{ cursor: "pointer", pointerEvents: "all" }}
-        onMouseEnter={() => setHover(true)}
-        onMouseLeave={() => setHover(false)}
-        onClick={() => {
-          if (payload.compValue > 0) {
-            handleChartClick({ payload });
-          }
-        }}
-      />
-    );
-  };
-
-  // -------------------- Unified Chart Click Handler --------------------
-  // This function gets both main and comparison tasks and opens one modal.
+  // -------------------- Chart Click Handler --------------------
   const handleChartClick = (data) => {
     if (!data || !data.payload) return;
     const groupKey = data.payload.key;
-  
-    // Get main range tasks using computeDateRange:
+
     const { startDate, endDate } = computeDateRange();
     const mainTasks = applyAllFilters(tasks, startDate, endDate)
       .filter((task) => {
@@ -664,10 +632,10 @@ const Stats = () => {
         }
         return false;
       })
-      .map((task) => ({ ...task, groupKey })); // add groupKey to each task
-  
-    // Get comparison tasks if comparison mode is enabled:
+      .map((task) => ({ ...task, groupKey }));
+
     let compTasks = [];
+
     if (comparisonMode && compStartDate && compEndDate) {
       compTasks = applyAllFilters(tasks, compStartDate, compEndDate)
         .filter((task) => {
@@ -685,15 +653,14 @@ const Stats = () => {
           }
           return false;
         })
-        .map((task) => ({ ...task, groupKey })); // add groupKey here as well
+        .map((task) => ({ ...task, groupKey }));
     }
-  
+
     setSelectedMainGroupTasks(mainTasks);
     setSelectedCompGroupTasks(compTasks);
     setModalOpen(true);
     navigate(`/stats/grouptasks`);
   };
-  
 
   const openReadOnlyViewTaskModal = (task) => {
     setSelectedTask(task);
@@ -785,13 +752,26 @@ const Stats = () => {
     if (!chartData || chartData.length === 0)
       return <p>No data available for the selected time range.</p>;
     const hasComparison = comparisonMode && compStartDate && compEndDate;
+
     if (chartType === "area") {
       return (
         <ResponsiveContainer width="100%" height={500}>
-          <AreaChart data={chartData}>
+          <AreaChart
+            data={chartData}
+            onClick={(e) => {
+              if (
+                e &&
+                e.activePayload &&
+                e.activePayload.length > 0 &&
+                e.activePayload[0].payload
+              ) {
+                handleChartClick({ payload: e.activePayload[0].payload });
+              }
+            }}
+          >
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="key" tick={{ fill: "white" }} />
-            <YAxis tick={{ fill: "white" }} tickFormatter={(value) => formatToHoursIfTimeSpent(value, yAxisMetric)} />
+            <YAxis tick={{ fill: "white" }} tickFormatter={axisFormatter} />
             <Tooltip
               formatter={tooltipFormatter}
               cursor={{ fill: "#4a4a4a" }}
@@ -811,8 +791,7 @@ const Stats = () => {
               stroke="#446688"
               fill="#446688"
               name="Main Range"
-              dot={<CustomMainDot />}
-              activeDot={<CustomMainDot />}
+              dot={false}
             />
             {hasComparison && (
               <Area
@@ -821,8 +800,7 @@ const Stats = () => {
                 stroke="#FF8042"
                 fill="#FF8042"
                 name="Comparison Range"
-                dot={<CustomCompDot />}
-                activeDot={<CustomCompDot />}
+                dot={false}
               />
             )}
           </AreaChart>
@@ -831,10 +809,22 @@ const Stats = () => {
     } else if (chartType === "bar") {
       return (
         <ResponsiveContainer width="100%" height={500}>
-          <BarChart data={chartData}>
+          <BarChart
+            data={chartData}
+            onClick={(e) => {
+              if (
+                e &&
+                e.activePayload &&
+                e.activePayload.length > 0 &&
+                e.activePayload[0].payload
+              ) {
+                handleChartClick({ payload: e.activePayload[0].payload });
+              }
+            }}
+          >
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="key" tick={{ fill: "white" }} />
-            <YAxis tick={{ fill: "white" }} tickFormatter={(value) => formatToHoursIfTimeSpent(value, yAxisMetric)} />
+            <YAxis tick={{ fill: "white" }} tickFormatter={axisFormatter} />
             <Tooltip
               formatter={tooltipFormatter}
               cursor={{ fill: "#4a4a4a" }}
@@ -848,19 +838,9 @@ const Stats = () => {
               itemStyle={{ color: "#fff" }}
             />
             <Legend />
-            <Bar
-              dataKey="mainValue"
-              fill="#446688"
-              name="Main Range"
-              onClick={(data) => handleChartClick(data)}
-            />
+            <Bar dataKey="mainValue" fill="#446688" name="Main Range" />
             {hasComparison && (
-              <Bar
-                dataKey="compValue"
-                fill="#FF8042"
-                name="Comparison Range"
-                onClick={(data) => handleChartClick(data)}
-              />
+              <Bar dataKey="compValue" fill="#FF8042" name="Comparison Range" />
             )}
           </BarChart>
         </ResponsiveContainer>
@@ -868,10 +848,22 @@ const Stats = () => {
     } else if (chartType === "line") {
       return (
         <ResponsiveContainer width="100%" height={500}>
-          <LineChart data={chartData}>
+          <LineChart
+            data={chartData}
+            onClick={(e) => {
+              if (
+                e &&
+                e.activePayload &&
+                e.activePayload.length > 0 &&
+                e.activePayload[0].payload
+              ) {
+                handleChartClick({ payload: e.activePayload[0].payload });
+              }
+            }}
+          >
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="key" tick={{ fill: "white" }} />
-            <YAxis tick={{ fill: "white" }} tickFormatter={(value) => formatToHoursIfTimeSpent(value, yAxisMetric)} />
+            <YAxis tick={{ fill: "white" }} tickFormatter={axisFormatter} />
             <Tooltip
               formatter={tooltipFormatter}
               cursor={{ fill: "#4a4a4a" }}
@@ -891,8 +883,7 @@ const Stats = () => {
               stroke="#446688"
               name="Main Range"
               strokeWidth={3}
-              dot={<CustomMainDot />}
-              activeDot={<CustomMainDot />}
+              dot={false}
             />
             {hasComparison && (
               <Line
@@ -901,8 +892,7 @@ const Stats = () => {
                 stroke="#FF8042"
                 name="Comparison Range"
                 strokeWidth={3}
-                dot={<CustomCompDot />}
-                activeDot={<CustomCompDot />}
+                dot={false}
               />
             )}
           </LineChart>
@@ -912,6 +902,8 @@ const Stats = () => {
       if (hasComparison) {
         return <p>Comparison not supported for this chart type.</p>;
       }
+      // percentage calculation
+      const total = chartData.reduce((acc, item) => acc + item.mainValue, 0);
       return (
         <ResponsiveContainer width="100%" height={500}>
           <PieChart>
@@ -923,9 +915,12 @@ const Stats = () => {
               cy="50%"
               outerRadius={200}
               fill="#446688"
-              label={(entry) =>
-                yAxisMetric === "timeSpent" ? `${entry.value.toFixed(2)}h` : `${entry.value}`
-              }
+              label={(entry) => {
+                const percentage = total > 0 ? (entry.value / total) * 100 : 0;
+                return yAxisMetric === "timeSpent"
+                  ? `${entry.value.toFixed(2)}h (${percentage.toFixed(0)}%)`
+                  : `${entry.value.toFixed(0)} (${percentage.toFixed(0)}%)`;
+              }}
               onClick={handleChartClick}
             >
               {chartData.map((entry, index) => (
@@ -967,7 +962,7 @@ const Stats = () => {
             <PolarRadiusAxis
               tick={{ fill: "white" }}
               tickFormatter={(value) =>
-                yAxisMetric === "timeSpent" ? `${value.toFixed(2)}h` : value
+                yAxisMetric === "timeSpent" ? `${value.toFixed(2)}h` : value.toFixed(2)
               }
             />
             <Tooltip
@@ -1002,7 +997,6 @@ const Stats = () => {
         </ResponsiveContainer>
       );
     }
-    
     return <p>Comparison not supported for this chart type.</p>;
   };
 
@@ -1032,7 +1026,7 @@ const Stats = () => {
                   <DatePicker
                     selected={customStartDate}
                     onChange={(date) => setCustomStartDate(date)}
-                    dateFormat="yyyy-MM-dd"
+                    dateFormat="d MMMM, yyyy"
                     placeholderText="Select start date"
                     disabledKeyboardNavigation
                   />
@@ -1040,7 +1034,7 @@ const Stats = () => {
                   <DatePicker
                     selected={customEndDate}
                     onChange={(date) => setCustomEndDate(date)}
-                    dateFormat="yyyy-MM-dd"
+                    dateFormat="d MMMM, yyyy"
                     placeholderText="Select end date"
                     disabledKeyboardNavigation
                   />
@@ -1232,7 +1226,7 @@ const Stats = () => {
                         <DatePicker
                           selected={compStartDate}
                           onChange={(date) => setCompStartDate(date)}
-                          dateFormat="yyyy-MM-dd"
+                          dateFormat="d MMMM, yyyy"
                           placeholderText="Select start date"
                           disabledKeyboardNavigation
                         />
@@ -1242,7 +1236,7 @@ const Stats = () => {
                         <DatePicker
                           selected={compEndDate}
                           onChange={(date) => setCompEndDate(date)}
-                          dateFormat="yyyy-MM-dd"
+                          dateFormat="d MMMM, yyyy"
                           placeholderText="Select end date"
                           disabledKeyboardNavigation
                         />
@@ -1272,6 +1266,7 @@ const Stats = () => {
         mainGroupTasks={selectedMainGroupTasks}
         compGroupTasks={selectedCompGroupTasks}
         openReadOnlyViewTaskModal={openReadOnlyViewTaskModal}
+        comparisonMode={comparisonMode}
       />
 
       {isViewTaskModalOpen && (

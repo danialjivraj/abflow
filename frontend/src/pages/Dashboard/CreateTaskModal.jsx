@@ -105,7 +105,7 @@ const CreateTaskModal = ({
                   }
                 }}
                 showTimeSelect
-                dateFormat="MMMM d, yyyy h:mm aa"
+                dateFormat="d MMMM, yyyy h:mm aa"
                 className="custom-date-picker"
                 placeholderText="Select due date"
                 disabledKeyboardNavigation

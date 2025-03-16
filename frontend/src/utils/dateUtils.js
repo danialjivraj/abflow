@@ -111,14 +111,13 @@ export const formatDateWithoutGMT = (dateValue) => {
   if (!dateValue) return "";
   const dateObj = typeof dateValue === "string" ? new Date(dateValue) : dateValue;
   if (isNaN(dateObj)) return "";
-  return dateObj.toLocaleString("en-US", {
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true,
-  });
+  
+  const day = dateObj.getDate();
+  const month = dateObj.toLocaleString("en-GB", { month: "long" });
+  const year = dateObj.getFullYear();
+  const time = dateObj.toLocaleString("en-GB", { hour: "numeric", minute: "2-digit", hour12: true });
+  
+  return `${day} ${month}, ${year} at ${time}`;
 };
 
 /**
