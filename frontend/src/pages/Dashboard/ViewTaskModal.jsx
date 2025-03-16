@@ -773,19 +773,19 @@ const ViewTaskModal = ({
             <div className="field-row">
               <label>Timer:</label>
               {readOnly || editableTask.status === "completed" ? (
-                <div className="view-task-field non-editable-field">
                   <div
-                    className="timer-toggle-container off disabled"
+                    className={`timer-toggle-container ${editableTask.isTimerRunning ? "on" : "off"} disabled`}
                     style={{ cursor: "not-allowed" }}
                   >
                     <span className="toggle-label-left">OFF</span>
-                    <div className="toggle-slider">
+
+                    <div className={`toggle-slider ${editableTask.isTimerRunning ? "active" : ""}`}>
                       <div className="toggle-knob">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           viewBox="0 0 24 24"
                           fill="none"
-                          stroke="#666"
+                          stroke={editableTask.isTimerRunning ? "#fff" : "#666"}
                           strokeWidth="2"
                           strokeLinecap="round"
                           strokeLinejoin="round"
@@ -801,7 +801,6 @@ const ViewTaskModal = ({
                       </div>
                     </div>
                     <span className="toggle-label-right">ON</span>
-                  </div>
                 </div>
               ) : (
                 <div
