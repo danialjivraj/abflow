@@ -483,7 +483,7 @@ const Stats = () => {
   // -------------------- Grouping Functions --------------------
   const groupTasks = (tasksList) => {
     const groupMap = {};
-
+  
     tasksList.forEach((task) => {
       let d = task.status === "completed" ? new Date(task.completedAt) : new Date(task.createdAt);
       let key;
@@ -501,17 +501,17 @@ const Stats = () => {
       groupMap[key].timeSpent += task.timeSpent || 0;
       groupMap[key].storyPoints += task.storyPoints || 0;
     });
-
+  
     if (includeZeroMetrics) {
       let possibleKeys = [];
       if (xAxisField === "day") {
-        possibleKeys = dayOptions;
+        possibleKeys = dayOfWeekFilters.length > 0 ? dayOfWeekFilters : dayOptions;
       } else if (xAxisField === "priority") {
-        possibleKeys = allowedPriorities;
+        possibleKeys = priorityFilters.length > 0 ? priorityFilters : allowedPriorities;
       } else if (xAxisField === "status") {
-        possibleKeys = Array.from(
-          new Set([...(columnsMapping ? Object.values(columnsMapping) : []), "Completed"])
-        );
+        possibleKeys = statusFilters.length > 0 
+          ? statusFilters.map(val => val === "completed" ? "Completed" : (columnsMapping[val] || val))
+          : Array.from(new Set([...(columnsMapping ? Object.values(columnsMapping) : []), "Completed"]));
       }
       possibleKeys.forEach((key) => {
         if (!groupMap[key]) {
@@ -519,9 +519,9 @@ const Stats = () => {
         }
       });
     }
-
+  
     let groupedData = Object.values(groupMap);
-
+  
     if (xAxisField === "status") {
       if (taskType === "active") {
         groupedData = groupedData.filter((item) => item.key !== "Completed");
@@ -529,9 +529,10 @@ const Stats = () => {
         groupedData = groupedData.filter((item) => item.key === "Completed");
       }
     }
-
+  
     return groupedData;
   };
+  
 
   const mergeData = (mainData, compData) => {
     const merged = {};
