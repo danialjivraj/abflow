@@ -26,12 +26,14 @@ import { fetchTasks, fetchColumnOrder } from "../services/tasksService";
 import { fetchPreferences, updatePreferences } from "../services/preferencesService";
 import { auth } from "../firebase";
 import Layout from "../components/Layout";
+import TopBar from "../components/TopBar";
 import { startOfISOWeek, format } from "date-fns";
 import "react-datepicker/dist/react-datepicker.css";
 import { formatToHoursIfTimeSpent } from "../utils/dateUtils";
 import ViewTaskModal from "./Dashboard/ViewTaskModal";
 import GroupTasksModal from "./GroupTasksModal";
 import { useParams, useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { getTopBarConfig } from "../config/topBarConfig";
 
 // Options for multi-selects
 const allowedPriorities = ["A1", "A2", "A3", "B1", "B2", "B3", "C1", "C2", "C3", "D", "E"];
@@ -106,7 +108,7 @@ const Stats = () => {
   const [customStartDate, setCustomStartDate] = useState(null);
   const [customEndDate, setCustomEndDate] = useState(null);
   const [taskType, setTaskType] = useState("active");
-  const [chartType, setChartType] = useState("bar");
+  const [chartType, setChartType] = useState("bar"); // initial default (will update if prefs exist)
   const [xAxisField, setXAxisField] = useState("day");
   const [yAxisMetric, setYAxisMetric] = useState("count");
   const [sortOrder, setSortOrder] = useState("none");
@@ -126,6 +128,9 @@ const Stats = () => {
   const [comparisonMode, setComparisonMode] = useState(false);
   const [compStartDate, setCompStartDate] = useState(null);
   const [compEndDate, setCompEndDate] = useState(null);
+
+  // New state: wait until preferences are loaded
+  const [preferencesLoaded, setPreferencesLoaded] = useState(false);
 
   // Chart Data
   const [chartData, setChartData] = useState([]);
@@ -257,7 +262,9 @@ const Stats = () => {
         if (!currentUser) return;
         const userId = currentUser.uid;
         const res = await fetchTasks(userId);
-        const tasksData = Array.isArray(res.data) ? res.data : res.data.tasks || [];
+        const tasksData = Array.isArray(res.data)
+          ? res.data
+          : res.data.tasks || [];
         setTasks(tasksData);
       } catch (error) {
         console.error("Error fetching tasks:", error);
@@ -332,6 +339,7 @@ const Stats = () => {
           console.error("Error loading preferences:", error);
         }
       }
+      setPreferencesLoaded(true);
     };
     loadPreferences();
   }, [searchParams]);
@@ -384,12 +392,8 @@ const Stats = () => {
       case "custom":
         startDate = customStartDate ? new Date(customStartDate) : null;
         endDate = customEndDate ? new Date(customEndDate) : null;
-        if (startDate) {
-          startDate.setHours(0, 0, 0, 0);
-        }
-        if (endDate) {
-          endDate.setHours(23, 59, 59, 999);
-        }
+        if (startDate) startDate.setHours(0, 0, 0, 0);
+        if (endDate) endDate.setHours(23, 59, 59, 999);
         break;
       default:
         break;
@@ -411,7 +415,6 @@ const Stats = () => {
         const d = new Date(task.completedAt);
         return d >= startDate && d <= endDate;
       } else {
-        // "both"
         let d;
         if (task.status === "completed") {
           if (!task.completedAt) return false;
@@ -441,8 +444,7 @@ const Stats = () => {
 
     if (dayOfWeekFilters.length > 0) {
       filtered = filtered.filter((task) => {
-        const d =
-          task.status === "completed" ? new Date(task.completedAt) : new Date(task.createdAt);
+        const d = task.status === "completed" ? new Date(task.completedAt) : new Date(task.createdAt);
         return dayOfWeekFilters.includes(format(d, "EEEE"));
       });
     }
@@ -481,20 +483,16 @@ const Stats = () => {
   // -------------------- Grouping Functions --------------------
   const groupTasks = (tasksList) => {
     const groupMap = {};
-  
+
     tasksList.forEach((task) => {
-      let d = task.status === "completed"
-        ? new Date(task.completedAt)
-        : new Date(task.createdAt);
+      let d = task.status === "completed" ? new Date(task.completedAt) : new Date(task.createdAt);
       let key;
       if (xAxisField === "day") {
         key = format(d, "EEEE");
       } else if (xAxisField === "priority") {
         key = task.priority || "None";
       } else if (xAxisField === "status") {
-        key = task.status === "completed"
-          ? "Completed"
-          : columnsMapping[task.status] || task.status;
+        key = task.status === "completed" ? "Completed" : columnsMapping[task.status] || task.status;
       }
       if (!groupMap[key]) {
         groupMap[key] = { key, count: 0, timeSpent: 0, storyPoints: 0 };
@@ -503,7 +501,7 @@ const Stats = () => {
       groupMap[key].timeSpent += task.timeSpent || 0;
       groupMap[key].storyPoints += task.storyPoints || 0;
     });
-  
+
     if (includeZeroMetrics) {
       let possibleKeys = [];
       if (xAxisField === "day") {
@@ -512,10 +510,7 @@ const Stats = () => {
         possibleKeys = allowedPriorities;
       } else if (xAxisField === "status") {
         possibleKeys = Array.from(
-          new Set([
-            ...(columnsMapping ? Object.values(columnsMapping) : []),
-            "Completed",
-          ])
+          new Set([...(columnsMapping ? Object.values(columnsMapping) : []), "Completed"])
         );
       }
       possibleKeys.forEach((key) => {
@@ -524,9 +519,9 @@ const Stats = () => {
         }
       });
     }
-  
+
     let groupedData = Object.values(groupMap);
-  
+
     if (xAxisField === "status") {
       if (taskType === "active") {
         groupedData = groupedData.filter((item) => item.key !== "Completed");
@@ -534,10 +529,10 @@ const Stats = () => {
         groupedData = groupedData.filter((item) => item.key === "Completed");
       }
     }
-  
+
     return groupedData;
   };
-  
+
   const mergeData = (mainData, compData) => {
     const merged = {};
     mainData.forEach((item) => {
@@ -599,7 +594,6 @@ const Stats = () => {
       });
       setChartData(converted);
     } else {
-      // Single range only
       const single = mainGrouped.map((item) => {
         if (yAxisMetric === "timeSpent") {
           return { key: item.key, mainValue: item[yAxisMetric] / 3600 };
@@ -635,7 +629,6 @@ const Stats = () => {
     compEndDate,
   ]);
 
-  // After the final chartData is formed, we sort if needed
   useEffect(() => {
     setChartData((prev) => {
       const sorted = [...prev];
@@ -662,7 +655,6 @@ const Stats = () => {
     }
   }, [location, taskId, tasks]);
 
-  // Effect 1: Open or close the group tasks modal based only on pathname and groupKey.
   useEffect(() => {
     if (location.pathname.includes("/grouptasks") && groupKey) {
       setModalOpen(true);
@@ -671,7 +663,6 @@ const Stats = () => {
     }
   }, [location.pathname, groupKey]);
 
-  // Effect 2: When the modal is open, update the selected tasks for that group.
   useEffect(() => {
     if (!modalOpen || !groupKey) return;
     const { startDate, endDate } = computeDateRange();
@@ -683,10 +674,7 @@ const Stats = () => {
         } else if (xAxisField === "priority") {
           return (task.priority || "None") === groupKey;
         } else if (xAxisField === "status") {
-          const statusLabel =
-            task.status === "completed"
-              ? "Completed"
-              : columnsMapping[task.status] || task.status;
+          const statusLabel = task.status === "completed" ? "Completed" : columnsMapping[task.status] || task.status;
           return statusLabel === groupKey;
         }
         return false;
@@ -703,10 +691,7 @@ const Stats = () => {
           } else if (xAxisField === "priority") {
             return (task.priority || "None") === groupKey;
           } else if (xAxisField === "status") {
-            const statusLabel =
-              task.status === "completed"
-                ? "Completed"
-                : columnsMapping[task.status] || task.status;
+            const statusLabel = task.status === "completed" ? "Completed" : columnsMapping[task.status] || task.status;
             return statusLabel === groupKey;
           }
           return false;
@@ -715,20 +700,8 @@ const Stats = () => {
     }
     setSelectedMainGroupTasks(mainTasks);
     setSelectedCompGroupTasks(compTasks);
-  }, [
-    modalOpen,
-    tasks,
-    xAxisField,
-    columnsMapping,
-    comparisonMode,
-    compStartDate,
-    compEndDate,
-    groupKey,
-  ]);
+  }, [modalOpen, tasks, xAxisField, columnsMapping, comparisonMode, compStartDate, compEndDate, groupKey]);
 
-  // When the group tasks modal is closed but the URL still contains the grouptasks route,
-  // navigate back to /stats (preserving query parameters) so the URL is cleaned.
-  // This effect now only triggers if the user explicitly closed the modal.
   useEffect(() => {
     if (userClosedModal && location.pathname.includes("/grouptasks")) {
       navigate(`/stats${location.search}`);
@@ -736,11 +709,9 @@ const Stats = () => {
     }
   }, [userClosedModal, location.pathname, location.search, navigate]);
 
-  // -------------------- Chart Click Handler --------------------
   const handleChartClick = (data) => {
     if (!data || !data.payload) return;
     const clickedKey = data.payload.key;
-
     const { startDate, endDate } = computeDateRange();
     const mainTasks = applyAllFilters(tasks, startDate, endDate)
       .filter((task) => {
@@ -750,10 +721,7 @@ const Stats = () => {
         } else if (xAxisField === "priority") {
           return (task.priority || "None") === clickedKey;
         } else if (xAxisField === "status") {
-          const statusLabel =
-            task.status === "completed"
-              ? "Completed"
-              : columnsMapping[task.status] || task.status;
+          const statusLabel = task.status === "completed" ? "Completed" : columnsMapping[task.status] || task.status;
           return statusLabel === clickedKey;
         }
         return false;
@@ -770,10 +738,7 @@ const Stats = () => {
           } else if (xAxisField === "priority") {
             return (task.priority || "None") === clickedKey;
           } else if (xAxisField === "status") {
-            const statusLabel =
-              task.status === "completed"
-                ? "Completed"
-                : columnsMapping[task.status] || task.status;
+            const statusLabel = task.status === "completed" ? "Completed" : columnsMapping[task.status] || task.status;
             return statusLabel === clickedKey;
           }
           return false;
@@ -787,7 +752,6 @@ const Stats = () => {
     navigate(`/stats/grouptasks/${clickedKey}${location.search}`);
   };
 
-  // -------------------- Open/Close View Task Modal --------------------
   const openReadOnlyViewTaskModal = (task) => {
     setSelectedTask(task);
     setIsViewTaskModalOpen(true);
@@ -808,7 +772,6 @@ const Stats = () => {
     }
   };
 
-  // -------------------- Save & Reset Preferences --------------------
   const saveUserPreferences = async () => {
     const currentUser = auth.currentUser;
     if (!currentUser) return;
@@ -882,13 +845,11 @@ const Stats = () => {
     }
   };
 
-  // -------------------- Helper: Close Group Tasks Modal (User Action) --------------------
   const closeGroupTasksModal = () => {
     setModalOpen(false);
     setUserClosedModal(true);
   };
 
-  // -------------------- Render Chart --------------------
   const tooltipFormatter = (value) =>
     yAxisMetric === "timeSpent" ? `${value.toFixed(2)}h` : value.toFixed(0);
 
@@ -1032,7 +993,6 @@ const Stats = () => {
         </ResponsiveContainer>
       );
     } else if (chartType === "pie") {
-      // Not supporting comparison for pie
       if (hasComparison) {
         return <p>Comparison not supported for this chart type.</p>;
       }
@@ -1132,9 +1092,20 @@ const Stats = () => {
     return <p>Comparison not supported for this chart type.</p>;
   };
 
+  // If preferences haven't loaded, show a loading indicator
+  if (!preferencesLoaded) {
+    return <div>Loading preferences...</div>;
+  }
+
   // -------------------- Render --------------------
   return (
     <Layout>
+      <TopBar
+        buttons={getTopBarConfig(setChartType)["/stats"]}
+        openModal={() => {}}
+        navigate={navigate}
+        activeChartType={chartType}
+      />
       <div className="stats-page">
         <h1 className="stats-title">Stats</h1>
         <div className="stats-container">
@@ -1181,16 +1152,6 @@ const Stats = () => {
                 </select>
               </div>
               <div className="filter-group">
-                <label>Chart Type</label>
-                <select value={chartType} onChange={(e) => setChartType(e.target.value)}>
-                  <option value="bar">Bar Chart</option>
-                  <option value="line">Line Chart</option>
-                  <option value="pie">Pie Chart</option>
-                  <option value="area">Area Chart</option>
-                  <option value="radar">Radar Chart</option>
-                </select>
-              </div>
-              <div className="filter-group">
                 <label>X-Axis Field</label>
                 <select value={xAxisField} onChange={(e) => setXAxisField(e.target.value)}>
                   <option value="day">Day</option>
@@ -1215,10 +1176,7 @@ const Stats = () => {
                 </select>
               </div>
               <div className="filter-group">
-                <button
-                  onClick={() => setShowAdvancedFilters((prev) => !prev)}
-                  className="toggle-btn"
-                >
+                <button onClick={() => setShowAdvancedFilters((prev) => !prev)} className="toggle-btn">
                   {showAdvancedFilters ? "Hide Advanced ▲" : "Show Advanced ▼"}
                 </button>
               </div>
@@ -1338,7 +1296,6 @@ const Stats = () => {
                       onChange={(e) => setScheduledOnly(e.target.checked)}
                     />
                   </div>
-                  {/* Include Zero Metrics appears before Include Tasks Without Due Date */}
                   <div className="filter-group">
                     <label>Include Zero Metrics</label>
                     <input
@@ -1411,8 +1368,8 @@ const Stats = () => {
         compGroupTasks={selectedCompGroupTasks}
         openReadOnlyViewTaskModal={openReadOnlyViewTaskModal}
         comparisonMode={comparisonMode}
+        selectedGroup={groupKey}
       />
-
       {isViewTaskModalOpen && (
         <ViewTaskModal
           isModalOpen={isViewTaskModalOpen}

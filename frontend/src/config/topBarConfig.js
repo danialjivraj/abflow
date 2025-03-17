@@ -21,6 +21,16 @@ export const topBarConfig = {
       className: "create-top-bar-task-btn",
     },
   ],
-  "/stats": [],
   "/profile": [],
+  "/stats": [],
 };
+
+export const getTopBarConfig = (setChartType) => ({
+  "/stats": [
+    { label: "Bar", value: "bar", onClick: (_, navigate) => setChartType("bar"), className: "top-bar-button" },
+    { label: "Line", value: "line", onClick: (_, navigate) => setChartType("line"), className: "top-bar-button" },
+    { label: "Pie", value: "pie", onClick: (_, navigate) => setChartType("pie"), className: "top-bar-button" },
+    { label: "Area", value: "area", onClick: (_, navigate) => setChartType("area"), className: "top-bar-button" },
+    { label: "Radar", value: "radar", onClick: (_, navigate) => setChartType("radar"), className: "top-bar-button" },
+  ],
+});

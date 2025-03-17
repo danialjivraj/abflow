@@ -8,15 +8,16 @@ const GroupTasksModal = ({
   compGroupTasks,
   openReadOnlyViewTaskModal,
   comparisonMode,
+  selectedGroup,
 }) => {
   if (!modalOpen) return null;
 
   const groupKey =
     mainGroupTasks.length > 0
-      ? mainGroupTasks[0].groupKey || "(group)"
+      ? mainGroupTasks[0].groupKey
       : compGroupTasks.length > 0
-      ? compGroupTasks[0].groupKey || "(group)"
-      : "(group)";
+      ? compGroupTasks[0].groupKey
+      : selectedGroup;
 
   return (
     <div className="modal-overlay" onClick={() => setModalOpen(false)}>
