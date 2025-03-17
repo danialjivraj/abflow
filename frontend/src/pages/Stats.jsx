@@ -344,7 +344,7 @@ const Stats = () => {
         break;
       }
       case "2weeks": {
-        startDate = startOfISOWeek(today);
+        startDate = startOfISOWeek(new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000));
         startDate.setHours(0, 0, 0, 0);
         endDate = new Date(startDate);
         endDate.setDate(endDate.getDate() + 13);
@@ -822,7 +822,7 @@ const Stats = () => {
   // -------------------- Render Chart --------------------
   const tooltipFormatter = (value) =>
     yAxisMetric === "timeSpent" ? `${value.toFixed(2)}h` : value.toFixed(0);
-
+  
   const axisFormatter = (value) =>
     yAxisMetric === "timeSpent" ? `${value.toFixed(2)}h` : value.toFixed(0);
 
@@ -997,7 +997,7 @@ const Stats = () => {
                 const percentage = total > 0 ? (entry.value / total) * 100 : 0;
                 return yAxisMetric === "timeSpent"
                   ? `${entry.value.toFixed(2)}h (${percentage.toFixed(2)}%)`
-                  : `${entry.value.toFixed(2)} (${percentage.toFixed(2)}%)`;
+                  : `${entry.value.toFixed(0)} (${percentage.toFixed(2)}%)`;
               }}
               onClick={handleChartClick}
             >
@@ -1040,7 +1040,7 @@ const Stats = () => {
             <PolarRadiusAxis
               tick={{ fill: "white" }}
               tickFormatter={(value) =>
-                yAxisMetric === "timeSpent" ? `${value.toFixed(2)}h` : value.toFixed(2)
+                yAxisMetric === "timeSpent" ? `${value.toFixed(2)}h` : value.toFixed(0)
               }
             />
             <Tooltip
