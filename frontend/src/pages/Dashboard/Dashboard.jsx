@@ -4,6 +4,7 @@ import TopBar from "../../components/TopBar";
 import { topBarConfig } from "../../config/topBarConfig";
 import CreateTaskModal from "./CreateTaskModal";
 import ViewTaskModal from "./ViewTaskModal";
+import ScheduleEditModal from "./ScheduleEditModal";
 import { auth } from "../../firebase";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import {
@@ -19,6 +20,7 @@ import {
   stopTimerAPI,
   deleteTaskAPI,
   updateTask,
+  completeTask,
 } from "../../services/tasksService";
 import { formatDueDate } from "../../utils/dateUtils";
 import BoardsView from "./BoardsView";
@@ -27,7 +29,6 @@ import ScheduleView from "./ScheduleView";
 import "../../components/styles.css";
 import "../../components/topBar.css";
 import "../../components/tipTapEditor.css";
-import { completeTask } from "../../services/tasksService";
 
 const Dashboard = () => {
   // ---------------------- state and refs ----------------------
@@ -55,15 +56,17 @@ const Dashboard = () => {
   const [dueDateWarning, setDueDateWarning] = useState("");
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
+  const [completedTasks, setCompletedTasks] = useState([]);
+  const [scheduledAtShortcut, setScheduledAtShortcut] = useState(null);
+  const [scheduledEndShortcut, setScheduledEndShortcut] = useState(null);
+
+  // New state for ScheduleEditModal routing:
+  const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
+  const [selectedScheduleEvent, setSelectedScheduleEvent] = useState(null);
 
   const navigate = useNavigate();
   const { taskId } = useParams();
   const location = useLocation();
-
-  const [completedTasks, setCompletedTasks] = useState([]);
-
-  const [scheduledAtShortcut, setScheduledAtShortcut] = useState(null);
-  const [scheduledEndShortcut, setScheduledEndShortcut] = useState(null);
 
   // ---------------------- side effects ----------------------
   useEffect(() => {
@@ -131,6 +134,7 @@ const Dashboard = () => {
     return () => clearInterval(interval);
   }, []);
 
+  // For view task modal routing
   useEffect(() => {
     const match = location.pathname.match(/\/viewtask\/([^/]+)/);
     if (match) {
@@ -161,6 +165,36 @@ const Dashboard = () => {
       setIsModalOpen(false);
     }
   }, [location]);
+
+  useEffect(() => {
+    const match = location.pathname.match(/\/dashboard\/schedule\/editevent\/([^/]+)/);
+    if (match) {
+      const eventId = match[1];
+      const allTasks = Object.values(columns).flatMap((col) => col.items);
+      const foundTask = allTasks.find((task) => task._id === eventId);
+      if (foundTask) {
+        const eventData = {
+          id: foundTask._id,
+          title: foundTask.title,
+          start: foundTask.scheduledAt ? new Date(foundTask.scheduledAt) : new Date(),
+          end: foundTask.scheduledEnd
+            ? new Date(foundTask.scheduledEnd)
+            : new Date(new Date().getTime() + 60 * 60 * 1000),
+          priority: foundTask.priority,
+          task: foundTask,
+          isUnscheduled: !foundTask.scheduledAt,
+        };
+        setSelectedScheduleEvent(eventData);
+        setIsScheduleModalOpen(true);
+      } else {
+        setSelectedScheduleEvent(null);
+        setIsScheduleModalOpen(false);
+      }
+    } else {
+      setSelectedScheduleEvent(null);
+      setIsScheduleModalOpen(false);
+    }
+  }, [location, columns]);
 
   // ---------------------- updater for task changes ----------------------
   const updateTaskInState = (updatedTask) => {
@@ -205,6 +239,40 @@ const Dashboard = () => {
     setSelectedTask(null);
     setIsViewModalOpen(false);
     navigate(baseRoute);
+  };
+
+  const closeScheduleModal = () => {
+    setSelectedScheduleEvent(null);
+    setIsScheduleModalOpen(false);
+    navigate("/dashboard/schedule");
+  };
+
+  const handleScheduleModalSave = (updatedEvent) => {
+    const updatedTask = {
+      ...updatedEvent.task,
+      scheduledAt: updatedEvent.start.toISOString(),
+      scheduledEnd: updatedEvent.end.toISOString(),
+    };
+    updateTask(updatedTask)
+      .then((response) => {
+        updateTaskInState(response.data);
+      })
+      .catch((err) => console.error("Error updating scheduled task:", err));
+    closeScheduleModal();
+  };
+
+  const handleScheduleModalUnschedule = (event) => {
+    const updatedTask = {
+      ...event.task,
+      scheduledAt: null,
+      scheduledEnd: null,
+    };
+    updateTask(updatedTask)
+      .then((response) => {
+        updateTaskInState(response.data);
+      })
+      .catch((err) => console.error("Error unscheduling task:", err));
+    closeScheduleModal();
   };
 
   const handleCreateBoard = async () => {
@@ -358,7 +426,7 @@ const Dashboard = () => {
       console.error("Error stopping timer:", error);
     }
   };
-  
+
   const resetForm = () => {
     setNewTaskTitle("");
     setSelectedPriority("A1");
@@ -534,15 +602,15 @@ const Dashboard = () => {
     } else if (location.pathname.startsWith("/dashboard/schedule")) {
       const currentTasks = Object.values(columns).flatMap((col) => col.items);
       return (
-      <ScheduleView
-        tasks={currentTasks}
-        updateTaskInState={updateTaskInState}
-        onCreateTaskShortcut={(start, end) => {
-          setScheduledAtShortcut(start);
-          setScheduledEndShortcut(end);
-          navigate(`${baseRoute}/createtask`);
-        }}
-      />
+        <ScheduleView
+          tasks={currentTasks}
+          updateTaskInState={updateTaskInState}
+          onCreateTaskShortcut={(start, end) => {
+            setScheduledAtShortcut(start);
+            setScheduledEndShortcut(end);
+            navigate(`${baseRoute}/createtask`);
+          }}
+        />
       );
     } else if (location.pathname.startsWith("/dashboard/boards")) {
       return (
@@ -619,6 +687,14 @@ const Dashboard = () => {
         startTimer={startTimerAPI}
         stopTimer={stopTimerAPI}
         setCompletedTasks={setCompletedTasks}
+      />
+
+      <ScheduleEditModal
+        isModalOpen={isScheduleModalOpen}
+        eventData={selectedScheduleEvent}
+        onSave={handleScheduleModalSave}
+        onUnschedule={handleScheduleModalUnschedule}
+        onClose={closeScheduleModal}
       />
     </Layout>
   );

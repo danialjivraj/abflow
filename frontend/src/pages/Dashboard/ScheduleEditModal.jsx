@@ -3,7 +3,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { getCalendarIconColor } from "../../utils/dateUtils";
 
-const ScheduleEditModal = ({ eventData, onSave, onClose, onUnschedule }) => {
+const ScheduleEditModal = ({ isModalOpen, eventData, onSave, onClose, onUnschedule }) => {
   const [start, setStart] = useState(eventData?.start ? new Date(eventData.start) : null);
   const [end, setEnd] = useState(eventData?.end ? new Date(eventData.end) : null);
   const [errorMessage, setErrorMessage] = useState("");
@@ -18,6 +18,8 @@ const ScheduleEditModal = ({ eventData, onSave, onClose, onUnschedule }) => {
       }
     }
   }, [eventData]);
+
+  if (!isModalOpen || !eventData) return null;
 
   const handleSave = () => {
     if (!start || !end) {

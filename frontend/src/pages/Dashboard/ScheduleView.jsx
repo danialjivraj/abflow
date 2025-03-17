@@ -6,12 +6,14 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
 import { FiList, FiX } from "react-icons/fi";
 import { updateTask } from "../../services/tasksService";
-import ScheduleEditModal from "./ScheduleEditModal";
+import { useNavigate } from "react-router-dom";
 
 const localizer = momentLocalizer(moment);
 const DnDCalendar = withDragAndDrop(Calendar);
 
 const ScheduleView = ({ tasks, updateTaskInState, onCreateTaskShortcut }) => {
+  const navigate = useNavigate();
+
   const mapTaskToEvent = (task) => {
     const start = task.scheduledAt ? new Date(task.scheduledAt) : new Date();
     const end = task.scheduledEnd
@@ -30,8 +32,6 @@ const ScheduleView = ({ tasks, updateTaskInState, onCreateTaskShortcut }) => {
 
   const [events, setEvents] = useState([]);
   const [unscheduledTasks, setUnscheduledTasks] = useState([]);
-  const [selectedEvent, setSelectedEvent] = useState(null);
-  const [modalOpen, setModalOpen] = useState(false);
   const [showUnscheduledPanel, setShowUnscheduledPanel] = useState(false);
   const [draggedTask, setDraggedTask] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -232,81 +232,12 @@ const ScheduleView = ({ tasks, updateTaskInState, onCreateTaskShortcut }) => {
     setDropPosition(null);
   };
 
-  const dragFromOutsideItem = () => {
-    return draggedTask ? mapTaskToEvent(draggedTask) : null;
+  const handleSelectEvent = (event) => {
+    navigate(`/dashboard/schedule/editevent/${event.id}`);
   };
 
   const handleUnscheduledTaskClick = (task) => {
-    const eventData = {
-      id: task._id,
-      title: task.title,
-      priority: task.priority,
-      task: task,
-      start: new Date(),
-      end: new Date(new Date().getTime() + 60 * 60 * 1000),
-      isUnscheduled: true,
-    };
-    setSelectedEvent(eventData);
-    setModalOpen(true);
-  };
-
-  const handleSelectEvent = (event) => {
-    setSelectedEvent(event);
-    setModalOpen(true);
-  };
-
-  const handleModalSave = (updatedEvent) => {
-    const isUnscheduled = updatedEvent.isUnscheduled;
-    if (isUnscheduled) {
-      setEvents((prevEvents) => [...prevEvents, updatedEvent]);
-      setUnscheduledTasks((prev) =>
-        prev.filter((t) => t._id !== updatedEvent.id)
-      );
-    } else {
-      const nextEvents = events.map((evt) =>
-        evt.id === updatedEvent.id ? updatedEvent : evt
-      );
-      setEvents(nextEvents);
-    }
-
-    const updatedTask = {
-      ...updatedEvent.task,
-      scheduledAt: updatedEvent.start.toISOString(),
-      scheduledEnd: updatedEvent.end.toISOString(),
-    };
-
-    updateTask(updatedTask)
-      .then(() => {
-        updateTaskInState(updatedTask);
-      })
-      .catch((error) => {
-        console.error("Error updating task:", error);
-      });
-
-    setModalOpen(false);
-    setSelectedEvent(null);
-  };
-
-  // Called by the modal's Unschedule button.
-  const handleUnscheduleTask = (event) => {
-    const updatedTask = {
-      ...event.task,
-      scheduledAt: null,
-      scheduledEnd: null,
-    };
-
-    updateTask(updatedTask)
-      .then(() => {
-        updateTaskInState(updatedTask);
-        setEvents((prev) => prev.filter((evt) => evt.id !== event.id));
-        setUnscheduledTasks((prev) => [...prev, updatedTask]);
-      })
-      .catch((error) => {
-        console.error("Error unscheduling task:", error);
-      });
-
-    setModalOpen(false);
-    setSelectedEvent(null);
+    navigate(`/dashboard/schedule/editevent/${task._id}`);
   };
 
   return (
@@ -387,7 +318,7 @@ const ScheduleView = ({ tasks, updateTaskInState, onCreateTaskShortcut }) => {
         onView={(view) => setCurrentView(view)}
         draggableAccessor={() => true}
         onDropFromOutside={handleDropFromOutside}
-        dragFromOutsideItem={dragFromOutsideItem}
+        dragFromOutsideItem={() => (draggedTask ? mapTaskToEvent(draggedTask) : null)}
         className="rbc-calendar"
         components={{
           month: {
@@ -412,18 +343,6 @@ const ScheduleView = ({ tasks, updateTaskInState, onCreateTaskShortcut }) => {
         >
           {draggedTask.title}
         </div>
-      )}
-
-      {modalOpen && selectedEvent && (
-        <ScheduleEditModal
-          eventData={selectedEvent}
-          onSave={handleModalSave}
-          onUnschedule={handleUnscheduleTask}
-          onClose={() => {
-            setModalOpen(false);
-            setSelectedEvent(null);
-          }}
-        />
       )}
     </div>
   );
