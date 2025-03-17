@@ -405,7 +405,7 @@ const Stats = () => {
   const applyAllFilters = (tasksList, startDate, endDate) => {
     let filtered = tasksList.filter((task) => {
       if (taskType === "active") {
-        if (task.status === "completed") return false;
+        if (task.taskCompleted) return false;
         if (!task.createdAt) return false;
         const d = new Date(task.createdAt);
         return d >= startDate && d <= endDate;
@@ -416,7 +416,7 @@ const Stats = () => {
         return d >= startDate && d <= endDate;
       } else {
         let d;
-        if (task.status === "completed") {
+        if (task.taskCompleted) {
           if (!task.completedAt) return false;
           d = new Date(task.completedAt);
         } else {
@@ -444,7 +444,7 @@ const Stats = () => {
 
     if (dayOfWeekFilters.length > 0) {
       filtered = filtered.filter((task) => {
-        const d = task.status === "completed" ? new Date(task.completedAt) : new Date(task.createdAt);
+        const d = task.taskCompleted ? new Date(task.completedAt) : new Date(task.createdAt);
         return dayOfWeekFilters.includes(format(d, "EEEE"));
       });
     }
@@ -485,21 +485,24 @@ const Stats = () => {
     const groupMap = {};
   
     tasksList.forEach((task) => {
-      let d = task.status === "completed" ? new Date(task.completedAt) : new Date(task.createdAt);
+      let d = task.taskCompleted ? new Date(task.completedAt) : new Date(task.createdAt);
       let key;
       if (xAxisField === "day") {
         key = format(d, "EEEE");
       } else if (xAxisField === "priority") {
         key = task.priority || "None";
       } else if (xAxisField === "status") {
-        key = task.status === "completed" ? "Completed" : columnsMapping[task.status] || task.status;
+        key = task.taskCompleted ? "Completed" : (columnsMapping[task.status] || task.status);
       }
       if (!groupMap[key]) {
-        groupMap[key] = { key, count: 0, timeSpent: 0, storyPoints: 0 };
+        groupMap[key] = { key, count: 0, timeSpent: 0, storyPoints: 0, isTrulyCompleted: false };
       }
       groupMap[key].count += 1;
       groupMap[key].timeSpent += task.timeSpent || 0;
       groupMap[key].storyPoints += task.storyPoints || 0;
+      if (task.taskCompleted) {
+        groupMap[key].isTrulyCompleted = true;
+      }
     });
   
     if (includeZeroMetrics) {
@@ -509,13 +512,14 @@ const Stats = () => {
       } else if (xAxisField === "priority") {
         possibleKeys = priorityFilters.length > 0 ? priorityFilters : allowedPriorities;
       } else if (xAxisField === "status") {
-        possibleKeys = statusFilters.length > 0 
-          ? statusFilters.map(val => val === "completed" ? "Completed" : (columnsMapping[val] || val))
-          : Array.from(new Set([...(columnsMapping ? Object.values(columnsMapping) : []), "Completed"]));
+        possibleKeys =
+          statusFilters.length > 0
+            ? statusFilters.map(val => val === "completed" ? "Completed" : (columnsMapping[val] || val))
+            : Array.from(new Set([...(columnsMapping ? Object.values(columnsMapping) : []), "Completed"]));
       }
       possibleKeys.forEach((key) => {
         if (!groupMap[key]) {
-          groupMap[key] = { key, count: 0, timeSpent: 0, storyPoints: 0 };
+          groupMap[key] = { key, count: 0, timeSpent: 0, storyPoints: 0, isTrulyCompleted: false };
         }
       });
     }
@@ -524,9 +528,13 @@ const Stats = () => {
   
     if (xAxisField === "status") {
       if (taskType === "active") {
-        groupedData = groupedData.filter((item) => item.key !== "Completed");
+        groupedData = groupedData.filter(
+          (item) => !(item.key === "Completed" && item.isTrulyCompleted)
+        );
       } else if (taskType === "completed") {
-        groupedData = groupedData.filter((item) => item.key === "Completed");
+        groupedData = groupedData.filter(
+          (item) => item.key === "Completed" && item.isTrulyCompleted
+        );
       }
     }
   
@@ -670,12 +678,12 @@ const Stats = () => {
     const mainTasks = applyAllFilters(tasks, startDate, endDate)
       .filter((task) => {
         if (xAxisField === "day") {
-          const d = new Date(task.status === "completed" ? task.completedAt : task.createdAt);
+          const d = new Date(task.taskCompleted ? task.completedAt : task.createdAt);
           return format(d, "EEEE") === groupKey;
         } else if (xAxisField === "priority") {
           return (task.priority || "None") === groupKey;
         } else if (xAxisField === "status") {
-          const statusLabel = task.status === "completed" ? "Completed" : columnsMapping[task.status] || task.status;
+          const statusLabel = task.taskCompleted ? "Completed" : columnsMapping[task.status] || task.status;
           return statusLabel === groupKey;
         }
         return false;
@@ -687,12 +695,12 @@ const Stats = () => {
       compTasks = applyAllFilters(tasks, compStartDate, compEndDate)
         .filter((task) => {
           if (xAxisField === "day") {
-            const d = new Date(task.status === "completed" ? task.completedAt : task.createdAt);
+            const d = new Date(task.taskCompleted ? task.completedAt : task.createdAt);
             return format(d, "EEEE") === groupKey;
           } else if (xAxisField === "priority") {
             return (task.priority || "None") === groupKey;
           } else if (xAxisField === "status") {
-            const statusLabel = task.status === "completed" ? "Completed" : columnsMapping[task.status] || task.status;
+            const statusLabel = task.taskCompleted ? "Completed" : columnsMapping[task.status] || task.status;
             return statusLabel === groupKey;
           }
           return false;
@@ -717,12 +725,12 @@ const Stats = () => {
     const mainTasks = applyAllFilters(tasks, startDate, endDate)
       .filter((task) => {
         if (xAxisField === "day") {
-          const d = new Date(task.status === "completed" ? task.completedAt : task.createdAt);
+          const d = new Date(task.taskCompleted ? task.completedAt : task.createdAt);
           return format(d, "EEEE") === clickedKey;
         } else if (xAxisField === "priority") {
           return (task.priority || "None") === clickedKey;
         } else if (xAxisField === "status") {
-          const statusLabel = task.status === "completed" ? "Completed" : columnsMapping[task.status] || task.status;
+          const statusLabel = task.taskCompleted ? "Completed" : columnsMapping[task.status] || task.status;
           return statusLabel === clickedKey;
         }
         return false;
@@ -734,12 +742,12 @@ const Stats = () => {
       compTasks = applyAllFilters(tasks, compStartDate, compEndDate)
         .filter((task) => {
           if (xAxisField === "day") {
-            const d = new Date(task.status === "completed" ? task.completedAt : task.createdAt);
+            const d = new Date(task.taskCompleted ? task.completedAt : task.createdAt);
             return format(d, "EEEE") === clickedKey;
           } else if (xAxisField === "priority") {
             return (task.priority || "None") === clickedKey;
           } else if (xAxisField === "status") {
-            const statusLabel = task.status === "completed" ? "Completed" : columnsMapping[task.status] || task.status;
+            const statusLabel = task.taskCompleted ? "Completed" : columnsMapping[task.status] || task.status;
             return statusLabel === clickedKey;
           }
           return false;

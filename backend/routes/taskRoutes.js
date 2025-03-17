@@ -341,6 +341,7 @@ router.put("/:id/complete", async (req, res) => {
       req.params.id,
       { 
         status: "completed", 
+        taskCompleted: true,
         completedAt: new Date(),
         scheduledAt: null,
         scheduledEnd: null

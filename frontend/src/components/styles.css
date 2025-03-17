@@ -1519,7 +1519,8 @@ select {
   background-color: #cc0000;
 }
 
-.create-task-modal .error-message {
+.create-task-modal .error-message,
+.add-board-error-message {
   color: #ff4d4d;
   font-size: 14.4px;
   margin-top: -9px;

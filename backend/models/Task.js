@@ -10,6 +10,7 @@ const TaskSchema = new mongoose.Schema({
   status: { type: String, required: true },
   dueDate: Date,
   completedAt: Date,
+  taskCompleted: { type: Boolean, default: false },
   userId: { type: String, required: true },
   assignedTo: { type: String, default: "" },
   createdAt: { type: Date, default: Date.now },
