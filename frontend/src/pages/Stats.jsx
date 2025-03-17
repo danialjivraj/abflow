@@ -137,7 +137,8 @@ const Stats = () => {
   const [isViewTaskModalOpen, setIsViewTaskModalOpen] = useState(false);
 
   // -------------------- Hooks from React Router --------------------
-  const { taskId } = useParams();
+  // Extract both taskId and groupKey from the URL.
+  const { taskId, groupKey } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -291,35 +292,42 @@ const Stats = () => {
         try {
           const res = await fetchPreferences(currentUser.uid);
           const prefs = res.data.preferences;
-          if (prefs.timeRangeType) setTimeRangeType(prefs.timeRangeType);
-          if (prefs.taskType) setTaskType(prefs.taskType);
-          if (prefs.chartType) setChartType(prefs.chartType);
-          if (prefs.xAxisField) setXAxisField(prefs.xAxisField);
-          if (prefs.yAxisMetric) setYAxisMetric(prefs.yAxisMetric);
-          if (prefs.sortOrder) setSortOrder(prefs.sortOrder);
-          if (prefs.dueFilter) setDueFilter(prefs.dueFilter);
-          if (prefs.priorityFilters) setPriorityFilters(prefs.priorityFilters);
-          if (prefs.dayOfWeekFilters) setDayOfWeekFilters(prefs.dayOfWeekFilters);
-          if (prefs.statusFilters) setStatusFilters(prefs.statusFilters);
-          if (prefs.assignedToFilter) setAssignedToFilter(prefs.assignedToFilter);
-          if (prefs.minTaskCount) setMinTaskCount(prefs.minTaskCount);
-          if (prefs.minStoryPoints) setMinStoryPoints(prefs.minStoryPoints);
-          if (prefs.minTimeSpent) setMinTimeSpent(prefs.minTimeSpent);
-          if (prefs.minTimeUnit) setMinTimeUnit(prefs.minTimeUnit);
-          if (prefs.scheduledOnly !== undefined) setScheduledOnly(prefs.scheduledOnly);
-          if (prefs.includeNoDueDate !== undefined) setIncludeNoDueDate(prefs.includeNoDueDate);
-          if (prefs.comparisonMode !== undefined) setComparisonMode(prefs.comparisonMode);
-          if (prefs.compStartDate) setCompStartDate(new Date(prefs.compStartDate));
-          if (prefs.compEndDate) setCompEndDate(new Date(prefs.compEndDate));
-          if (prefs.customStartDate) setCustomStartDate(new Date(prefs.customStartDate));
-          if (prefs.customEndDate) setCustomEndDate(new Date(prefs.customEndDate));
+          const params = Object.fromEntries([...searchParams]);
+
+          if (!params.timeRangeType && prefs.timeRangeType) setTimeRangeType(prefs.timeRangeType);
+          if (!params.taskType && prefs.taskType) setTaskType(prefs.taskType);
+          if (!params.chartType && prefs.chartType) setChartType(prefs.chartType);
+          if (!params.xAxisField && prefs.xAxisField) setXAxisField(prefs.xAxisField);
+          if (!params.yAxisMetric && prefs.yAxisMetric) setYAxisMetric(prefs.yAxisMetric);
+          if (!params.sortOrder && prefs.sortOrder) setSortOrder(prefs.sortOrder);
+          if (!params.dueFilter && prefs.dueFilter) setDueFilter(prefs.dueFilter);
+          if (!params.priorityFilters && prefs.priorityFilters) setPriorityFilters(prefs.priorityFilters);
+          if (!params.dayOfWeekFilters && prefs.dayOfWeekFilters) setDayOfWeekFilters(prefs.dayOfWeekFilters);
+          if (!params.statusFilters && prefs.statusFilters) setStatusFilters(prefs.statusFilters);
+          if (!params.assignedToFilter && prefs.assignedToFilter) setAssignedToFilter(prefs.assignedToFilter);
+          if (!params.minTaskCount && prefs.minTaskCount) setMinTaskCount(prefs.minTaskCount);
+          if (!params.minStoryPoints && prefs.minStoryPoints) setMinStoryPoints(prefs.minStoryPoints);
+          if (!params.minTimeSpent && prefs.minTimeSpent) setMinTimeSpent(prefs.minTimeSpent);
+          if (!params.minTimeUnit && prefs.minTimeUnit) setMinTimeUnit(prefs.minTimeUnit);
+          if (params.scheduledOnly === undefined && prefs.scheduledOnly !== undefined)
+            setScheduledOnly(prefs.scheduledOnly);
+          if (params.includeNoDueDate === undefined && prefs.includeNoDueDate !== undefined)
+            setIncludeNoDueDate(prefs.includeNoDueDate);
+          if (params.comparisonMode === undefined && prefs.comparisonMode !== undefined)
+            setComparisonMode(prefs.comparisonMode);
+          if (!params.compStartDate && prefs.compStartDate) setCompStartDate(new Date(prefs.compStartDate));
+          if (!params.compEndDate && prefs.compEndDate) setCompEndDate(new Date(prefs.compEndDate));
+          if (!params.customStartDate && prefs.customStartDate)
+            setCustomStartDate(new Date(prefs.customStartDate));
+          if (!params.customEndDate && prefs.customEndDate)
+            setCustomEndDate(new Date(prefs.customEndDate));
         } catch (error) {
           console.error("Error loading preferences:", error);
         }
       }
     };
     loadPreferences();
-  }, []);
+  }, [searchParams]);
 
   // -------------------- Compute Date Range --------------------
   const computeDateRange = () => {
@@ -328,7 +336,6 @@ const Stats = () => {
 
     switch (timeRangeType) {
       case "week": {
-        // Start on Monday 00:00:00, end on Sunday 23:59:59
         startDate = startOfISOWeek(today);
         startDate.setHours(0, 0, 0, 0);
         endDate = new Date(startDate);
@@ -337,7 +344,6 @@ const Stats = () => {
         break;
       }
       case "2weeks": {
-        // Start on Monday 00:00:00, end on Sunday (2 weeks later) 23:59:59
         startDate = startOfISOWeek(today);
         startDate.setHours(0, 0, 0, 0);
         endDate = new Date(startDate);
@@ -534,7 +540,6 @@ const Stats = () => {
       }
       const merged = mergeData(mainGrouped, compGrouped);
 
-      // Convert timeSpent from seconds to hours if needed:
       const converted = merged.map((item) => {
         if (yAxisMetric === "timeSpent") {
           return {
@@ -592,7 +597,7 @@ const Stats = () => {
 
   // -------------------- Modal Effects: Open/Close Task Modals --------------------
   useEffect(() => {
-    if (location.pathname.includes("/viewtask/")) {
+    if (location.pathname.includes("/viewtask/") && taskId) {
       const foundTask = tasks.find((t) => t._id === taskId);
       if (foundTask) {
         setSelectedTask(foundTask);
@@ -604,17 +609,18 @@ const Stats = () => {
     }
   }, [location, taskId, tasks]);
 
-  const tooltipFormatter = (value) =>
-    yAxisMetric === "timeSpent" ? `${value.toFixed(2)}h` : value.toFixed(0);
+  // Effect 1: Open or close the group tasks modal based only on pathname and groupKey.
+  useEffect(() => {
+    if (location.pathname.includes("/grouptasks") && groupKey) {
+      setModalOpen(true);
+    } else {
+      setModalOpen(false);
+    }
+  }, [location.pathname, groupKey]);
 
-  const axisFormatter = (value) =>
-    yAxisMetric === "timeSpent" ? `${value.toFixed(2)}h` : value.toFixed(0);
-
-  // -------------------- Chart Click Handler --------------------
-  const handleChartClick = (data) => {
-    if (!data || !data.payload) return;
-    const groupKey = data.payload.key;
-
+  // Effect 2: When the modal is open, update the selected tasks.
+  useEffect(() => {
+    if (!modalOpen || !groupKey) return;
     const { startDate, endDate } = computeDateRange();
     const mainTasks = applyAllFilters(tasks, startDate, endDate)
       .filter((task) => {
@@ -635,7 +641,6 @@ const Stats = () => {
       .map((task) => ({ ...task, groupKey }));
 
     let compTasks = [];
-
     if (comparisonMode && compStartDate && compEndDate) {
       compTasks = applyAllFilters(tasks, compStartDate, compEndDate)
         .filter((task) => {
@@ -655,23 +660,91 @@ const Stats = () => {
         })
         .map((task) => ({ ...task, groupKey }));
     }
+    setSelectedMainGroupTasks(mainTasks);
+    setSelectedCompGroupTasks(compTasks);
+  }, [modalOpen, tasks, xAxisField, columnsMapping, comparisonMode, compStartDate, compEndDate, groupKey]);
+
+  // New Effect: When the group tasks modal is closed but the URL still contains the grouptasks route,
+  // navigate back to /stats (preserving query parameters) so that the URL is cleaned.
+  useEffect(() => {
+    if (!modalOpen && location.pathname.includes("/grouptasks")) {
+      navigate(`/stats${location.search}`);
+    }
+  }, [modalOpen, location.pathname, location.search, navigate]);
+
+  // -------------------- Chart Click Handler --------------------
+  const handleChartClick = (data) => {
+    if (!data || !data.payload) return;
+    const clickedKey = data.payload.key;
+
+    const { startDate, endDate } = computeDateRange();
+    const mainTasks = applyAllFilters(tasks, startDate, endDate)
+      .filter((task) => {
+        if (xAxisField === "day") {
+          const d = new Date(task.status === "completed" ? task.completedAt : task.createdAt);
+          return format(d, "EEEE") === clickedKey;
+        } else if (xAxisField === "priority") {
+          return (task.priority || "None") === clickedKey;
+        } else if (xAxisField === "status") {
+          const statusLabel =
+            task.status === "completed"
+              ? "Completed"
+              : columnsMapping[task.status] || task.status;
+          return statusLabel === clickedKey;
+        }
+        return false;
+      })
+      .map((task) => ({ ...task, groupKey: clickedKey }));
+
+    let compTasks = [];
+    if (comparisonMode && compStartDate && compEndDate) {
+      compTasks = applyAllFilters(tasks, compStartDate, compEndDate)
+        .filter((task) => {
+          if (xAxisField === "day") {
+            const d = new Date(task.status === "completed" ? task.completedAt : task.createdAt);
+            return format(d, "EEEE") === clickedKey;
+          } else if (xAxisField === "priority") {
+            return (task.priority || "None") === clickedKey;
+          } else if (xAxisField === "status") {
+            const statusLabel =
+              task.status === "completed"
+                ? "Completed"
+                : columnsMapping[task.status] || task.status;
+            return statusLabel === clickedKey;
+          }
+          return false;
+        })
+        .map((task) => ({ ...task, groupKey: clickedKey }));
+    }
 
     setSelectedMainGroupTasks(mainTasks);
     setSelectedCompGroupTasks(compTasks);
     setModalOpen(true);
-    navigate(`/stats/grouptasks`);
+    // Preserve current query parameters when navigating.
+    navigate(`/stats/grouptasks/${clickedKey}${location.search}`);
   };
 
+  // -------------------- Open/Close View Task Modal --------------------
   const openReadOnlyViewTaskModal = (task) => {
     setSelectedTask(task);
     setIsViewTaskModalOpen(true);
-    navigate(`/stats/viewtask/${task._id}`);
+    // If we are within a group, keep that in the URL so the group modal remains open.
+    if (location.pathname.includes("/grouptasks") && groupKey) {
+      navigate(`/stats/grouptasks/${groupKey}/viewtask/${task._id}${location.search}`);
+    } else {
+      navigate(`/stats/viewtask/${task._id}${location.search}`);
+    }
   };
 
   const closeViewTaskModal = () => {
     setSelectedTask(null);
     setIsViewTaskModalOpen(false);
-    navigate(`/stats`);
+    // When closing the view task modal, if we were in a group, return to that grouptasks route.
+    if (location.pathname.includes("/grouptasks")) {
+      navigate(`/stats/grouptasks/${groupKey}${location.search}`);
+    } else {
+      navigate(`/stats${location.search}`);
+    }
   };
 
   // -------------------- Save & Reset Preferences --------------------
@@ -747,6 +820,12 @@ const Stats = () => {
   };
 
   // -------------------- Render Chart --------------------
+  const tooltipFormatter = (value) =>
+    yAxisMetric === "timeSpent" ? `${value.toFixed(2)}h` : value.toFixed(0);
+
+  const axisFormatter = (value) =>
+    yAxisMetric === "timeSpent" ? `${value.toFixed(2)}h` : value.toFixed(0);
+
   const renderChart = () => {
     if (loading) return <p>Loading...</p>;
     if (!chartData || chartData.length === 0)
@@ -902,7 +981,6 @@ const Stats = () => {
       if (hasComparison) {
         return <p>Comparison not supported for this chart type.</p>;
       }
-      // percentage calculation
       const total = chartData.reduce((acc, item) => acc + item.mainValue, 0);
       return (
         <ResponsiveContainer width="100%" height={500}>
