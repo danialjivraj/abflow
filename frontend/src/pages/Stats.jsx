@@ -132,6 +132,7 @@ const Stats = () => {
 
   // Modal States
   const [modalOpen, setModalOpen] = useState(false);
+  const [userClosedModal, setUserClosedModal] = useState(false);
   const [selectedMainGroupTasks, setSelectedMainGroupTasks] = useState([]);
   const [selectedCompGroupTasks, setSelectedCompGroupTasks] = useState([]);
   const [selectedTask, setSelectedTask] = useState(null);
@@ -180,9 +181,9 @@ const Stats = () => {
     if (params.yAxisMetric) setYAxisMetric(params.yAxisMetric);
     if (params.sortOrder) setSortOrder(params.sortOrder);
     if (params.dueFilter) setDueFilter(params.dueFilter);
-    if (params.priorityFilters) setPriorityFilters(params.priorityFilters.split("," ));
-    if (params.dayOfWeekFilters) setDayOfWeekFilters(params.dayOfWeekFilters.split("," ));
-    if (params.statusFilters) setStatusFilters(params.statusFilters.split("," ));
+    if (params.priorityFilters) setPriorityFilters(params.priorityFilters.split(","));
+    if (params.dayOfWeekFilters) setDayOfWeekFilters(params.dayOfWeekFilters.split(","));
+    if (params.statusFilters) setStatusFilters(params.statusFilters.split(","));
     if (params.assignedToFilter) setAssignedToFilter(params.assignedToFilter);
     if (params.minTaskCount) setMinTaskCount(params.minTaskCount);
     if (params.minStoryPoints) setMinStoryPoints(params.minStoryPoints);
@@ -206,9 +207,9 @@ const Stats = () => {
       yAxisMetric,
       sortOrder,
       dueFilter,
-      priorityFilters: priorityFilters.join("," ),
-      dayOfWeekFilters: dayOfWeekFilters.join("," ),
-      statusFilters: statusFilters.join("," ),
+      priorityFilters: priorityFilters.join(","),
+      dayOfWeekFilters: dayOfWeekFilters.join(","),
+      statusFilters: statusFilters.join(","),
       assignedToFilter,
       minTaskCount,
       minStoryPoints,
@@ -480,18 +481,20 @@ const Stats = () => {
   // -------------------- Grouping Functions --------------------
   const groupTasks = (tasksList) => {
     const groupMap = {};
+  
     tasksList.forEach((task) => {
-      let d = task.status === "completed" ? new Date(task.completedAt) : new Date(task.createdAt);
+      let d = task.status === "completed"
+        ? new Date(task.completedAt)
+        : new Date(task.createdAt);
       let key;
       if (xAxisField === "day") {
         key = format(d, "EEEE");
       } else if (xAxisField === "priority") {
         key = task.priority || "None";
       } else if (xAxisField === "status") {
-        key =
-          task.status === "completed"
-            ? "Completed"
-            : columnsMapping[task.status] || task.status;
+        key = task.status === "completed"
+          ? "Completed"
+          : columnsMapping[task.status] || task.status;
       }
       if (!groupMap[key]) {
         groupMap[key] = { key, count: 0, timeSpent: 0, storyPoints: 0 };
@@ -500,7 +503,7 @@ const Stats = () => {
       groupMap[key].timeSpent += task.timeSpent || 0;
       groupMap[key].storyPoints += task.storyPoints || 0;
     });
-
+  
     if (includeZeroMetrics) {
       let possibleKeys = [];
       if (xAxisField === "day") {
@@ -509,7 +512,10 @@ const Stats = () => {
         possibleKeys = allowedPriorities;
       } else if (xAxisField === "status") {
         possibleKeys = Array.from(
-          new Set([...(columnsMapping ? Object.values(columnsMapping) : []), "Completed"])
+          new Set([
+            ...(columnsMapping ? Object.values(columnsMapping) : []),
+            "Completed",
+          ])
         );
       }
       possibleKeys.forEach((key) => {
@@ -518,9 +524,20 @@ const Stats = () => {
         }
       });
     }
-    return Object.values(groupMap);
+  
+    let groupedData = Object.values(groupMap);
+  
+    if (xAxisField === "status") {
+      if (taskType === "active") {
+        groupedData = groupedData.filter((item) => item.key !== "Completed");
+      } else if (taskType === "completed") {
+        groupedData = groupedData.filter((item) => item.key === "Completed");
+      }
+    }
+  
+    return groupedData;
   };
-
+  
   const mergeData = (mainData, compData) => {
     const merged = {};
     mainData.forEach((item) => {
@@ -711,11 +728,13 @@ const Stats = () => {
 
   // When the group tasks modal is closed but the URL still contains the grouptasks route,
   // navigate back to /stats (preserving query parameters) so the URL is cleaned.
+  // This effect now only triggers if the user explicitly closed the modal.
   useEffect(() => {
-    if (!modalOpen && location.pathname.includes("/grouptasks")) {
+    if (userClosedModal && location.pathname.includes("/grouptasks")) {
       navigate(`/stats${location.search}`);
+      setUserClosedModal(false);
     }
-  }, [modalOpen, location.pathname, location.search, navigate]);
+  }, [userClosedModal, location.pathname, location.search, navigate]);
 
   // -------------------- Chart Click Handler --------------------
   const handleChartClick = (data) => {
@@ -861,6 +880,12 @@ const Stats = () => {
       console.error("Error resetting preferences:", error);
       setMessage("Error resetting preferences!");
     }
+  };
+
+  // -------------------- Helper: Close Group Tasks Modal (User Action) --------------------
+  const closeGroupTasksModal = () => {
+    setModalOpen(false);
+    setUserClosedModal(true);
   };
 
   // -------------------- Render Chart --------------------
@@ -1381,7 +1406,7 @@ const Stats = () => {
 
       <GroupTasksModal
         modalOpen={modalOpen}
-        setModalOpen={setModalOpen}
+        setModalOpen={closeGroupTasksModal}
         mainGroupTasks={selectedMainGroupTasks}
         compGroupTasks={selectedCompGroupTasks}
         openReadOnlyViewTaskModal={openReadOnlyViewTaskModal}
