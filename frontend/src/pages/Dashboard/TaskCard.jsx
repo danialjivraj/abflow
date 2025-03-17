@@ -1,6 +1,7 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { Draggable } from "@hello-pangea/dnd";
 import { formatDueDate, formatCompletedDueDate, getCalendarIconColor } from "../../utils/dateUtils";
+import DeleteConfirmationModal from "./DeleteConfirmationModal";
 
 const priorityMapping = {
   A: "A: Very Important",
@@ -28,6 +29,7 @@ const TaskCard = ({
   hideDots,
 }) => {
   const dropdownMenuRef = useRef(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -191,7 +193,7 @@ const TaskCard = ({
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    deleteTask(task._id);
+                    setIsDeleteModalOpen(true);
                     setIsTaskDropdownOpen(null);
                   }}
                 >
@@ -207,32 +209,56 @@ const TaskCard = ({
 
   if (draggable) {
     return (
-      <Draggable draggableId={task._id} index={index}>
-        {(provided) => (
-          <div
-            className="task-card"
-            ref={provided.innerRef}
-            {...provided.draggableProps}
-            {...provided.dragHandleProps}
-            onClick={handleClick}
-            onMouseEnter={() => setIsTaskHovered(task._id)}
-            onMouseLeave={() => setIsTaskHovered(null)}
-          >
-            {cardContent}
-          </div>
-        )}
-      </Draggable>
+      <>
+        <Draggable draggableId={task._id} index={index}>
+          {(provided) => (
+            <div
+              className="task-card"
+              ref={provided.innerRef}
+              {...provided.draggableProps}
+              {...provided.dragHandleProps}
+              onClick={handleClick}
+              onMouseEnter={() => setIsTaskHovered(task._id)}
+              onMouseLeave={() => setIsTaskHovered(null)}
+            >
+              {cardContent}
+            </div>
+          )}
+        </Draggable>
+        <DeleteConfirmationModal
+          isOpen={isDeleteModalOpen}
+          onClose={() => setIsDeleteModalOpen(false)}
+          onConfirm={() => {
+            deleteTask(task._id);
+            setIsDeleteModalOpen(false);
+          }}
+          entityType="task"
+          entityName={task.title}
+        />
+      </>
     );
   } else {
     return (
-      <div
-        className="task-card"
-        onClick={handleClick}
-        onMouseEnter={() => setIsTaskHovered(task._id)}
-        onMouseLeave={() => setIsTaskHovered(null)}
-      >
-        {cardContent}
-      </div>
+      <>
+        <div
+          className="task-card"
+          onClick={handleClick}
+          onMouseEnter={() => setIsTaskHovered(task._id)}
+          onMouseLeave={() => setIsTaskHovered(null)}
+        >
+          {cardContent}
+        </div>
+        <DeleteConfirmationModal
+          isOpen={isDeleteModalOpen}
+          onClose={() => setIsDeleteModalOpen(false)}
+          onConfirm={() => {
+            deleteTask(task._id);
+            setIsDeleteModalOpen(false);
+          }}
+          entityType="task"
+          entityName={task.title}
+        />
+      </>
     );
   }
 };

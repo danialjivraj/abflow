@@ -307,7 +307,7 @@ router.put("/columns/rename", async (req, res) => {
   }
 });
 
-// delete a column
+// delete a column and its tasks
 router.delete("/columns/delete", async (req, res) => {
   try {
     const { userId, columnId } = req.body;
@@ -315,18 +315,19 @@ router.delete("/columns/delete", async (req, res) => {
       return res.status(400).json({ error: "User ID and column ID are required" });
     }
 
+    await Task.deleteMany({ userId, status: columnId });
+
     const user = await User.findOne({ userId });
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
 
     user.columnOrder = user.columnOrder.filter((id) => id !== columnId);
-
     user.columnNames.delete(columnId);
 
     await user.save();
 
-    res.json({ message: "Board deleted successfully" });
+    res.json({ message: "Board and associated tasks deleted successfully" });
   } catch (error) {
     console.error("Error deleting board:", error);
     res.status(500).json({ error: "Failed to delete board" });

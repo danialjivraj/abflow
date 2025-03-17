@@ -107,6 +107,7 @@ select {
   justify-content: flex-start;
   padding-bottom: 9px;
   position: relative;
+  min-height: 75vh;
 }
 
 .kanban-column {
@@ -2166,6 +2167,13 @@ select {
 
 .group-modal-task-list > div {
   flex: 1;
+}
+
+/* Delete Confirmation Modal Specific Styles */
+.delete-confirmation-text {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
 }
 
 @media (max-width: 768px) {
