@@ -2169,6 +2169,15 @@ select {
   flex: 1;
 }
 
+.group-key-text {
+  word-break: break-all;
+
+  white-space: normal;
+  overflow-wrap: break-word;
+  display: inline-block;
+  max-width: 100%;
+}
+
 /* Delete Confirmation Modal Specific Styles */
 .delete-confirmation-text {
   word-wrap: break-word;

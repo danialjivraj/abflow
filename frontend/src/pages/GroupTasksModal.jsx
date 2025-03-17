@@ -25,8 +25,9 @@ const GroupTasksModal = ({
         <button className="close-modal" onClick={() => setModalOpen(false)}>
           &times;
         </button>
-        <h2>Tasks for Group: {groupKey}</h2>
-
+        <h2>
+          Tasks for Group: <span className="group-key-text">{groupKey}</span>
+        </h2>
         <div className="group-modal-task-list" style={{ display: "flex", gap: "20px" }}>
           {/* Main Range always shown */}
           <div className="main-tasks-section">

@@ -856,6 +856,12 @@ const Stats = () => {
 
   const axisFormatter = (value) =>
     yAxisMetric === "timeSpent" ? `${value.toFixed(2)}h` : value.toFixed(0);
+  
+  const axisWordLimit = (value, index) => {
+    const limit = 20;
+    if (value.length < limit) return value;
+    return `${value.substring(0, limit)}...`;
+  };
 
   const renderChart = () => {
     if (loading) return <p>Loading...</p>;
@@ -875,7 +881,7 @@ const Stats = () => {
             }}
           >
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="key" tick={{ fill: "white" }} />
+            <XAxis dataKey="key" tick={{ fill: "white" }} tickFormatter={axisWordLimit}/>
             <YAxis tick={{ fill: "white" }} tickFormatter={axisFormatter} />
             <Tooltip
               formatter={tooltipFormatter}
@@ -923,7 +929,7 @@ const Stats = () => {
             }}
           >
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="key" tick={{ fill: "white" }} />
+            <XAxis dataKey="key" tick={{ fill: "white" }} tickFormatter={axisWordLimit}/>
             <YAxis tick={{ fill: "white" }} tickFormatter={axisFormatter} />
             <Tooltip
               formatter={tooltipFormatter}
@@ -957,7 +963,7 @@ const Stats = () => {
             }}
           >
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="key" tick={{ fill: "white" }} />
+            <XAxis dataKey="key" tick={{ fill: "white" }} tickFormatter={axisWordLimit}/>
             <YAxis tick={{ fill: "white" }} tickFormatter={axisFormatter} />
             <Tooltip
               formatter={tooltipFormatter}
@@ -1021,6 +1027,7 @@ const Stats = () => {
                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
               ))}
             </Pie>
+            <Legend formatter={(value, entry, index) => axisWordLimit(value, index)} />
             <Tooltip
               formatter={tooltipFormatter}
               contentStyle={{
@@ -1051,7 +1058,7 @@ const Stats = () => {
             }}
           >
             <PolarGrid strokeDasharray="3 3" />
-            <PolarAngleAxis dataKey="key" tick={{ fill: "white" }} />
+            <PolarAngleAxis dataKey="key" tick={{ fill: "white" }} tickFormatter={axisWordLimit}/>
             <PolarRadiusAxis
               tick={{ fill: "white" }}
               tickFormatter={(value) =>
