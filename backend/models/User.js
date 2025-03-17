@@ -32,6 +32,7 @@ const UserSchema = new mongoose.Schema({
       minTimeSpent: "",
       minTimeUnit: "seconds",
       scheduledOnly: false,
+      includeZeroMetrics: true,
       includeNoDueDate: true,
       comparisonMode: false,
       compStartDate: null,

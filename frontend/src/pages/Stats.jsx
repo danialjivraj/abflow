@@ -102,16 +102,16 @@ const Stats = () => {
   const [message, setMessage] = useState("");
 
   // Chart and Filter States
-  const [chartType, setChartType] = useState("bar");
-  const [xAxisField, setXAxisField] = useState("day");
-  const [yAxisMetric, setYAxisMetric] = useState("count");
-  const [taskType, setTaskType] = useState("active");
   const [timeRangeType, setTimeRangeType] = useState("week");
   const [customStartDate, setCustomStartDate] = useState(null);
   const [customEndDate, setCustomEndDate] = useState(null);
+  const [taskType, setTaskType] = useState("active");
+  const [chartType, setChartType] = useState("bar");
+  const [xAxisField, setXAxisField] = useState("day");
+  const [yAxisMetric, setYAxisMetric] = useState("count");
   const [sortOrder, setSortOrder] = useState("none");
-  const [dueFilter, setDueFilter] = useState("both");
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [dueFilter, setDueFilter] = useState("both");
   const [priorityFilters, setPriorityFilters] = useState([]);
   const [dayOfWeekFilters, setDayOfWeekFilters] = useState([]);
   const [statusFilters, setStatusFilters] = useState([]);
@@ -120,11 +120,12 @@ const Stats = () => {
   const [minStoryPoints, setMinStoryPoints] = useState("");
   const [minTimeSpent, setMinTimeSpent] = useState("");
   const [minTimeUnit, setMinTimeUnit] = useState("seconds");
+  const [scheduledOnly, setScheduledOnly] = useState(false);
+  const [includeZeroMetrics, setIncludeZeroMetrics] = useState(true);
+  const [includeNoDueDate, setIncludeNoDueDate] = useState(true);
   const [comparisonMode, setComparisonMode] = useState(false);
   const [compStartDate, setCompStartDate] = useState(null);
   const [compEndDate, setCompEndDate] = useState(null);
-  const [scheduledOnly, setScheduledOnly] = useState(false);
-  const [includeNoDueDate, setIncludeNoDueDate] = useState(true);
 
   // Chart Data
   const [chartData, setChartData] = useState([]);
@@ -137,7 +138,6 @@ const Stats = () => {
   const [isViewTaskModalOpen, setIsViewTaskModalOpen] = useState(false);
 
   // -------------------- Hooks from React Router --------------------
-  // Extract both taskId and groupKey from the URL.
   const { taskId, groupKey } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
@@ -167,6 +167,7 @@ const Stats = () => {
     compEndDate: null,
     customStartDate: null,
     customEndDate: null,
+    includeZeroMetrics: true,
   };
 
   // -------------------- Initialize Filters from URL --------------------
@@ -179,15 +180,16 @@ const Stats = () => {
     if (params.yAxisMetric) setYAxisMetric(params.yAxisMetric);
     if (params.sortOrder) setSortOrder(params.sortOrder);
     if (params.dueFilter) setDueFilter(params.dueFilter);
-    if (params.priorityFilters) setPriorityFilters(params.priorityFilters.split(","));
-    if (params.dayOfWeekFilters) setDayOfWeekFilters(params.dayOfWeekFilters.split(","));
-    if (params.statusFilters) setStatusFilters(params.statusFilters.split(","));
+    if (params.priorityFilters) setPriorityFilters(params.priorityFilters.split("," ));
+    if (params.dayOfWeekFilters) setDayOfWeekFilters(params.dayOfWeekFilters.split("," ));
+    if (params.statusFilters) setStatusFilters(params.statusFilters.split("," ));
     if (params.assignedToFilter) setAssignedToFilter(params.assignedToFilter);
     if (params.minTaskCount) setMinTaskCount(params.minTaskCount);
     if (params.minStoryPoints) setMinStoryPoints(params.minStoryPoints);
     if (params.minTimeSpent) setMinTimeSpent(params.minTimeSpent);
     if (params.minTimeUnit) setMinTimeUnit(params.minTimeUnit);
     if (params.scheduledOnly) setScheduledOnly(params.scheduledOnly === "true");
+    if (params.includeZeroMetrics) setIncludeZeroMetrics(params.includeZeroMetrics === "true");
     if (params.includeNoDueDate) setIncludeNoDueDate(params.includeNoDueDate === "true");
     if (params.comparisonMode) setComparisonMode(params.comparisonMode === "true");
     if (params.compStartDate) setCompStartDate(new Date(params.compStartDate));
@@ -204,14 +206,15 @@ const Stats = () => {
       yAxisMetric,
       sortOrder,
       dueFilter,
-      priorityFilters: priorityFilters.join(","),
-      dayOfWeekFilters: dayOfWeekFilters.join(","),
-      statusFilters: statusFilters.join(","),
+      priorityFilters: priorityFilters.join("," ),
+      dayOfWeekFilters: dayOfWeekFilters.join("," ),
+      statusFilters: statusFilters.join("," ),
       assignedToFilter,
       minTaskCount,
       minStoryPoints,
       minTimeSpent,
       minTimeUnit,
+      includeZeroMetrics,
       scheduledOnly,
       includeNoDueDate,
       comparisonMode,
@@ -238,6 +241,7 @@ const Stats = () => {
     minTimeSpent,
     minTimeUnit,
     scheduledOnly,
+    includeZeroMetrics,
     includeNoDueDate,
     comparisonMode,
     compStartDate,
@@ -311,6 +315,8 @@ const Stats = () => {
           if (!params.minTimeUnit && prefs.minTimeUnit) setMinTimeUnit(prefs.minTimeUnit);
           if (params.scheduledOnly === undefined && prefs.scheduledOnly !== undefined)
             setScheduledOnly(prefs.scheduledOnly);
+          if (params.includeZeroMetrics === undefined && prefs.includeZeroMetrics !== undefined)
+            setIncludeZeroMetrics(prefs.includeZeroMetrics);
           if (params.includeNoDueDate === undefined && prefs.includeNoDueDate !== undefined)
             setIncludeNoDueDate(prefs.includeNoDueDate);
           if (params.comparisonMode === undefined && prefs.comparisonMode !== undefined)
@@ -404,6 +410,7 @@ const Stats = () => {
         const d = new Date(task.completedAt);
         return d >= startDate && d <= endDate;
       } else {
+        // "both"
         let d;
         if (task.status === "completed") {
           if (!task.completedAt) return false;
@@ -474,12 +481,7 @@ const Stats = () => {
   const groupTasks = (tasksList) => {
     const groupMap = {};
     tasksList.forEach((task) => {
-      let d;
-      if (task.status === "completed") {
-        d = new Date(task.completedAt);
-      } else {
-        d = new Date(task.createdAt);
-      }
+      let d = task.status === "completed" ? new Date(task.completedAt) : new Date(task.createdAt);
       let key;
       if (xAxisField === "day") {
         key = format(d, "EEEE");
@@ -498,6 +500,24 @@ const Stats = () => {
       groupMap[key].timeSpent += task.timeSpent || 0;
       groupMap[key].storyPoints += task.storyPoints || 0;
     });
+
+    if (includeZeroMetrics) {
+      let possibleKeys = [];
+      if (xAxisField === "day") {
+        possibleKeys = dayOptions;
+      } else if (xAxisField === "priority") {
+        possibleKeys = allowedPriorities;
+      } else if (xAxisField === "status") {
+        possibleKeys = Array.from(
+          new Set([...(columnsMapping ? Object.values(columnsMapping) : []), "Completed"])
+        );
+      }
+      possibleKeys.forEach((key) => {
+        if (!groupMap[key]) {
+          groupMap[key] = { key, count: 0, timeSpent: 0, storyPoints: 0 };
+        }
+      });
+    }
     return Object.values(groupMap);
   };
 
@@ -526,6 +546,10 @@ const Stats = () => {
     const mainFiltered = applyAllFilters(tasks, startDate, endDate);
     let mainGrouped = groupTasks(mainFiltered);
 
+    if (!includeZeroMetrics) {
+      mainGrouped = mainGrouped.filter((item) => item[yAxisMetric] > 0);
+    }
+
     if (minTaskCount !== "" && !isNaN(parseInt(minTaskCount, 10))) {
       const minCount = parseInt(minTaskCount, 10);
       mainGrouped = mainGrouped.filter((item) => item.count >= minCount);
@@ -534,10 +558,16 @@ const Stats = () => {
     if (comparisonMode && compStartDate && compEndDate) {
       const compFiltered = applyAllFilters(tasks, compStartDate, compEndDate);
       let compGrouped = groupTasks(compFiltered);
+
+      if (!includeZeroMetrics) {
+        compGrouped = compGrouped.filter((item) => item[yAxisMetric] > 0);
+      }
+
       if (minTaskCount !== "" && !isNaN(parseInt(minTaskCount, 10))) {
         const minCount = parseInt(minTaskCount, 10);
         compGrouped = compGrouped.filter((item) => item.count >= minCount);
       }
+
       const merged = mergeData(mainGrouped, compGrouped);
 
       const converted = merged.map((item) => {
@@ -552,6 +582,7 @@ const Stats = () => {
       });
       setChartData(converted);
     } else {
+      // Single range only
       const single = mainGrouped.map((item) => {
         if (yAxisMetric === "timeSpent") {
           return { key: item.key, mainValue: item[yAxisMetric] / 3600 };
@@ -562,16 +593,15 @@ const Stats = () => {
     }
   }, [
     tasks,
+    columnsMapping,
     timeRangeType,
     customStartDate,
     customEndDate,
     taskType,
     xAxisField,
-    columnsMapping,
     yAxisMetric,
     sortOrder,
     dueFilter,
-    includeNoDueDate,
     priorityFilters,
     dayOfWeekFilters,
     statusFilters,
@@ -581,16 +611,22 @@ const Stats = () => {
     minTimeSpent,
     minTimeUnit,
     scheduledOnly,
+    includeZeroMetrics,
+    includeNoDueDate,
     comparisonMode,
     compStartDate,
     compEndDate,
   ]);
 
+  // After the final chartData is formed, we sort if needed
   useEffect(() => {
     setChartData((prev) => {
       const sorted = [...prev];
-      if (sortOrder === "asc") sorted.sort((a, b) => a.mainValue - b.mainValue);
-      else if (sortOrder === "desc") sorted.sort((a, b) => b.mainValue - a.mainValue);
+      if (sortOrder === "asc") {
+        sorted.sort((a, b) => a.mainValue - b.mainValue);
+      } else if (sortOrder === "desc") {
+        sorted.sort((a, b) => b.mainValue - a.mainValue);
+      }
       return sorted;
     });
   }, [sortOrder]);
@@ -618,7 +654,7 @@ const Stats = () => {
     }
   }, [location.pathname, groupKey]);
 
-  // Effect 2: When the modal is open, update the selected tasks.
+  // Effect 2: When the modal is open, update the selected tasks for that group.
   useEffect(() => {
     if (!modalOpen || !groupKey) return;
     const { startDate, endDate } = computeDateRange();
@@ -662,10 +698,19 @@ const Stats = () => {
     }
     setSelectedMainGroupTasks(mainTasks);
     setSelectedCompGroupTasks(compTasks);
-  }, [modalOpen, tasks, xAxisField, columnsMapping, comparisonMode, compStartDate, compEndDate, groupKey]);
+  }, [
+    modalOpen,
+    tasks,
+    xAxisField,
+    columnsMapping,
+    comparisonMode,
+    compStartDate,
+    compEndDate,
+    groupKey,
+  ]);
 
-  // New Effect: When the group tasks modal is closed but the URL still contains the grouptasks route,
-  // navigate back to /stats (preserving query parameters) so that the URL is cleaned.
+  // When the group tasks modal is closed but the URL still contains the grouptasks route,
+  // navigate back to /stats (preserving query parameters) so the URL is cleaned.
   useEffect(() => {
     if (!modalOpen && location.pathname.includes("/grouptasks")) {
       navigate(`/stats${location.search}`);
@@ -720,7 +765,6 @@ const Stats = () => {
     setSelectedMainGroupTasks(mainTasks);
     setSelectedCompGroupTasks(compTasks);
     setModalOpen(true);
-    // Preserve current query parameters when navigating.
     navigate(`/stats/grouptasks/${clickedKey}${location.search}`);
   };
 
@@ -728,7 +772,6 @@ const Stats = () => {
   const openReadOnlyViewTaskModal = (task) => {
     setSelectedTask(task);
     setIsViewTaskModalOpen(true);
-    // If we are within a group, keep that in the URL so the group modal remains open.
     if (location.pathname.includes("/grouptasks") && groupKey) {
       navigate(`/stats/grouptasks/${groupKey}/viewtask/${task._id}${location.search}`);
     } else {
@@ -739,7 +782,6 @@ const Stats = () => {
   const closeViewTaskModal = () => {
     setSelectedTask(null);
     setIsViewTaskModalOpen(false);
-    // When closing the view task modal, if we were in a group, return to that grouptasks route.
     if (location.pathname.includes("/grouptasks")) {
       navigate(`/stats/grouptasks/${groupKey}${location.search}`);
     } else {
@@ -753,6 +795,8 @@ const Stats = () => {
     if (!currentUser) return;
     const prefs = {
       timeRangeType,
+      customStartDate: customStartDate ? customStartDate.toISOString() : null,
+      customEndDate: customEndDate ? customEndDate.toISOString() : null,
       taskType,
       chartType,
       xAxisField,
@@ -768,12 +812,11 @@ const Stats = () => {
       minTimeSpent,
       minTimeUnit,
       scheduledOnly,
+      includeZeroMetrics,
       includeNoDueDate,
       comparisonMode,
       compStartDate: compStartDate ? compStartDate.toISOString() : null,
       compEndDate: compEndDate ? compEndDate.toISOString() : null,
-      customStartDate: customStartDate ? customStartDate.toISOString() : null,
-      customEndDate: customEndDate ? customEndDate.toISOString() : null,
     };
     try {
       await updatePreferences(currentUser.uid, prefs);
@@ -786,6 +829,8 @@ const Stats = () => {
 
   const resetUserPreferences = async () => {
     setTimeRangeType(defaultFilterSettings.timeRangeType);
+    setCustomStartDate(defaultFilterSettings.customStartDate);
+    setCustomEndDate(defaultFilterSettings.customEndDate);
     setTaskType(defaultFilterSettings.taskType);
     setChartType(defaultFilterSettings.chartType);
     setXAxisField(defaultFilterSettings.xAxisField);
@@ -801,12 +846,11 @@ const Stats = () => {
     setMinTimeSpent(defaultFilterSettings.minTimeSpent);
     setMinTimeUnit(defaultFilterSettings.minTimeUnit);
     setScheduledOnly(defaultFilterSettings.scheduledOnly);
+    setIncludeZeroMetrics(defaultFilterSettings.includeZeroMetrics);
     setIncludeNoDueDate(defaultFilterSettings.includeNoDueDate);
     setComparisonMode(defaultFilterSettings.comparisonMode);
     setCompStartDate(defaultFilterSettings.compStartDate);
     setCompEndDate(defaultFilterSettings.compEndDate);
-    setCustomStartDate(defaultFilterSettings.customStartDate);
-    setCustomEndDate(defaultFilterSettings.customEndDate);
 
     const currentUser = auth.currentUser;
     if (!currentUser) return;
@@ -822,7 +866,7 @@ const Stats = () => {
   // -------------------- Render Chart --------------------
   const tooltipFormatter = (value) =>
     yAxisMetric === "timeSpent" ? `${value.toFixed(2)}h` : value.toFixed(0);
-  
+
   const axisFormatter = (value) =>
     yAxisMetric === "timeSpent" ? `${value.toFixed(2)}h` : value.toFixed(0);
 
@@ -838,12 +882,7 @@ const Stats = () => {
           <AreaChart
             data={chartData}
             onClick={(e) => {
-              if (
-                e &&
-                e.activePayload &&
-                e.activePayload.length > 0 &&
-                e.activePayload[0].payload
-              ) {
+              if (e && e.activePayload && e.activePayload.length > 0 && e.activePayload[0].payload) {
                 handleChartClick({ payload: e.activePayload[0].payload });
               }
             }}
@@ -891,12 +930,7 @@ const Stats = () => {
           <BarChart
             data={chartData}
             onClick={(e) => {
-              if (
-                e &&
-                e.activePayload &&
-                e.activePayload.length > 0 &&
-                e.activePayload[0].payload
-              ) {
+              if (e && e.activePayload && e.activePayload.length > 0 && e.activePayload[0].payload) {
                 handleChartClick({ payload: e.activePayload[0].payload });
               }
             }}
@@ -930,12 +964,7 @@ const Stats = () => {
           <LineChart
             data={chartData}
             onClick={(e) => {
-              if (
-                e &&
-                e.activePayload &&
-                e.activePayload.length > 0 &&
-                e.activePayload[0].payload
-              ) {
+              if (e && e.activePayload && e.activePayload.length > 0 && e.activePayload[0].payload) {
                 handleChartClick({ payload: e.activePayload[0].payload });
               }
             }}
@@ -978,6 +1007,7 @@ const Stats = () => {
         </ResponsiveContainer>
       );
     } else if (chartType === "pie") {
+      // Not supporting comparison for pie
       if (hasComparison) {
         return <p>Comparison not supported for this chart type.</p>;
       }
@@ -1026,9 +1056,8 @@ const Stats = () => {
           <RadarChart
             data={chartData}
             onClick={(e) => {
-              const activeLabel = e.activeLabel;
-              if (activeLabel) {
-                const dataPoint = chartData.find((d) => d.key === activeLabel);
+              if (e.activeLabel) {
+                const dataPoint = chartData.find((d) => d.key === e.activeLabel);
                 if (dataPoint) {
                   handleChartClick({ payload: dataPoint });
                 }
@@ -1161,7 +1190,10 @@ const Stats = () => {
                 </select>
               </div>
               <div className="filter-group">
-                <button onClick={() => setShowAdvancedFilters((prev) => !prev)} className="toggle-btn">
+                <button
+                  onClick={() => setShowAdvancedFilters((prev) => !prev)}
+                  className="toggle-btn"
+                >
                   {showAdvancedFilters ? "Hide Advanced ▲" : "Show Advanced ▼"}
                 </button>
               </div>
@@ -1279,6 +1311,15 @@ const Stats = () => {
                       type="checkbox"
                       checked={scheduledOnly}
                       onChange={(e) => setScheduledOnly(e.target.checked)}
+                    />
+                  </div>
+                  {/* Include Zero Metrics appears before Include Tasks Without Due Date */}
+                  <div className="filter-group">
+                    <label>Include Zero Metrics</label>
+                    <input
+                      type="checkbox"
+                      checked={includeZeroMetrics}
+                      onChange={(e) => setIncludeZeroMetrics(e.target.checked)}
                     />
                   </div>
                   <div className="filter-group">
