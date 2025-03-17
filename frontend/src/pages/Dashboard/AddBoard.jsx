@@ -6,6 +6,8 @@ const AddBoard = ({
   setNewBoardCreateName,
   setIsAddingBoard,
   handleCreateBoard,
+  createBoardError,
+  setCreateBoardError,
 }) => {
   return (
     <div className="add-task-container">
@@ -15,9 +17,15 @@ const AddBoard = ({
             type="text"
             placeholder="Enter board name"
             value={newBoardCreateName}
-            onChange={(e) => setNewBoardCreateName(e.target.value)}
+            onChange={(e) => {
+              setNewBoardCreateName(e.target.value);
+              setCreateBoardError("");
+            }}
             autoFocus
           />
+          {createBoardError && (
+            <div className="add-board-error-message">{createBoardError}</div>
+          )}
           <div className="button-container">
             <button className="tick-btn" onClick={handleCreateBoard}>
               ✔️
@@ -27,6 +35,7 @@ const AddBoard = ({
               onClick={() => {
                 setIsAddingBoard(false);
                 setNewBoardCreateName("");
+                setCreateBoardError("");
               }}
             >
               ❌
@@ -39,6 +48,7 @@ const AddBoard = ({
           onClick={() => {
             setIsAddingBoard(true);
             setNewBoardCreateName("");
+            setCreateBoardError("");
           }}
         >
           <span className="thick-plus">+</span>

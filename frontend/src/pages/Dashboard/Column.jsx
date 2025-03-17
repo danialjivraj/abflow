@@ -25,7 +25,9 @@ const Column = ({
   startTimer,
   stopTimer,
   openViewTaskModal,
-  handleCompleteTask
+  handleCompleteTask,
+  renameBoardError,
+  setRenameBoardError,
 }) => {
   const columnDropdownRef = useRef(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -43,7 +45,8 @@ const Column = ({
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    return () =>
+      document.removeEventListener("mousedown", handleClickOutside);
   }, [isDropdownOpen, setIsDropdownOpen, columnId]);
 
   return (
@@ -61,9 +64,17 @@ const Column = ({
                   <input
                     type="text"
                     value={newBoardName}
-                    onChange={(e) => setNewBoardName(e.target.value)}
+                    onChange={(e) => {
+                      setNewBoardName(e.target.value);
+                      setRenameBoardError("");
+                    }}
                     autoFocus
                   />
+                  {renameBoardError && (
+                    <div className="board-name-taken-error-message">
+                      {renameBoardError}
+                    </div>
+                  )}
                   <div className="button-container">
                     <button
                       className="tick-btn"
@@ -73,7 +84,11 @@ const Column = ({
                     </button>
                     <button
                       className="cross-btn"
-                      onClick={() => setRenamingColumnId(null)}
+                      onClick={() => {
+                        setRenamingColumnId(null);
+                        setNewBoardName("");
+                        setRenameBoardError("");
+                      }}
                     >
                       ❌
                     </button>
@@ -88,7 +103,9 @@ const Column = ({
                     isDropdownOpen === columnId ? "active dropdown-active" : ""
                   }`}
                   onClick={() =>
-                    setIsDropdownOpen(isDropdownOpen === columnId ? null : columnId)
+                    setIsDropdownOpen(
+                      isDropdownOpen === columnId ? null : columnId
+                    )
                   }
                 >
                   &#8942;
@@ -99,6 +116,7 @@ const Column = ({
                       onClick={() => {
                         setRenamingColumnId(columnId);
                         setNewBoardName(columnData.name);
+                        setRenameBoardError("");
                         setIsDropdownOpen(null);
                       }}
                     >

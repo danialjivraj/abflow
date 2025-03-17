@@ -1520,7 +1520,8 @@ select {
 }
 
 .create-task-modal .error-message,
-.add-board-error-message {
+.add-board-error-message,
+.board-name-taken-error-message {
   color: #ff4d4d;
   font-size: 14.4px;
   margin-top: -9px;

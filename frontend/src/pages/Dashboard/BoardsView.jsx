@@ -30,7 +30,11 @@ const BoardsView = ({
   setNewBoardCreateName,
   setIsAddingBoard,
   handleCreateBoard,
-  handleCompleteTask
+  createBoardError,
+  setCreateBoardError,
+  handleCompleteTask,
+  renameBoardError,
+  setRenameBoardError,
 }) => {
   return (
     <>
@@ -70,6 +74,8 @@ const BoardsView = ({
                     stopTimer={stopTimer}
                     openViewTaskModal={openViewTaskModal}
                     handleCompleteTask={handleCompleteTask}
+                    renameBoardError={renameBoardError}
+                    setRenameBoardError={setRenameBoardError}
                   />
                 ))}
                 {provided.placeholder}
@@ -79,6 +85,8 @@ const BoardsView = ({
                   setNewBoardCreateName={setNewBoardCreateName}
                   setIsAddingBoard={setIsAddingBoard}
                   handleCreateBoard={handleCreateBoard}
+                  createBoardError={createBoardError}
+                  setCreateBoardError={setCreateBoardError}
                 />
               </div>
             )}

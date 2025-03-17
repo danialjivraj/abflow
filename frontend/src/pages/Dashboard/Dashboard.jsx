@@ -60,9 +60,13 @@ const Dashboard = () => {
   const [scheduledAtShortcut, setScheduledAtShortcut] = useState(null);
   const [scheduledEndShortcut, setScheduledEndShortcut] = useState(null);
 
-  // New state for ScheduleEditModal routing:
+  // State for ScheduleEditModal routing:
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [selectedScheduleEvent, setSelectedScheduleEvent] = useState(null);
+
+  // Error states for board creation and rename validations:
+  const [createBoardError, setCreateBoardError] = useState("");
+  const [renameBoardError, setRenameBoardError] = useState("");
 
   const navigate = useNavigate();
   const { taskId } = useParams();
@@ -275,8 +279,17 @@ const Dashboard = () => {
     closeScheduleModal();
   };
 
+  // ---------------------- Board Creation and Rename Handlers ----------------------
   const handleCreateBoard = async () => {
     if (!newBoardCreateName.trim() || !userId) return;
+    // Check if board name already exists (case-insensitive)
+    const existingBoard = Object.values(columns).find(
+      (board) => board.name.toLowerCase() === newBoardCreateName.trim().toLowerCase()
+    );
+    if (existingBoard) {
+      setCreateBoardError("Board name already taken.");
+      return;
+    }
     try {
       const res = await createBoard(userId, newBoardCreateName);
       const { columnId, columnName } = res.data;
@@ -287,6 +300,7 @@ const Dashboard = () => {
       setNewBoardCreateName("");
       setIsAddingBoard(false);
       setIsDropdownOpen(null);
+      setCreateBoardError("");
     } catch (error) {
       console.error("Error creating board:", error);
     }
@@ -294,6 +308,15 @@ const Dashboard = () => {
 
   const handleRenameBoard = async (columnId, newName) => {
     if (!newName.trim()) return;
+    // Check if the new name already exists on a different board
+    const existingBoard = Object.entries(columns).find(
+      ([id, board]) =>
+        board.name.toLowerCase() === newName.trim().toLowerCase() && id !== columnId
+    );
+    if (existingBoard) {
+      setRenameBoardError("Board name already taken.");
+      return;
+    }
     try {
       await renameBoard(userId, columnId, newName);
       setColumns((prev) => ({
@@ -303,6 +326,7 @@ const Dashboard = () => {
       setNewBoardName("");
       setRenamingColumnId(null);
       setIsDropdownOpen(null);
+      setRenameBoardError("");
     } catch (error) {
       console.error("Error renaming board:", error);
     }
@@ -641,7 +665,11 @@ const Dashboard = () => {
           setNewBoardCreateName={setNewBoardCreateName}
           setIsAddingBoard={setIsAddingBoard}
           handleCreateBoard={handleCreateBoard}
+          createBoardError={createBoardError}
+          setCreateBoardError={setCreateBoardError}
           handleCompleteTask={handleCompleteTaskFromDropdown}
+          renameBoardError={renameBoardError}
+          setRenameBoardError={setRenameBoardError}
         />
       );
     }
