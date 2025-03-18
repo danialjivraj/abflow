@@ -876,8 +876,8 @@ const Charts = () => {
   
   const axisWordLimit = (value, index) => {
     const limit = 20;
-    if (value.length < limit) return value;
-    return `${value.substring(0, limit)}...`;
+    if (typeof value !== "string") return "";
+    return value.length < limit ? value : `${value.substring(0, limit)}...`;
   };
 
   const renderChart = () => {
