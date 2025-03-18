@@ -284,9 +284,14 @@ const Dashboard = () => {
   // ---------------------- Board Creation and Rename Handlers ----------------------
   const handleCreateBoard = async () => {
     if (!newBoardCreateName.trim() || !userId) return;
+    const nameToCheck = newBoardCreateName.trim().toLowerCase();
+    if (nameToCheck === "completed") {
+      setCreateBoardError("Board name 'Completed' is reserved.");
+      return;
+    }
     // Check if board name already exists (case-insensitive)
     const existingBoard = Object.values(columns).find(
-      (board) => board.name.toLowerCase() === newBoardCreateName.trim().toLowerCase()
+      (board) => board.name.toLowerCase() === nameToCheck
     );
     if (existingBoard) {
       setCreateBoardError("Board name already taken.");
@@ -310,10 +315,15 @@ const Dashboard = () => {
 
   const handleRenameBoard = async (columnId, newName) => {
     if (!newName.trim()) return;
+    const nameToCheck = newName.trim().toLowerCase();
+    if (nameToCheck === "completed") {
+      setRenameBoardError("Board name 'Completed' is reserved.");
+      return;
+    }
     // Check if the new name already exists on a different board
     const existingBoard = Object.entries(columns).find(
       ([id, board]) =>
-        board.name.toLowerCase() === newName.trim().toLowerCase() && id !== columnId
+        board.name.toLowerCase() === nameToCheck && id !== columnId
     );
     if (existingBoard) {
       setRenameBoardError("Board name already taken.");

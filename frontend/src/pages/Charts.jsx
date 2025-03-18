@@ -409,11 +409,11 @@ const Charts = () => {
         const d = new Date(task.createdAt);
         return d >= startDate && d <= endDate;
       } else if (taskType === "completed") {
-        if (task.status !== "completed") return false;
+        if (!task.taskCompleted) return false;
         if (!task.completedAt) return false;
         const d = new Date(task.completedAt);
         return d >= startDate && d <= endDate;
-      } else {
+      } else { // both
         let d;
         if (task.taskCompleted) {
           if (!task.completedAt) return false;
@@ -425,7 +425,7 @@ const Charts = () => {
         return d >= startDate && d <= endDate;
       }
     });
-
+  
     if (dueFilter !== "both") {
       const now = new Date();
       filtered = filtered.filter((task) => {
@@ -436,34 +436,34 @@ const Charts = () => {
     } else if (!includeNoDueDate) {
       filtered = filtered.filter((task) => task.dueDate);
     }
-
+  
     if (priorityFilters.length > 0) {
       filtered = filtered.filter((task) => priorityFilters.includes(task.priority));
     }
-
+  
     if (dayOfWeekFilters.length > 0) {
       filtered = filtered.filter((task) => {
         const d = task.taskCompleted ? new Date(task.completedAt) : new Date(task.createdAt);
         return dayOfWeekFilters.includes(format(d, "EEEE"));
       });
     }
-
+  
     if (statusFilters.length > 0) {
       filtered = filtered.filter((task) => statusFilters.includes(task.status));
     }
-
+  
     if (assignedToFilter.trim() !== "") {
       const term = assignedToFilter.trim().toLowerCase();
       filtered = filtered.filter(
         (task) => task.assignedTo && task.assignedTo.toLowerCase().includes(term)
       );
     }
-
+  
     if (minStoryPoints !== "" && !isNaN(parseInt(minStoryPoints, 10))) {
       const minVal = parseInt(minStoryPoints, 10);
       filtered = filtered.filter((task) => (task.storyPoints || 0) >= minVal);
     }
-
+  
     if (minTimeSpent !== "" && !isNaN(parseFloat(minTimeSpent))) {
       const value = parseFloat(minTimeSpent);
       let threshold = value;
@@ -471,13 +471,14 @@ const Charts = () => {
       else if (minTimeUnit === "hours") threshold = value * 3600;
       filtered = filtered.filter((task) => (task.timeSpent || 0) >= threshold);
     }
-
+  
     if (scheduledOnly) {
       filtered = filtered.filter((task) => task.scheduledStart != null && task.scheduledStart !== "");
     }
-
+  
     return filtered;
   };
+  
 
   // -------------------- Grouping Functions --------------------
   const groupTasks = (tasksList) => {
@@ -493,15 +494,13 @@ const Charts = () => {
       } else if (xAxisField === "status") {
         key = task.taskCompleted ? "Completed" : (columnsMapping[task.status] || task.status);
       }
+  
       if (!groupMap[key]) {
-        groupMap[key] = { key, count: 0, timeSpent: 0, storyPoints: 0, isTrulyCompleted: false };
+        groupMap[key] = { key, count: 0, timeSpent: 0, storyPoints: 0 };
       }
       groupMap[key].count += 1;
       groupMap[key].timeSpent += task.timeSpent || 0;
       groupMap[key].storyPoints += task.storyPoints || 0;
-      if (task.taskCompleted) {
-        groupMap[key].isTrulyCompleted = true;
-      }
     });
   
     if (includeZeroMetrics) {
@@ -513,14 +512,10 @@ const Charts = () => {
       } else if (xAxisField === "status") {
         possibleKeys =
           statusFilters.length > 0
-            ? statusFilters.map(val =>
-                val === "completed"
-                  ? "Completed"
-                  : (columnsMapping[val] || val)
-              )
+            ? statusFilters.map(val => columnsMapping[val] || val)
             : (() => {
                 const keys = columnsMapping ? Object.values(columnsMapping) : [];
-                if (keys.includes("Completed")) {
+                if (!keys.includes("Completed")) {
                   keys.push("Completed");
                 }
                 return Array.from(new Set(keys));
@@ -528,7 +523,7 @@ const Charts = () => {
       }
       possibleKeys.forEach((key) => {
         if (!groupMap[key]) {
-          groupMap[key] = { key, count: 0, timeSpent: 0, storyPoints: 0, isTrulyCompleted: false };
+          groupMap[key] = { key, count: 0, timeSpent: 0, storyPoints: 0 };
         }
       });
     }
@@ -537,19 +532,14 @@ const Charts = () => {
   
     if (xAxisField === "status") {
       if (taskType === "active") {
-        groupedData = groupedData.filter(
-          (item) => !(item.key === "Completed" && item.isTrulyCompleted)
-        );
+        groupedData = groupedData.filter((item) => item.key !== "Completed");
       } else if (taskType === "completed") {
-        groupedData = groupedData.filter(
-          (item) => item.key === "Completed" && item.isTrulyCompleted
-        );
+        groupedData = groupedData.filter((item) => item.key === "Completed");
       }
     }
   
     return groupedData;
   };
-  
 
   const mergeData = (mainData, compData) => {
     const merged = {};
