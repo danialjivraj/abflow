@@ -33,6 +33,7 @@ import "../../components/tipTapEditor.css";
 const Dashboard = () => {
   // ---------------------- state and refs ----------------------
   const [columns, setColumns] = useState({});
+  const [columnsLoaded, setColumnsLoaded] = useState(false);
   const [userId, setUserId] = useState(null);
   const [renamingColumnId, setRenamingColumnId] = useState(null);
   const [newBoardName, setNewBoardName] = useState("");
@@ -124,6 +125,7 @@ const Dashboard = () => {
         if (columnOrder.length > 0 && !selectedStatus) {
           setSelectedStatus(columnOrder[0]);
         }
+        setColumnsLoaded(true);
       } catch (err) {
         console.error("Error fetching data:", err);
       }
@@ -163,12 +165,12 @@ const Dashboard = () => {
   }, [location, columns, completedTasks]);
 
   useEffect(() => {
-    if (location.pathname.endsWith("/createtask")) {
+    if (location.pathname.endsWith("/createtask") && columnsLoaded) {
       setIsModalOpen(true);
     } else {
       setIsModalOpen(false);
     }
-  }, [location]);
+  }, [location, columnsLoaded]);
 
   useEffect(() => {
     const match = location.pathname.match(/\/dashboard\/schedule\/editevent\/([^/]+)/);
@@ -692,6 +694,7 @@ const Dashboard = () => {
         isModalOpen={isModalOpen}
         closeModal={closeModal}
         columns={columns}
+        columnsLoaded={columnsLoaded}
         newTaskTitle={newTaskTitle}
         setNewTaskTitle={setNewTaskTitle}
         selectedPriority={selectedPriority}

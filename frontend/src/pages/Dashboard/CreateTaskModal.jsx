@@ -9,6 +9,7 @@ const CreateTaskModal = ({
   isModalOpen,
   closeModal,
   columns,
+  columnsLoaded,
   newTaskTitle,
   setNewTaskTitle,
   selectedPriority,
@@ -46,6 +47,8 @@ const CreateTaskModal = ({
   }, [isModalOpen, columns, localSelectedStatus, setSelectedStatus]);
 
   if (!isModalOpen) return null;
+
+  if (!columnsLoaded) return <div>Loading...</div>;
 
   const hasBoards = Object.keys(columns).length > 0;
 
@@ -145,10 +148,13 @@ const CreateTaskModal = ({
                     ))}
                   </select>
                   <label>Status:</label>
-                  <select value={localSelectedStatus} onChange={(e) => {
-                    setLocalSelectedStatus(e.target.value);
-                    setSelectedStatus(e.target.value);
-                  }}>
+                  <select
+                    value={localSelectedStatus}
+                    onChange={(e) => {
+                      setLocalSelectedStatus(e.target.value);
+                      setSelectedStatus(e.target.value);
+                    }}
+                  >
                     {Object.keys(columns).map((columnId) => (
                       <option key={columnId} value={columnId}>
                         {columns[columnId].name}
