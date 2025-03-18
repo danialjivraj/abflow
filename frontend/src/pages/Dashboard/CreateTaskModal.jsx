@@ -35,19 +35,19 @@ const CreateTaskModal = ({
 }) => {
   const [localSelectedStatus, setLocalSelectedStatus] = useState(selectedStatus);
 
+  const defaultStatus = Object.keys(columns)[0] || "";
+
   useEffect(() => {
     if (isModalOpen) {
       const hasBoards = Object.keys(columns).length > 0;
-      const defaultStatus = Object.keys(columns)[0] || "";
       if (hasBoards && !localSelectedStatus) {
         setLocalSelectedStatus(defaultStatus);
         setSelectedStatus(defaultStatus);
       }
     }
-  }, [isModalOpen, columns, localSelectedStatus, setSelectedStatus]);
+  }, [isModalOpen, columns, localSelectedStatus, setSelectedStatus, defaultStatus]);
 
   if (!isModalOpen) return null;
-
   if (!columnsLoaded) return <div>Loading...</div>;
 
   const hasBoards = Object.keys(columns).length > 0;
@@ -56,7 +56,7 @@ const CreateTaskModal = ({
     return (
       newTaskTitle.trim() === "" &&
       selectedPriority === "A1" &&
-      localSelectedStatus === "" &&
+      localSelectedStatus === defaultStatus &&
       !dueDate &&
       assignedTo.trim() === "" &&
       taskDescription.trim() === "" &&
@@ -64,12 +64,27 @@ const CreateTaskModal = ({
     );
   };
 
+  const handleBoardCreationCancel = () => {
+    setNewBoardCreateName("");
+    closeModal();
+  };
+
   const handleOverlayClick = (e) => {
     if (e.target.className.includes("modal-overlay")) {
       if (!hasBoards) {
-        closeModal();
+        // Board creation UI is active
+        if (newBoardCreateName.trim() !== "") {
+          const confirmClose = window.confirm("You have unsaved changes. Are you sure you want to close?");
+          if (confirmClose) {
+            setNewBoardCreateName("");
+            closeModal();
+          }
+        } else {
+          closeModal();
+        }
         return;
       }
+      // Task creation UI:
       if (isEmpty()) {
         closeModal();
       } else {
@@ -85,7 +100,10 @@ const CreateTaskModal = ({
     <div className="modal-overlay" onClick={handleOverlayClick}>
       <div className="create-task-modal">
         <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-          <button className="close-modal" onClick={closeModal}>
+          <button className="close-modal" onClick={() => {
+            if (!hasBoards) setNewBoardCreateName("");
+            closeModal();
+          }}>
             &times;
           </button>
           <h2>Create New Task</h2>
@@ -99,9 +117,7 @@ const CreateTaskModal = ({
                   type="text"
                   placeholder="Enter board name"
                   value={newBoardCreateName}
-                  onChange={(e) => {
-                    setNewBoardCreateName(e.target.value);
-                  }}
+                  onChange={(e) => setNewBoardCreateName(e.target.value)}
                   autoFocus
                 />
                 {createBoardError && (
@@ -111,18 +127,13 @@ const CreateTaskModal = ({
                   <button className="tick-btn" onClick={handleCreateBoard}>
                     ✔️
                   </button>
-                  <button
-                    className="cross-btn"
-                    onClick={() => {
-                      setNewBoardCreateName("");
-                    }}
-                  >
+                  <button className="cross-btn" onClick={() => setNewBoardCreateName("")}>
                     ❌
                   </button>
                 </div>
               </div>
               <div className="modal-footer">
-                <button className="cancel-btn" onClick={closeModal} style={{ marginLeft: "auto" }}>
+                <button className="cancel-btn" onClick={handleBoardCreationCancel} style={{ marginLeft: "auto" }}>
                   Cancel
                 </button>
               </div>
