@@ -2,9 +2,9 @@ import React, { useEffect, useState, useRef } from "react";
 import Layout from "../../components/Layout";
 import TopBar from "../../components/TopBar";
 import { topBarConfig } from "../../config/topBarConfig";
-import CreateTaskModal from "./CreateTaskModal";
-import ViewTaskModal from "./ViewTaskModal";
-import ScheduleEditModal from "./ScheduleEditModal";
+import CreateTaskModal from "../../components/Modals/CreateTaskModal";
+import ViewTaskModal from "../../components/Modals/ViewTaskModal";
+import ScheduleEditModal from "../../components/Modals/ScheduleEditModal";
 import { auth } from "../../firebase";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import {

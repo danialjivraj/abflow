@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from "react";
 import { Droppable, Draggable } from "@hello-pangea/dnd";
 import TaskCard from "./TaskCard";
-import DeleteConfirmationModal from "./DeleteConfirmationModal";
+import DeleteConfirmationModal from "../../components/Modals/DeleteConfirmationModal";
 
 const Column = ({
   columnId,

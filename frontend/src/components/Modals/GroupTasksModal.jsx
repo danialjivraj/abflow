@@ -1,5 +1,5 @@
 import React from "react";
-import TaskCard from "./Dashboard/TaskCard";
+import TaskCard from "../../pages/Dashboard/TaskCard";
 
 const GroupTasksModal = ({
   modalOpen,
