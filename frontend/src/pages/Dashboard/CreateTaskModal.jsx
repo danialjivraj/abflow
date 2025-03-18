@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import TiptapEditor from "../../components/TiptapEditor";
 import "react-datepicker/dist/react-datepicker.css";
@@ -32,20 +32,28 @@ const CreateTaskModal = ({
   handleCreateBoard,
   createBoardError,
 }) => {
+  const [localSelectedStatus, setLocalSelectedStatus] = useState(selectedStatus);
+
+  useEffect(() => {
+    if (isModalOpen) {
+      const hasBoards = Object.keys(columns).length > 0;
+      const defaultStatus = Object.keys(columns)[0] || "";
+      if (hasBoards && !localSelectedStatus) {
+        setLocalSelectedStatus(defaultStatus);
+        setSelectedStatus(defaultStatus);
+      }
+    }
+  }, [isModalOpen, columns, localSelectedStatus, setSelectedStatus]);
+
   if (!isModalOpen) return null;
 
   const hasBoards = Object.keys(columns).length > 0;
-  const defaultStatus = Object.keys(columns)[0] || "";
-
-  if (hasBoards && !selectedStatus) {
-    setSelectedStatus(defaultStatus);
-  }
 
   const isEmpty = () => {
     return (
       newTaskTitle.trim() === "" &&
       selectedPriority === "A1" &&
-      selectedStatus === defaultStatus &&
+      localSelectedStatus === "" &&
       !dueDate &&
       assignedTo.trim() === "" &&
       taskDescription.trim() === "" &&
@@ -137,7 +145,10 @@ const CreateTaskModal = ({
                     ))}
                   </select>
                   <label>Status:</label>
-                  <select value={selectedStatus} onChange={(e) => setSelectedStatus(e.target.value)}>
+                  <select value={localSelectedStatus} onChange={(e) => {
+                    setLocalSelectedStatus(e.target.value);
+                    setSelectedStatus(e.target.value);
+                  }}>
                     {Object.keys(columns).map((columnId) => (
                       <option key={columnId} value={columnId}>
                         {columns[columnId].name}

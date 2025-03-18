@@ -6,7 +6,7 @@ const User = require("../models/User");
 // create a new task
 router.post("/", async (req, res) => {
   try {
-    const { title, priority, userId, description, assignedTo, status, dueDate, storyPoints, scheduledAt, scheduledEnd } = req.body;
+    const { title, priority, userId, description, assignedTo, status, dueDate, storyPoints, scheduledStart, scheduledEnd } = req.body;
     if (!title || !priority || !userId || !status) {
       return res.status(400).json({ error: "All fields are required" });
     }
@@ -37,7 +37,7 @@ router.post("/", async (req, res) => {
       dueDate: dueDate || null,
       order: newOrder,
       storyPoints: storyPoints !== undefined ? storyPoints : 0,
-      scheduledAt: scheduledAt || null,
+      scheduledStart: scheduledStart || null,
       scheduledEnd: scheduledEnd || null,
     });
 
@@ -77,7 +77,7 @@ router.put("/:id/edit", async (req, res) => {
       description,
       order,
       timerStartTime,
-      scheduledAt,
+      scheduledStart,
       scheduledEnd,
       taskCompleted,
     } = req.body;
@@ -93,7 +93,7 @@ router.put("/:id/edit", async (req, res) => {
       description,
       order,
       timerStartTime,
-      scheduledAt,
+      scheduledStart,
       scheduledEnd,
     };
 
@@ -349,7 +349,7 @@ router.put("/:id/complete", async (req, res) => {
         status: "completed", 
         taskCompleted: true,
         completedAt: new Date(),
-        scheduledAt: null,
+        scheduledStart: null,
         scheduledEnd: null
       },
       { new: true }

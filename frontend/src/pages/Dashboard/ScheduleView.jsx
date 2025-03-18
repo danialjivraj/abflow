@@ -15,7 +15,7 @@ const ScheduleView = ({ tasks, updateTaskInState, onCreateTaskShortcut }) => {
   const navigate = useNavigate();
 
   const mapTaskToEvent = (task) => {
-    const start = task.scheduledAt ? new Date(task.scheduledAt) : new Date();
+    const start = task.scheduledStart ? new Date(task.scheduledStart) : new Date();
     const end = task.scheduledEnd
       ? new Date(task.scheduledEnd)
       : new Date(start.getTime() + 60 * 60 * 1000);
@@ -40,8 +40,8 @@ const ScheduleView = ({ tasks, updateTaskInState, onCreateTaskShortcut }) => {
   const [currentView, setCurrentView] = useState("week");
 
   useEffect(() => {
-    const scheduledTasks = tasks.filter((task) => task.scheduledAt);
-    const unscheduled = tasks.filter((task) => !task.scheduledAt);
+    const scheduledTasks = tasks.filter((task) => task.scheduledStart);
+    const unscheduled = tasks.filter((task) => !task.scheduledStart);
     setEvents(scheduledTasks.map(mapTaskToEvent));
     setUnscheduledTasks(unscheduled);
   }, [tasks]);
@@ -151,7 +151,7 @@ const ScheduleView = ({ tasks, updateTaskInState, onCreateTaskShortcut }) => {
 
       const updatedTask = {
         ...event.task,
-        scheduledAt: start.toISOString(),
+        scheduledStart: start.toISOString(),
         scheduledEnd: end.toISOString(),
       };
 
@@ -178,7 +178,7 @@ const ScheduleView = ({ tasks, updateTaskInState, onCreateTaskShortcut }) => {
 
       const updatedTask = {
         ...event.task,
-        scheduledAt: start.toISOString(),
+        scheduledStart: start.toISOString(),
         scheduledEnd: end.toISOString(),
       };
       await updateTask(updatedTask);
@@ -200,7 +200,7 @@ const ScheduleView = ({ tasks, updateTaskInState, onCreateTaskShortcut }) => {
 
     const newEvent = mapTaskToEvent({
       ...draggedTask,
-      scheduledAt: start,
+      scheduledStart: start,
       scheduledEnd: end,
     });
 
@@ -211,7 +211,7 @@ const ScheduleView = ({ tasks, updateTaskInState, onCreateTaskShortcut }) => {
 
     const updatedTask = {
       ...draggedTask,
-      scheduledAt: start.toISOString(),
+      scheduledStart: start.toISOString(),
       scheduledEnd: end.toISOString(),
     };
     updateTask(updatedTask)

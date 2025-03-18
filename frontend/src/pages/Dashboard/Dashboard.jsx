@@ -57,7 +57,7 @@ const Dashboard = () => {
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
   const [completedTasks, setCompletedTasks] = useState([]);
-  const [scheduledAtShortcut, setScheduledAtShortcut] = useState(null);
+  const [scheduledStartShortcut, setScheduledStartShortcut] = useState(null);
   const [scheduledEndShortcut, setScheduledEndShortcut] = useState(null);
 
   // State for ScheduleEditModal routing:
@@ -180,13 +180,13 @@ const Dashboard = () => {
         const eventData = {
           id: foundTask._id,
           title: foundTask.title,
-          start: foundTask.scheduledAt ? new Date(foundTask.scheduledAt) : new Date(),
+          start: foundTask.scheduledStart ? new Date(foundTask.scheduledStart) : new Date(),
           end: foundTask.scheduledEnd
             ? new Date(foundTask.scheduledEnd)
             : new Date(new Date().getTime() + 60 * 60 * 1000),
           priority: foundTask.priority,
           task: foundTask,
-          isUnscheduled: !foundTask.scheduledAt,
+          isUnscheduled: !foundTask.scheduledStart,
         };
         setSelectedScheduleEvent(eventData);
         setIsScheduleModalOpen(true);
@@ -254,7 +254,7 @@ const Dashboard = () => {
   const handleScheduleModalSave = (updatedEvent) => {
     const updatedTask = {
       ...updatedEvent.task,
-      scheduledAt: updatedEvent.start.toISOString(),
+      scheduledStart: updatedEvent.start.toISOString(),
       scheduledEnd: updatedEvent.end.toISOString(),
     };
     updateTask(updatedTask)
@@ -268,7 +268,7 @@ const Dashboard = () => {
   const handleScheduleModalUnschedule = (event) => {
     const updatedTask = {
       ...event.task,
-      scheduledAt: null,
+      scheduledStart: null,
       scheduledEnd: null,
     };
     updateTask(updatedTask)
@@ -488,7 +488,7 @@ const Dashboard = () => {
         assignedTo,
         description: taskDescription,
         storyPoints,
-        scheduledAt: scheduledAtShortcut ? scheduledAtShortcut.toISOString() : null,
+        scheduledStart: scheduledStartShortcut ? scheduledStartShortcut.toISOString() : null,
         scheduledEnd: scheduledEndShortcut ? scheduledEndShortcut.toISOString() : null,
       };
 
@@ -505,7 +505,7 @@ const Dashboard = () => {
       });
       resetForm();
       closeModal();
-      setScheduledAtShortcut(null);
+      setScheduledStartShortcut(null);
       setScheduledEndShortcut(null);
     } catch (error) {
       console.error("Error creating task:", error);
@@ -635,7 +635,7 @@ const Dashboard = () => {
           tasks={currentTasks}
           updateTaskInState={updateTaskInState}
           onCreateTaskShortcut={(start, end) => {
-            setScheduledAtShortcut(start);
+            setScheduledStartShortcut(start);
             setScheduledEndShortcut(end);
             navigate(`${baseRoute}/createtask`);
           }}

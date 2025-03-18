@@ -78,7 +78,7 @@ const TaskCard = ({
     }
   }
 
-  const calendarColor = getCalendarIconColor(task.scheduledAt, task.scheduledEnd, currentTime);
+  const calendarColor = getCalendarIconColor(task.scheduledStart, task.scheduledEnd, currentTime);
 
   const cardContent = (
     <>

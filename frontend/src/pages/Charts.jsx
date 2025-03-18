@@ -473,7 +473,7 @@ const Charts = () => {
     }
 
     if (scheduledOnly) {
-      filtered = filtered.filter((task) => task.scheduledAt != null && task.scheduledAt !== "");
+      filtered = filtered.filter((task) => task.scheduledStart != null && task.scheduledStart !== "");
     }
 
     return filtered;

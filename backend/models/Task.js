@@ -21,7 +21,7 @@ const TaskSchema = new mongoose.Schema({
   timeSpent: { type: Number, default: 0 },
   isTimerRunning: { type: Boolean, default: false },
   timerStartTime: { type: Date },
-  scheduledAt: { type: Date, default: null },
+  scheduledStart: { type: Date, default: null },
   scheduledEnd: { type: Date, default: null },
 });
 

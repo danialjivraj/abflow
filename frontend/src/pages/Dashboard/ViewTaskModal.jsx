@@ -415,7 +415,7 @@ const ViewTaskModal = ({
   const [editingCount, setEditingCount] = useState(0);
 
   const calendarColor = getCalendarIconColor(
-    editableTask.scheduledAt,
+    editableTask.scheduledStart,
     editableTask.scheduledEnd,
     new Date()
   );

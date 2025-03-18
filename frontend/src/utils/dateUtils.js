@@ -211,19 +211,19 @@ function isSameDay(date1, date2) {
  * Determines the color for the calendar icon based on scheduled times and the current time.
  * Rules:
  *  - Only show the icon if the task is scheduled for TODAY.
- *  - If currentTime < scheduledAt => grey (#aaa)
- *  - If scheduledAt <= currentTime <= scheduledEnd => green (#4caf50)
+ *  - If currentTime < scheduledStart => grey (#aaa)
+ *  - If scheduledStart <= currentTime <= scheduledEnd => green (#4caf50)
  *  - Otherwise => null (no icon)
  *
- * @param {string|Date|null} scheduledAt - Start time of the schedule
+ * @param {string|Date|null} scheduledStart - Start time of the schedule
  * @param {string|Date|null} scheduledEnd - End time of the schedule
  * @param {Date} currentTime - Current date/time
  * @returns {string|null} - A color string if the icon should be displayed, or null if it shouldn't.
  */
-export function getCalendarIconColor(scheduledAt, scheduledEnd, currentTime) {
-  if (!scheduledAt || !scheduledEnd) return null; // not scheduled => no icon
+export function getCalendarIconColor(scheduledStart, scheduledEnd, currentTime) {
+  if (!scheduledStart || !scheduledEnd) return null; // not scheduled => no icon
 
-  const start = new Date(scheduledAt);
+  const start = new Date(scheduledStart);
   const end = new Date(scheduledEnd);
 
   // Must be on the same day as currentTime
