@@ -79,6 +79,7 @@ router.put("/:id/edit", async (req, res) => {
       timerStartTime,
       scheduledAt,
       scheduledEnd,
+      taskCompleted,
     } = req.body;
 
     const updatedFields = {
@@ -96,6 +97,10 @@ router.put("/:id/edit", async (req, res) => {
       scheduledEnd,
     };
 
+    if (typeof taskCompleted !== "undefined") {
+      updatedFields.taskCompleted = taskCompleted;
+    }
+
     const task = await Task.findByIdAndUpdate(req.params.id, updatedFields, { new: true });
     res.json(task);
   } catch (error) {
@@ -103,6 +108,7 @@ router.put("/:id/edit", async (req, res) => {
     res.status(500).json({ error: "Failed to edit task" });
   }
 });
+
 
 // move a task to a new status and order
 router.put("/:id/move", async (req, res) => {

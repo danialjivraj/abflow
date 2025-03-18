@@ -382,21 +382,26 @@ const Dashboard = () => {
   const handleBackToBoardsFromDropdown = async (task) => {
     try {
       const newStatus = Object.keys(columns)[0] || "backlog";
-
       const boardTasks = columns[newStatus]?.items || [];
       const highestOrder = boardTasks.reduce((max, t) => Math.max(max, t.order || 0), -1);
       const newOrder = highestOrder + 1;
-
-      const updatedTask = { ...task, status: newStatus, order: newOrder };
-
+      
+      const updatedTask = {
+        ...task,
+        status: newStatus,
+        order: newOrder,
+        taskCompleted: false,
+        completedAt: null,
+      };
+  
       const response = await updateTask(updatedTask);
       const updatedTaskFromBackend = response.data;
-
       handleUpdateTask(updatedTaskFromBackend);
     } catch (error) {
       console.error("Error moving task back to boards:", error);
     }
   };
+  
 
   const updateTaskInColumns = (taskId, updates) => {
     setColumns((prevColumns) => {
@@ -705,6 +710,10 @@ const Dashboard = () => {
         setDueDateWarning={setDueDateWarning}
         storyPoints={storyPoints}
         setStoryPoints={setStoryPoints}
+        newBoardCreateName={newBoardCreateName}
+        setNewBoardCreateName={setNewBoardCreateName}
+        handleCreateBoard={handleCreateBoard}
+        createBoardError={createBoardError}
       />
       <ViewTaskModal
         isModalOpen={isViewModalOpen}

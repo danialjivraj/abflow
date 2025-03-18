@@ -514,8 +514,18 @@ const Stats = () => {
       } else if (xAxisField === "status") {
         possibleKeys =
           statusFilters.length > 0
-            ? statusFilters.map(val => val === "completed" ? "Completed" : (columnsMapping[val] || val))
-            : Array.from(new Set([...(columnsMapping ? Object.values(columnsMapping) : []), "Completed"]));
+            ? statusFilters.map(val =>
+                val === "completed"
+                  ? "Completed"
+                  : (columnsMapping[val] || val)
+              )
+            : (() => {
+                const keys = columnsMapping ? Object.values(columnsMapping) : [];
+                if (keys.includes("Completed")) {
+                  keys.push("Completed");
+                }
+                return Array.from(new Set(keys));
+              })();
       }
       possibleKeys.forEach((key) => {
         if (!groupMap[key]) {

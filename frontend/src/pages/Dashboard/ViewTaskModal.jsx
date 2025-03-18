@@ -11,6 +11,7 @@ import {
   getCalendarIconColor,
 } from "../../utils/dateUtils";
 import { completeTask } from "../../services/tasksService";
+import { updateTask } from "../../services/tasksService";
 
 const allowedPriorities = [
   "A1", "A2", "A3",
@@ -528,12 +529,32 @@ const ViewTaskModal = ({
     );
   };
 
-  const handleMoveToBoards = () => {
+  const handleMoveToBoards = async () => {
     if (readOnly) return;
     const newStatus = Object.keys(columns)[0] || "backlog";
-    updateField("status", newStatus);
-    closeModal();
+  
+    const boardTasks = columns[newStatus]?.items || [];
+    const highestOrder = boardTasks.reduce((max, t) => Math.max(max, t.order || 0), -1);
+    const newOrder = highestOrder + 1;
+  
+    const updatedTask = {
+      ...editableTask,
+      status: newStatus,
+      order: newOrder,
+      taskCompleted: false,
+      completedAt: null,
+    };
+  
+    try {
+      const response = await updateTask(updatedTask);
+      const updatedTaskFromBackend = response.data;
+      handleUpdateTask(updatedTaskFromBackend);
+      closeModal();
+    } catch (error) {
+      console.error("Error moving task back to boards:", error);
+    }
   };
+  
 
   const handleOverlayClick = (e) => {
     if (
