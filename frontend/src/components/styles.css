@@ -705,7 +705,7 @@ select {
   max-height: 400px;
   overflow-y: auto;
 }
-  
+
 .unscheduled-panel-heading {
   color: #fff;
   margin-bottom: 0.5rem;
@@ -718,7 +718,9 @@ select {
 }
 
 .unscheduled-task-item {
-  padding: 0.5rem;
+  position: relative;
+  padding: 0.5rem 0.5rem 0.5rem 0.5rem;
+  padding-right: 48px;
   margin: 0.5rem 0;
   background-color: #3a3a3a;
   color: #fff;
@@ -726,6 +728,21 @@ select {
   cursor: pointer;
   word-wrap: break-word;
   white-space: normal;
+}
+
+.unscheduled-task-item .priority-circle {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.5rem;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.5);
+  font-size: 12px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
   
 /* Search Input Container */

@@ -121,9 +121,11 @@ const ScheduleView = ({ tasks, updateTaskInState, onCreateTaskShortcut }) => {
     );
   };
 
-  const filteredUnscheduledTasks = unscheduledTasks.filter((task) =>
+  const filteredUnscheduledTasks = unscheduledTasks
+  .filter((task) =>
     task.title.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  )
+  .sort((a, b) => a.title.localeCompare(b.title));
 
   useEffect(() => {
     if (!showUnscheduledPanel) {
@@ -138,23 +140,31 @@ const ScheduleView = ({ tasks, updateTaskInState, onCreateTaskShortcut }) => {
   const handleEventDrop = async ({ event, start, end }) => {
     const startDay = start.toISOString().slice(0, 10);
     const endDay = end.toISOString().slice(0, 10);
+    
+    // Prevent multi-day events
     if (startDay !== endDay) {
       console.warn("Drop results in a multi-day event; ignoring drop.");
       return;
     }
-
+    
+    // Prevent events with the same start and end time
+    if (start.getTime() === end.getTime()) {
+      console.warn("Drop results in an event with the same start and end time; ignoring drop.");
+      return;
+    }
+  
     try {
       const nextEvents = events.map((evt) =>
         evt.id === event.id ? { ...evt, start, end } : evt
       );
       setEvents(nextEvents);
-
+  
       const updatedTask = {
         ...event.task,
         scheduledStart: start.toISOString(),
         scheduledEnd: end.toISOString(),
       };
-
+  
       await updateTask(updatedTask);
       updateTaskInState(updatedTask);
     } catch (error) {
@@ -165,28 +175,38 @@ const ScheduleView = ({ tasks, updateTaskInState, onCreateTaskShortcut }) => {
   const handleEventResize = async ({ event, start, end }) => {
     const startDay = start.toISOString().slice(0, 10);
     const endDay = end.toISOString().slice(0, 10);
+    
+    // Prevent multi-day events
     if (startDay !== endDay) {
       console.warn("Resize results in a multi-day event; ignoring resize.");
       return;
     }
-
+    
+    // Prevent events with the same start and end time
+    if (start.getTime() === end.getTime()) {
+      console.warn("Resize results in an event with the same start and end time; ignoring resize.");
+      return;
+    }
+  
     try {
       const nextEvents = events.map((evt) =>
         evt.id === event.id ? { ...evt, start, end } : evt
       );
       setEvents(nextEvents);
-
+  
       const updatedTask = {
         ...event.task,
         scheduledStart: start.toISOString(),
         scheduledEnd: end.toISOString(),
       };
+  
       await updateTask(updatedTask);
       updateTaskInState(updatedTask);
     } catch (error) {
       console.error("Error resizing event:", error);
     }
   };
+  
 
   const handleDropFromOutside = ({ start, end }) => {
     if (!draggedTask) return;
@@ -276,6 +296,7 @@ const ScheduleView = ({ tasks, updateTaskInState, onCreateTaskShortcut }) => {
                 task.title.length > maxLength
                   ? `${task.title.slice(0, maxLength)}...`
                   : task.title;
+
               return (
                 <li
                   key={task._id}
@@ -289,6 +310,10 @@ const ScheduleView = ({ tasks, updateTaskInState, onCreateTaskShortcut }) => {
                   onClick={() => handleUnscheduledTaskClick(task)}
                 >
                   {truncatedTitle}
+
+                  <div className={`priority-circle priority-${task.priority}`}>
+                    {task.priority}
+                  </div>
                 </li>
               );
             })}
