@@ -23,13 +23,12 @@ import {
 } from "recharts";
 import DatePicker from "react-datepicker";
 import { fetchTasks, fetchColumnOrder } from "../services/tasksService";
-import { fetchPreferences, updatePreferences } from "../services/preferencesService";
+import { fetchChartPreferences, updateChartPreferences } from "../services/preferencesService";
 import { auth } from "../firebase";
 import Layout from "../components/Layout";
 import TopBar from "../components/TopBar";
 import { startOfISOWeek, format } from "date-fns";
 import "react-datepicker/dist/react-datepicker.css";
-import { formatToHoursIfTimeSpent } from "../utils/dateUtils";
 import ViewTaskModal from "./Dashboard/ViewTaskModal";
 import GroupTasksModal from "./GroupTasksModal";
 import { useParams, useLocation, useNavigate, useSearchParams } from "react-router-dom";
@@ -96,7 +95,7 @@ const MultiSelectDropdown = ({ label, options, selectedOptions, onChange }) => {
   );
 };
 
-const Stats = () => {
+const Charts = () => {
   // -------------------- State --------------------
   const [tasks, setTasks] = useState([]);
   const [columnsMapping, setColumnsMapping] = useState({});
@@ -302,7 +301,7 @@ const Stats = () => {
       const currentUser = auth.currentUser;
       if (currentUser) {
         try {
-          const res = await fetchPreferences(currentUser.uid);
+          const res = await fetchChartPreferences(currentUser.uid);
           const prefs = res.data.preferences;
           const params = Object.fromEntries([...searchParams]);
 
@@ -723,7 +722,7 @@ const Stats = () => {
 
   useEffect(() => {
     if (userClosedModal && location.pathname.includes("/grouptasks")) {
-      navigate(`/stats${location.search}`);
+      navigate(`/charts${location.search}`);
       setUserClosedModal(false);
     }
   }, [userClosedModal, location.pathname, location.search, navigate]);
@@ -768,16 +767,16 @@ const Stats = () => {
     setSelectedMainGroupTasks(mainTasks);
     setSelectedCompGroupTasks(compTasks);
     setModalOpen(true);
-    navigate(`/stats/grouptasks/${clickedKey}${location.search}`);
+    navigate(`/charts/grouptasks/${clickedKey}${location.search}`);
   };
 
   const openReadOnlyViewTaskModal = (task) => {
     setSelectedTask(task);
     setIsViewTaskModalOpen(true);
     if (location.pathname.includes("/grouptasks") && groupKey) {
-      navigate(`/stats/grouptasks/${groupKey}/viewtask/${task._id}${location.search}`);
+      navigate(`/charts/grouptasks/${groupKey}/viewtask/${task._id}${location.search}`);
     } else {
-      navigate(`/stats/viewtask/${task._id}${location.search}`);
+      navigate(`/charts/viewtask/${task._id}${location.search}`);
     }
   };
 
@@ -785,9 +784,9 @@ const Stats = () => {
     setSelectedTask(null);
     setIsViewTaskModalOpen(false);
     if (location.pathname.includes("/grouptasks")) {
-      navigate(`/stats/grouptasks/${groupKey}${location.search}`);
+      navigate(`/charts/grouptasks/${groupKey}${location.search}`);
     } else {
-      navigate(`/stats${location.search}`);
+      navigate(`/charts${location.search}`);
     }
   };
 
@@ -820,7 +819,7 @@ const Stats = () => {
       compEndDate: compEndDate ? compEndDate.toISOString() : null,
     };
     try {
-      await updatePreferences(currentUser.uid, prefs);
+      await updateChartPreferences(currentUser.uid, prefs);
       setMessage("Preferences saved successfully!");
     } catch (error) {
       console.error("Error saving preferences:", error);
@@ -856,7 +855,7 @@ const Stats = () => {
     const currentUser = auth.currentUser;
     if (!currentUser) return;
     try {
-      await updatePreferences(currentUser.uid, defaultFilterSettings);
+      await updateChartPreferences(currentUser.uid, defaultFilterSettings);
       setMessage("Preferences reset to default!");
     } catch (error) {
       console.error("Error resetting preferences:", error);
@@ -1127,15 +1126,15 @@ const Stats = () => {
   return (
     <Layout>
       <TopBar
-        buttons={getTopBarConfig(setChartType)["/stats"]}
+        buttons={getTopBarConfig(setChartType)["/charts"]}
         openModal={() => {}}
         navigate={navigate}
         activeChartType={chartType}
       />
-      <div className="stats-page">
-        <h1 className="stats-title">Stats</h1>
-        <div className="stats-container">
-          <div className="stats-left">
+      <div className="charts-page">
+        <h1 className="charts-title">Charts</h1>
+        <div className="charts-container">
+          <div className="charts-left">
             <div className="filters-card">
               {/* Filter UI */}
               <div className="filter-group">
@@ -1383,7 +1382,7 @@ const Stats = () => {
               </div>
             </div>
           </div>
-          <div className="stats-right">{renderChart()}</div>
+          <div className="charts-right">{renderChart()}</div>
         </div>
       </div>
 
@@ -1412,4 +1411,4 @@ const Stats = () => {
   );
 };
 
-export default Stats;
+export default Charts;

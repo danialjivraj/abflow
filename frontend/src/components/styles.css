@@ -1070,9 +1070,9 @@ select {
 }
 
 /* ==============================
- Stats Page
+ Charts Page
  ============================== */
- .stats-page {
+ .charts-page {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -1081,18 +1081,18 @@ select {
   box-sizing: border-box;
 }
 
-.stats-title {
+.charts-title {
   margin: 0 0 0.5rem 0;
 }
 
-.stats-container {
+.charts-container {
   display: grid;
   grid-template-columns: 320px 1fr;
   gap: 1.5rem;
   align-items: start;
 }
 
-.stats-left {
+.charts-left {
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -1111,7 +1111,7 @@ select {
   overflow-y: auto;
 }
 
-.stats-right {
+.charts-right {
   display: flex;
   align-items: center;
   justify-content: center;

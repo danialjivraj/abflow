@@ -22,11 +22,11 @@ export const topBarConfig = {
     },
   ],
   "/profile": [],
-  "/stats": [],
+  "/charts": [],
 };
 
 export const getTopBarConfig = (setChartType) => ({
-  "/stats": [
+  "/charts": [
     { label: "Bar", value: "bar", onClick: (_, navigate) => setChartType("bar"), className: "top-bar-button" },
     { label: "Line", value: "line", onClick: (_, navigate) => setChartType("line"), className: "top-bar-button" },
     { label: "Pie", value: "pie", onClick: (_, navigate) => setChartType("pie"), className: "top-bar-button" },

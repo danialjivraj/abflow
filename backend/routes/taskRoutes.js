@@ -340,7 +340,7 @@ router.delete("/columns/delete", async (req, res) => {
   }
 });
 
-// Mark a task as completed
+// mark a task as completed
 router.put("/:id/complete", async (req, res) => {
   try {
     const task = await Task.findByIdAndUpdate(
