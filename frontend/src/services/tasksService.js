@@ -135,3 +135,15 @@ export const updateTask = (taskData) => {
 export const completeTask = (taskId) => {
   return axios.put(`${API_URL}/${taskId}/complete`);
 };
+
+
+/**
+ * Fetches the weekly summary for a user, including time spent on tasks by priority,
+ * and a recommendation message based on the user's high-priority task time.
+ *
+ * @param {string} userId - The ID of the user.
+ * @returns {Promise} Axios GET request that resolves with the weekly summary data.
+ */
+export const fetchWeeklySummary = (userId) => {
+  return axios.get(`/tasks/weekly-summary/${userId}`);
+};

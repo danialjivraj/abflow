@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useContext } from "react";
 import Layout from "../../components/Layout";
 import TopBar from "../../components/TopBar";
 import { topBarConfig } from "../../config/topBarConfig";
@@ -29,6 +29,7 @@ import ScheduleView from "./ScheduleView";
 import "../../components/styles.css";
 import "../../components/topBar.css";
 import "../../components/tipTapEditor.css";
+import { NotificationsContext } from "../../contexts/NotificationsContext";
 
 const Dashboard = () => {
   // ---------------------- state and refs ----------------------
@@ -60,11 +61,9 @@ const Dashboard = () => {
   const [completedTasks, setCompletedTasks] = useState([]);
   const [scheduledStartShortcut, setScheduledStartShortcut] = useState(null);
   const [scheduledEndShortcut, setScheduledEndShortcut] = useState(null);
-
   // State for ScheduleEditModal routing:
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [selectedScheduleEvent, setSelectedScheduleEvent] = useState(null);
-
   // Error states for board creation and rename validations:
   const [createBoardError, setCreateBoardError] = useState("");
   const [renameBoardError, setRenameBoardError] = useState("");
@@ -72,6 +71,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const { taskId } = useParams();
   const location = useLocation();
+  const { setNotifications } = useContext(NotificationsContext);
 
   // ---------------------- side effects ----------------------
   useEffect(() => {
@@ -698,6 +698,8 @@ const Dashboard = () => {
         buttons={topBarConfig["/dashboard"]}
         openModal={openModal}
         navigate={navigate}
+        notifications={[]}  // You don't need to pass notifications explicitly now since TopBar reads them from context.
+        notificationCount={0}
       />
       {renderContent()}
       <CreateTaskModal
