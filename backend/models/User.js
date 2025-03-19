@@ -41,6 +41,7 @@ const UserSchema = new mongoose.Schema({
       customEndDate: null,
     },
   },
+  lastWeeklyNotification: { type: Date, default: null },
 });
 
 module.exports = mongoose.model("User", UserSchema);

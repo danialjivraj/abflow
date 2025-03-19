@@ -19,6 +19,13 @@ const shouldCreateNotification = async (userId, message, thresholdMs = 10 * 60 *
 const generateWeeklyInsights = async () => {
   try {
     const now = new Date();
+    // Calculate the start of the current week (assuming Monday is the first day)
+    const startOfWeek = new Date(now);
+    const day = now.getDay();
+    const diffToMonday = day === 0 ? 6 : day - 1;
+    startOfWeek.setDate(now.getDate() - diffToMonday);
+    startOfWeek.setHours(0, 0, 0, 0);
+
     const oneWeekAgo = new Date(now);
     oneWeekAgo.setDate(now.getDate() - 7);
     const twoDaysAgo = new Date(now);
@@ -28,6 +35,12 @@ const generateWeeklyInsights = async () => {
 
     for (const user of users) {
       const userId = user.userId;
+      // Check if a weekly notification was already sent this week.
+      if (user.lastWeeklyNotification && new Date(user.lastWeeklyNotification) >= startOfWeek) {
+        console.log(`Weekly insight already sent for user ${userId} this week.`);
+        continue;
+      }
+
       // Get tasks completed in the past week
       const tasksLastWeek = await Task.find({
         userId,
@@ -56,8 +69,11 @@ const generateWeeklyInsights = async () => {
         } else {
           message = `Weekly Insight: Great job! You dedicated ${Math.round(highPercentage)}% of your time to high priority tasks last week.`;
         }
+        // Use our check to avoid sending duplicate notifications within the threshold window
         if (await shouldCreateNotification(userId, message)) {
           await Notification.create({ userId, message, createdAt: now });
+          // Update the user record to indicate that this week's notification has been sent.
+          await User.findOneAndUpdate({ userId }, { lastWeeklyNotification: now });
           console.log(`Weekly insight generated for user ${userId}: ${message}`);
         }
       }
