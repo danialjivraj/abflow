@@ -1,45 +1,42 @@
 import React, { createContext, useState, useEffect } from "react";
 import { auth } from "../firebase";
-// import { fetchWeeklySummary } from "../services/tasksService"; // Uncomment if using API
+import { fetchNotifications } from "../services/notificationService";
+import { onAuthStateChanged } from "firebase/auth";
 
 export const NotificationsContext = createContext();
 
 export const NotificationsProvider = ({ children }) => {
   const [notifications, setNotifications] = useState([]);
 
-  useEffect(() => {
-    // For demonstration, create three test notifications with different timestamps.
-    const now = new Date();
-    const testNotifications = [
-      {
-        message: "Test notification: Focus more on high priority (A) tasks!",
-        createdAt: now,
-      },
-      {
-        message: "Reminder: Check your upcoming deadlines.",
-        createdAt: new Date(now.getTime() - 5 * 60000), // 5 minutes ago
-      },
-      {
-        message: "New update available in your task list.",
-        createdAt: new Date(now.getTime() - 10 * 60000), // 10 minutes ago
-      },
-    ];
-    setNotifications(testNotifications);
+  const loadNotifications = async (userId) => {
+    try {
+      const res = await fetchNotifications(userId);
+      if (res.data && res.data.notifications) {
+        setNotifications(res.data.notifications);
+      }
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+    }
+  };
 
-    // Optionally, you can fetch real notifications via an API.
-    // const loadNotifications = async () => {
-    //   const currentUser = auth.currentUser;
-    //   if (currentUser) {
-    //     try {
-    //       const res = await fetchWeeklySummary(currentUser.uid);
-    //       const { recommendation } = res.data;
-    //       setNotifications([{ message: recommendation, createdAt: new Date() }]);
-    //     } catch (error) {
-    //       console.error("Error fetching notifications:", error);
-    //     }
-    //   }
-    // };
-    // loadNotifications();
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        loadNotifications(user.uid);
+      }
+    });
+
+    const interval = setInterval(() => {
+      const currentUser = auth.currentUser;
+      if (currentUser) {
+        loadNotifications(currentUser.uid);
+      }
+    }, 1000);
+
+    return () => {
+      unsubscribe();
+      clearInterval(interval);
+    };
   }, []);
 
   return (

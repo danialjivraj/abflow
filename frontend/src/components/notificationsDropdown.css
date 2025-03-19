@@ -1,212 +1,275 @@
 /* Container styles */
 .notifications-dropdown {
-    /* Other styles remain the same */
-    position: absolute;
-    top: 50px; /* Sits just below your top bar */
-    right: 0;
-    width: 320px;
-    background: #2a2a2a;
-    border: 1px solid #444;
-    border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-    z-index: 999;
-    color: #fff;
-    animation: fadeIn 0.3s ease-out;
-    
-    max-height: calc(100vh - 50px - 20px);
-    overflow-y: auto;
-    overflow-x: hidden;
+  position: absolute;
+  top: 50px;
+  right: 0;
+  width: 320px;
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  z-index: 999;
+  color: #fff;
+  animation: fadeIn 0.3s ease-out;
+  max-height: calc(100vh - 50px - 20px);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Header area */
+.notifications-header {
+  position: relative;
+  background: #333;
+  padding: 12px 16px;
+  border-radius: 8px 8px 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+/* Header content for title and mark all button */
+.header-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.notifications-header h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+}
+
+/* Mark All as Read button in header */
+.mark-all-read-header {
+  background: none;
+  border: none;
+  color: #d1921d;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 2px 0;
+  margin-top: 4px;
+  transition: color 0.2s ease;
+  text-align: left;
+}
+
+.mark-all-read-header:hover {
+  color: #fff;
+}
+
+/* Close button for the dropdown header */
+.close-btn {
+  position: absolute;
+  top: 40%;
+  right: -18px;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #aaa;
+  font-size: 34px;
+  width: 36px;
+  height: 36px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  outline: none;
+  transition: color 0.2s ease;
+}
+
+.close-btn:focus,
+.close-btn:active,
+.close-btn:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+  -webkit-focus-ring-color: transparent;
+}
+
+.close-btn:hover {
+  color: #fff;
+}
+
+/* Notification list */
+.notifications-dropdown ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+/* Individual notification items */
+.notifications-dropdown li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid #444;
+  transition: background 0.2s ease;
+  line-height: 1.4;
+  cursor: pointer;
+}
+
+.notifications-dropdown li:hover {
+  background: #333333 !important;
+}
+
+/* Fade-in animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
   }
-  
-  
-  /* Individual notification items */
-  .notifications-dropdown li {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 16px;
-    border-bottom: 1px solid #444;
-    transition: background 0.2s ease;
-    line-height: 1.4;
-    cursor: pointer; /* Ensure pointer on hover */
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
-  
-  /* Hover state for the entire notification item */
-  .notifications-dropdown li:hover {
-    background: #3a3a3a !important;
-  }
-  
-  /* Fade-in + slight slide-up animation */
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(-8px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  
-  /* Header area */
-  .notifications-header {
-    position: relative; /* for positioning the close button */
-    background: #333; /* Slightly darker header */
-    padding: 12px 16px;
-    border-radius: 8px 8px 0 0; /* Round top corners */
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  .notifications-header h4 {
-    margin: 0;
-    font-size: 16px;
-    font-weight: 600;
-    color: #fff;
-  }
-  
-  /* Close button for the dropdown header */
-  .close-btn {
-    position: absolute;
-    top: 40%;
-    right: -18px;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    color: #aaa;
-    font-size: 34px;  /* Set to 34px */
-    width: 36px;
-    height: 36px;
-    line-height: 1;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    outline: none;
-    transition: color 0.2s ease;
-  }
-  
-  .close-btn:focus,
-  .close-btn:active,
-  .close-btn:focus-visible {
-    outline: none !important;
-    box-shadow: none !important;
-    -webkit-focus-ring-color: transparent;
-  }
-  
-  .close-btn:hover {
-    color: #fff;
-  }
-  
-  /* Notification list */
-  .notifications-dropdown ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    /* Changed from 250px to 70vh */
-    max-height: 70vh; /* Allows the dropdown to be much taller */
-    overflow-y: auto;
-  }
-  
-  /* Individual notification items */
-  .notifications-dropdown li {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 16px;
-    border-bottom: 1px solid #444;
-    transition: background 0.2s ease;
-    line-height: 1.4;
-  }
-  
-  /* Container for notification text */
-  .notification-content {
-    flex-grow: 1;
-    margin-right: 8px;
-  }
-  
-  /* Timestamp styling */
-  .notification-timestamp {
-    font-size: 12px;
-    color: #aaa;
-    margin-bottom: 4px;
-  }
-  
-  /* Notification message styling */
-  .notification-message {
-    font-size: 14px;
-    color: #fff;
-  }
-  
-  /* Remove button for individual notifications */
-  .notification-remove-btn {
-    background: none;
-    border: none;
-    color: #aaa;
-    font-size: 20px;
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-    outline: none;
-    transition: color 0.2s ease;
-  
-    /* Remove extra space around the "×" */
-    width: auto;
-    height: auto;
-    line-height: 1;
-    padding: 0;
-    margin: 0 0 0 8px; /* small left margin for spacing */
-    display: flex; 
-    align-items: center; 
-    justify-content: center;
-  }
-  
-  .notification-remove-btn:focus,
-  .notification-remove-btn:active,
-  .notification-remove-btn:focus-visible {
-    outline: none !important;
-    box-shadow: none !important;
-    -webkit-focus-ring-color: transparent;
-  }
-  
-  /* Hover effect: change color to white */
-  .notification-remove-btn:hover {
-    color: #fff;
-  }
-  
-  .notification-remove-btn:hover {
-    color: #fff;
-  }
-  
-  /* Clear All container and button */
-  .clear-all-container {
-    text-align: center;
-    padding: 8px 0;
-    border-top: 1px solid #444;
-  }
-  
-  .clear-all-btn {
-    background: none;
-    border: none;
-    color: #d1921d;
-    font-size: 14px;
-    cursor: pointer;
-    padding: 4px 8px;
-    transition: color 0.2s ease;
-  }
-  
-  .clear-all-btn:hover {
-    color: #fff;
-  }
-  
-  /* If there are no notifications */
-  .no-notifications {
-    padding: 16px;
-    text-align: center;
-    color: #ccc;
-  }
-  
+}
+
+/* Container for notification text */
+.notification-content {
+  flex-grow: 1;
+  margin-right: 8px;
+}
+
+.notification-timestamp {
+  font-size: 12px;
+  color: #aaa;
+  margin-bottom: 4px;
+}
+
+.notification-message {
+  font-size: 14px;
+  color: #fff;
+}
+
+/* Remove button for individual notifications */
+.notification-remove-btn {
+  background: none;
+  border: none;
+  color: #aaa;
+  font-size: 20px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+  transition: color 0.2s ease;
+  padding: 0;
+  margin: 0 0 0 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1px;
+}
+
+.notification-remove-btn:focus,
+.notification-remove-btn:active,
+.notification-remove-btn:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+  -webkit-focus-ring-color: transparent;
+}
+
+.notification-remove-btn:hover {
+  color: #fff;
+}
+
+/* Clear All button container at bottom */
+.clear-all-container {
+  text-align: center;
+  padding: 8px 0;
+  border-top: 1px solid #444;
+}
+
+/* Clear All button styling */
+.clear-all-btn {
+  background: none;
+  border: none;
+  color: #d1921d;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px 8px;
+  transition: color 0.2s ease;
+}
+
+.clear-all-btn:hover {
+  color: #fff;
+}
+
+/* Unread and read notification styling */
+.notifications-dropdown li.unread {
+  background: #3a3a3a;
+}
+
+.notifications-dropdown li.read {
+  background: #2a2a2a;
+}
+
+/* Container for notification actions */
+.notification-actions {
+  margin-left: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Envelope button styling */
+.notification-envelope-btn {
+  background: none;
+  border: none;
+  color: #aaa;
+  font-size: 16px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+  transition: color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.notification-envelope-btn:hover {
+  color: #fff;
+}
+
+.notification-envelope-btn .unread-icon {
+  color: #d1921d;
+  transform: translateY(2px)
+}
+
+.notification-envelope-btn .read-icon {
+  color: #aaa;
+}
+
+/* No notifications text */
+.no-notifications {
+  padding: 16px;
+  text-align: center;
+  color: #ccc;
+}
+
+.notification-envelope-btn:focus {
+  outline: none;
+  box-shadow: none;
+}
+.mark-all-read-header:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.mark-all-read-header::-moz-focus-inner {
+  border: 0;
+}
+.clear-all-btn:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.clear-all-btn::-moz-focus-inner {
+  border: 0;
+}

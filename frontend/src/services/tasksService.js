@@ -136,14 +136,12 @@ export const completeTask = (taskId) => {
   return axios.put(`${API_URL}/${taskId}/complete`);
 };
 
-
 /**
- * Fetches the weekly summary for a user, including time spent on tasks by priority,
- * and a recommendation message based on the user's high-priority task time.
- *
- * @param {string} userId - The ID of the user.
- * @returns {Promise} Axios GET request that resolves with the weekly summary data.
+ * Reset the notification flags for a specific task.
+ * @param {string} taskId - The ID of the task whose notification flags will be reset.
+ * @param {Object} flags - An object containing the notification flags to reset.
+ * @returns {Promise} Axios PUT request that resolves with the updated task notification flags.
  */
-export const fetchWeeklySummary = (userId) => {
-  return axios.get(`/tasks/weekly-summary/${userId}`);
+export const resetNotificationFlags = (taskId, flags) => {
+  return axios.put(`${API_URL}/${taskId}/reset-notification-flags`, flags);
 };

@@ -97,6 +97,12 @@ router.put("/:id/edit", async (req, res) => {
       scheduledEnd,
     };
 
+    if (dueDate !== undefined) {
+      updatedFields.notifiedUpcoming = false;
+      updatedFields.notifiedOverdue = false;
+      updatedFields.lastNotifiedAt = null;
+    }
+
     if (typeof taskCompleted !== "undefined") {
       updatedFields.taskCompleted = taskCompleted;
     }
@@ -108,7 +114,6 @@ router.put("/:id/edit", async (req, res) => {
     res.status(500).json({ error: "Failed to edit task" });
   }
 });
-
 
 // move a task to a new status and order
 router.put("/:id/move", async (req, res) => {
@@ -361,40 +366,19 @@ router.put("/:id/complete", async (req, res) => {
   }
 });
 
-// for notifications
-router.get("/weekly-summary/:userId", async (req, res) => {
+// update notification flags for a task
+router.put("/:id/reset-notification-flags", async (req, res) => {
   try {
-    const { userId } = req.params;
-    const oneWeekAgo = new Date();
-    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-
-    const tasks = await Task.find({
-      userId,
-      completedAt: { $gte: oneWeekAgo },
-      timeSpent: { $gt: 0 },
-    });
-
-    const summary = tasks.reduce((acc, task) => {
-      const priorityLetter = task.priority.charAt(0);
-      acc[priorityLetter] = (acc[priorityLetter] || 0) + task.timeSpent;
-      return acc;
-    }, {});
-
-    const totalTime = Object.values(summary).reduce((sum, time) => sum + time, 0);
-    const highPriorityTime = summary.A || 0;
-    const highPriorityPercentage = totalTime > 0 ? (highPriorityTime / totalTime) * 100 : 0;
-
-    let recommendation = "";
-    if (highPriorityPercentage < 50) {
-      recommendation = `You spent only ${Math.round(highPriorityPercentage)}% of your time on very important (A) tasks. Consider focusing more on these tasks.`;
-    } else {
-      recommendation = `Great job spending ${Math.round(highPriorityPercentage)}% of your time on very important tasks!`;
-    }
-
-    res.json({ summary, recommendation });
+    const { notifiedUpcoming, notifiedOverdue } = req.body;
+    const task = await Task.findByIdAndUpdate(
+      req.params.id,
+      { notifiedUpcoming, notifiedOverdue },
+      { new: true }
+    );
+    res.json(task);
   } catch (error) {
-    console.error("Error aggregating weekly summary:", error);
-    res.status(500).json({ error: "Failed to aggregate weekly summary" });
+    console.error("Error resetting notification flags:", error);
+    res.status(500).json({ error: "Failed to reset notification flags" });
   }
 });
 

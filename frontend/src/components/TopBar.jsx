@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useContext } from "react";
 import { useLocation } from "react-router-dom";
-import { FiBell } from "react-icons/fi"; // Nice white bell icon
+import { FiBell } from "react-icons/fi";
 import NotificationsDropdown from "./NotificationsDropdown";
 import { NotificationsContext } from "../contexts/NotificationsContext";
 import "./topBar.css";
@@ -11,37 +11,26 @@ const TopBar = ({ buttons, openModal, navigate, activeChartType }) => {
   const dropdownRef = useRef(null);
   const { notifications } = useContext(NotificationsContext);
 
-  const notificationCount = notifications.length;
+  // Count only unread notifications
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   const displayCount =
-    notificationCount > 99 ? (
+    unreadCount > 99 ? (
       <>
         <span className="notification-numbers">99</span>
         <span className="notification-plus">+</span>
       </>
     ) : (
-      notificationCount
+      unreadCount
     );
 
+  // Use button.path if available, otherwise compare button.value to activeChartType
   const isActive = (button) => {
-    if (button.value) {
-      return button.value === activeChartType;
+    if (button.path) {
+      return location.pathname.startsWith(button.path);
     }
-    if (
-      button.label === "Boards" &&
-      location.pathname.startsWith("/dashboard/boards")
-    ) {
-      return true;
-    } else if (
-      button.label === "Completed Tasks" &&
-      location.pathname.startsWith("/dashboard/completedtasks")
-    ) {
-      return true;
-    } else if (
-      button.label === "Schedule" &&
-      location.pathname.startsWith("/dashboard/schedule")
-    ) {
-      return true;
+    if (activeChartType && button.value) {
+      return button.value === activeChartType;
     }
     return false;
   };
@@ -79,12 +68,10 @@ const TopBar = ({ buttons, openModal, navigate, activeChartType }) => {
           onClick={() => setShowNotifications(!showNotifications)}
         >
           <FiBell size={20} />
-          {notificationCount > 0 && (
+          {unreadCount > 0 && (
             <span
               className={`notification-count ${
-                notificationCount > 99
-                  ? "plus-notification"
-                  : "regular-notification"
+                unreadCount > 99 ? "plus-notification" : "regular-notification"
               }`}
             >
               {displayCount}

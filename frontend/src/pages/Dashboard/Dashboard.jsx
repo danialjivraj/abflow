@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef, useContext } from "react";
 import Layout from "../../components/Layout";
 import TopBar from "../../components/TopBar";
-import { topBarConfig } from "../../config/topBarConfig";
+import { getDashboardTopBarConfig } from "../../config/topBarConfig";
 import CreateTaskModal from "../../components/Modals/CreateTaskModal";
 import ViewTaskModal from "../../components/Modals/ViewTaskModal";
 import ScheduleEditModal from "../../components/Modals/ScheduleEditModal";
@@ -695,11 +695,9 @@ const Dashboard = () => {
   return (
     <Layout openModal={openModal}>
       <TopBar
-        buttons={topBarConfig["/dashboard"]}
+        buttons={getDashboardTopBarConfig(openModal, navigate)}
         openModal={openModal}
         navigate={navigate}
-        notifications={[]}  // You don't need to pass notifications explicitly now since TopBar reads them from context.
-        notificationCount={0}
       />
       {renderContent()}
       <CreateTaskModal

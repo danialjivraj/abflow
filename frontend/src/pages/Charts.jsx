@@ -32,7 +32,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import ViewTaskModal from "../components/Modals/ViewTaskModal";
 import GroupTasksModal from "../components/Modals/GroupTasksModal";
 import { useParams, useLocation, useNavigate, useSearchParams } from "react-router-dom";
-import { getTopBarConfig } from "../config/topBarConfig";
+import { getChartsTopBarConfig } from "../config/topBarConfig";
 
 // Options for multi-selects
 const allowedPriorities = ["A1", "A2", "A3", "B1", "B2", "B3", "C1", "C2", "C3", "D", "E"];
@@ -1116,7 +1116,7 @@ const Charts = () => {
   return (
     <Layout>
       <TopBar
-        buttons={getTopBarConfig(setChartType)["/charts"]}
+        buttons={getChartsTopBarConfig(setChartType)}
         openModal={() => {}}
         navigate={navigate}
         activeChartType={chartType}

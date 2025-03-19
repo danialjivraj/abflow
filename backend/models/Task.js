@@ -23,6 +23,10 @@ const TaskSchema = new mongoose.Schema({
   timerStartTime: { type: Date },
   scheduledStart: { type: Date, default: null },
   scheduledEnd: { type: Date, default: null },
+  // notification related
+  lastNotifiedAt: { type: Date, default: null },
+  notifiedUpcoming: { type: Boolean, default: false },
+  notifiedOverdue: { type: Boolean, default: false },
 });
 
 const Task = mongoose.model("Task", TaskSchema);
