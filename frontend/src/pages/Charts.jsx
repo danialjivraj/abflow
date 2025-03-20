@@ -22,7 +22,12 @@ import {
   PolarRadiusAxis,
 } from "recharts";
 import DatePicker from "react-datepicker";
-import { fetchTasks, fetchColumnOrder } from "../services/tasksService";
+import {
+  fetchTasks,
+} from "../services/tasksService";
+import {
+  fetchColumnOrder,
+} from "../services/columnsService";
 import { fetchChartPreferences, updateChartPreferences } from "../services/preferencesService";
 import { auth } from "../firebase";
 import Layout from "../components/Layout";

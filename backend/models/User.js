@@ -1,18 +1,8 @@
-// models/User.js
 const mongoose = require("mongoose");
 
 const UserSchema = new mongoose.Schema({
   userId: { type: String, required: true, unique: true },
-  columnOrder: { type: [String], default: ["backlog", "inprogress", "done"] },
-  columnNames: {
-    type: Map,
-    of: String,
-    default: new Map([
-      ["backlog", "Backlog"],
-      ["inprogress", "In Progress"],
-      ["done", "Done"],
-    ]),
-  },
+  welcomeColumnsAndTask: { type: Boolean, default: false },
   preferences: {
     type: Object,
     default: {

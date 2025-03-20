@@ -1,10 +1,10 @@
 const mongoose = require("mongoose");
 
 const ColumnSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  order: { type: Number, default: 0 },
+  columnId: { type: String, required: true, unique: true },
   userId: { type: String, required: true },
+  name: { type: String, required: true },
+  order: { type: Number, required: true },
 });
 
-const Column = mongoose.model("Column", ColumnSchema);
-module.exports = Column;
+module.exports = mongoose.model("Column", ColumnSchema);

@@ -1,7 +1,6 @@
 const express = require("express");
 const router = express.Router();
 const Task = require("../models/Task");
-const User = require("../models/User");
 
 // create a new task
 router.post("/", async (req, res) => {
@@ -144,7 +143,6 @@ router.patch("/:id/schedule", async (req, res) => {
   }
 });
 
-
 // move a task to a new status and order
 router.put("/:id/move", async (req, res) => {
   try {
@@ -216,7 +214,6 @@ router.put("/:id/start-timer", async (req, res) => {
     task.timerStartTime = new Date();
     await task.save();
 
-    console.log(`Timer started for task ${task._id} at ${task.timerStartTime}`);
     res.json(task);
   } catch (error) {
     console.error("Error starting timer:", error);
@@ -237,8 +234,6 @@ router.put("/:id/stop-timer", async (req, res) => {
       task.isTimerRunning = false;
       task.timerStartTime = null;
       await task.save();
-
-      console.log(`Timer stopped for task ${task._id}. Total time spent: ${task.timeSpent} seconds`);
     }
 
     res.json(task);
@@ -248,134 +243,6 @@ router.put("/:id/stop-timer", async (req, res) => {
   }
 });
 
-// save column order for a user
-router.put("/columns/order", async (req, res) => {
-  try {
-    const { userId, columnOrder } = req.body;
-    if (!userId || !columnOrder) {
-      return res.status(400).json({ error: "User ID and column order required" });
-    }
-
-    const user = await User.findOneAndUpdate(
-      { userId },
-      { columnOrder },
-      { upsert: true, new: true }
-    );
-
-    res.json({ message: "Column order saved successfully", columnOrder: user.columnOrder });
-  } catch (error) {
-    console.error("Error saving column order:", error);
-    res.status(500).json({ error: "Failed to save column order" });
-  }
-});
-
-// fetch column order for a user
-router.get("/columns/order/:userId", async (req, res) => {
-  try {
-    const { userId } = req.params;
-
-    let user = await User.findOne({ userId });
-    if (!user) {
-      user = new User({
-        userId,
-        columnOrder: ["backlog", "inprogress", "done"],
-        columnNames: new Map([["backlog", "Backlog"], ["inprogress", "In Progress"], ["done", "Done"]]),
-      });
-      await user.save();
-    }
-
-    const columnNames = Object.fromEntries(user.columnNames);
-
-    res.json({ columnOrder: user.columnOrder, columnNames });
-  } catch (error) {
-    console.error("Error fetching column order:", error);
-    res.status(500).json({ error: "Failed to fetch column order" });
-  }
-});
-
-// create a new column
-router.post("/columns/create", async (req, res) => {
-  try {
-    const { userId, columnName } = req.body;
-    if (!userId || !columnName) {
-      return res.status(400).json({ error: "User ID and column name are required" });
-    }
-
-    let user = await User.findOne({ userId });
-    if (!user) {
-      user = new User({
-        userId,
-      });
-      await user.save();
-    }
-
-    const newColumnId = `column-${Date.now()}`;
-
-    user.columnOrder.push(newColumnId);
-
-    user.columnNames.set(newColumnId, columnName);
-
-    await user.save();
-
-    res.json({ message: "Board created successfully", columnId: newColumnId, columnName });
-  } catch (error) {
-    console.error("Error creating board:", error);
-    res.status(500).json({ error: "Failed to create board" });
-  }
-});
-
-// rename a column
-router.put("/columns/rename", async (req, res) => {
-  try {
-    const { userId, columnId, newName } = req.body;
-    if (!userId || !columnId || !newName) {
-      return res.status(400).json({ error: "User ID, column ID, and new name are required" });
-    }
-
-    const user = await User.findOne({ userId });
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
-
-    user.columnNames.set(columnId, newName);
-
-    await user.save();
-
-    res.json({ message: "Board renamed successfully" });
-  } catch (error) {
-    console.error("Error renaming board:", error);
-    res.status(500).json({ error: "Failed to rename board" });
-  }
-});
-
-// delete a column and its tasks
-router.delete("/columns/delete", async (req, res) => {
-  try {
-    const { userId, columnId } = req.body;
-    if (!userId || !columnId) {
-      return res.status(400).json({ error: "User ID and column ID are required" });
-    }
-
-    await Task.deleteMany({ userId, status: columnId });
-
-    const user = await User.findOne({ userId });
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
-
-    user.columnOrder = user.columnOrder.filter((id) => id !== columnId);
-    user.columnNames.delete(columnId);
-
-    await user.save();
-
-    res.json({ message: "Board and associated tasks deleted successfully" });
-  } catch (error) {
-    console.error("Error deleting board:", error);
-    res.status(500).json({ error: "Failed to delete board" });
-  }
-});
-
-// mark a task as completed
 router.put("/:id/complete", async (req, res) => {
   try {
     const task = await Task.findByIdAndUpdate(

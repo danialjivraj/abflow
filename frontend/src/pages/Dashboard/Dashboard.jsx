@@ -9,19 +9,21 @@ import { auth } from "../../firebase";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import {
   fetchTasks,
+  createTask,
+  updateTask,
+  completeTask,
+  deleteTaskAPI,
+  startTimerAPI,
+  stopTimerAPI,
+  reorderTasks,
+} from "../../services/tasksService";
+import {
   fetchColumnOrder,
   createBoard,
   renameBoard,
   deleteBoard,
-  createTask,
-  reorderTasks,
   saveColumnOrder,
-  startTimerAPI,
-  stopTimerAPI,
-  deleteTaskAPI,
-  updateTask,
-  completeTask,
-} from "../../services/tasksService";
+} from "../../services/columnsService";
 import { formatDueDate } from "../../utils/dateUtils";
 import BoardsView from "./BoardsView";
 import CompletedTasks from "./CompletedTasks";
