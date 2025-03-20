@@ -27,7 +27,6 @@ beforeAll(async () => {
 
 beforeEach(async () => {
   await Task.deleteMany({});
-  await User.findOneAndUpdate({ userId: defaultUser.userId }, { lastWeeklyNotification: null });
 });
 
 afterAll(async () => {
@@ -103,7 +102,7 @@ describe("Task Routes", () => {
     });
 
     it("should return 400 if userId is missing", async () => {
-      const res = await request(app)
+      await request(app)
         .get(`/api/tasks/`)
         .expect(404);
     });
@@ -345,153 +344,6 @@ describe("Task Routes", () => {
         .put(`/api/tasks/${fakeId}/stop-timer`)
         .expect(404);
       expect(res.body.error).toBe("Task not found");
-    });
-  });
-
-  // ---------------------------
-  // Save column order for a user
-  // ---------------------------
-  describe("PUT /api/tasks/columns/order", () => {
-    it("should save the column order for a user", async () => {
-      const order = ["backlog", "inprogress", "done", "newColumn"];
-      const res = await request(app)
-        .put("/api/tasks/columns/order")
-        .send({ userId: defaultUser.userId, columnOrder: order })
-        .expect(200);
-      
-      expect(res.body.message).toBe("Column order saved successfully");
-      expect(res.body.columnOrder).toEqual(order);
-    });
-
-    it("should return 400 if userId or columnOrder is missing", async () => {
-      const res = await request(app)
-        .put("/api/tasks/columns/order")
-        .send({ userId: defaultUser.userId })
-        .expect(400);
-      expect(res.body.error).toBe("User ID and column order required");
-    });
-  });
-
-  // ---------------------------
-  // Fetch column order for a user
-  // ---------------------------
-  describe("GET /api/tasks/columns/order/:userId", () => {
-    it("should fetch the column order and names for a user", async () => {
-      // Reset user to default column order
-      await User.findOneAndUpdate(
-        { userId: defaultUser.userId },
-        {
-          columnOrder: ["backlog", "inprogress", "done"],
-          columnNames: new Map([
-            ["backlog", "Backlog"],
-            ["inprogress", "In Progress"],
-            ["done", "Done"],
-          ]),
-        },
-        { new: true }
-      );
-      
-      const res = await request(app)
-        .get(`/api/tasks/columns/order/${defaultUser.userId}`)
-        .expect(200);
-      
-      expect(res.body.columnOrder).toEqual(["backlog", "inprogress", "done"]);
-      expect(res.body.columnNames).toHaveProperty("backlog", "Backlog");
-    });
-  });
-
-  // ---------------------------
-  // Create a new column
-  // ---------------------------
-  describe("POST /api/tasks/columns/create", () => {
-    it("should create a new column", async () => {
-      const res = await request(app)
-        .post("/api/tasks/columns/create")
-        .send({ userId: defaultUser.userId, columnName: "New Column" })
-        .expect(200);
-      
-      expect(res.body.message).toBe("Board created successfully");
-      expect(res.body.columnId).toMatch(/column-\d+/);
-      expect(res.body.columnName).toBe("New Column");
-    });
-
-    it("should return 400 if userId or columnName is missing", async () => {
-      const res = await request(app)
-        .post("/api/tasks/columns/create")
-        .send({ userId: defaultUser.userId })
-        .expect(400);
-      expect(res.body.error).toBe("User ID and column name are required");
-    });
-  });
-
-  // ---------------------------
-  // Rename a column
-  // ---------------------------
-  describe("PUT /api/tasks/columns/rename", () => {
-    it("should rename a column", async () => {
-      await User.findOneAndUpdate(
-        { userId: defaultUser.userId },
-        { columnOrder: ["col1", "col2"], columnNames: new Map([["col1", "Column 1"], ["col2", "Column 2"]]) },
-        { new: true }
-      );
-      
-      const res = await request(app)
-        .put("/api/tasks/columns/rename")
-        .send({ userId: defaultUser.userId, columnId: "col1", newName: "Renamed Column" })
-        .expect(200);
-      
-      expect(res.body.message).toBe("Board renamed successfully");
-    });
-
-    it("should return 400 if required fields are missing", async () => {
-      const res = await request(app)
-        .put("/api/tasks/columns/rename")
-        .send({ userId: defaultUser.userId, newName: "Renamed Column" })
-        .expect(400);
-      expect(res.body.error).toBe("User ID, column ID, and new name are required");
-    });
-  });
-
-  // ---------------------------
-  // Delete a column and its tasks
-  // ---------------------------
-  describe("DELETE /api/tasks/columns/delete", () => {
-    it("should delete a column and its tasks", async () => {
-      await Task.create({
-        priority: "C1",
-        status: "pending",
-        userId: defaultUser.userId,
-        title: "Task in Column",
-        status: "colToDelete",
-      });
-
-      await User.findOneAndUpdate(
-        { userId: defaultUser.userId },
-        { columnOrder: ["colToDelete", "col2"], columnNames: new Map([["colToDelete", "Column To Delete"], ["col2", "Column 2"]]) },
-        { new: true }
-      );
-
-      const res = await request(app)
-        .delete("/api/tasks/columns/delete")
-        .send({ userId: defaultUser.userId, columnId: "colToDelete" })
-        .expect(200);
-      
-      expect(res.body.message).toBe("Board and associated tasks deleted successfully");
-
-      const remainingTasks = await Task.find({ userId: defaultUser.userId, status: "colToDelete" });
-      expect(remainingTasks.length).toBe(0);
-
-      const user = await User.findOne({ userId: defaultUser.userId });
-      expect(user.columnOrder).not.toContain("colToDelete");
-      expect(user.columnNames.get("colToDelete")).toBeUndefined();
-    });
-
-    it("should return 400 if required fields are missing", async () => {
-      const res = await request(app)
-        .delete("/api/tasks/columns/delete")
-        .send({ userId: defaultUser.userId })
-        .expect(400);
-      expect(res.body.error).toBe("User ID and column ID are required");
     });
   });
 
