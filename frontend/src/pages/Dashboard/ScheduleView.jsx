@@ -5,7 +5,7 @@ import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
 import { FiList, FiX } from "react-icons/fi";
-import { updateTask } from "../../services/tasksService";
+import { updateTask, updateTaskSchedule } from "../../services/tasksService";
 import { useNavigate } from "react-router-dom";
 
 const localizer = momentLocalizer(moment);
@@ -159,13 +159,12 @@ const ScheduleView = ({ tasks, updateTaskInState, onCreateTaskShortcut }) => {
       );
       setEvents(nextEvents);
   
-      const updatedTask = {
-        ...event.task,
+      const updatedSchedule = {
         scheduledStart: start.toISOString(),
         scheduledEnd: end.toISOString(),
       };
   
-      await updateTask(updatedTask);
+      const updatedTask = (await updateTaskSchedule(event.id, updatedSchedule)).data;
       updateTaskInState(updatedTask);
     } catch (error) {
       console.error("Error updating scheduled task:", error);
@@ -187,26 +186,24 @@ const ScheduleView = ({ tasks, updateTaskInState, onCreateTaskShortcut }) => {
       console.warn("Resize results in an event with the same start and end time; ignoring resize.");
       return;
     }
-  
+
     try {
       const nextEvents = events.map((evt) =>
         evt.id === event.id ? { ...evt, start, end } : evt
       );
       setEvents(nextEvents);
   
-      const updatedTask = {
-        ...event.task,
+      const updatedSchedule = {
         scheduledStart: start.toISOString(),
         scheduledEnd: end.toISOString(),
       };
   
-      await updateTask(updatedTask);
+      const updatedTask = (await updateTaskSchedule(event.id, updatedSchedule)).data;
       updateTaskInState(updatedTask);
     } catch (error) {
       console.error("Error resizing event:", error);
     }
   };
-  
 
   const handleDropFromOutside = ({ start, end }) => {
     if (!draggedTask) return;

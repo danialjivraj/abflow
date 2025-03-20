@@ -23,7 +23,7 @@ const groupTasksByFilter = (tasks, filter) => {
       }
       case "week": {
         const day = date.getDay();
-        const offset = day >= 5 ? day - 5 : day + 2;
+        const offset = (day + 6) % 7;
         const start = new Date(date);
         start.setDate(date.getDate() - offset);
         const end = new Date(start);

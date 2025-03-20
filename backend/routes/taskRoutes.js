@@ -80,7 +80,10 @@ router.put("/:id/edit", async (req, res) => {
       scheduledStart,
       scheduledEnd,
       taskCompleted,
+      completedAt,
     } = req.body;
+
+    const existingTask = await Task.findById(req.params.id);
 
     const updatedFields = {
       title,
@@ -98,13 +101,23 @@ router.put("/:id/edit", async (req, res) => {
     };
 
     if (dueDate !== undefined) {
-      updatedFields.notifiedUpcoming = false;
-      updatedFields.notifiedOverdue = false;
-      updatedFields.lastNotifiedAt = null;
+      const newDueDate = dueDate ? new Date(dueDate).toISOString() : null;
+      const oldDueDate = existingTask.dueDate ? new Date(existingTask.dueDate).toISOString() : null;
+      if (newDueDate !== oldDueDate) {
+        updatedFields.notifiedUpcoming = false;
+        updatedFields.notifiedOverdue = false;
+      }
+    }
+
+    if (timeSpent !== undefined && timeSpent !== existingTask.timeSpent) {
+      updatedFields.notifiedWarning = false;
     }
 
     if (typeof taskCompleted !== "undefined") {
       updatedFields.taskCompleted = taskCompleted;
+    }
+    if (req.body.hasOwnProperty("completedAt")) {
+      updatedFields.completedAt = completedAt;
     }
 
     const task = await Task.findByIdAndUpdate(req.params.id, updatedFields, { new: true });
@@ -114,6 +127,23 @@ router.put("/:id/edit", async (req, res) => {
     res.status(500).json({ error: "Failed to edit task" });
   }
 });
+
+// patch update schedule for a task (only scheduledStart and scheduledEnd)
+router.patch("/:id/schedule", async (req, res) => {
+  try {
+    const { scheduledStart, scheduledEnd } = req.body;
+    const task = await Task.findByIdAndUpdate(
+      req.params.id,
+      { scheduledStart, scheduledEnd },
+      { new: true }
+    );
+    res.json(task);
+  } catch (error) {
+    console.error("Error updating task schedule:", error);
+    res.status(500).json({ error: "Failed to update task schedule" });
+  }
+});
+
 
 // move a task to a new status and order
 router.put("/:id/move", async (req, res) => {

@@ -5,6 +5,29 @@ import { updateNotification, deleteNotification } from "../services/notification
 import { FaEnvelopeOpen, FaEnvelope } from "react-icons/fa";
 import "./notificationsDropdown.css";
 
+const renderNotificationMessage = (message) => {
+  const prefixMap = {
+    "Weekly Insight:": "notification-title-insight",
+    "Alert:": "notification-title-alert",
+    "Reminder:": "notification-title-reminder",
+    "Warning:": "notification-title-warning"
+  };
+
+  for (const prefix in prefixMap) {
+    if (message.startsWith(prefix)) {
+      const cssClass = prefixMap[prefix];
+      const restOfMessage = message.slice(prefix.length);
+      return (
+        <span>
+          <span className={cssClass}>{prefix}</span>
+          {restOfMessage}
+        </span>
+      );
+    }
+  }
+  return <span>{message}</span>;
+};
+
 const NotificationsDropdown = ({ notifications, onClose }) => {
   const { setNotifications } = useContext(NotificationsContext);
   const [expandedIds, setExpandedIds] = useState([]);
@@ -47,13 +70,6 @@ const NotificationsDropdown = ({ notifications, onClose }) => {
     try {
       await deleteNotification(notifToRemove._id);
       setNotifications((prev) => prev.filter((_, i) => i !== index));
-      
-      if (notifToRemove.taskId) {
-        await resetNotificationFlags(notifToRemove.taskId, { 
-          notifiedUpcoming: true, 
-          notifiedOverdue: true 
-        });
-      }
     } catch (error) {
       console.error("Error deleting notification:", error);
     }
@@ -111,7 +127,9 @@ const NotificationsDropdown = ({ notifications, onClose }) => {
               >
                 <div className="notification-content">
                   <div className="notification-timestamp">{dateStr}</div>
-                  <div className="notification-message">{notif.message}</div>
+                  <div className="notification-message">
+                    {renderNotificationMessage(notif.message)}
+                  </div>
                 </div>
                 <div className="notification-actions">
                   <button

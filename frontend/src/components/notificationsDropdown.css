@@ -273,3 +273,27 @@
 .clear-all-btn::-moz-focus-inner {
   border: 0;
 }
+
+.notification-title-alert {
+  color: #ff7f7f;
+  margin-right: 4px;
+  font-weight: normal;
+}
+
+.notification-title-reminder {
+  color: #90ee90;
+  margin-right: 4px;
+  font-weight: normal;
+}
+
+.notification-title-insight {
+  color: #87cefa;
+  margin-right: 4px;
+  font-weight: normal;
+}
+
+.notification-title-warning {
+  color: #ffdf7f;
+  margin-right: 4px;
+  font-weight: normal;
+}

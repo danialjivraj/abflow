@@ -128,6 +128,16 @@ export const updateTask = (taskData) => {
 };
 
 /**
+ * Update only the schedule of a task.
+ * @param {string} taskId - The ID of the task.
+ * @param {Object} scheduleData - An object containing scheduledStart and scheduledEnd.
+ * @returns {Promise} Axios PATCH request that resolves with the updated task.
+ */
+export const updateTaskSchedule = (taskId, scheduleData) => {
+  return axios.patch(`${API_URL}/${taskId}/schedule`, scheduleData);
+};
+
+/**
  * Mark a task as completed.
  * @param {string} taskId - The ID of the task to mark as completed.
  * @returns {Promise} Axios PUT request that resolves with the updated task.
