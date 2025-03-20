@@ -185,7 +185,6 @@ const generateWarningNotifications = async (userId, now) => {
   return notifications;
 };
 
-
 /**
  * Master function to generate all frequent notifications independently.
  */
@@ -226,4 +225,11 @@ const generateFrequentNotifications = async () => {
   }
 };
 
-module.exports = { generateFrequentNotifications };
+module.exports = { 
+  shouldCreateNotification, 
+  generateScheduledNotifications, 
+  generateUpcomingNotifications, 
+  generateOverdueNotifications, 
+  generateWarningNotifications, 
+  generateFrequentNotifications 
+};
