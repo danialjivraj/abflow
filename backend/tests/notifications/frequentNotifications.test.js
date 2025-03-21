@@ -309,7 +309,7 @@ describe("Frequent Notifications", () => {
         );
     });
 
-    it("should generate warning if non-high-priority task exceeds 1 hour and A and B high-priority tasks exist", async () => {
+    it("should generate warning if a 'C' non-high-priority task exceeds 1 hour and A and B high-priority tasks exist", async () => {
         const now = new Date();
         await Task.create({
             ...getBaseTask(),
@@ -333,6 +333,84 @@ describe("Frequent Notifications", () => {
         expect(warningNotifs[0].message).toBe(
             'Warning: You have spent over 1 hour on the task "Long Running Non-High Priority Task" which is non high priority. Consider switching to high priority work (there are A and B tasks to do).'
         );
+    });
+
+    it("should generate warning if a 'D' non-high-priority task exceeds 1 hour and A and B high-priority tasks exist", async () => {
+        const now = new Date();
+        await Task.create({
+            ...getBaseTask(),
+            title: "A High Priority Task",
+            priority: "A1",
+        });
+        await Task.create({
+            ...getBaseTask(),
+            title: "B High Priority Task",
+            priority: "B1",
+        });
+        await Task.create({
+            ...getBaseTask(),
+            priority: "D",
+            title: "Long Running Non-High Priority Task",
+            isTimerRunning: true,
+            timerStartTime: new Date(now.getTime() - 2 * 60 * 60 * 1000), // 2 hours ago: 15:40 UTC
+            timeSpent: 0,
+        });
+        const warningNotifs = await generateWarningNotifications(defaultUser.userId, now);
+        expect(warningNotifs.length).toBe(1);
+        expect(warningNotifs[0].message).toBe(
+            'Warning: You have spent over 1 hour on the task "Long Running Non-High Priority Task" which is non high priority. Consider switching to high priority work (there are A and B tasks to do).'
+        );
+    });
+
+    it("should generate warning if a 'E' non-high-priority task exceeds 1 hour and A and B high-priority tasks exist", async () => {
+        const now = new Date();
+        await Task.create({
+            ...getBaseTask(),
+            title: "A High Priority Task",
+            priority: "A1",
+        });
+        await Task.create({
+            ...getBaseTask(),
+            title: "B High Priority Task",
+            priority: "B1",
+        });
+        await Task.create({
+            ...getBaseTask(),
+            priority: "E",
+            title: "Long Running Non-High Priority Task",
+            isTimerRunning: true,
+            timerStartTime: new Date(now.getTime() - 2 * 60 * 60 * 1000), // 2 hours ago: 15:40 UTC
+            timeSpent: 0,
+        });
+        const warningNotifs = await generateWarningNotifications(defaultUser.userId, now);
+        expect(warningNotifs.length).toBe(1);
+        expect(warningNotifs[0].message).toBe(
+            'Warning: You have spent over 1 hour on the task "Long Running Non-High Priority Task" which is non high priority. Consider switching to high priority work (there are A and B tasks to do).'
+        );
+    });
+
+    it("should generate warning if a 'E' non-high-priority task exceeds 1 hour and A and B high-priority tasks exist and timer is off", async () => {
+        const now = new Date();
+        await Task.create({
+            ...getBaseTask(),
+            title: "A High Priority Task",
+            priority: "A1",
+        });
+        await Task.create({
+            ...getBaseTask(),
+            title: "B High Priority Task",
+            priority: "B1",
+        });
+        await Task.create({
+            ...getBaseTask(),
+            priority: "E",
+            title: "Long Running Non-High Priority Task",
+            isTimerRunning: false,
+            timerStartTime: new Date(now.getTime() - 2 * 60 * 60 * 1000), // 2 hours ago: 15:40 UTC
+            timeSpent: 0,
+        });
+        const warningNotifs = await generateWarningNotifications(defaultUser.userId, now);
+        expect(warningNotifs.length).toBe(0);
     });
 
     it("should not generate warning if task running time is below threshold", async () => {
