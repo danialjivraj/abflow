@@ -1,10 +1,5 @@
 import React from "react";
-import {
-  render,
-  screen,
-  fireEvent,
-  waitFor,
-} from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { DragDropContext } from "@hello-pangea/dnd";
 import TaskCard from "../../src/pages/Dashboard/TaskCard";
 import { createBaseTask } from "../../testUtils/createBaseTask";
@@ -349,6 +344,14 @@ describe("TaskCard - Integration Tests", () => {
 
   // --- Due Date Formatting Tests ---
   describe("Due Date Formatting Tests", () => {
+    test("does not render due date span when task has no due date", () => {
+      const taskWithoutDueDate = { ...defaultTask, dueDate: null };
+      const { container } = renderWithDnd(
+        <TaskCard {...defaultProps} task={taskWithoutDueDate} />
+      );
+      expect(container.querySelector(".due-date")).toBeNull();
+    });
+
     const baseCurrentTime = new Date("2022-01-01T00:00:00.000Z");
 
     test("Due in 1 second", () => {
