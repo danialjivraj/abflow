@@ -1,6 +1,7 @@
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import ScheduleEditModal from "../../src/components/Modals/ScheduleEditModal";
+const { createBaseTask } = require("../../testUtils/createBaseTask");
 
 jest.mock("react-datepicker", () => {
   return ({ selected, onChange, placeholderText, className }) => (
@@ -25,7 +26,7 @@ describe("ScheduleEditModal", () => {
     end: "2022-01-01T12:00:00.000Z",
     title: "Test Event",
     isUnscheduled: false,
-    task: { priority: "A1" },
+    task: createBaseTask(),
   };
 
   const defaultProps = {
@@ -198,7 +199,9 @@ describe("ScheduleEditModal", () => {
     render(<ScheduleEditModal {...defaultProps} />);
     const unscheduleButton = screen.getByText("Unschedule");
     fireEvent.click(unscheduleButton);
-    expect(defaultProps.onUnschedule).toHaveBeenCalledWith(defaultProps.eventData);
+    expect(defaultProps.onUnschedule).toHaveBeenCalledWith(
+      defaultProps.eventData
+    );
   });
 
   test("does not render Unschedule button when eventData.isUnscheduled is true", () => {
@@ -225,9 +228,7 @@ describe("ScheduleEditModal", () => {
       end: "2022-02-01T11:00:00.000Z",
     };
 
-    rerender(
-      <ScheduleEditModal {...defaultProps} eventData={newEventData} />
-    );
+    rerender(<ScheduleEditModal {...defaultProps} eventData={newEventData} />);
 
     expect(startInput.value).toBe(new Date(newEventData.start).toString());
     expect(endInput.value).toBe(new Date(newEventData.end).toString());

@@ -1,11 +1,24 @@
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import GroupTasksModal from "../../src/components/Modals/GroupTasksModal";
+const { createBaseTask } = require("../../testUtils/createBaseTask");
 
 describe("GroupTasksModal", () => {
-  const mainTask1 = { _id: "1", title: "Main Task 1", groupKey: "Monday", priority: "A1" };
-  const mainTask2 = { _id: "2", title: "Main Task 2", groupKey: "Monday", priority: "A1" };
-  const compTask1 = { _id: "3", title: "Comp Task 1", groupKey: "Friday", priority: "A1" };
+  const mainTask1 = createBaseTask({
+    _id: "1",
+    title: "Main Task 1",
+    groupKey: "Monday",
+  });
+  const mainTask2 = createBaseTask({
+    _id: "2",
+    title: "Main Task 2",
+    groupKey: "Monday",
+  });
+  const compTask1 = createBaseTask({
+    _id: "3",
+    title: "Comp Task 1",
+    groupKey: "Friday",
+  });
 
   const defaultProps = {
     modalOpen: true,
@@ -36,7 +49,6 @@ describe("GroupTasksModal", () => {
       <GroupTasksModal
         {...defaultProps}
         mainGroupTasks={[mainTask1, mainTask2]}
-        compGroupTasks={[]}
       />
     );
     const header = screen.getByRole("heading", { level: 2 });
@@ -45,27 +57,14 @@ describe("GroupTasksModal", () => {
   });
 
   test("renders modal and displays compGroupTasks groupKey if mainGroupTasks is empty", () => {
-    render(
-      <GroupTasksModal
-        {...defaultProps}
-        mainGroupTasks={[]}
-        compGroupTasks={[compTask1]}
-      />
-    );
+    render(<GroupTasksModal {...defaultProps} compGroupTasks={[compTask1]} />);
     const header = screen.getByRole("heading", { level: 2 });
     expect(header.textContent).toBe("Tasks for Group: Friday");
     expect(screen.getByText("Friday")).toBeInTheDocument();
   });
 
   test("renders modal and displays selectedGroup if both main and comp tasks are empty", () => {
-    render(
-      <GroupTasksModal
-        {...defaultProps}
-        mainGroupTasks={[]}
-        compGroupTasks={[]}
-        selectedGroup="FallbackGroup"
-      />
-    );
+    render(<GroupTasksModal {...defaultProps} selectedGroup="FallbackGroup" />);
     const header = screen.getByRole("heading", { level: 2 });
     expect(header.textContent).toBe("Tasks for Group: FallbackGroup");
     expect(screen.getByText("FallbackGroup")).toBeInTheDocument();
@@ -75,21 +74,21 @@ describe("GroupTasksModal", () => {
   // Overlay and Close Button Tests
   // ---------------------------
   test("calls setModalOpen(false) when clicking on the overlay", () => {
-    render(<GroupTasksModal {...defaultProps} modalOpen={true} />);
+    render(<GroupTasksModal {...defaultProps} />);
     const overlay = document.querySelector(".modal-overlay");
     fireEvent.click(overlay);
     expect(defaultProps.setModalOpen).toHaveBeenCalledWith(false);
   });
 
   test("calls setModalOpen(false) when clicking the close (×) button", () => {
-    render(<GroupTasksModal {...defaultProps} modalOpen={true} />);
+    render(<GroupTasksModal {...defaultProps} />);
     const closeButton = screen.getByText("×");
     fireEvent.click(closeButton);
     expect(defaultProps.setModalOpen).toHaveBeenCalledWith(false);
   });
 
   test("calls setModalOpen(false) when clicking the Close button at the bottom", () => {
-    render(<GroupTasksModal {...defaultProps} modalOpen={true} />);
+    render(<GroupTasksModal {...defaultProps} />);
     const closeTextButton = screen.getByText("Close");
     fireEvent.click(closeTextButton);
     expect(defaultProps.setModalOpen).toHaveBeenCalledWith(false);
@@ -111,9 +110,7 @@ describe("GroupTasksModal", () => {
   });
 
   test("renders fallback message when no main tasks are provided", () => {
-    render(
-      <GroupTasksModal {...defaultProps} mainGroupTasks={[]} />
-    );
+    render(<GroupTasksModal {...defaultProps} mainGroupTasks={[]} />);
     expect(
       screen.getByText("No tasks for this group in Main Range.")
     ).toBeInTheDocument();
@@ -158,15 +155,12 @@ describe("GroupTasksModal", () => {
   });
 
   test("calls openReadOnlyViewTaskModal when a main task is clicked", () => {
-    render(
-      <GroupTasksModal
-        {...defaultProps}
-        mainGroupTasks={[mainTask1]}
-      />
-    );
+    render(<GroupTasksModal {...defaultProps} mainGroupTasks={[mainTask1]} />);
     const taskWrapper = screen.getByText("Main Task 1").parentElement;
     fireEvent.click(taskWrapper);
-    expect(defaultProps.openReadOnlyViewTaskModal).toHaveBeenCalledWith(mainTask1);
+    expect(defaultProps.openReadOnlyViewTaskModal).toHaveBeenCalledWith(
+      mainTask1
+    );
   });
 
   test("calls openReadOnlyViewTaskModal when a comparison task is clicked", () => {
@@ -180,6 +174,8 @@ describe("GroupTasksModal", () => {
     );
     const taskWrapper = screen.getByText("Comp Task 1").parentElement;
     fireEvent.click(taskWrapper);
-    expect(defaultProps.openReadOnlyViewTaskModal).toHaveBeenCalledWith(compTask1);
+    expect(defaultProps.openReadOnlyViewTaskModal).toHaveBeenCalledWith(
+      compTask1
+    );
   });
 });
