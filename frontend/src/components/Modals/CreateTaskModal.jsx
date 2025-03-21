@@ -23,7 +23,6 @@ const CreateTaskModal = ({
   taskDescription,
   setTaskDescription,
   handleCreateTask,
-  errorMessage,
   dueDateWarning,
   setDueDateWarning,
   storyPoints,
@@ -34,7 +33,8 @@ const CreateTaskModal = ({
   createBoardError,
 }) => {
   const [localSelectedStatus, setLocalSelectedStatus] = useState(selectedStatus);
-
+  const [errorMessage, setErrorMessage] = useState("");
+  
   const defaultStatus = Object.keys(columns)[0] || "";
 
   useEffect(() => {
@@ -46,6 +46,12 @@ const CreateTaskModal = ({
       }
     }
   }, [isModalOpen, columns, localSelectedStatus, setSelectedStatus, defaultStatus]);
+
+  useEffect(() => {
+    if (!isModalOpen) {
+      setErrorMessage("");
+    }
+  }, [isModalOpen]);
 
   if (!isModalOpen) return null;
   if (!columnsLoaded) return <div>Loading...</div>;
@@ -96,6 +102,15 @@ const CreateTaskModal = ({
     }
   };
 
+  const onSubmit = async () => {
+    if (!newTaskTitle.trim()) {
+      setErrorMessage("Task Title is required.");
+      return;
+    }
+    setErrorMessage("");
+    await handleCreateTask();
+  };
+
   return (
     <div className="modal-overlay" onClick={handleOverlayClick}>
       <div className="create-task-modal">
@@ -107,8 +122,6 @@ const CreateTaskModal = ({
             &times;
           </button>
           <h2>Create New Task</h2>
-
-          {/* When no boards exist, show board creation UI */}
           {!hasBoards ? (
             <div className="no-board-message">
               <p>You need to create a board before you can create tasks.</p>
@@ -149,7 +162,7 @@ const CreateTaskModal = ({
                     value={newTaskTitle}
                     onChange={(e) => setNewTaskTitle(e.target.value)}
                   />
-                  {errorMessage && <p className="error-message">{errorMessage}</p>}
+                  {errorMessage && <p role="alert" className="error-message">{errorMessage}</p>}
                   <label>Priority:</label>
                   <select value={selectedPriority} onChange={(e) => setSelectedPriority(e.target.value)}>
                     {allowedPriorities.map((priority) => (
@@ -192,7 +205,7 @@ const CreateTaskModal = ({
                       placeholderText="Select due date"
                       disabledKeyboardNavigation
                     />
-                    {dueDateWarning && <p className="warning-message">{dueDateWarning}</p>}
+                    {dueDateWarning && <p role="alert" className="warning-message">{dueDateWarning}</p>}
                   </div>
                   <label>Assign To:</label>
                   <input
@@ -218,7 +231,7 @@ const CreateTaskModal = ({
                 <TiptapEditor value={taskDescription} onChange={setTaskDescription} />
               </div>
               <div className="modal-footer">
-                <button className="create-task-btn" onClick={handleCreateTask}>
+                <button className="create-task-btn" onClick={onSubmit}>
                   Create
                 </button>
                 <button className="cancel-btn" onClick={closeModal} style={{ marginLeft: "auto" }}>

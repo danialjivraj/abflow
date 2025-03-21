@@ -56,7 +56,6 @@ const Dashboard = () => {
   const [assignedTo, setAssignedTo] = useState("");
   const [taskDescription, setTaskDescription] = useState("");
   const [storyPoints, setStoryPoints] = useState(0);
-  const [errorMessage, setErrorMessage] = useState("");
   const [dueDateWarning, setDueDateWarning] = useState("");
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
@@ -478,19 +477,13 @@ const Dashboard = () => {
     setAssignedTo("");
     setTaskDescription("");
     setStoryPoints(0);
-    setErrorMessage("");
     setDueDateWarning("");
   };
 
   const handleCreateTask = async () => {
-    if (!newTaskTitle.trim()) {
-      setErrorMessage("Task Title is required.");
-      return;
-    }
     if (!userId || isSubmitting) return;
 
     setIsSubmitting(true);
-    setErrorMessage("");
 
     try {
       const taskData = {
@@ -720,7 +713,6 @@ const Dashboard = () => {
         taskDescription={taskDescription}
         setTaskDescription={setTaskDescription}
         handleCreateTask={handleCreateTask}
-        errorMessage={errorMessage}
         dueDateWarning={dueDateWarning}
         setDueDateWarning={setDueDateWarning}
         storyPoints={storyPoints}
@@ -740,7 +732,6 @@ const Dashboard = () => {
         stopTimer={stopTimerAPI}
         setCompletedTasks={setCompletedTasks}
       />
-
       <ScheduleEditModal
         isModalOpen={isScheduleModalOpen}
         eventData={selectedScheduleEvent}
