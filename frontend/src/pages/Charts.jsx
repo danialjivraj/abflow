@@ -307,7 +307,7 @@ const Charts = () => {
       if (currentUser) {
         try {
           const res = await fetchChartPreferences(currentUser.uid);
-          const prefs = res.data.preferences;
+          const prefs = res.data.chartPreferences;
           const params = Object.fromEntries([...searchParams]);
 
           if (!params.timeRangeType && prefs.timeRangeType) setTimeRangeType(prefs.timeRangeType);

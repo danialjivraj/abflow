@@ -3,7 +3,7 @@ import axios from "axios";
 const API_URL = "http://localhost:5000/api/preferences";
 
 /**
- * Fetch user chart filter preferences.
+ * Fetch user chart preferences.
  * @param {string} userId
  * @returns {Promise} Axios GET request
  */
@@ -12,11 +12,11 @@ export const fetchChartPreferences = (userId) => {
 };
 
 /**
- * Update user chart filter preferences.
+ * Update user chart preferences.
  * @param {string} userId
  * @param {Object} preferences
  * @returns {Promise} Axios PUT request
  */
 export const updateChartPreferences = (userId, preferences) => {
-  return axios.put(`${API_URL}/${userId}`, { preferences });
+  return axios.put(`${API_URL}/${userId}`, { chartPreferences: preferences });
 };
