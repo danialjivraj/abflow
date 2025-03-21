@@ -20,8 +20,6 @@ import {
 import {
   fetchColumnOrder,
   createBoard,
-  renameBoard,
-  deleteBoard,
   saveColumnOrder,
 } from "../../services/columnsService";
 import { formatDueDate } from "../../utils/dateUtils";
@@ -32,6 +30,7 @@ import "../../components/styles.css";
 import "../../components/topBar.css";
 import "../../components/tipTapEditor.css";
 import { NotificationsContext } from "../../contexts/NotificationsContext";
+import { validateBoardName } from "../../utils/boardValidation";
 
 const Dashboard = () => {
   // ---------------------- state and refs ----------------------
@@ -282,22 +281,16 @@ const Dashboard = () => {
     closeScheduleModal();
   };
 
-  // ---------------------- Board Creation and Rename Handlers ----------------------
+  // ---------------------- Board Creation Handler ----------------------
   const handleCreateBoard = async () => {
     if (!newBoardCreateName.trim() || !userId) return;
-    const nameToCheck = newBoardCreateName.trim().toLowerCase();
-    if (nameToCheck === "completed") {
-      setCreateBoardError("Board name 'Completed' is reserved.");
+  
+    const error = validateBoardName(newBoardCreateName, columns);
+    if (error) {
+      setCreateBoardError(error);
       return;
     }
-    // Check if board name already exists (case-insensitive)
-    const existingBoard = Object.values(columns).find(
-      (board) => board.name.toLowerCase() === nameToCheck
-    );
-    if (existingBoard) {
-      setCreateBoardError("Board name already taken.");
-      return;
-    }
+  
     try {
       const res = await createBoard(userId, newBoardCreateName);
       const { columnId, columnName } = res.data;
@@ -314,51 +307,23 @@ const Dashboard = () => {
     }
   };
 
-  const handleRenameBoard = async (columnId, newName) => {
-    if (!newName.trim()) return;
-    const nameToCheck = newName.trim().toLowerCase();
-    if (nameToCheck === "completed") {
-      setRenameBoardError("Board name 'Completed' is reserved.");
-      return;
-    }
-    // Check if the new name already exists on a different board
-    const existingBoard = Object.entries(columns).find(
-      ([id, board]) =>
-        board.name.toLowerCase() === nameToCheck && id !== columnId
-    );
-    if (existingBoard) {
-      setRenameBoardError("Board name already taken.");
-      return;
-    }
-    try {
-      await renameBoard(userId, columnId, newName);
-      setColumns((prev) => ({
-        ...prev,
-        [columnId]: { ...prev[columnId], name: newName },
-      }));
-      setNewBoardName("");
-      setRenamingColumnId(null);
-      setIsDropdownOpen(null);
-      setRenameBoardError("");
-    } catch (error) {
-      console.error("Error renaming board:", error);
-    }
+  // ---------------------- New Callbacks for Board Rename & Delete ----------------------
+  const onBoardRename = (columnId, newName) => {
+    setColumns((prev) => ({
+      ...prev,
+      [columnId]: { ...prev[columnId], name: newName },
+    }));
   };
 
-  const handleDeleteBoard = async (columnId) => {
-    try {
-      await deleteBoard(userId, columnId);
-      setColumns((prev) => {
-        const updated = { ...prev };
-        delete updated[columnId];
-        return updated;
-      });
-      setIsDropdownOpen(null);
-    } catch (error) {
-      console.error("Error deleting board:", error);
-    }
+  const onBoardDelete = (columnId) => {
+    setColumns((prev) => {
+      const updated = { ...prev };
+      delete updated[columnId];
+      return updated;
+    });
   };
 
+  // ---------------------- Other Task Handlers ----------------------
   const handleDeleteTask = async (taskId) => {
     try {
       await deleteTaskAPI(taskId);
@@ -415,7 +380,6 @@ const Dashboard = () => {
     }
   };
   
-
   const updateTaskInColumns = (taskId, updates) => {
     setColumns((prevColumns) => {
       const updatedColumns = { ...prevColumns };
@@ -658,8 +622,6 @@ const Dashboard = () => {
           setRenamingColumnId={setRenamingColumnId}
           isDropdownOpen={isDropdownOpen}
           setIsDropdownOpen={setIsDropdownOpen}
-          deleteBoard={handleDeleteBoard}
-          renameBoard={handleRenameBoard}
           dropdownRef={dropdownRef}
           isTaskDropdownOpen={isTaskDropdownOpen}
           setIsTaskDropdownOpen={setIsTaskDropdownOpen}
@@ -682,6 +644,8 @@ const Dashboard = () => {
           handleCompleteTask={handleCompleteTaskFromDropdown}
           renameBoardError={renameBoardError}
           setRenameBoardError={setRenameBoardError}
+          onBoardRename={onBoardRename}
+          onBoardDelete={onBoardDelete}
         />
       );
     }

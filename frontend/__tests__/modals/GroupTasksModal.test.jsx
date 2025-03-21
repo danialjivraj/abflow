@@ -3,40 +3,41 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import GroupTasksModal from "../../src/components/Modals/GroupTasksModal";
 const { createBaseTask } = require("../../testUtils/createBaseTask");
 
-describe("GroupTasksModal", () => {
-  const mainTask1 = createBaseTask({
-    _id: "1",
-    title: "Main Task 1",
-    groupKey: "Monday",
-  });
-  const mainTask2 = createBaseTask({
-    _id: "2",
-    title: "Main Task 2",
-    groupKey: "Monday",
-  });
-  const compTask1 = createBaseTask({
-    _id: "3",
-    title: "Comp Task 1",
-    groupKey: "Friday",
-  });
+const mainTask1 = createBaseTask({
+  _id: "1",
+  title: "Main Task 1",
+  groupKey: "Monday",
+});
+const mainTask2 = createBaseTask({
+  _id: "2",
+  title: "Main Task 2",
+  groupKey: "Monday",
+});
+const compTask1 = createBaseTask({
+  _id: "3",
+  title: "Comp Task 1",
+  groupKey: "Friday",
+});
 
-  const defaultProps = {
-    modalOpen: true,
-    setModalOpen: jest.fn(),
-    mainGroupTasks: [],
-    compGroupTasks: [],
-    openReadOnlyViewTaskModal: jest.fn(),
-    comparisonMode: false,
-    selectedGroup: "DefaultGroup",
-  };
+const defaultProps = {
+  modalOpen: true,
+  setModalOpen: jest.fn(),
+  mainGroupTasks: [],
+  compGroupTasks: [],
+  openReadOnlyViewTaskModal: jest.fn(),
+  comparisonMode: false,
+  selectedGroup: "DefaultGroup",
+};
 
+// =======================
+// UNIT TESTS
+// =======================
+describe("GroupTasksModal - Unit Tests", () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  // ---------------------------
-  // Rendering Tests
-  // ---------------------------
+  // --- General Rendering Tests ---
   test("does not render when modalOpen is false", () => {
     const { container } = render(
       <GroupTasksModal {...defaultProps} modalOpen={false} />
@@ -70,9 +71,7 @@ describe("GroupTasksModal", () => {
     expect(screen.getByText("FallbackGroup")).toBeInTheDocument();
   });
 
-  // ---------------------------
-  // Overlay and Close Button Tests
-  // ---------------------------
+  // --- Overlay and Close Button Tests ---
   test("calls setModalOpen(false) when clicking on the overlay", () => {
     render(<GroupTasksModal {...defaultProps} />);
     const overlay = document.querySelector(".modal-overlay");
@@ -93,10 +92,17 @@ describe("GroupTasksModal", () => {
     fireEvent.click(closeTextButton);
     expect(defaultProps.setModalOpen).toHaveBeenCalledWith(false);
   });
+});
 
-  // ---------------------------
-  // Task Rendering and Interaction Tests
-  // ---------------------------
+// =======================
+// INTEGRATION TESTS
+// =======================
+describe("GroupTasksModal - Integration Tests", () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  // --- Task Rendering and Interaction Tests ---
   test("renders main tasks when provided", () => {
     render(
       <GroupTasksModal

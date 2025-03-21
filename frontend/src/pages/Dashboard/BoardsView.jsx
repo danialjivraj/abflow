@@ -1,3 +1,4 @@
+// BoardsView.jsx
 import React from "react";
 import { DragDropContext, Droppable } from "@hello-pangea/dnd";
 import Column from "./Column";
@@ -11,8 +12,6 @@ const BoardsView = ({
   setRenamingColumnId,
   isDropdownOpen,
   setIsDropdownOpen,
-  deleteBoard,
-  renameBoard,
   dropdownRef,
   isTaskDropdownOpen,
   setIsTaskDropdownOpen,
@@ -35,6 +34,8 @@ const BoardsView = ({
   handleCompleteTask,
   renameBoardError,
   setRenameBoardError,
+  onBoardRename,
+  onBoardDelete,
 }) => {
   return (
     <>
@@ -60,9 +61,6 @@ const BoardsView = ({
                     setRenamingColumnId={setRenamingColumnId}
                     isDropdownOpen={isDropdownOpen}
                     setIsDropdownOpen={setIsDropdownOpen}
-                    deleteBoard={deleteBoard}
-                    renameBoard={renameBoard}
-                    dropdownRef={dropdownRef}
                     isTaskDropdownOpen={isTaskDropdownOpen}
                     setIsTaskDropdownOpen={setIsTaskDropdownOpen}
                     formatDueDate={formatDueDate}
@@ -76,6 +74,8 @@ const BoardsView = ({
                     handleCompleteTask={handleCompleteTask}
                     renameBoardError={renameBoardError}
                     setRenameBoardError={setRenameBoardError}
+                    onBoardRename={onBoardRename}
+                    onBoardDelete={onBoardDelete}
                   />
                 ))}
                 {provided.placeholder}

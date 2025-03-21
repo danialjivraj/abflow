@@ -13,42 +13,43 @@ jest.mock("../../src/components/TiptapEditor", () => {
   );
 });
 
-describe("CreateTaskModal", () => {
-  const defaultProps = {
-    isModalOpen: true,
-    closeModal: jest.fn(),
-    columns: { backlog: { name: "Backlog", items: [] } },
-    columnsLoaded: true,
-    newTaskTitle: "",
-    setNewTaskTitle: jest.fn(),
-    selectedPriority: "A1",
-    setSelectedPriority: jest.fn(),
-    selectedStatus: "",
-    setSelectedStatus: jest.fn(),
-    dueDate: null,
-    setDueDate: jest.fn(),
-    assignedTo: "",
-    setAssignedTo: jest.fn(),
-    taskDescription: "",
-    setTaskDescription: jest.fn(),
-    handleCreateTask: jest.fn(),
-    dueDateWarning: "",
-    setDueDateWarning: jest.fn(),
-    storyPoints: 0,
-    setStoryPoints: jest.fn(),
-    newBoardCreateName: "",
-    setNewBoardCreateName: jest.fn(),
-    handleCreateBoard: jest.fn(),
-    createBoardError: "",
-  };
+const defaultProps = {
+  isModalOpen: true,
+  closeModal: jest.fn(),
+  columns: { backlog: { name: "Backlog", items: [] } },
+  columnsLoaded: true,
+  newTaskTitle: "",
+  setNewTaskTitle: jest.fn(),
+  selectedPriority: "A1",
+  setSelectedPriority: jest.fn(),
+  selectedStatus: "",
+  setSelectedStatus: jest.fn(),
+  dueDate: null,
+  setDueDate: jest.fn(),
+  assignedTo: "",
+  setAssignedTo: jest.fn(),
+  taskDescription: "",
+  setTaskDescription: jest.fn(),
+  handleCreateTask: jest.fn(),
+  dueDateWarning: "",
+  setDueDateWarning: jest.fn(),
+  storyPoints: 0,
+  setStoryPoints: jest.fn(),
+  newBoardCreateName: "",
+  setNewBoardCreateName: jest.fn(),
+  handleCreateBoard: jest.fn(),
+  createBoardError: "",
+};
 
+// =======================
+// UNIT TESTS
+// =======================
+describe("CreateTaskModal Unit Tests", () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  // ---------------------------
   // General Rendering Tests
-  // ---------------------------
   test("does not render when isModalOpen is false", () => {
     const { container } = render(
       <CreateTaskModal {...defaultProps} isModalOpen={false} />
@@ -60,10 +61,17 @@ describe("CreateTaskModal", () => {
     render(<CreateTaskModal {...defaultProps} columnsLoaded={false} />);
     expect(screen.getByText("Loading...")).toBeInTheDocument();
   });
+});
 
-  // ---------------------------
+// =======================
+// INTEGRATION TESTS
+// =======================
+describe("CreateTaskModal Integration Tests", () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   // Board Creation UI (no boards exist)
-  // ---------------------------
   describe("Board Creation UI (no boards exist)", () => {
     test("renders board creation UI", () => {
       render(<CreateTaskModal {...defaultProps} columns={{}} />);
@@ -125,9 +133,7 @@ describe("CreateTaskModal", () => {
     });
   });
 
-  // ---------------------------
   // Task Creation UI (boards exist)
-  // ---------------------------
   describe("Task Creation UI (boards exist)", () => {
     test("renders task creation UI elements", () => {
       render(

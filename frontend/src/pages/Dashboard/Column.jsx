@@ -2,6 +2,9 @@ import React, { useRef, useEffect, useState } from "react";
 import { Droppable, Draggable } from "@hello-pangea/dnd";
 import TaskCard from "./TaskCard";
 import DeleteConfirmationModal from "../../components/Modals/DeleteConfirmationModal";
+import { renameBoard, deleteBoard } from "../../services/columnsService";
+import { auth } from "../../firebase";
+import { validateBoardName } from "../../utils/boardValidation";
 
 const Column = ({
   columnId,
@@ -13,8 +16,6 @@ const Column = ({
   setRenamingColumnId,
   isDropdownOpen,
   setIsDropdownOpen,
-  deleteBoard,
-  renameBoard,
   isTaskDropdownOpen,
   setIsTaskDropdownOpen,
   formatDueDate,
@@ -28,9 +29,44 @@ const Column = ({
   handleCompleteTask,
   renameBoardError,
   setRenameBoardError,
+  onBoardRename,
+  onBoardDelete,
 }) => {
   const columnDropdownRef = useRef(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+  const handleRename = async () => {
+    if (!newBoardName.trim()) return;
+    const error = validateBoardName(newBoardName, { [columnId]: columnData });
+    if (error) {
+      setRenameBoardError(error);
+      return;
+    }
+    try {
+      const user = auth.currentUser;
+      if (!user) return;
+      await renameBoard(user.uid, columnId, newBoardName);
+      onBoardRename(columnId, newBoardName);
+      setNewBoardName("");
+      setRenamingColumnId(null);
+      setIsDropdownOpen(null);
+      setRenameBoardError("");
+    } catch (error) {
+      console.error("Error renaming board:", error);
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      const user = auth.currentUser;
+      if (!user) return;
+      await deleteBoard(user.uid, columnId);
+      onBoardDelete(columnId);
+      setIsDropdownOpen(null);
+    } catch (error) {
+      console.error("Error deleting board:", error);
+    }
+  };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -76,10 +112,7 @@ const Column = ({
                     </div>
                   )}
                   <div className="button-container">
-                    <button
-                      className="tick-btn"
-                      onClick={() => renameBoard(columnId, newBoardName)}
-                    >
+                    <button className="tick-btn" onClick={handleRename}>
                       ✔️
                     </button>
                     <button
@@ -165,7 +198,7 @@ const Column = ({
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={() => {
-          deleteBoard(columnId);
+          handleDelete();
           setIsDeleteModalOpen(false);
         }}
         entityType="column"

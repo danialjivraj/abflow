@@ -20,30 +20,30 @@ jest.mock("../../src/utils/dateUtils", () => ({
   getCalendarIconColor: jest.fn(() => "red"),
 }));
 
-describe("ScheduleEditModal", () => {
-  const baseEventData = {
-    start: "2022-01-01T10:00:00.000Z",
-    end: "2022-01-01T12:00:00.000Z",
-    title: "Test Event",
-    isUnscheduled: false,
-    task: createBaseTask(),
-  };
+const baseEventData = {
+  start: "2022-01-01T10:00:00.000Z",
+  end: "2022-01-01T12:00:00.000Z",
+  title: "Test Event",
+  isUnscheduled: false,
+  task: createBaseTask(),
+};
 
-  const defaultProps = {
-    isModalOpen: true,
-    eventData: baseEventData,
-    onSave: jest.fn(),
-    onClose: jest.fn(),
-    onUnschedule: jest.fn(),
-  };
+const defaultProps = {
+  isModalOpen: true,
+  eventData: baseEventData,
+  onSave: jest.fn(),
+  onClose: jest.fn(),
+  onUnschedule: jest.fn(),
+};
 
+// =======================
+// UNIT TESTS
+// =======================
+describe("ScheduleEditModal - Unit Tests", () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  // ---------------------------
-  // General Rendering Tests
-  // ---------------------------
   test("does not render when isModalOpen is false", () => {
     const { container } = render(
       <ScheduleEditModal {...defaultProps} isModalOpen={false} />
@@ -80,10 +80,17 @@ describe("ScheduleEditModal", () => {
     const calendarIcon = document.querySelector(".calendar-icon");
     expect(calendarIcon).toBeInTheDocument();
   });
+});
 
-  // ---------------------------
-  // Date Validation Tests
-  // ---------------------------
+// =======================
+// INTEGRATION TESTS
+// =======================
+describe("ScheduleEditModal - Integration Tests", () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  // ---------- Date Validation Tests ----------
   test("shows error when start or end time is missing", () => {
     render(
       <ScheduleEditModal
@@ -149,9 +156,7 @@ describe("ScheduleEditModal", () => {
     ).toBeInTheDocument();
   });
 
-  // ---------------------------
-  // Interaction Tests
-  // ---------------------------
+  // ---------- Interaction Tests ----------
   test("calls onSave with updated event data when valid dates are provided", async () => {
     render(<ScheduleEditModal {...defaultProps} />);
     const newStart = new Date("2022-01-01T11:00:00.000Z");
@@ -229,7 +234,6 @@ describe("ScheduleEditModal", () => {
     };
 
     rerender(<ScheduleEditModal {...defaultProps} eventData={newEventData} />);
-
     expect(startInput.value).toBe(new Date(newEventData.start).toString());
     expect(endInput.value).toBe(new Date(newEventData.end).toString());
   });

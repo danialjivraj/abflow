@@ -1,29 +1,36 @@
 import React from "react";
-import { render, screen, fireEvent, waitFor, within } from "@testing-library/react";
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import ViewTaskModal from "../../src/components/Modals/ViewTaskModal";
 const { createBaseTask } = require("../../testUtils/createBaseTask");
 
-// Mock TiptapEditor to simulate inline editing.
 jest.mock("../../src/components/TiptapEditor", () => {
   return ({ value, onChange }) => (
     <div data-testid="tiptap-editor">
-      <button onClick={() => onChange("updated description")}>Update Editor</button>
+      <button onClick={() => onChange("updated description")}>
+        Update Editor
+      </button>
       <span>{value}</span>
     </div>
   );
 });
 
-// Mock tasksService functions.
 jest.mock("../../src/services/tasksService", () => ({
   completeTask: jest.fn(() =>
-    Promise.resolve({ data: { _id: "1", title: "Test Task", status: "completed" } })
+    Promise.resolve({
+      data: { _id: "1", title: "Test Task", status: "completed" },
+    })
   ),
   updateTask: jest.fn(() =>
     Promise.resolve({ data: { _id: "1", title: "Moved Task" } })
   ),
 }));
 
-// Mock date utility functions.
 jest.mock("../../src/utils/dateUtils", () => ({
   formatDueDate: jest.fn(() => ({ text: "Formatted Due", isOverdue: false })),
   formatTimeSpent: jest.fn((seconds) => `Time: ${seconds}`),
@@ -50,21 +57,26 @@ const defaultProps = {
   readOnly: false,
 };
 
-describe("ViewTaskModal", () => {
+// =======================
+// UNIT TESTS
+// =======================
+describe("ViewTaskModal - Unit Tests", () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  // ---------------------------
   // Common Rendering Tests
-  // ---------------------------
   test("does not render when isModalOpen is false", () => {
-    const { container } = render(<ViewTaskModal {...defaultProps} isModalOpen={false} />);
+    const { container } = render(
+      <ViewTaskModal {...defaultProps} isModalOpen={false} />
+    );
     expect(container.firstChild).toBeNull();
   });
 
   test("does not render when task is not provided", () => {
-    const { container } = render(<ViewTaskModal {...defaultProps} task={null} />);
+    const { container } = render(
+      <ViewTaskModal {...defaultProps} task={null} />
+    );
     expect(container.firstChild).toBeNull();
   });
 
@@ -86,14 +98,21 @@ describe("ViewTaskModal", () => {
     expect(screen.getByText("A1")).toBeInTheDocument();
   });
 
-  // ---------------------------
   // Close and Overlay Tests
-  // ---------------------------
   test("calls closeModal when clicking the close (×) button", () => {
     render(<ViewTaskModal {...defaultProps} />);
     const closeButton = screen.getByText("×");
     fireEvent.click(closeButton);
     expect(defaultProps.closeModal).toHaveBeenCalled();
+  });
+});
+
+// =======================
+// INTEGRATION TESTS
+// =======================
+describe("ViewTaskModal - Integration Tests", () => {
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   test("closes modal when overlay is clicked and unsaved edits are confirmed", () => {
@@ -116,13 +135,16 @@ describe("ViewTaskModal", () => {
     expect(defaultProps.closeModal).not.toHaveBeenCalled();
   });
 
-  // ---------------------------
   // Group 1: Normal Task (Editable, not completed)
-  // ---------------------------
   describe("Normal Task Inline Editing (Editable, not completed)", () => {
-    const normalTask = createBaseTask({ status: "in-progress", completedAt: null });
+    const normalTask = createBaseTask({
+      status: "in-progress",
+      completedAt: null,
+    });
     beforeEach(() => {
-      render(<ViewTaskModal {...defaultProps} task={normalTask} readOnly={false} />);
+      render(
+        <ViewTaskModal {...defaultProps} task={normalTask} readOnly={false} />
+      );
     });
 
     test("allows inline editing of title and confirms on Enter key", () => {
@@ -169,12 +191,13 @@ describe("ViewTaskModal", () => {
       const dueDateField = getByTextWithin("Formatted Date");
       fireEvent.click(dueDateField);
       const dateInput = screen.getByRole("textbox", { name: "" });
-      fireEvent.change(dateInput, { target: { value: "2022-01-06T10:00:00.000Z" } });
+      fireEvent.change(dateInput, {
+        target: { value: "2022-01-06T10:00:00.000Z" },
+      });
       fireEvent.keyDown(dateInput, { key: "Enter", code: "Enter" });
       expect(defaultProps.handleUpdateTask).toHaveBeenCalled();
     });
 
-    // Dropdown Tests for Normal Task
     test("renders editable priority dropdown and updates selection", () => {
       const priorityDropdown = screen.getByDisplayValue("A1");
       fireEvent.change(priorityDropdown, { target: { value: "B2" } });
@@ -183,27 +206,37 @@ describe("ViewTaskModal", () => {
 
     test("renders editable status dropdown and updates selection", () => {
       const taskWithStatus = createBaseTask({ status: "in-progress" });
-      render(<ViewTaskModal {...defaultProps} task={taskWithStatus} readOnly={false} />);
-      // Use getAllByDisplayValue to avoid multiple matches, then pick the first.
+      render(
+        <ViewTaskModal
+          {...defaultProps}
+          task={taskWithStatus}
+          readOnly={false}
+        />
+      );
       const statusDropdown = screen.getAllByDisplayValue("In Progress")[0];
       fireEvent.change(statusDropdown, { target: { value: "completed" } });
       expect(defaultProps.handleUpdateTask).toHaveBeenCalled();
     });
   });
 
-  // ---------------------------
   // Group 2: Completed Task (Partially Editable)
-  // ---------------------------
   describe("Completed Task Inline Editing (Completed Task)", () => {
-    const completedTask = createBaseTask({ status: "completed", completedAt: "2022-01-05T12:00:00.000Z" });
+    const completedTask = createBaseTask({
+      status: "completed",
+      completedAt: "2022-01-05T12:00:00.000Z",
+    });
     beforeEach(() => {
-      render(<ViewTaskModal {...defaultProps} task={completedTask} readOnly={false} />);
+      render(
+        <ViewTaskModal
+          {...defaultProps}
+          task={completedTask}
+          readOnly={false}
+        />
+      );
     });
 
     test("displays status as 'Completed' and prevents inline editing of status", () => {
-      // The status should be rendered as a non-editable element.
       const statusElement = screen.getByText("Completed");
-      // Instead of expecting no combobox, verify that the element is a DIV.
       expect(statusElement.tagName).toBe("DIV");
     });
 
@@ -220,7 +253,6 @@ describe("ViewTaskModal", () => {
       expect(timerContainer).toHaveClass("disabled");
     });
 
-    // For other fields, editing is allowed.
     test("allows inline editing of title for a completed task", () => {
       const titleField = screen.getByText("Test Task");
       fireEvent.click(titleField);
@@ -240,18 +272,14 @@ describe("ViewTaskModal", () => {
       expect(defaultProps.handleUpdateTask).toHaveBeenCalled();
     });
 
-    // Dropdown Tests for Completed Task: Editable dropdowns should not appear.
     test("does not allow inline editing of status for a completed task", () => {
       const statusElement = screen.getByText("Completed");
       fireEvent.click(statusElement);
-      // Expect that no <select> is rendered. Alternatively, we can verify that the element is not interactive.
       expect(statusElement.tagName).toBe("DIV");
     });
   });
 
-  // ---------------------------
   // Group 3: Read-Only Mode (No Inline Editing)
-  // ---------------------------
   describe("Read-Only Mode Inline Editing Prevention", () => {
     beforeEach(() => {
       render(<ViewTaskModal {...defaultProps} readOnly={true} />);
@@ -289,7 +317,6 @@ describe("ViewTaskModal", () => {
       expect(screen.queryByTestId("tiptap-editor")).toBeNull();
     });
 
-    // Dropdown Tests for Read-Only: No dropdown should be rendered.
     test("does not render dropdown for priority in read-only mode", () => {
       expect(screen.getByText("A1")).toBeInTheDocument();
       expect(screen.queryByRole("combobox")).toBeNull();
@@ -301,9 +328,7 @@ describe("ViewTaskModal", () => {
     });
   });
 
-  // ---------------------------
   // Timer Toggle Tests
-  // ---------------------------
   test("displays timer toggle as disabled in readOnly mode", () => {
     render(<ViewTaskModal {...defaultProps} readOnly={true} />);
     const timerContainer = screen.getByText("OFF").parentElement;
@@ -329,29 +354,25 @@ describe("ViewTaskModal", () => {
       task,
       startTimer: jest.fn(() => Promise.reject("Error")),
     };
-  
     render(<ViewTaskModal {...props} />);
     const timerToggle = screen.getByRole("switch");
     fireEvent.click(timerToggle);
-  
     await waitFor(() => {
       expect(props.startTimer).toHaveBeenCalledWith(task._id);
     });
   });
 
-  // ---------------------------
   // Move to Boards / Complete Task Tests
-  // ---------------------------
   test("calls handleUpdateTask when 'Back to Boards' is clicked for a completed task", async () => {
     const updatedTask = createBaseTask({ status: "completed" });
     const props = { ...defaultProps, task: updatedTask, readOnly: false };
     const { updateTask } = require("../../src/services/tasksService");
-    updateTask.mockResolvedValue({ data: { ...updatedTask, title: "Moved Task" } });
-  
+    updateTask.mockResolvedValue({
+      data: { ...updatedTask, title: "Moved Task" },
+    });
     render(<ViewTaskModal {...props} />);
     const backToBoardsButton = await screen.findByText("Back to Boards");
     fireEvent.click(backToBoardsButton);
-  
     await waitFor(() => {
       expect(updateTask).toHaveBeenCalled();
       expect(props.handleUpdateTask).toHaveBeenCalled();
@@ -361,13 +382,13 @@ describe("ViewTaskModal", () => {
   test("calls completeTask when 'Complete Task' is clicked", async () => {
     const task = createBaseTask({ status: "in-progress" });
     const props = { ...defaultProps, readOnly: false, task };
-  
     render(<ViewTaskModal {...props} />);
     const completeTaskButton = screen.getByText("Complete Task");
     fireEvent.click(completeTaskButton);
-  
     await waitFor(() => {
-      expect(require("../../src/services/tasksService").completeTask).toHaveBeenCalledWith(task._id);
+      expect(
+        require("../../src/services/tasksService").completeTask
+      ).toHaveBeenCalledWith(task._id);
       expect(props.handleUpdateTask).toHaveBeenCalled();
       expect(props.closeModal).toHaveBeenCalled();
     });
