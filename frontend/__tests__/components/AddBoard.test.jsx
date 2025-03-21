@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { render, fireEvent, screen } from "@testing-library/react";
-import AddBoard from "../src/pages/Dashboard/AddBoard";
-import { validateBoardName } from "../src/utils/boardValidation";
+import AddBoard from "../../src/pages/Dashboard/AddBoard";
+import { validateBoardName } from "../../src/utils/boardValidation";
+import { createBaseColumn } from "../../testUtils/createBaseColumn";
 
 // =======================
 // UNIT TESTS
@@ -112,8 +113,8 @@ describe("AddBoard component - Integration Tests with Validation", () => {
   }
 
   const columns = {
-    board1: { name: "Project Alpha" },
-    board2: { name: "Project Beta" },
+    board1: createBaseColumn({ columnId: "board1", name: "Project Alpha" }),
+    board2: createBaseColumn({ columnId: "board2", name: "Project Beta" }),
   };
 
   beforeEach(() => {

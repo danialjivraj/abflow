@@ -1,13 +1,8 @@
 import React from "react";
-import {
-  render,
-  screen,
-  fireEvent,
-  waitFor,
-  within,
-} from "@testing-library/react";
+import { render, screen, fireEvent, waitFor, within } from "@testing-library/react";
 import ViewTaskModal from "../../src/components/Modals/ViewTaskModal";
-const { createBaseTask } = require("../../testUtils/createBaseTask");
+import { createBaseTask } from "../../testUtils/createBaseTask";
+import { createBaseColumn } from "../../testUtils/createBaseColumn";
 
 jest.mock("../../src/components/TiptapEditor", () => {
   return ({ value, onChange }) => (
@@ -46,8 +41,8 @@ const defaultProps = {
   task: createBaseTask(),
   handleUpdateTask: jest.fn(),
   columns: {
-    "in-progress": { name: "In Progress" },
-    completed: { name: "Completed" },
+    "in-progress": { ...createBaseColumn({ columnId: "in-progress", name: "In Progress" }) },
+    completed: { ...createBaseColumn({ columnId: "completed", name: "Completed" }) },
   },
   startTimer: jest.fn(() =>
     Promise.resolve({ data: { timerStartTime: new Date().toISOString() } })

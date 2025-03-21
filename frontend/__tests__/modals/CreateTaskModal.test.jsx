@@ -1,6 +1,7 @@
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import CreateTaskModal from "../../src/components/Modals/CreateTaskModal";
+import { createBaseColumn } from "../../testUtils/createBaseColumn";
 
 jest.mock("../../src/components/TiptapEditor", () => {
   return ({ value, onChange }) => (
@@ -13,10 +14,12 @@ jest.mock("../../src/components/TiptapEditor", () => {
   );
 });
 
+const baseColumn = createBaseColumn({ columnId: "backlog", name: "Backlog" });
+
 const defaultProps = {
   isModalOpen: true,
   closeModal: jest.fn(),
-  columns: { backlog: { name: "Backlog", items: [] } },
+  columns: { backlog: { ...baseColumn, items: [] } },
   columnsLoaded: true,
   newTaskTitle: "",
   setNewTaskTitle: jest.fn(),
@@ -76,9 +79,7 @@ describe("CreateTaskModal Integration Tests", () => {
     test("renders board creation UI", () => {
       render(<CreateTaskModal {...defaultProps} columns={{}} />);
       expect(
-        screen.getByText(
-          "You need to create a board before you can create tasks."
-        )
+        screen.getByText("You need to create a board before you can create tasks.")
       ).toBeInTheDocument();
       const boardNameInput = screen.getByPlaceholderText("Enter board name");
       expect(boardNameInput).toBeInTheDocument();
@@ -139,7 +140,7 @@ describe("CreateTaskModal Integration Tests", () => {
       render(
         <CreateTaskModal
           {...defaultProps}
-          columns={{ backlog: { name: "Backlog", items: [] } }}
+          columns={{ backlog: { ...baseColumn, items: [] } }}
         />
       );
       expect(screen.getByText("Create New Task")).toBeInTheDocument();
@@ -172,7 +173,7 @@ describe("CreateTaskModal Integration Tests", () => {
       render(
         <CreateTaskModal
           {...defaultProps}
-          columns={{ backlog: { name: "Backlog", items: [] } }}
+          columns={{ backlog: { ...baseColumn, items: [] } }}
           newTaskTitle="Test Task"
         />
       );
@@ -185,7 +186,7 @@ describe("CreateTaskModal Integration Tests", () => {
       render(
         <CreateTaskModal
           {...defaultProps}
-          columns={{ backlog: { name: "Backlog", items: [] } }}
+          columns={{ backlog: { ...baseColumn, items: [] } }}
           newTaskTitle=""
         />
       );
@@ -200,7 +201,7 @@ describe("CreateTaskModal Integration Tests", () => {
       render(
         <CreateTaskModal
           {...defaultProps}
-          columns={{ backlog: { name: "Backlog", items: [] } }}
+          columns={{ backlog: { ...baseColumn, items: [] } }}
         />
       );
       const cancelButton = screen.getByText("Cancel");
@@ -212,7 +213,7 @@ describe("CreateTaskModal Integration Tests", () => {
       render(
         <CreateTaskModal
           {...defaultProps}
-          columns={{ backlog: { name: "Backlog", items: [] } }}
+          columns={{ backlog: { ...baseColumn, items: [] } }}
         />
       );
       const closeXButton = screen.getByText("×");
@@ -227,7 +228,7 @@ describe("CreateTaskModal Integration Tests", () => {
       render(
         <CreateTaskModal
           {...defaultProps}
-          columns={{ backlog: { name: "Backlog", items: [] } }}
+          columns={{ backlog: { ...baseColumn, items: [] } }}
           newTaskTitle="Unsaved Task"
         />
       );
@@ -246,7 +247,7 @@ describe("CreateTaskModal Integration Tests", () => {
       render(
         <CreateTaskModal
           {...defaultProps}
-          columns={{ backlog: { name: "Backlog", items: [] } }}
+          columns={{ backlog: { ...baseColumn, items: [] } }}
           newTaskTitle="Unsaved Task"
         />
       );
@@ -262,7 +263,7 @@ describe("CreateTaskModal Integration Tests", () => {
       render(
         <CreateTaskModal
           {...defaultProps}
-          columns={{ backlog: { name: "Backlog", items: [] } }}
+          columns={{ backlog: { ...baseColumn, items: [] } }}
           setDueDateWarning={mockSetDueDateWarning}
         />
       );
@@ -280,7 +281,7 @@ describe("CreateTaskModal Integration Tests", () => {
       render(
         <CreateTaskModal
           {...defaultProps}
-          columns={{ backlog: { name: "Backlog", items: [] } }}
+          columns={{ backlog: { ...baseColumn, items: [] } }}
           setDueDateWarning={mockSetDueDateWarning}
         />
       );
@@ -297,7 +298,7 @@ describe("CreateTaskModal Integration Tests", () => {
       render(
         <CreateTaskModal
           {...defaultProps}
-          columns={{ backlog: { name: "Backlog", items: [] } }}
+          columns={{ backlog: { ...baseColumn, items: [] } }}
         />
       );
       const updateButton = screen.getByText("Update Editor");
@@ -311,7 +312,7 @@ describe("CreateTaskModal Integration Tests", () => {
       render(
         <CreateTaskModal
           {...defaultProps}
-          columns={{ backlog: { name: "Backlog", items: [] } }}
+          columns={{ backlog: { ...baseColumn, items: [] } }}
         />
       );
       const taskTitleInput = screen.getByPlaceholderText("Enter Task Title");
@@ -332,7 +333,7 @@ describe("CreateTaskModal Integration Tests", () => {
         <CreateTaskModal
           {...defaultProps}
           columns={{
-            backlog: { name: "Backlog", items: [] },
+            backlog: { ...baseColumn, items: [] },
             inprogress: { name: "In Progress", items: [] },
           }}
           selectedStatus=""
