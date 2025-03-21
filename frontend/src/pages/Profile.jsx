@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import Layout from "../components/Layout";
+import Layout from "../components/navigation/Layout";
 import { auth } from "../firebase";
 import { FaTrophy, FaTasks, FaMedal } from "react-icons/fa"; 
 

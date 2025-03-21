@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect, useContext } from "react";
 import { useLocation } from "react-router-dom";
 import { FiBell } from "react-icons/fi";
-import NotificationsDropdown from "./NotificationsDropdown";
-import { NotificationsContext } from "../contexts/NotificationsContext";
+import NotificationsDropdown from "../NotificationsDropdown";
+import { NotificationsContext } from "../../contexts/NotificationsContext";
 import "./topBar.css";
 
 const TopBar = ({ buttons, openModal, navigate, activeChartType }) => {

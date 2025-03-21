@@ -30,8 +30,8 @@ import {
 } from "../services/columnsService";
 import { fetchChartPreferences, updateChartPreferences } from "../services/preferencesService";
 import { auth } from "../firebase";
-import Layout from "../components/Layout";
-import TopBar from "../components/TopBar";
+import Layout from "../components/navigation/Layout";
+import TopBar from "../components/navigation/TopBar";
 import { startOfISOWeek, format } from "date-fns";
 import "react-datepicker/dist/react-datepicker.css";
 import ViewTaskModal from "../components/Modals/ViewTaskModal";

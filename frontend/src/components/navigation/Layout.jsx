@@ -1,5 +1,5 @@
-import Sidebar from "../components/Sidebar";
-import TopBar from "../components/TopBar";
+import Sidebar from "../navigation/Sidebar";
+import TopBar from "../navigation/TopBar";
 import "./layout.css";
 
 const Layout = ({ children, openModal, topBarButtons = [] }) => {

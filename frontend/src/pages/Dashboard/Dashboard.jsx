@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useContext } from "react";
-import Layout from "../../components/Layout";
-import TopBar from "../../components/TopBar";
+import Layout from "../../components/navigation/Layout";
+import TopBar from "../../components/navigation/TopBar";
 import { getDashboardTopBarConfig } from "../../config/topBarConfig";
 import CreateTaskModal from "../../components/Modals/CreateTaskModal";
 import ViewTaskModal from "../../components/Modals/ViewTaskModal";
@@ -27,7 +27,7 @@ import BoardsView from "./BoardsView";
 import CompletedTasks from "./CompletedTasks";
 import ScheduleView from "./ScheduleView";
 import "../../components/styles.css";
-import "../../components/topBar.css";
+import "../../components/navigation/topBar.css";
 import "../../components/tipTapEditor.css";
 import { NotificationsContext } from "../../contexts/NotificationsContext";
 import { validateBoardName } from "../../utils/boardValidation";

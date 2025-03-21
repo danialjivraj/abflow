@@ -1,4 +1,4 @@
-import { auth } from "../firebase";
+import { auth } from "../../firebase";
 import { useNavigate, useLocation } from "react-router-dom";
 import "./sidebar.css";
 
