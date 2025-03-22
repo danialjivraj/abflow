@@ -1,8 +1,8 @@
 // BoardsView.jsx
 import React from "react";
 import { DragDropContext, Droppable } from "@hello-pangea/dnd";
-import Column from "./Column";
-import AddBoard from "./AddBoard";
+import Column from "../../components/boardComponents/Column";
+import AddBoard from "../../components/boardComponents/AddBoard";
 
 const BoardsView = ({
   columns,

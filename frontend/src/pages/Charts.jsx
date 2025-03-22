@@ -34,8 +34,8 @@ import Layout from "../components/navigation/Layout";
 import TopBar from "../components/navigation/TopBar";
 import { startOfISOWeek, format } from "date-fns";
 import "react-datepicker/dist/react-datepicker.css";
-import ViewTaskModal from "../components/Modals/ViewTaskModal";
-import GroupTasksModal from "../components/Modals/GroupTasksModal";
+import ViewTaskModal from "../components/modals/ViewTaskModal";
+import GroupTasksModal from "../components/modals/GroupTasksModal";
 import { useParams, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { getChartsTopBarConfig } from "../config/topBarConfig";
 

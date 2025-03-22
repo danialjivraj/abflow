@@ -1,6 +1,6 @@
 import React from "react";
 import { render, screen, fireEvent, waitFor, within } from "@testing-library/react";
-import ViewTaskModal from "../../src/components/Modals/ViewTaskModal";
+import ViewTaskModal from "../../src/components/modals/ViewTaskModal";
 import { createBaseTask } from "../../testUtils/createBaseTask";
 import { createBaseColumn } from "../../testUtils/createBaseColumn";
 

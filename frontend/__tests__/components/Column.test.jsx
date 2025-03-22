@@ -1,6 +1,6 @@
 import React from "react";
 import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
-import Column from "../../src/pages/Dashboard/Column";
+import Column from "../../src/components/boardComponents/Column";
 import { createBaseColumn } from "../../testUtils/createBaseColumn";
 import { createBaseTask } from "../../testUtils/createBaseTask";
 

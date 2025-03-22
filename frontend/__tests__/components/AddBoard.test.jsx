@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { render, fireEvent, screen } from "@testing-library/react";
-import AddBoard from "../../src/pages/Dashboard/AddBoard";
+import AddBoard from "../../src/components/boardComponents/AddBoard";
 import { validateBoardName } from "../../src/utils/boardValidation";
 import { createBaseColumn } from "../../testUtils/createBaseColumn";
 

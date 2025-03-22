@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import TaskCard from "./TaskCard";
+import TaskCard from "../../components/boardComponents/TaskCard";
 import { formatDueDate } from "../../utils/dateUtils";
 
 const groupTasksByFilter = (tasks, filter) => {

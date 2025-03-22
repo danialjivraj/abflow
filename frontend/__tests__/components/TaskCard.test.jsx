@@ -1,7 +1,7 @@
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { DragDropContext } from "@hello-pangea/dnd";
-import TaskCard from "../../src/pages/Dashboard/TaskCard";
+import TaskCard from "../../src/components/boardComponents/TaskCard";
 import { createBaseTask } from "../../testUtils/createBaseTask";
 
 jest.mock("@hello-pangea/dnd", () => ({
