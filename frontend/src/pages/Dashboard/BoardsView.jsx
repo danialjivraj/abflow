@@ -1,4 +1,3 @@
-// BoardsView.jsx
 import React from "react";
 import { DragDropContext, Droppable } from "@hello-pangea/dnd";
 import Column from "../../components/boardComponents/Column";

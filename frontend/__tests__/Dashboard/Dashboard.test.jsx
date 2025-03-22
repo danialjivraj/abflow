@@ -7,15 +7,15 @@ import {
   fireEvent,
 } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import Dashboard from "../src/pages/Dashboard/Dashboard";
-import { NotificationsContext } from "../src/contexts/NotificationsContext";
-import * as tasksService from "../src/services/tasksService";
-import * as columnsService from "../src/services/columnsService";
+import Dashboard from "../../src/pages/Dashboard/Dashboard";
+import { NotificationsContext } from "../../src/contexts/NotificationsContext";
+import * as tasksService from "../../src/services/tasksService";
+import * as columnsService from "../../src/services/columnsService";
 
-jest.mock("../src/services/tasksService");
-jest.mock("../src/services/columnsService");
+jest.mock("../../src/services/tasksService");
+jest.mock("../../src/services/columnsService");
 
-jest.mock("../src/firebase", () => ({
+jest.mock("../../src/firebase", () => ({
   auth: {
     currentUser: { uid: "testUser" },
     signOut: jest.fn(),
