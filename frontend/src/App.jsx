@@ -1,5 +1,6 @@
-// App.jsx
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { auth } from "./firebase";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import Charts from "./pages/Charts";  
@@ -8,11 +9,24 @@ import PrivateRoute from "./components/PrivateRoute";
 import { NotificationsProvider } from "./contexts/NotificationsContext";
 
 function App() {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      setUser(user);
+      setLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  if (loading) return <p>Loading...</p>;
+
   return (
     <NotificationsProvider>
       <Router>
         <Routes>
-          <Route path="/login" element={<Login />} />
+          <Route path="/login" element={user ? <Navigate to="/dashboard/boards" replace /> : <Login />} />
 
           <Route element={<PrivateRoute />}>
             <Route path="/dashboard" element={<Navigate to="/dashboard/boards" replace />} />
