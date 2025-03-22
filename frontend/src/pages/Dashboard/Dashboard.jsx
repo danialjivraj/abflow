@@ -285,8 +285,6 @@ const Dashboard = () => {
 
   // ---------------------- Board Creation Handler ----------------------
   const handleCreateBoard = async () => {
-    if (!newBoardCreateName.trim() || !userId) return;
-  
     const error = validateBoardName(newBoardCreateName, columns);
     if (error) {
       setCreateBoardError(error);

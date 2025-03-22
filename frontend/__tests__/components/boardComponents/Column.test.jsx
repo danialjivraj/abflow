@@ -80,6 +80,9 @@ const defaultProps = {
   setRenameBoardError: jest.fn(),
   onBoardRename: jest.fn(),
   onBoardDelete: jest.fn(),
+  columns: {
+    [baseColumn.columnId]: { name: baseColumn.name, items: [] },
+  },
 };
 
 // =======================
@@ -232,6 +235,103 @@ describe("Column Component - Integration Tests", () => {
       expect(deleteBoard).toHaveBeenCalledWith("user123", baseColumn.columnId);
       expect(defaultProps.onBoardDelete).toHaveBeenCalledWith(baseColumn.columnId);
       expect(defaultProps.setIsDropdownOpen).toHaveBeenCalledWith(null);
+    });
+  });
+
+  test("throws error when renaming board to an empty name", async () => {
+    const setRenameBoardErrorMock = jest.fn();
+  
+    function TestWrapper() {
+      const [newBoardName, setNewBoardName] = React.useState("");
+      return (
+        <Column
+          {...defaultProps}
+          renamingColumnId={baseColumn.columnId}
+          newBoardName={newBoardName}
+          setNewBoardName={setNewBoardName}
+          renameBoardError=""
+          setRenameBoardError={setRenameBoardErrorMock}
+        />
+      );
+    }
+  
+    render(<TestWrapper />);
+  
+    const input = screen.getByRole("textbox");
+    fireEvent.change(input, { target: { value: "" } });
+  
+    const tickButton = screen.getByText("✔️");
+    fireEvent.click(tickButton);
+  
+    await waitFor(() => {
+      expect(setRenameBoardErrorMock).toHaveBeenCalledWith("Board name cannot be empty.");
+    });
+  });
+
+  test("throws error when renaming board to an existing board name", async () => {
+    const existingBoardName = "Existing Board";
+    const columns = {
+      [baseColumn.columnId]: { name: baseColumn.name, items: [] },
+      "anotherColumnId": { name: existingBoardName, items: [] },
+    };
+  
+    const setRenameBoardErrorMock = jest.fn();
+  
+    function TestWrapper() {
+      const [newBoardName, setNewBoardName] = React.useState(baseColumn.name);
+      return (
+        <Column
+          {...defaultProps}
+          renamingColumnId={baseColumn.columnId}
+          newBoardName={newBoardName}
+          setNewBoardName={setNewBoardName}
+          renameBoardError=""
+          setRenameBoardError={setRenameBoardErrorMock}
+          columns={columns}
+        />
+      );
+    }
+  
+    render(<TestWrapper />);
+  
+    const input = screen.getByRole("textbox");
+    fireEvent.change(input, { target: { value: existingBoardName } });
+  
+    const tickButton = screen.getByText("✔️");
+    fireEvent.click(tickButton);
+  
+    await waitFor(() => {
+      expect(setRenameBoardErrorMock).toHaveBeenCalledWith("Board name already taken.");
+    });
+  });
+
+  test("throws error when renaming board to reserved name 'Completed'", async () => {
+    const setRenameBoardErrorMock = jest.fn();
+  
+    function TestWrapper() {
+      const [newBoardName, setNewBoardName] = React.useState(baseColumn.name);
+      return (
+        <Column
+          {...defaultProps}
+          renamingColumnId={baseColumn.columnId}
+          newBoardName={newBoardName}
+          setNewBoardName={setNewBoardName}
+          renameBoardError=""
+          setRenameBoardError={setRenameBoardErrorMock}
+        />
+      );
+    }
+  
+    render(<TestWrapper />);
+  
+    const input = screen.getByRole("textbox");
+    fireEvent.change(input, { target: { value: "Completed" } });
+  
+    const tickButton = screen.getByText("✔️");
+    fireEvent.click(tickButton);
+  
+    await waitFor(() => {
+      expect(setRenameBoardErrorMock).toHaveBeenCalledWith("Board name 'Completed' is reserved.");
     });
   });
 

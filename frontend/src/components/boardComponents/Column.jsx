@@ -31,17 +31,18 @@ const Column = ({
   setRenameBoardError,
   onBoardRename,
   onBoardDelete,
+  columns,
 }) => {
   const columnDropdownRef = useRef(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const handleRename = async () => {
-    if (!newBoardName.trim()) return;
-    const error = validateBoardName(newBoardName, { [columnId]: columnData });
+    const error = validateBoardName(newBoardName, columns, columnId);
     if (error) {
       setRenameBoardError(error);
       return;
     }
+  
     try {
       const user = auth.currentUser;
       if (!user) return;

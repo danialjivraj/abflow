@@ -137,6 +137,15 @@ describe("AddBoard component - Integration Tests with Validation", () => {
     ).toBeInTheDocument();
   });
 
+  test("shows emoty message when board name '' is used", () => {
+    const input = screen.getByPlaceholderText("Enter board name");
+    fireEvent.change(input, { target: { value: "" } });
+    fireEvent.click(screen.getByText("✔️"));
+    expect(
+      screen.getByText("Board name cannot be empty.")
+    ).toBeInTheDocument();
+  });
+
   test("does not show error when a valid board name is entered", () => {
     const input = screen.getByPlaceholderText("Enter board name");
     fireEvent.change(input, { target: { value: "New Board" } });
@@ -146,5 +155,6 @@ describe("AddBoard component - Integration Tests with Validation", () => {
       screen.queryByText("Board name 'Completed' is reserved.")
     ).toBeNull();
     expect(screen.queryByText("Board name already taken.")).toBeNull();
+    expect(screen.queryByText("Board name cannot be empty.")).toBeNull();
   });
 });

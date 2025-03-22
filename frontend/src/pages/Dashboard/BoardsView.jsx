@@ -75,6 +75,7 @@ const BoardsView = ({
                     setRenameBoardError={setRenameBoardError}
                     onBoardRename={onBoardRename}
                     onBoardDelete={onBoardDelete}
+                    columns={columns}
                   />
                 ))}
                 {provided.placeholder}

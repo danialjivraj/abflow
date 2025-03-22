@@ -1,5 +1,3 @@
-// src/utils/boardValidation.js
-
 /**
  * Validates a board name against empty values, reserved words, and duplicates.
  *
