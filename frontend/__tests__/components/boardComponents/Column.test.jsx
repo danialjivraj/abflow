@@ -1,8 +1,8 @@
 import React from "react";
 import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
-import Column from "../../src/components/boardComponents/Column";
-import { createBaseColumn } from "../../_testUtils/createBaseColumn";
-import { createBaseTask } from "../../_testUtils/createBaseTask";
+import Column from "../../../src/components/boardComponents/Column";
+import { createBaseColumn } from "../../../_testUtils/createBaseColumn";
+import { createBaseTask } from "../../../_testUtils/createBaseTask";
 
 jest.mock("@hello-pangea/dnd", () => ({
   Draggable: ({ children, draggableId }) => (
@@ -24,19 +24,19 @@ jest.mock("@hello-pangea/dnd", () => ({
   ),
 }));
 
-const originalAuth = require("../../src/firebase").auth;
-jest.mock("../../src/firebase", () => ({
+const originalAuth = require("../../../src/firebase").auth;
+jest.mock("../../../src/firebase", () => ({
   auth: {
     currentUser: { uid: "user123" },
   },
 }));
 
-jest.mock("../../src/services/columnsService", () => ({
+jest.mock("../../../src/services/columnsService", () => ({
   renameBoard: jest.fn(() => Promise.resolve()),
   deleteBoard: jest.fn(() => Promise.resolve()),
 }));
 
-jest.mock("../../src/components/modals/DeleteConfirmationModal", () => (props) => {
+jest.mock("../../../src/components/modals/DeleteConfirmationModal", () => (props) => {
   if (!props.isOpen) return null;
   return (
     <div data-testid="delete-modal">
@@ -47,7 +47,7 @@ jest.mock("../../src/components/modals/DeleteConfirmationModal", () => (props) =
   );
 });
 
-jest.mock("../../src/components/boardComponents/TaskCard", () => (props) => (
+jest.mock("../../../src/components/boardComponents/TaskCard", () => (props) => (
   <div data-testid="task-card">{props.task.title}</div>
 ));
 
@@ -185,7 +185,7 @@ describe("Column Component - Unit Tests", () => {
 describe("Column Component - Integration Tests", () => {
   afterEach(() => {
     jest.clearAllMocks();
-    require("../../src/firebase").auth.currentUser = originalAuth.currentUser;
+    require("../../../src/firebase").auth.currentUser = originalAuth.currentUser;
   });
 
   // --- Renaming & Deletion Flows ---
@@ -228,7 +228,7 @@ describe("Column Component - Integration Tests", () => {
     const confirmButton = screen.getByText("Confirm Delete");
     fireEvent.click(confirmButton);
     await waitFor(() => {
-      const { deleteBoard } = require("../../src/services/columnsService");
+      const { deleteBoard } = require("../../../src/services/columnsService");
       expect(deleteBoard).toHaveBeenCalledWith("user123", baseColumn.columnId);
       expect(defaultProps.onBoardDelete).toHaveBeenCalledWith(baseColumn.columnId);
       expect(defaultProps.setIsDropdownOpen).toHaveBeenCalledWith(null);
@@ -248,7 +248,7 @@ describe("Column Component - Integration Tests", () => {
   });
 
   test("does nothing when no user is authenticated", async () => {
-    require("../../src/firebase").auth.currentUser = null;
+    require("../../../src/firebase").auth.currentUser = null;
     function TestWrapper() {
       const [newBoardName, setNewBoardName] = React.useState("Old Name");
       const [renameBoardError, setRenameBoardError] = React.useState("");

@@ -1,8 +1,8 @@
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { DragDropContext } from "@hello-pangea/dnd";
-import TaskCard from "../../src/components/boardComponents/TaskCard";
-import { createBaseTask } from "../../_testUtils/createBaseTask";
+import TaskCard from "../../../src/components/boardComponents/TaskCard";
+import { createBaseTask } from "../../../_testUtils/createBaseTask";
 
 jest.mock("@hello-pangea/dnd", () => ({
   DragDropContext: ({ children }) => <div>{children}</div>,
@@ -25,15 +25,15 @@ jest.mock("@hello-pangea/dnd", () => ({
   ),
 }));
 
-const dateUtils = require("../../src/utils/dateUtils");
-jest.mock("../../src/utils/dateUtils", () => ({
+const dateUtils = require("../../../src/utils/dateUtils");
+jest.mock("../../../src/utils/dateUtils", () => ({
   formatDueDate: jest.fn(() => ({ text: "Due Soon", isOverdue: false })),
   formatCompletedDueDate: jest.fn(() => "Formatted Completed Due"),
   getCalendarIconColor: jest.fn(() => "red"),
 }));
 
 jest.mock(
-  "../../src/components/modals/DeleteConfirmationModal",
+  "../../../src/components/modals/DeleteConfirmationModal",
   () => (props) => {
     if (!props.isOpen) return null;
     return (
