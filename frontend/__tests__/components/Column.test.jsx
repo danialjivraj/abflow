@@ -1,8 +1,8 @@
 import React from "react";
 import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
 import Column from "../../src/components/boardComponents/Column";
-import { createBaseColumn } from "../../testUtils/createBaseColumn";
-import { createBaseTask } from "../../testUtils/createBaseTask";
+import { createBaseColumn } from "../../_testUtils/createBaseColumn";
+import { createBaseTask } from "../../_testUtils/createBaseTask";
 
 jest.mock("@hello-pangea/dnd", () => ({
   Draggable: ({ children, draggableId }) => (
@@ -36,7 +36,7 @@ jest.mock("../../src/services/columnsService", () => ({
   deleteBoard: jest.fn(() => Promise.resolve()),
 }));
 
-jest.mock("../../src/components/Modals/DeleteConfirmationModal", () => (props) => {
+jest.mock("../../src/components/modals/DeleteConfirmationModal", () => (props) => {
   if (!props.isOpen) return null;
   return (
     <div data-testid="delete-modal">
@@ -47,7 +47,7 @@ jest.mock("../../src/components/Modals/DeleteConfirmationModal", () => (props) =
   );
 });
 
-jest.mock("../../src/pages/Dashboard/TaskCard", () => (props) => (
+jest.mock("../../src/components/boardComponents/TaskCard", () => (props) => (
   <div data-testid="task-card">{props.task.title}</div>
 ));
 

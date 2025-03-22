@@ -1,8 +1,8 @@
 import React from "react";
 import { render, screen, fireEvent, waitFor, within } from "@testing-library/react";
 import ViewTaskModal from "../../src/components/modals/ViewTaskModal";
-import { createBaseTask } from "../../testUtils/createBaseTask";
-import { createBaseColumn } from "../../testUtils/createBaseColumn";
+import { createBaseTask } from "../../_testUtils/createBaseTask";
+import { createBaseColumn } from "../../_testUtils/createBaseColumn";
 
 jest.mock("../../src/components/TiptapEditor", () => {
   return ({ value, onChange }) => (

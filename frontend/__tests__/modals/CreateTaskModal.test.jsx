@@ -1,7 +1,7 @@
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import CreateTaskModal from "../../src/components/Modals/CreateTaskModal";
-import { createBaseColumn } from "../../testUtils/createBaseColumn";
+import CreateTaskModal from "../../src/components/modals/CreateTaskModal";
+import { createBaseColumn } from "../../_testUtils/createBaseColumn";
 
 jest.mock("../../src/components/TiptapEditor", () => {
   return ({ value, onChange }) => (

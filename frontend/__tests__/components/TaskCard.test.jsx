@@ -2,7 +2,7 @@ import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { DragDropContext } from "@hello-pangea/dnd";
 import TaskCard from "../../src/components/boardComponents/TaskCard";
-import { createBaseTask } from "../../testUtils/createBaseTask";
+import { createBaseTask } from "../../_testUtils/createBaseTask";
 
 jest.mock("@hello-pangea/dnd", () => ({
   DragDropContext: ({ children }) => <div>{children}</div>,
@@ -33,7 +33,7 @@ jest.mock("../../src/utils/dateUtils", () => ({
 }));
 
 jest.mock(
-  "../../src/components/Modals/DeleteConfirmationModal",
+  "../../src/components/modals/DeleteConfirmationModal",
   () => (props) => {
     if (!props.isOpen) return null;
     return (

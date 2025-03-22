@@ -2,7 +2,7 @@ import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import NotificationsDropdown from "../../src/components/NotificationsDropdown";
 import { NotificationsContext } from "../../src/contexts/NotificationsContext";
-import { createBaseNotification } from "../../testUtils/createBaseNotification";
+import { createBaseNotification } from "../../_testUtils/createBaseNotification";
 
 jest.mock("../../src/services/notificationService", () => ({
   updateNotification: jest.fn(() => Promise.resolve()),

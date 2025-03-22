@@ -1,7 +1,7 @@
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import ScheduleEditModal from "../../src/components/Modals/ScheduleEditModal";
-const { createBaseTask } = require("../../testUtils/createBaseTask");
+import ScheduleEditModal from "../../src/components/modals/ScheduleEditModal";
+const { createBaseTask } = require("../../_testUtils/createBaseTask");
 
 jest.mock("react-datepicker", () => {
   return ({ selected, onChange, placeholderText, className }) => (
