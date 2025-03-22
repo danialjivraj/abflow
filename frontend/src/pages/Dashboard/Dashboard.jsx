@@ -32,6 +32,16 @@ import "../../components/tipTapEditor.css";
 import { NotificationsContext } from "../../contexts/NotificationsContext";
 import { validateBoardName } from "../../utils/boardValidation";
 
+export const getBaseRoute = (pathname) => {
+  const parts = pathname.split("/");
+  const validRoutes = ["boards", "completedtasks", "schedule"];
+  const base = parts[2];
+  if (base === "viewtask" || base === "createtask") {
+    return "/dashboard/boards";
+  }
+  return validRoutes.includes(base) ? `/dashboard/${base}` : "/dashboard/boards";
+};
+
 const Dashboard = () => {
   // ---------------------- state and refs ----------------------
   const [columns, setColumns] = useState({});
@@ -102,7 +112,6 @@ const Dashboard = () => {
 
         // separate out completed tasks
         const completed = [];
-
         fetchedTasks.forEach((task) => {
           if (task.status === "completed") {
             completed.push({
@@ -216,15 +225,8 @@ const Dashboard = () => {
   };
 
   // ---------------------- handlers ----------------------
-  const getBaseRoute = () => {
-    const parts = location.pathname.split("/");
-    if (parts[2] === "viewtask" || parts[2] === "createtask") {
-      return "/dashboard";
-    }
-    return parts[2] ? `/dashboard/${parts[2]}` : "/dashboard";
-  };
-
-  const baseRoute = getBaseRoute();
+  // Use the exported getBaseRoute helper:
+  const baseRoute = getBaseRoute(location.pathname);
 
   const openModal = () => {
     navigate(`${baseRoute}/createtask`);
