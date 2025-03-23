@@ -40,19 +40,29 @@ describe("Notification Routes", () => {
   // ---------------------------
   describe("GET /api/notifications/:userId", () => {
     it("should fetch all notifications for a user", async () => {
+      const currentDate = new Date();
       await Notification.insertMany([
-        { userId: defaultUser.userId, message: "Notification 1", read: false },
-        { userId: defaultUser.userId, message: "Notification 2", read: true },
+        { 
+          userId: defaultUser.userId, 
+          message: "Notification 1", 
+          read: false, 
+          createdAt: new Date(currentDate.getTime() - 1000)
+        },
+        { 
+          userId: defaultUser.userId, 
+          message: "Notification 2", 
+          read: true, 
+          createdAt: currentDate
+        },
       ]);
-
+    
       const res = await request(app)
         .get(`/api/notifications/${defaultUser.userId}`)
         .expect(200);
-
+    
       expect(res.body.notifications).toHaveLength(2);
       expect(res.body.notifications[0].message).toBe("Notification 2");
       expect(res.body.notifications[1].message).toBe("Notification 1");
-      
     });
 
     it("should return an empty array if no notifications exist", async () => {

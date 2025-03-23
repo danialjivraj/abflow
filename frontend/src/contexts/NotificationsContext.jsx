@@ -1,12 +1,14 @@
-import React, { createContext, useState, useEffect } from "react";
+import React, { createContext, useState, useEffect, useRef } from "react";
 import { auth } from "../firebase";
 import { fetchNotifications } from "../services/notificationService";
 import { onAuthStateChanged } from "firebase/auth";
+import notificationSound from "../assets/notification.mp3";
 
 export const NotificationsContext = createContext();
 
 export const NotificationsProvider = ({ children }) => {
   const [notifications, setNotifications] = useState([]);
+  const prevNotificationsRef = useRef([]);
 
   const loadNotifications = async (userId) => {
     try {
@@ -38,6 +40,14 @@ export const NotificationsProvider = ({ children }) => {
       clearInterval(interval);
     };
   }, []);
+
+  useEffect(() => {
+    if (notifications.length > prevNotificationsRef.current.length) {
+      const audio = new Audio(notificationSound);
+      audio.play().catch(() => {});
+    }
+    prevNotificationsRef.current = notifications;
+  }, [notifications]);
 
   return (
     <NotificationsContext.Provider value={{ notifications, setNotifications }}>

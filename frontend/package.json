@@ -78,16 +78,17 @@
     "vite": "^6.1.0",
     "vitest": "^3.0.9"
   },
-  "jest": {
-    "testEnvironment": "jsdom",
-    "setupFilesAfterEnv": [
-      "<rootDir>/jest.setup.js"
-    ],
-    "moduleNameMapper": {
-      "\\.(css|less)$": "identity-obj-proxy"
-    },
-    "transform": {
-      "^.+\\.[tj]sx?$": "babel-jest"
-    }
+"jest": {
+  "testEnvironment": "jsdom",
+  "setupFilesAfterEnv": [
+    "<rootDir>/jest.setup.js"
+  ],
+  "moduleNameMapper": {
+    "\\.(css|less)$": "identity-obj-proxy",
+    "\\.(mp3|jpg|jpeg|png|svg)$": "<rootDir>/__mocks__/fileMock.js"
+  },
+  "transform": {
+    "^.+\\.[tj]sx?$": "babel-jest"
   }
+}
 }
