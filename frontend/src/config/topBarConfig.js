@@ -57,5 +57,5 @@ export const getChartsTopBarConfig = (setChartType) => [
   },
 ];
 
-export const getProfileTopBarConfig = (openModal, navigate) => [
+export const getProfileTopBarConfig = () => [
 ];
