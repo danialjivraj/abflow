@@ -4,9 +4,15 @@ import Sidebar from "../../../src/components/navigation/Sidebar";
 import { MemoryRouter } from "react-router-dom";
 import { auth } from "../../../src/firebase";
 
-jest.mock("../../../src/firebase", () => ({
-  auth: { signOut: jest.fn() },
-}));
+jest.mock("../../../src/firebase", () => {
+  const { createBaseUser } = require("../../../_testUtils/createBaseUser");
+  return {
+    auth: {
+      signOut: jest.fn(),
+      currentUser: { uid: createBaseUser().userId },
+    },
+  };
+});
 
 const mockNavigate = jest.fn();
 jest.mock("react-router-dom", () => {

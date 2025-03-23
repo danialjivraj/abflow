@@ -4,9 +4,12 @@ import { MemoryRouter } from "react-router-dom";
 import Dashboard, { getBaseRoute } from "../../src/pages/Dashboard/Dashboard";
 import { NotificationsContext } from "../../src/contexts/NotificationsContext";
 
-jest.mock("../../src/firebase", () => ({
-  auth: { currentUser: { uid: "test-user" } },
-}));
+jest.mock("../../src/firebase", () => {
+  const { createBaseUser } = require("../../_testUtils/createBaseUser");
+  return {
+    auth: { currentUser: { uid: createBaseUser().userId } },
+  };
+});
 
 jest.mock("../../src/services/tasksService", () => ({
   fetchTasks: jest.fn(() => Promise.resolve({ data: [] })),

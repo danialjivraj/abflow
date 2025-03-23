@@ -25,11 +25,14 @@ jest.mock("@hello-pangea/dnd", () => ({
 }));
 
 const originalAuth = require("../../../src/firebase").auth;
-jest.mock("../../../src/firebase", () => ({
-  auth: {
-    currentUser: { uid: "user123" },
-  },
-}));
+jest.mock("../../../src/firebase", () => {
+  const { createBaseUser } = require("../../../_testUtils/createBaseUser");
+  return {
+    auth: {
+      currentUser: { uid: createBaseUser().userId },
+    },
+  };
+});
 
 jest.mock("../../../src/services/columnsService", () => ({
   renameBoard: jest.fn(() => Promise.resolve()),
@@ -232,7 +235,7 @@ describe("Column Component - Integration Tests", () => {
     fireEvent.click(confirmButton);
     await waitFor(() => {
       const { deleteBoard } = require("../../../src/services/columnsService");
-      expect(deleteBoard).toHaveBeenCalledWith("user123", baseColumn.columnId);
+      expect(deleteBoard).toHaveBeenCalledWith("user1", baseColumn.columnId);
       expect(defaultProps.onBoardDelete).toHaveBeenCalledWith(baseColumn.columnId);
       expect(defaultProps.setIsDropdownOpen).toHaveBeenCalledWith(null);
     });
