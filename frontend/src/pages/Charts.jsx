@@ -1117,293 +1117,332 @@ const Charts = () => {
     return <div>Loading preferences...</div>;
   }
 
-  // -------------------- Render --------------------
-  return (
-    <Layout>
-      <TopBar
-        buttons={getChartsTopBarConfig(setChartType)}
-        openModal={() => {}}
-        navigate={navigate}
-        activeChartType={chartType}
-      />
-      <div className="charts-page">
-        <h1 className="charts-title">Charts</h1>
-        <div className="charts-container">
-          <div className="charts-left">
-            <div className="filters-card">
-              {/* Filter UI */}
-              <div className="filter-group">
-                <label>Time Range</label>
-                <select value={timeRangeType} onChange={(e) => setTimeRangeType(e.target.value)}>
-                  <option value="week">This Week</option>
-                  <option value="2weeks">Last 2 Weeks</option>
-                  <option value="month">This Month</option>
-                  <option value="year">This Year</option>
-                  <option value="all-time">All Time</option>
-                  <option value="custom">Custom</option>
-                </select>
+// -------------------- Render --------------------
+return (
+  <Layout>
+    <TopBar
+      buttons={getChartsTopBarConfig(setChartType)}
+      openModal={() => {}}
+      navigate={navigate}
+      activeChartType={chartType}
+    />
+    <div className="charts-page">
+      <h1 className="charts-title">Charts</h1>
+      <div className="charts-container">
+        <div className="charts-left">
+          <div className="filters-card">
+            {/* Filter UI */}
+            <div className="filter-group">
+              <label htmlFor="time-range-select">Time Range</label>
+              <select
+                id="time-range-select"
+                value={timeRangeType}
+                onChange={(e) => setTimeRangeType(e.target.value)}
+              >
+                <option value="week">This Week</option>
+                <option value="2weeks">Last 2 Weeks</option>
+                <option value="month">This Month</option>
+                <option value="year">This Year</option>
+                <option value="all-time">All Time</option>
+                <option value="custom">Custom</option>
+              </select>
+            </div>
+            {timeRangeType === "custom" && (
+              <div className="custom-range">
+                <label htmlFor="custom-start-date">Start Date</label>
+                <DatePicker
+                  id="custom-start-date"
+                  selected={customStartDate}
+                  onChange={(date) => setCustomStartDate(date)}
+                  dateFormat="d MMMM, yyyy"
+                  placeholderText="Select start date"
+                  disabledKeyboardNavigation
+                />
+                <label htmlFor="custom-end-date">End Date</label>
+                <DatePicker
+                  id="custom-end-date"
+                  selected={customEndDate}
+                  onChange={(date) => setCustomEndDate(date)}
+                  dateFormat="d MMMM, yyyy"
+                  placeholderText="Select end date"
+                  disabledKeyboardNavigation
+                />
               </div>
-              {timeRangeType === "custom" && (
-                <div className="custom-range">
-                  <label>Start Date</label>
-                  <DatePicker
-                    selected={customStartDate}
-                    onChange={(date) => setCustomStartDate(date)}
-                    dateFormat="d MMMM, yyyy"
-                    placeholderText="Select start date"
-                    disabledKeyboardNavigation
-                  />
-                  <label>End Date</label>
-                  <DatePicker
-                    selected={customEndDate}
-                    onChange={(date) => setCustomEndDate(date)}
-                    dateFormat="d MMMM, yyyy"
-                    placeholderText="Select end date"
-                    disabledKeyboardNavigation
+            )}
+            <div className="filter-group">
+              <label htmlFor="task-type-select">Task Type</label>
+              <select
+                id="task-type-select"
+                value={taskType}
+                onChange={(e) => setTaskType(e.target.value)}
+              >
+                <option value="active">Active (In Boards)</option>
+                <option value="completed">Completed</option>
+                <option value="both">Both</option>
+              </select>
+            </div>
+            <div className="filter-group">
+              <label htmlFor="x-axis-field-select">X-Axis Field</label>
+              <select
+                id="x-axis-field-select"
+                value={xAxisField}
+                onChange={(e) => setXAxisField(e.target.value)}
+              >
+                <option value="day">Day</option>
+                <option value="priority">Priority</option>
+                <option value="status">Status</option>
+              </select>
+            </div>
+            <div className="filter-group">
+              <label htmlFor="y-axis-metric-select">Y-Axis Metric</label>
+              <select
+                id="y-axis-metric-select"
+                value={yAxisMetric}
+                onChange={(e) => setYAxisMetric(e.target.value)}
+              >
+                <option value="count">Task Count</option>
+                <option value="timeSpent">Time Spent</option>
+                <option value="storyPoints">Story Points</option>
+              </select>
+            </div>
+            <div className="filter-group">
+              <label htmlFor="sort-order-select">Sort By</label>
+              <select
+                id="sort-order-select"
+                value={sortOrder}
+                onChange={(e) => setSortOrder(e.target.value)}
+              >
+                <option value="none">None</option>
+                <option value="asc">Ascending</option>
+                <option value="desc">Descending</option>
+              </select>
+            </div>
+            <div className="filter-group">
+              <button
+                onClick={() => setShowAdvancedFilters((prev) => !prev)}
+                className="toggle-btn"
+              >
+                {showAdvancedFilters ? "Hide Advanced ▲" : "Show Advanced ▼"}
+              </button>
+            </div>
+            {showAdvancedFilters && (
+              <div className="advanced-filters">
+                <div className="filter-group">
+                  <label htmlFor="due-filter-select">Due Date</label>
+                  <select
+                    id="due-filter-select"
+                    value={dueFilter}
+                    onChange={(e) => setDueFilter(e.target.value)}
+                  >
+                    <option value="both">Both</option>
+                    <option value="due">Due</option>
+                    <option value="overdue">Overdue</option>
+                  </select>
+                </div>
+                <div className="filter-group">
+                  <MultiSelectDropdown
+                    label="Priority"
+                    options={allowedPriorities.map((p) => ({ value: p, label: p }))}
+                    selectedOptions={priorityFilters}
+                    onChange={setPriorityFilters}
                   />
                 </div>
-              )}
-              <div className="filter-group">
-                <label>Task Type</label>
-                <select value={taskType} onChange={(e) => setTaskType(e.target.value)}>
-                  <option value="active">Active (In Boards)</option>
-                  <option value="completed">Completed</option>
-                  <option value="both">Both</option>
-                </select>
-              </div>
-              <div className="filter-group">
-                <label>X-Axis Field</label>
-                <select value={xAxisField} onChange={(e) => setXAxisField(e.target.value)}>
-                  <option value="day">Day</option>
-                  <option value="priority">Priority</option>
-                  <option value="status">Status</option>
-                </select>
-              </div>
-              <div className="filter-group">
-                <label>Y-Axis Metric</label>
-                <select value={yAxisMetric} onChange={(e) => setYAxisMetric(e.target.value)}>
-                  <option value="count">Task Count</option>
-                  <option value="timeSpent">Time Spent</option>
-                  <option value="storyPoints">Story Points</option>
-                </select>
-              </div>
-              <div className="filter-group">
-                <label>Sort By</label>
-                <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value)}>
-                  <option value="none">None</option>
-                  <option value="asc">Ascending</option>
-                  <option value="desc">Descending</option>
-                </select>
-              </div>
-              <div className="filter-group">
-                <button onClick={() => setShowAdvancedFilters((prev) => !prev)} className="toggle-btn">
-                  {showAdvancedFilters ? "Hide Advanced ▲" : "Show Advanced ▼"}
-                </button>
-              </div>
-              {showAdvancedFilters && (
-                <div className="advanced-filters">
-                  <div className="filter-group">
-                    <label>Due Date</label>
-                    <select value={dueFilter} onChange={(e) => setDueFilter(e.target.value)}>
-                      <option value="both">Both</option>
-                      <option value="due">Due</option>
-                      <option value="overdue">Overdue</option>
-                    </select>
-                  </div>
-                  <div className="filter-group">
-                    <MultiSelectDropdown
-                      label="Priority"
-                      options={allowedPriorities.map((p) => ({ value: p, label: p }))}
-                      selectedOptions={priorityFilters}
-                      onChange={setPriorityFilters}
-                    />
-                  </div>
-                  <div className="filter-group">
-                    <MultiSelectDropdown
-                      label="Day of the Week"
-                      options={dayOptions.map((d) => ({ value: d, label: d }))}
-                      selectedOptions={dayOfWeekFilters}
-                      onChange={setDayOfWeekFilters}
-                    />
-                  </div>
-                  <div className="filter-group">
-                    <MultiSelectDropdown
-                      label="Status"
-                      options={statusOptions}
-                      selectedOptions={statusFilters}
-                      onChange={setStatusFilters}
-                    />
-                  </div>
-                  <div className="filter-group">
-                    <label>Assigned To</label>
+                <div className="filter-group">
+                  <MultiSelectDropdown
+                    label="Day of the Week"
+                    options={dayOptions.map((d) => ({ value: d, label: d }))}
+                    selectedOptions={dayOfWeekFilters}
+                    onChange={setDayOfWeekFilters}
+                  />
+                </div>
+                <div className="filter-group">
+                  <MultiSelectDropdown
+                    label="Status"
+                    options={statusOptions}
+                    selectedOptions={statusFilters}
+                    onChange={setStatusFilters}
+                  />
+                </div>
+                <div className="filter-group">
+                  <label htmlFor="assigned-to-filter">Assigned To</label>
+                  <input
+                    id="assigned-to-filter"
+                    type="text"
+                    placeholder="Filter by assignee"
+                    value={assignedToFilter}
+                    onChange={(e) => setAssignedToFilter(e.target.value)}
+                  />
+                </div>
+                <div className="filter-group">
+                  <label htmlFor="min-task-count">Minimum Task Count</label>
+                  <input
+                    id="min-task-count"
+                    type="number"
+                    min="0"
+                    placeholder="0"
+                    value={minTaskCount}
+                    onChange={(e) => setMinTaskCount(e.target.value)}
+                  />
+                </div>
+                <div className="filter-group">
+                  <label htmlFor="min-story-points">Minimum Story Points</label>
+                  <input
+                    id="min-story-points"
+                    type="number"
+                    min="0"
+                    placeholder="0"
+                    value={minStoryPoints}
+                    onChange={(e) => setMinStoryPoints(e.target.value)}
+                  />
+                </div>
+                <div className="filter-group">
+                  <label htmlFor="min-time-spent">Minimum Time Spent</label>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
                     <input
-                      type="text"
-                      placeholder="Filter by assignee"
-                      value={assignedToFilter}
-                      onChange={(e) => setAssignedToFilter(e.target.value)}
-                    />
-                  </div>
-                  <div className="filter-group">
-                    <label>Minimum Task Count</label>
-                    <input
+                      id="min-time-spent"
                       type="number"
                       min="0"
                       placeholder="0"
-                      value={minTaskCount}
-                      onChange={(e) => setMinTaskCount(e.target.value)}
+                      value={minTimeSpent}
+                      onChange={(e) => setMinTimeSpent(e.target.value)}
+                      style={{ width: "80px" }}
                     />
+                    <div className="min-time-unit-options">
+                      <label>
+                        <input
+                          type="radio"
+                          name="minTimeUnit"
+                          value="seconds"
+                          checked={minTimeUnit === "seconds"}
+                          onChange={(e) => setMinTimeUnit(e.target.value)}
+                        />
+                        Seconds
+                      </label>
+                      <label>
+                        <input
+                          type="radio"
+                          name="minTimeUnit"
+                          value="minutes"
+                          checked={minTimeUnit === "minutes"}
+                          onChange={(e) => setMinTimeUnit(e.target.value)}
+                        />
+                        Minutes
+                      </label>
+                      <label>
+                        <input
+                          type="radio"
+                          name="minTimeUnit"
+                          value="hours"
+                          checked={minTimeUnit === "hours"}
+                          onChange={(e) => setMinTimeUnit(e.target.value)}
+                        />
+                        Hours
+                      </label>
+                    </div>
                   </div>
-                  <div className="filter-group">
-                    <label>Minimum Story Points</label>
-                    <input
-                      type="number"
-                      min="0"
-                      placeholder="0"
-                      value={minStoryPoints}
-                      onChange={(e) => setMinStoryPoints(e.target.value)}
-                    />
-                  </div>
-                  <div className="filter-group">
-                    <label>Minimum Time Spent</label>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                      <input
-                        type="number"
-                        min="0"
-                        placeholder="0"
-                        value={minTimeSpent}
-                        onChange={(e) => setMinTimeSpent(e.target.value)}
-                        style={{ width: "80px" }}
+                </div>
+                <div className="filter-group">
+                  <label htmlFor="scheduled-only">Scheduled Only</label>
+                  <input
+                    id="scheduled-only"
+                    type="checkbox"
+                    checked={scheduledOnly}
+                    onChange={(e) => setScheduledOnly(e.target.checked)}
+                  />
+                </div>
+                <div className="filter-group">
+                  <label htmlFor="include-zero-metrics">Include Zero Metrics</label>
+                  <input
+                    id="include-zero-metrics"
+                    type="checkbox"
+                    checked={includeZeroMetrics}
+                    onChange={(e) => setIncludeZeroMetrics(e.target.checked)}
+                  />
+                </div>
+                <div className="filter-group">
+                  <label htmlFor="include-no-due-date">Include Tasks Without Due Date</label>
+                  <input
+                    id="include-no-due-date"
+                    type="checkbox"
+                    checked={includeNoDueDate}
+                    onChange={(e) => setIncludeNoDueDate(e.target.checked)}
+                  />
+                </div>
+                <div className="filter-group">
+                  <label htmlFor="comparison-mode">Comparison Mode</label>
+                  <input
+                    id="comparison-mode"
+                    type="checkbox"
+                    checked={comparisonMode}
+                    onChange={(e) => setComparisonMode(e.target.checked)}
+                  />
+                </div>
+                {comparisonMode && (
+                  <div className="comparison-range">
+                    <div className="filter-group">
+                      <label htmlFor="comp-start-date">Comparison Start Date</label>
+                      <DatePicker
+                        id="comp-start-date"
+                        selected={compStartDate}
+                        onChange={(date) => setCompStartDate(date)}
+                        dateFormat="d MMMM, yyyy"
+                        placeholderText="Select start date"
+                        disabledKeyboardNavigation
                       />
-                      <div className="min-time-unit-options">
-                        <label>
-                          <input
-                            type="radio"
-                            name="minTimeUnit"
-                            value="seconds"
-                            checked={minTimeUnit === "seconds"}
-                            onChange={(e) => setMinTimeUnit(e.target.value)}
-                          />
-                          Seconds
-                        </label>
-                        <label>
-                          <input
-                            type="radio"
-                            name="minTimeUnit"
-                            value="minutes"
-                            checked={minTimeUnit === "minutes"}
-                            onChange={(e) => setMinTimeUnit(e.target.value)}
-                          />
-                          Minutes
-                        </label>
-                        <label>
-                          <input
-                            type="radio"
-                            name="minTimeUnit"
-                            value="hours"
-                            checked={minTimeUnit === "hours"}
-                            onChange={(e) => setMinTimeUnit(e.target.value)}
-                          />
-                          Hours
-                        </label>
-                      </div>
+                    </div>
+                    <div className="filter-group">
+                      <label htmlFor="comp-end-date">Comparison End Date</label>
+                      <DatePicker
+                        id="comp-end-date"
+                        selected={compEndDate}
+                        onChange={(date) => setCompEndDate(date)}
+                        dateFormat="d MMMM, yyyy"
+                        placeholderText="Select end date"
+                        disabledKeyboardNavigation
+                      />
                     </div>
                   </div>
-                  <div className="filter-group">
-                    <label>Scheduled Only</label>
-                    <input
-                      type="checkbox"
-                      checked={scheduledOnly}
-                      onChange={(e) => setScheduledOnly(e.target.checked)}
-                    />
-                  </div>
-                  <div className="filter-group">
-                    <label>Include Zero Metrics</label>
-                    <input
-                      type="checkbox"
-                      checked={includeZeroMetrics}
-                      onChange={(e) => setIncludeZeroMetrics(e.target.checked)}
-                    />
-                  </div>
-                  <div className="filter-group">
-                    <label>Include Tasks Without Due Date</label>
-                    <input
-                      type="checkbox"
-                      checked={includeNoDueDate}
-                      onChange={(e) => setIncludeNoDueDate(e.target.checked)}
-                    />
-                  </div>
-                  <div className="filter-group">
-                    <label>Comparison Mode</label>
-                    <input
-                      type="checkbox"
-                      checked={comparisonMode}
-                      onChange={(e) => setComparisonMode(e.target.checked)}
-                    />
-                  </div>
-                  {comparisonMode && (
-                    <div className="comparison-range">
-                      <div className="filter-group">
-                        <label>Comparison Start Date</label>
-                        <DatePicker
-                          selected={compStartDate}
-                          onChange={(date) => setCompStartDate(date)}
-                          dateFormat="d MMMM, yyyy"
-                          placeholderText="Select start date"
-                          disabledKeyboardNavigation
-                        />
-                      </div>
-                      <div className="filter-group">
-                        <label>Comparison End Date</label>
-                        <DatePicker
-                          selected={compEndDate}
-                          onChange={(date) => setCompEndDate(date)}
-                          dateFormat="d MMMM, yyyy"
-                          placeholderText="Select end date"
-                          disabledKeyboardNavigation
-                        />
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-              <div className="preferences-buttons">
-                <button onClick={saveUserPreferences} className="save-btn">
-                  Save Preferences
-                </button>
-                <button onClick={resetUserPreferences} className="reset-btn">
-                  Default Preferences
-                </button>
-                {message && <div className="preferences-message">{message}</div>}
+                )}
               </div>
+            )}
+            <div className="preferences-buttons">
+              <button onClick={saveUserPreferences} className="save-btn">
+                Save Preferences
+              </button>
+              <button onClick={resetUserPreferences} className="reset-btn">
+                Default Preferences
+              </button>
+              {message && <div className="preferences-message">{message}</div>}
             </div>
           </div>
-          <div className="charts-right">{renderChart()}</div>
         </div>
+        <div className="charts-right">{renderChart()}</div>
       </div>
+    </div>
 
-      <GroupTasksModal
-        modalOpen={modalOpen}
-        setModalOpen={closeGroupTasksModal}
-        mainGroupTasks={selectedMainGroupTasks}
-        compGroupTasks={selectedCompGroupTasks}
-        openReadOnlyViewTaskModal={openReadOnlyViewTaskModal}
-        comparisonMode={comparisonMode}
-        selectedGroup={groupKey}
+    <GroupTasksModal
+      modalOpen={modalOpen}
+      setModalOpen={closeGroupTasksModal}
+      mainGroupTasks={selectedMainGroupTasks}
+      compGroupTasks={selectedCompGroupTasks}
+      openReadOnlyViewTaskModal={openReadOnlyViewTaskModal}
+      comparisonMode={comparisonMode}
+      selectedGroup={groupKey}
+    />
+    {isViewTaskModalOpen && (
+      <ViewTaskModal
+        isModalOpen={isViewTaskModalOpen}
+        closeModal={closeViewTaskModal}
+        task={selectedTask}
+        handleUpdateTask={() => {}}
+        columns={columnsMapping}
+        startTimer={() => {}}
+        stopTimer={() => {}}
+        readOnly={true}
       />
-      {isViewTaskModalOpen && (
-        <ViewTaskModal
-          isModalOpen={isViewTaskModalOpen}
-          closeModal={closeViewTaskModal}
-          task={selectedTask}
-          handleUpdateTask={() => {}}
-          columns={columnsMapping}
-          startTimer={() => {}}
-          stopTimer={() => {}}
-          readOnly={true}
-        />
-      )}
-    </Layout>
-  );
+    )}
+  </Layout>
+);
 };
 
 export default Charts;
