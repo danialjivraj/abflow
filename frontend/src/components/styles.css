@@ -2236,3 +2236,55 @@ select {
     flex-direction: column;
   }
 }
+
+
+/* ==============================
+ Profile page
+============================== */
+
+.profile-page {
+  display: flex;
+  justify-content: center;
+  padding: 2rem;
+  background-color: #1a1a1a;
+}
+
+.profile-card {
+  background-color: #2a2a2a;
+  border-radius: 10px;
+  padding: 2rem;
+  width: 400px;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  margin-top: 2rem;
+}
+
+.profile-card h1 {
+  margin-bottom: 1rem;
+  font-size: 2rem;
+  color: #fff;
+}
+
+.profile-info {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 1.5rem;
+}
+
+.profile-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.profile-stat h2 {
+  margin: 0;
+  font-size: 2.5rem;
+  color: #f39c12;
+}
+
+.profile-stat p {
+  margin: 0;
+  font-size: 1rem;
+  color: #bbb;
+}

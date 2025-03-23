@@ -55,7 +55,7 @@ describe("Task Routes", () => {
       
       expect(res.body).toHaveProperty("_id");
       expect(res.body.title).toBe("Test Task");
-      expect(res.body.points).toBe(10);
+      expect(res.body.points).toBe(5);
     });
 
     it("should return 400 if required fields are missing", async () => {

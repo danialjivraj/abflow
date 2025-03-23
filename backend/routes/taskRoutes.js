@@ -19,10 +19,11 @@ router.post("/", async (req, res) => {
     const newOrder = highestOrder + 1;
 
     const pointsMap = {
-      "A1": 10, "A2": 8, "A3": 6,
-      "B1": 5, "B2": 4, "B3": 3,
-      "C1": 2, "C2": 1, "C3": 0,
-      "D": 0, "E": 0
+      "A1": 5.0, "A2": 4.5, "A3": 4.0,
+      "B1": 3.5, "B2": 3.0, "B3": 2.5,
+      "C1": 2.0, "C2": 1.5, "C3": 1.0,
+      "D": 0.5,
+      "E": 0.0
     };
 
     const newTask = new Task({
@@ -247,8 +248,8 @@ router.put("/:id/complete", async (req, res) => {
   try {
     const task = await Task.findByIdAndUpdate(
       req.params.id,
-      { 
-        status: "completed", 
+      {
+        status: "completed",
         taskCompleted: true,
         completedAt: new Date(),
         scheduledStart: null,

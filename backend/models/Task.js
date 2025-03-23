@@ -14,7 +14,25 @@ const TaskSchema = new mongoose.Schema({
   userId: { type: String, required: true },
   assignedTo: { type: String, default: "" },
   createdAt: { type: Date, default: Date.now },
-  points: { type: Number, default: 0 },
+  points: { 
+    type: Number, 
+    default: function() {
+      const pointsMap = {
+        "A1": 5.0,
+        "A2": 4.5,
+        "A3": 4.0,
+        "B1": 3.5,
+        "B2": 3.0,
+        "B3": 2.5,
+        "C1": 2.0,
+        "C2": 1.5,
+        "C3": 1.0,
+        "D": 0.5,
+        "E": 0.0
+      };
+      return pointsMap[this.priority] || 0;
+    }
+  },
   storyPoints: { type: Number, default: 0 },
   order: { type: Number, default: 0 },
   description: { type: String, default: "" },

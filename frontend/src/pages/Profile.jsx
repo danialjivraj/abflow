@@ -1,39 +1,48 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import Layout from "../components/navigation/Layout";
+import TopBar from "../components/navigation/TopBar";
 import { auth } from "../firebase";
-import { FaTrophy, FaTasks, FaMedal } from "react-icons/fa"; 
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { getProfileTopBarConfig } from "../config/topBarConfig";
+import "../components/styles.css";
 
 const Profile = () => {
-  const [profileData, setProfileData] = useState(null);
-  const [user, setUser] = useState(null);
+  const [profile, setProfile] = useState({ points: 0, tasksCompleted: 0 });
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((currentUser) => {
-      if (currentUser) {
-        setUser(currentUser);
-        axios.get(`http://localhost:5000/api/profile/${currentUser.uid}`)
-          .then((res) => setProfileData(res.data))
-          .catch((err) => console.error("Error fetching profile data:", err));
+    const fetchData = async () => {
+      const currentUser = auth.currentUser;
+      if (!currentUser) return;
+      const userId = currentUser.uid;
+      try {
+        const response = await axios.get(`http://localhost:5000/api/profile/${userId}`);
+        setProfile(response.data);
+      } catch (error) {
+        console.error("Error fetching profile data:", error);
       }
-    });
+    };
 
-    return () => unsubscribe();
+    fetchData();
   }, []);
-
-  if (!user || !profileData) return <p>Loading profile...</p>;
 
   return (
     <Layout>
-      <div className="profile-container">
-        <h1>Profile</h1>
+      <TopBar buttons={getProfileTopBarConfig(() => {}, navigate)} />
+      <div className="profile-page">
         <div className="profile-card">
-          <h2><FaTrophy /> {profileData.userTitle} <FaMedal /></h2>
-          <p><FaTasks /> <strong>Total Tasks Completed:</strong> {profileData.totalTasks}</p>
-          <p><strong>Total Points:</strong> {profileData.totalPoints}</p>
-        </div>
-        <div className="profile-achievements">
-          <h3>Keep completing tasks to level up!</h3>
+          <h1>Your Profile</h1>
+          <div className="profile-info">
+            <div className="profile-stat">
+              <h2>{profile.points}</h2>
+              <p>Points</p>
+            </div>
+            <div className="profile-stat">
+              <h2>{profile.tasksCompleted}</h2>
+              <p>Tasks Completed</p>
+            </div>
+          </div>
         </div>
       </div>
     </Layout>

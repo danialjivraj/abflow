@@ -10,7 +10,7 @@ function createBaseTask(overrides = {}) {
       userId: "user1",
       assignedTo: "John Doe",
       createdAt: "2022-01-01T10:00:00.000Z",
-      points: 0,
+      points: 5.0,
       storyPoints: 5,
       order: 0,
       description: "This is a test description.",

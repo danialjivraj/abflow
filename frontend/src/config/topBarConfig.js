@@ -56,3 +56,6 @@ export const getChartsTopBarConfig = (setChartType) => [
     className: "top-bar-button",
   },
 ];
+
+export const getProfileTopBarConfig = (openModal, navigate) => [
+];
