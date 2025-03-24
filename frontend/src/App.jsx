@@ -4,7 +4,7 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { auth } from "./firebase";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard/Dashboard";
@@ -38,7 +38,12 @@ function App() {
     notifyScheduledTaskIsDue: 60,
     themeAccent: "Green",
     topbarAccent: "Blue",
+    inactivityTimeoutHours: 1,
+    inactivityTimeoutNever: true,
+    muteNotifications: false,
   });
+
+  const logoutTimerRef = useRef(null);
 
   useEffect(() => {
     let storedDarkMode = localStorage.getItem("darkMode");
@@ -72,7 +77,6 @@ function App() {
               "data-theme",
               darkMode ? "dark" : "light"
             );
-
             setDefaultBoardView(prefs.defaultBoardView || "boards");
             setUserSettings((prev) => ({ ...prev, ...prefs }));
             setPreferencesLoaded(true);
@@ -88,6 +92,51 @@ function App() {
     });
     return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+    const clearLogoutTimer = () => {
+      if (logoutTimerRef.current) {
+        clearTimeout(logoutTimerRef.current);
+        logoutTimerRef.current = null;
+      }
+    };
+
+    if (!user || userSettings.inactivityTimeoutNever) {
+      clearLogoutTimer();
+      return;
+    }
+
+    const timeoutDuration =
+      userSettings.inactivityTimeoutHours * 60 * 60 * 1000; // to milliseconds
+
+    const resetTimer = () => {
+      clearLogoutTimer();
+      logoutTimerRef.current = setTimeout(() => {
+        auth.signOut().then(() =>
+          console.log("User logged out due to inactivity.")
+        );
+      }, timeoutDuration);
+    };
+
+    const activityEvents = ["mousemove", "keydown", "click", "scroll"];
+
+    activityEvents.forEach((event) =>
+      window.addEventListener(event, resetTimer)
+    );
+
+    resetTimer();
+
+    return () => {
+      clearLogoutTimer();
+      activityEvents.forEach((event) =>
+        window.removeEventListener(event, resetTimer)
+      );
+    };
+  }, [
+    user,
+    userSettings.inactivityTimeoutHours,
+    userSettings.inactivityTimeoutNever,
+  ]);
 
   if (loading) return <p>Loading...</p>;
 

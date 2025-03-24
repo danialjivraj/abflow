@@ -31,6 +31,7 @@ function createBaseUser(overrides = {}) {
       darkMode: true,
       muteNotifications: false,
       inactivityTimeoutHours: 1,
+      inactivityTimeoutNever: true,
       defaultPriority: "A1",
       hideOldCompletedTasksDays: 365,
       hideOldCompletedTasksNever: true,

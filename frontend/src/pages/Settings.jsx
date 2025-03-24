@@ -25,6 +25,7 @@ const Settings = ({ updateDefaultBoardView }) => {
     darkMode: false,
     muteNotifications: false,
     inactivityTimeoutHours: 1,
+    inactivityTimeoutNever: true,
     defaultPriority: "A1",
     hideOldCompletedTasksDays: 30,
     hideOldCompletedTasksNever: false,
@@ -255,30 +256,42 @@ const Settings = ({ updateDefaultBoardView }) => {
             </label>
           </>
         );
-      case "Account & Behavior":
-        return (
-          <>
-            <label className="setting-row">
-              <span>Inactivity Timeout (hours)</span>
-              <input
-                type="number"
-                name="inactivityTimeoutHours"
-                value={settings.inactivityTimeoutHours}
-                onChange={handleChange}
-                className="setting-number-input"
-              />
-            </label>
-            <label className="setting-row">
-              <span>Require Confirmation Before Deleting</span>
-              <input
-                type="checkbox"
-                name="confirmBeforeDelete"
-                checked={settings.confirmBeforeDelete}
-                onChange={handleChange}
-              />
-            </label>
-          </>
-        );
+        case "Account & Behavior":
+            return (
+              <>
+                <label className="setting-row">
+                  <span>Inactivity Timeout (hours)</span>
+                  <div className="hide-tasks-right">
+                    <input
+                      type="number"
+                      name="inactivityTimeoutHours"
+                      value={settings.inactivityTimeoutHours}
+                      onChange={handleChange}
+                      className="setting-number-input"
+                      disabled={settings.inactivityTimeoutNever}  // disable if "Never" is checked
+                    />
+                    <label className="never-checkbox">
+                      <input
+                        type="checkbox"
+                        name="inactivityTimeoutNever"
+                        checked={settings.inactivityTimeoutNever}
+                        onChange={handleChange}
+                      />
+                      <span>Never</span>
+                    </label>
+                  </div>
+                </label>
+                <label className="setting-row">
+                  <span>Require Confirmation Before Deleting</span>
+                  <input
+                    type="checkbox"
+                    name="confirmBeforeDelete"
+                    checked={settings.confirmBeforeDelete}
+                    onChange={handleChange}
+                  />
+                </label>
+              </>
+            );
       default:
         return null;
     }

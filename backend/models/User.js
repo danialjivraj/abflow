@@ -49,6 +49,7 @@ const UserSchema = new Schema({
         darkMode: { type: Boolean, default: true },
         muteNotifications: { type: Boolean, default: false },
         inactivityTimeoutHours: { type: Number, default: 1 },
+        inactivityTimeoutNever: { type: Boolean, default: true },
         defaultPriority: {
           type: String,
           enum: ["A1", "A2", "A3", "B1", "B2", "B3", "C1", "C2", "C3", "D", "E"],
