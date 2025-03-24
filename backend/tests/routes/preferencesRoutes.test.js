@@ -13,87 +13,179 @@ let mongoServer;
 let defaultUser;
 
 beforeAll(async () => {
-    mongoServer = await MongoMemoryServer.create();
-    const uri = mongoServer.getUri();
-    await mongoose.connect(uri);
+  mongoServer = await MongoMemoryServer.create();
+  const uri = mongoServer.getUri();
+  await mongoose.connect(uri);
 
-    app = express();
-    app.use(express.json());
-    app.use("/api/preferences", preferencesRoutes);
+  app = express();
+  app.use(express.json());
+  app.use("/api/preferences", preferencesRoutes);
 });
 
 beforeEach(async () => {
-    await User.deleteMany({});
-    defaultUser = await User.create({ userId: "user1" });
+  await User.deleteMany({});
+  defaultUser = await User.create({ userId: "user1" });
 });
 
 afterAll(async () => {
-    await mongoose.disconnect();
-    await mongoServer.stop();
+  await mongoose.disconnect();
+  await mongoServer.stop();
 });
 
 describe("Preferences Routes", () => {
-    describe("Chart Preferences", () => {
-        // ---------------------------
-        // Get Chart Preferences for a User
-        // ---------------------------
-        describe("GET /api/preferences/:userId", () => {
-            it("should return chartPreferences for an existing user", async () => {
-                const res = await request(app)
-                    .get(`/api/preferences/${defaultUser.userId}`)
-                    .expect(200);
+  describe("Chart Preferences", () => {
+    // ---------------------------
+    // Get Chart Preferences for a User
+    // ---------------------------
+    describe("GET /api/preferences/:userId", () => {
+      it("should return chartPreferences for an existing user", async () => {
+        const res = await request(app)
+          .get(`/api/preferences/${defaultUser.userId}`)
+          .expect(200);
 
-                expect(res.body.chartPreferences).toBeDefined();
-            });
+        expect(res.body.chartPreferences).toBeDefined();
+      });
 
-            it("should return 404 if the user is not found", async () => {
-                const res = await request(app)
-                    .get("/api/preferences/nonexistentUser")
-                    .expect(404);
+      it("should return 404 if the user is not found", async () => {
+        const res = await request(app)
+          .get("/api/preferences/nonexistentUser")
+          .expect(404);
 
-                expect(res.body.error).toBe("User not found");
-            });
-        });
-
-        // ---------------------------
-        // Update Chart Preferences for a User
-        // ---------------------------
-        describe("PUT /api/preferences/:userId", () => {
-            it("should update chartPreferences for an existing user", async () => {
-                const newPrefs = {
-                    chartType: "bar",
-                    xAxisField: "status",
-                    yAxisMetric: "count",
-                };
-
-                const res = await request(app)
-                    .put(`/api/preferences/${defaultUser.userId}`)
-                    .send({ chartPreferences: newPrefs })
-                    .expect(200);
-
-                expect(res.body.chartPreferences).toMatchObject(newPrefs);
-            });
-
-            it("should create a new user with provided chartPreferences if the user does not exist", async () => {
-                const newPrefs = { chartType: "line" };
-                const newUserId = "newUser456";
-
-                const res = await request(app)
-                    .put(`/api/preferences/${newUserId}`)
-                    .send({ chartPreferences: newPrefs })
-                    .expect(200);
-
-                expect(res.body.chartPreferences).toMatchObject(newPrefs);
-            });
-
-            it("should return 400 if chartPreferences are not provided", async () => {
-                const res = await request(app)
-                    .put(`/api/preferences/${defaultUser.userId}`)
-                    .send({})
-                    .expect(400);
-
-                expect(res.body.error).toBe("No preferences provided");
-            });
-        });
+        expect(res.body.error).toBe("User not found");
+      });
     });
+
+    // ---------------------------
+    // Update Chart Preferences for a User
+    // ---------------------------
+    describe("PUT /api/preferences/:userId", () => {
+      it("should update chartPreferences for an existing user (partial update)", async () => {
+        const newPrefs = {
+          chartType: "bar",
+          xAxisField: "status",
+          yAxisMetric: "count",
+        };
+
+        const res = await request(app)
+          .put(`/api/preferences/${defaultUser.userId}`)
+          .send({ chartPreferences: newPrefs })
+          .expect(200);
+
+        expect(res.body.chartPreferences).toMatchObject(newPrefs);
+      });
+
+      it("should create a new user with provided chartPreferences if the user does not exist", async () => {
+        const newPrefs = { chartType: "line" };
+        const newUserId = "newUser456";
+
+        const res = await request(app)
+          .put(`/api/preferences/${newUserId}`)
+          .send({ chartPreferences: newPrefs })
+          .expect(200);
+
+        expect(res.body.chartPreferences).toMatchObject(newPrefs);
+      });
+
+      it("should return 400 if chartPreferences are not provided", async () => {
+        const res = await request(app)
+          .put(`/api/preferences/${defaultUser.userId}`)
+          .send({})
+          .expect(400);
+
+        expect(res.body.error).toBe("No preferences provided");
+      });
+
+      it("should update chartPreferences with all fields", async () => {
+        const newChartPrefs = {
+          timeRangeType: "month",
+          taskType: "completed",
+          chartType: "line",
+          xAxisField: "priority",
+          yAxisMetric: "timeSpent",
+          sortOrder: "asc",
+          dueFilter: "overdue",
+          priorityFilters: ["A1", "B1"],
+          dayOfWeekFilters: ["Monday", "Friday"],
+          statusFilters: ["In Progress", "Done"],
+          assignedToFilter: "user123",
+          minTaskCount: "10",
+          minStoryPoints: "20",
+          minTimeSpent: "30",
+          minTimeUnit: "hours",
+          scheduledOnly: true,
+          includeZeroMetrics: false,
+          includeNoDueDate: false,
+          comparisonMode: true,
+          compStartDate: "2020-01-01T00:00:00.000Z",
+          compEndDate: "2020-12-31T23:59:59.000Z",
+          customStartDate: "2021-01-01T00:00:00.000Z",
+          customEndDate: "2021-12-31T23:59:59.000Z"
+        };
+
+        const res = await request(app)
+          .put(`/api/preferences/${defaultUser.userId}`)
+          .send({ chartPreferences: newChartPrefs })
+          .expect(200);
+
+        expect(res.body.chartPreferences).toEqual(newChartPrefs);
+      });
+    });
+  });
+
+  describe("Settings Preferences", () => {
+    const newSettings = {
+      darkMode: false,
+      muteNotifications: true,
+      inactivityTimeoutHours: 2,
+      defaultPriority: "B1",
+      hideOldCompletedTasksDays: 15,
+      defaultBoardView: "schedule",
+      disableToCreateTask: true,
+      confirmBeforeDelete: false,
+      notifyNonPriorityGoesOvertime: 2,
+      notifyScheduledTaskIsDue: 30,
+      themeAccent: "Blue"
+    };
+
+    // ---------------------------
+    // Get Settings Preferences for a User
+    // ---------------------------
+    describe("GET /api/preferences/:userId", () => {
+      it("should return settingsPreferences for an existing user", async () => {
+        defaultUser.settingsPreferences = newSettings;
+        await defaultUser.save();
+
+        const res = await request(app)
+          .get(`/api/preferences/${defaultUser.userId}`)
+          .expect(200);
+
+        expect(res.body.settingsPreferences).toEqual(newSettings);
+      });
+    });
+
+    // ---------------------------
+    // Update Settings Preferences for a User
+    // ---------------------------
+    describe("PUT /api/preferences/:userId", () => {
+      it("should update settingsPreferences for an existing user", async () => {
+        const res = await request(app)
+          .put(`/api/preferences/${defaultUser.userId}`)
+          .send({ settingsPreferences: newSettings })
+          .expect(200);
+
+        expect(res.body.settingsPreferences).toEqual(newSettings);
+      });
+
+      it("should create a new user with provided settingsPreferences if the user does not exist", async () => {
+        const newUserId = "newUserSettings";
+
+        const res = await request(app)
+          .put(`/api/preferences/${newUserId}`)
+          .send({ settingsPreferences: newSettings })
+          .expect(200);
+
+        expect(res.body.settingsPreferences).toEqual(newSettings);
+      });
+    });
+  });
 });
