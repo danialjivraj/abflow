@@ -154,6 +154,24 @@ const Settings = ({ updateDefaultBoardView }) => {
               </select>
             </label>
             <label className="setting-row">
+              <span>Require Confirmation Before Deleting Task</span>
+              <input
+                type="checkbox"
+                name="confirmBeforeDeleteTask"
+                checked={settings.confirmBeforeDeleteTask}
+                onChange={handleChange}
+              />
+            </label>
+            <label className="setting-row">
+              <span>Require Confirmation Before Deleting Board</span>
+              <input
+                type="checkbox"
+                name="confirmBeforeDeleteBoard"
+                checked={settings.confirmBeforeDeleteBoard}
+                onChange={handleChange}
+              />
+            </label>
+            <label className="setting-row">
               <span>Hide Completed Tasks Older Than (days)</span>
               <div className="hide-tasks-right">
                 <input
@@ -282,24 +300,6 @@ const Settings = ({ updateDefaultBoardView }) => {
                   <span>Never</span>
                 </label>
               </div>
-            </label>
-            <label className="setting-row">
-              <span>Require Confirmation Before Deleting Task</span>
-              <input
-                type="checkbox"
-                name="confirmBeforeDeleteTask"
-                checked={settings.confirmBeforeDeleteTask}
-                onChange={handleChange}
-              />
-            </label>
-            <label className="setting-row">
-              <span>Require Confirmation Before Deleting Board</span>
-              <input
-                type="checkbox"
-                name="confirmBeforeDeleteBoard"
-                checked={settings.confirmBeforeDeleteBoard}
-                onChange={handleChange}
-              />
             </label>
           </>
         );

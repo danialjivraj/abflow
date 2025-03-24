@@ -2,6 +2,7 @@ import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import CreateTaskModal from "../../src/components/modals/CreateTaskModal";
 import { createBaseColumn } from "../../_testUtils/createBaseColumn";
+import { createBaseUser } from "../../_testUtils/createBaseUser";
 
 jest.mock("../../src/components/TiptapEditor", () => {
   return ({ value, onChange }) => (
@@ -12,6 +13,10 @@ jest.mock("../../src/components/TiptapEditor", () => {
       <span>{value}</span>
     </div>
   );
+});
+
+const baseUser = createBaseUser({
+  settingsPreferences: { defaultPriority: "B2" },
 });
 
 const baseColumn = createBaseColumn({ columnId: "backlog", name: "Backlog" });
@@ -63,6 +68,33 @@ describe("CreateTaskModal Unit Tests", () => {
   test("renders loading when columnsLoaded is false", () => {
     render(<CreateTaskModal {...defaultProps} columnsLoaded={false} />);
     expect(screen.getByText("Loading...")).toBeInTheDocument();
+  });
+});
+
+test("opens with the default task priority from user settings and updates when changed", async () => {
+  function TestWrapper({ defaultPriority }) {
+    const [priority, setPriority] = React.useState("");
+    return (
+      <CreateTaskModal
+        {...defaultProps}
+        selectedPriority={priority}
+        setSelectedPriority={setPriority}
+        defaultPriority={defaultPriority}
+      />
+    );
+  }
+  const { rerender } = render(
+    <TestWrapper defaultPriority={baseUser.settingsPreferences.defaultPriority} />
+  );
+  await waitFor(() => {
+    expect(screen.getByDisplayValue("B2")).toBeInTheDocument();
+  });
+
+  baseUser.settingsPreferences.defaultPriority = "D";
+  rerender(<TestWrapper defaultPriority={baseUser.settingsPreferences.defaultPriority} />);
+  
+  await waitFor(() => {
+    expect(screen.getByDisplayValue("D")).toBeInTheDocument();
   });
 });
 
