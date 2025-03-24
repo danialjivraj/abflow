@@ -31,6 +31,7 @@ import "../../components/navigation/topBar.css";
 import "../../components/tipTapEditor.css";
 import { NotificationsContext } from "../../contexts/NotificationsContext";
 import { validateBoardName } from "../../utils/boardValidation";
+import { fetchSettingsPreferences } from "../../services/preferencesService";
 
 export const getBaseRoute = (pathname) => {
   const parts = pathname.split("/");
@@ -42,7 +43,7 @@ export const getBaseRoute = (pathname) => {
   return validRoutes.includes(base) ? `/dashboard/${base}` : "/dashboard/boards";
 };
 
-const Dashboard = () => {
+const Dashboard = (props) => {
   // ---------------------- state and refs ----------------------
   const [columns, setColumns] = useState({});
   const [columnsLoaded, setColumnsLoaded] = useState(false);
@@ -71,12 +72,12 @@ const Dashboard = () => {
   const [completedTasks, setCompletedTasks] = useState([]);
   const [scheduledStartShortcut, setScheduledStartShortcut] = useState(null);
   const [scheduledEndShortcut, setScheduledEndShortcut] = useState(null);
-  // State for ScheduleEditModal routing:
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [selectedScheduleEvent, setSelectedScheduleEvent] = useState(null);
-  // Error states for board creation and rename validations:
   const [createBoardError, setCreateBoardError] = useState("");
   const [renameBoardError, setRenameBoardError] = useState("");
+
+  const { userSettings, setUserSettings } = props;
 
   const navigate = useNavigate();
   const { taskId } = useParams();
@@ -90,6 +91,17 @@ const Dashboard = () => {
       setUserId(currentUser.uid);
     }
   }, []);
+
+  useEffect(() => {
+    if (userId) {
+      fetchSettingsPreferences(userId)
+        .then((res) => {
+          const prefs = res.data.settingsPreferences || {};
+          setUserSettings((prev) => ({ ...prev, ...prefs }));
+        })
+        .catch((err) => console.error("Error fetching settings preferences", err));
+    }
+  }, [userId]);
 
   useEffect(() => {
     if (!userId) return;
@@ -225,7 +237,6 @@ const Dashboard = () => {
   };
 
   // ---------------------- handlers ----------------------
-  // Use the exported getBaseRoute helper:
   const baseRoute = getBaseRoute(location.pathname);
 
   const openModal = () => {
@@ -283,7 +294,6 @@ const Dashboard = () => {
     closeScheduleModal();
   };
 
-  // ---------------------- Board Creation Handler ----------------------
   const handleCreateBoard = async () => {
     const error = validateBoardName(newBoardCreateName, columns);
     if (error) {
@@ -307,7 +317,6 @@ const Dashboard = () => {
     }
   };
 
-  // ---------------------- New Callbacks for Board Rename & Delete ----------------------
   const onBoardRename = (columnId, newName) => {
     setColumns((prev) => ({
       ...prev,
@@ -323,7 +332,6 @@ const Dashboard = () => {
     });
   };
 
-  // ---------------------- Other Task Handlers ----------------------
   const handleDeleteTask = async (taskId) => {
     try {
       await deleteTaskAPI(taskId);
@@ -435,7 +443,6 @@ const Dashboard = () => {
 
   const resetForm = () => {
     setNewTaskTitle("");
-    setSelectedPriority("A1");
     setSelectedStatus("");
     setDueDate(null);
     setAssignedTo("");
@@ -446,9 +453,7 @@ const Dashboard = () => {
 
   const handleCreateTask = async () => {
     if (!userId || isSubmitting) return;
-
     setIsSubmitting(true);
-
     try {
       const taskData = {
         title: newTaskTitle,
@@ -462,7 +467,6 @@ const Dashboard = () => {
         scheduledStart: scheduledStartShortcut ? scheduledStartShortcut.toISOString() : null,
         scheduledEnd: scheduledEndShortcut ? scheduledEndShortcut.toISOString() : null,
       };
-
       const response = await createTask(taskData);
       const newTask = response.data;
       setColumns((prev) => {
@@ -489,17 +493,14 @@ const Dashboard = () => {
     try {
       const response = await updateTask(updatedTask);
       const updatedTaskFromBackend = response.data;
-
       setColumns((prevColumns) => {
         const updatedColumns = { ...prevColumns };
         let oldCol = null;
-
         Object.keys(updatedColumns).forEach((colId) => {
           if (updatedColumns[colId].items.find((t) => t._id === updatedTaskFromBackend._id)) {
             oldCol = colId;
           }
         });
-
         if (oldCol && oldCol === updatedTaskFromBackend.status) {
           updatedColumns[oldCol].items = updatedColumns[oldCol].items.map((t) =>
             t._id === updatedTaskFromBackend._id ? updatedTaskFromBackend : t
@@ -516,7 +517,6 @@ const Dashboard = () => {
         }
         return updatedColumns;
       });
-
       setCompletedTasks((prevCompleted) => {
         if (updatedTaskFromBackend.status !== "completed") {
           return prevCompleted.filter((t) => t._id !== updatedTaskFromBackend._id);
@@ -538,7 +538,6 @@ const Dashboard = () => {
   const handleDragEnd = async (result) => {
     const { source, destination, type } = result;
     if (!destination) return;
-
     if (type === "COLUMN") {
       const columnIds = Object.keys(columns);
       const [removed] = columnIds.splice(source.index, 1);
@@ -555,7 +554,6 @@ const Dashboard = () => {
       }
       return;
     }
-
     const sourceColumn = columns[source.droppableId];
     const destColumn = columns[destination.droppableId];
     if (!sourceColumn || !destColumn) return;
@@ -668,6 +666,7 @@ const Dashboard = () => {
         setNewTaskTitle={setNewTaskTitle}
         selectedPriority={selectedPriority}
         setSelectedPriority={setSelectedPriority}
+        defaultPriority={userSettings.defaultPriority}
         selectedStatus={selectedStatus}
         setSelectedStatus={setSelectedStatus}
         dueDate={dueDate}

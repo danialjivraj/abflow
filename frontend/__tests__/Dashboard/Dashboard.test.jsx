@@ -54,11 +54,7 @@ jest.mock("../../src/components/navigation/TopBar", () => {
 jest.mock("../../src/config/topBarConfig", () => ({
   getDashboardTopBarConfig: jest.fn(() => [
     { label: "Boards", route: "/dashboard/boards", active: true },
-    {
-      label: "Completed Tasks",
-      route: "/dashboard/completedtasks",
-      active: false,
-    },
+    { label: "Completed Tasks", route: "/dashboard/completedtasks", active: false },
     { label: "Schedule", route: "/dashboard/schedule", active: false },
   ]),
 }));
@@ -95,6 +91,18 @@ jest.mock("../../src/pages/Dashboard/ScheduleView", () => {
   return (props) => <div data-testid="schedule-view">ScheduleView</div>;
 });
 
+const defaultUserSettings = {
+  darkMode: false,
+  defaultPriority: "A1",
+  hideOldCompletedTasksDays: 30,
+  defaultBoardView: "boards",
+  disableToCreateTask: false,
+  confirmBeforeDelete: true,
+  notifyNonPriorityGoesOvertime: 60,
+  notifyScheduledTaskIsDue: 60,
+  themeAccent: "Green",
+};
+
 const notificationsProviderValue = { setNotifications: jest.fn() };
 
 const Wrapper = ({ children }) => (
@@ -109,7 +117,7 @@ describe("Dashboard Component", () => {
     render(
       <Wrapper>
         <MemoryRouter initialEntries={["/dashboard/boards"]}>
-          <Dashboard />
+          <Dashboard userSettings={defaultUserSettings} setUserSettings={jest.fn()} />
         </MemoryRouter>
       </Wrapper>
     );
@@ -120,9 +128,7 @@ describe("Dashboard Component", () => {
 
     expect(screen.getByTestId("create-task-modal")).toHaveTextContent("closed");
     expect(screen.getByTestId("view-task-modal")).toHaveTextContent("closed");
-    expect(screen.getByTestId("schedule-edit-modal")).toHaveTextContent(
-      "closed"
-    );
+    expect(screen.getByTestId("schedule-edit-modal")).toHaveTextContent("closed");
 
     const topbarButtons = screen.getAllByTestId("topbar-button");
     expect(topbarButtons[0]).toHaveTextContent("Boards");
@@ -134,7 +140,7 @@ describe("Dashboard Component", () => {
     render(
       <Wrapper>
         <MemoryRouter initialEntries={["/dashboard/completedtasks"]}>
-          <Dashboard />
+          <Dashboard userSettings={defaultUserSettings} setUserSettings={jest.fn()} />
         </MemoryRouter>
       </Wrapper>
     );
@@ -145,7 +151,7 @@ describe("Dashboard Component", () => {
     render(
       <Wrapper>
         <MemoryRouter initialEntries={["/dashboard/schedule"]}>
-          <Dashboard />
+          <Dashboard userSettings={defaultUserSettings} setUserSettings={jest.fn()} />
         </MemoryRouter>
       </Wrapper>
     );
@@ -159,7 +165,7 @@ describe("Dashboard Component", () => {
     render(
       <Wrapper>
         <MemoryRouter initialEntries={[path]}>
-          <Dashboard />
+          <Dashboard userSettings={defaultUserSettings} setUserSettings={jest.fn()} />
         </MemoryRouter>
       </Wrapper>
     );
@@ -177,7 +183,7 @@ describe("Dashboard Component", () => {
     render(
       <Wrapper>
         <MemoryRouter initialEntries={[path]}>
-          <Dashboard />
+          <Dashboard userSettings={defaultUserSettings} setUserSettings={jest.fn()} />
         </MemoryRouter>
       </Wrapper>
     );
@@ -195,7 +201,7 @@ describe("Dashboard Component", () => {
     render(
       <Wrapper>
         <MemoryRouter initialEntries={[path]}>
-          <Dashboard />
+          <Dashboard userSettings={defaultUserSettings} setUserSettings={jest.fn()} />
         </MemoryRouter>
       </Wrapper>
     );
@@ -230,14 +236,12 @@ describe("Dashboard Component", () => {
         <MemoryRouter
           initialEntries={["/dashboard/scheduleqeafihjpwe/createtask"]}
         >
-          <Dashboard />
+          <Dashboard userSettings={defaultUserSettings} setUserSettings={jest.fn()} />
         </MemoryRouter>
       </Wrapper>
     );
     await waitFor(() =>
-      expect(screen.getByTestId("create-task-modal")).toHaveTextContent(
-        "closed"
-      )
+      expect(screen.getByTestId("create-task-modal")).toHaveTextContent("closed")
     );
   });
 
@@ -265,7 +269,7 @@ describe("Dashboard Component", () => {
     render(
       <Wrapper>
         <MemoryRouter initialEntries={["/dashboard/boards/viewtask/123"]}>
-          <Dashboard />
+          <Dashboard userSettings={defaultUserSettings} setUserSettings={jest.fn()} />
         </MemoryRouter>
       </Wrapper>
     );
@@ -303,14 +307,12 @@ describe("Dashboard Component", () => {
     render(
       <Wrapper>
         <MemoryRouter initialEntries={["/dashboard/schedule/editevent/123"]}>
-          <Dashboard />
+          <Dashboard userSettings={defaultUserSettings} setUserSettings={jest.fn()} />
         </MemoryRouter>
       </Wrapper>
     );
     await waitFor(() =>
-      expect(screen.getByTestId("schedule-edit-modal")).toHaveTextContent(
-        "open"
-      )
+      expect(screen.getByTestId("schedule-edit-modal")).toHaveTextContent("open")
     );
   });
 
@@ -324,7 +326,7 @@ describe("Dashboard Component", () => {
     render(
       <Wrapper>
         <MemoryRouter initialEntries={["/dashboard/boards/viewtask/999"]}>
-          <Dashboard />
+          <Dashboard userSettings={defaultUserSettings} setUserSettings={jest.fn()} />
         </MemoryRouter>
       </Wrapper>
     );
@@ -343,14 +345,12 @@ describe("Dashboard Component", () => {
     render(
       <Wrapper>
         <MemoryRouter initialEntries={["/dashboard/schedule/editevent/999"]}>
-          <Dashboard />
+          <Dashboard userSettings={defaultUserSettings} setUserSettings={jest.fn()} />
         </MemoryRouter>
       </Wrapper>
     );
     await waitFor(() =>
-      expect(screen.getByTestId("schedule-edit-modal")).toHaveTextContent(
-        "closed"
-      )
+      expect(screen.getByTestId("schedule-edit-modal")).toHaveTextContent("closed")
     );
   });
 });

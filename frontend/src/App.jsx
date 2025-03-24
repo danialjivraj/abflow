@@ -26,6 +26,18 @@ function App() {
   const [defaultBoardView, setDefaultBoardView] = useState("boards");
   const [preferencesLoaded, setPreferencesLoaded] = useState(false);
 
+  const [userSettings, setUserSettings] = useState({
+    darkMode: false,
+    defaultPriority: "A1",
+    hideOldCompletedTasksDays: 30,
+    defaultBoardView: "boards",
+    disableToCreateTask: false,
+    confirmBeforeDelete: true,
+    notifyNonPriorityGoesOvertime: 60,
+    notifyScheduledTaskIsDue: 60,
+    themeAccent: "Green",
+  });
+
   useEffect(() => {
     let storedDarkMode = localStorage.getItem("darkMode");
     if (storedDarkMode === null) {
@@ -49,8 +61,7 @@ function App() {
         fetchSettingsPreferences(user.uid)
           .then((res) => {
             const prefs = res.data.settingsPreferences || {};
-            const darkMode =
-              prefs.darkMode !== undefined ? prefs.darkMode : false;
+            const darkMode = prefs.darkMode !== undefined ? prefs.darkMode : false;
             localStorage.setItem("darkMode", darkMode);
             document.documentElement.setAttribute(
               "data-theme",
@@ -58,6 +69,7 @@ function App() {
             );
 
             setDefaultBoardView(prefs.defaultBoardView || "boards");
+            setUserSettings((prev) => ({ ...prev, ...prefs }));
             setPreferencesLoaded(true);
           })
           .catch((err) => {
@@ -90,7 +102,10 @@ function App() {
                 />
               }
             />
-            <Route path="/dashboard/*" element={<Dashboard />} />
+            <Route
+              path="/dashboard/*"
+              element={<Dashboard userSettings={userSettings} setUserSettings={setUserSettings} />}
+            />
             <Route path="/charts" element={<Charts />} />
             <Route path="/charts/grouptasks/:groupKey" element={<Charts />} />
             <Route
@@ -100,9 +115,7 @@ function App() {
             <Route path="/profile" element={<Profile />} />
             <Route
               path="/settings"
-              element={
-                <Settings updateDefaultBoardView={setDefaultBoardView} />
-              }
+              element={<Settings updateDefaultBoardView={setDefaultBoardView} />}
             />
           </Route>
           <Route path="/" element={<Navigate to="/login" />} />

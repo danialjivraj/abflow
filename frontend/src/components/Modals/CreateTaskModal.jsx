@@ -14,6 +14,7 @@ const CreateTaskModal = ({
   setNewTaskTitle,
   selectedPriority,
   setSelectedPriority,
+  defaultPriority,
   selectedStatus,
   setSelectedStatus,
   dueDate,
@@ -34,8 +35,14 @@ const CreateTaskModal = ({
 }) => {
   const [localSelectedStatus, setLocalSelectedStatus] = useState(selectedStatus);
   const [errorMessage, setErrorMessage] = useState("");
-  
+
   const defaultStatus = Object.keys(columns)[0] || "";
+
+  useEffect(() => {
+    if (isModalOpen && defaultPriority) {
+      setSelectedPriority(defaultPriority);
+    }
+  }, [isModalOpen, defaultPriority, setSelectedPriority]);
 
   useEffect(() => {
     if (isModalOpen) {
@@ -61,7 +68,6 @@ const CreateTaskModal = ({
   const isEmpty = () => {
     return (
       newTaskTitle.trim() === "" &&
-      selectedPriority === "A1" &&
       localSelectedStatus === defaultStatus &&
       !dueDate &&
       assignedTo.trim() === "" &&
@@ -78,7 +84,6 @@ const CreateTaskModal = ({
   const handleOverlayClick = (e) => {
     if (e.target.className.includes("modal-overlay")) {
       if (!hasBoards) {
-        // Board creation UI is active
         if (newBoardCreateName.trim() !== "") {
           const confirmClose = window.confirm("You have unsaved changes. Are you sure you want to close?");
           if (confirmClose) {
@@ -90,7 +95,6 @@ const CreateTaskModal = ({
         }
         return;
       }
-      // Task creation UI:
       if (isEmpty()) {
         closeModal();
       } else {
@@ -115,10 +119,13 @@ const CreateTaskModal = ({
     <div className="modal-overlay" onClick={handleOverlayClick}>
       <div className="create-task-modal">
         <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-          <button className="close-modal" onClick={() => {
-            if (!hasBoards) setNewBoardCreateName("");
-            closeModal();
-          }}>
+          <button
+            className="close-modal"
+            onClick={() => {
+              if (!hasBoards) setNewBoardCreateName("");
+              closeModal();
+            }}
+          >
             &times;
           </button>
           <h2>Create New Task</h2>
