@@ -349,6 +349,56 @@ describe("NotificationsContext", () => {
     jest.useRealTimers();
   });
 
+  it("does not play sound when muteNotifications is true", async () => {
+    const baseUser = createBaseUser({
+      settingsPreferences: {
+        ...createBaseUser().settingsPreferences,
+        muteNotifications: true,
+      },
+    });
+    auth.currentUser = { uid: baseUser.userId };
+  
+    fetchNotifications
+      .mockResolvedValueOnce({ data: { notifications: [] } })
+      .mockResolvedValueOnce({
+        data: {
+          notifications: [
+            createBaseNotification({ _id: "notif1", message: "Muted notification" }),
+          ],
+        },
+      })
+      .mockResolvedValue({
+        data: {
+          notifications: [
+            createBaseNotification({ _id: "notif1", message: "Muted notification" }),
+          ],
+        },
+      });
+  
+    jest.useFakeTimers();
+  
+    render(
+      <NotificationsProvider muteNotifications={baseUser.settingsPreferences.muteNotifications}>
+        <div>Test Child</div>
+        <NotificationsTestConsumer onChange={() => {}} />
+      </NotificationsProvider>
+    );
+  
+    await act(async () => {
+      jest.advanceTimersByTime(100);
+      await Promise.resolve();
+    });
+    await act(async () => {
+      jest.advanceTimersByTime(1100);
+    });
+  
+    await waitFor(() => {
+      expect(playMock).not.toHaveBeenCalled();
+    }, { timeout: 3000 });
+  
+    jest.useRealTimers();
+  });
+
   it("does not play sound if notifications count does not increase", async () => {
     fetchNotifications.mockResolvedValue({
       data: {
