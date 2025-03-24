@@ -64,7 +64,7 @@ const UserSchema = new Schema({
         disableToCreateTask: { type: Boolean, default: false },
         confirmBeforeDelete: { type: Boolean, default: true },
         notifyNonPriorityGoesOvertime: { type: Number, default: 1 },
-        notifyScheduledTaskIsDue: { type: Number, default: 60 },
+        notifyScheduledTaskIsDue: { type: Number, default: 5 },
         themeAccent: {
           type: String,
           enum: ["Green", "Blue", "Orange", "Purple", "Yellow"],

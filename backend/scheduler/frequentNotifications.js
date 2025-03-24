@@ -23,17 +23,26 @@ const shouldCreateNotification = async (userId, message, thresholdMs = 1) => {
 const generateScheduledNotifications = async (userId, now) => {
   const tasks = await Task.find({ userId, status: { $ne: "completed" } });
   let notifications = [];
+
+  const user = await User.findOne({ userId });
+  const notifyMinutes = user?.settingsPreferences?.notifyScheduledTaskIsDue || 5;
+  const thresholdMs = notifyMinutes * 60 * 1000;
+
   for (const task of tasks) {
     if (task.scheduledStart) {
       const scheduledStart = new Date(task.scheduledStart);
       const diffScheduled = scheduledStart - now;
-      if (diffScheduled > 0 && diffScheduled <= 5 * 60 * 1000) {
+      if (diffScheduled > 0 && diffScheduled <= thresholdMs) {
         if (
           !task.lastNotifiedScheduledStart ||
           new Date(task.lastNotifiedScheduledStart).toISOString() !== scheduledStart.toISOString()
         ) {
-          const scheduledTime = scheduledStart.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-          const message = `Reminder: Your scheduled task "${task.title}" will start at ${scheduledTime} (in 5 minutes).`;
+          const scheduledTime = scheduledStart.toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          });
+          const remainingMinutes = Math.floor((diffScheduled) / 60000);
+          const message = `Reminder: Your scheduled task "${task.title}" will start at ${scheduledTime} (in less than ${remainingMinutes} minute${remainingMinutes !== 1 ? "s" : ""}).`;
           notifications.push({
             userId,
             message,
@@ -132,38 +141,34 @@ const generateWarningNotifications = async (userId, now) => {
   const tasks = await Task.find({ userId, status: { $ne: "completed" } });
   let notifications = [];
 
-  // Define high-priority tasks as those whose priority starts with "A" or "B"
+  const user = await User.findOne({ userId });
+  const thresholdHours = user?.settingsPreferences?.notifyNonPriorityGoesOvertime || 1;
+  const thresholdMs = thresholdHours * 60 * 60 * 1000;
+
   const highPriorityTasks = tasks.filter(
     task => task.priority && (task.priority.startsWith("A") || task.priority.startsWith("B"))
   );
+  if (!highPriorityTasks.length) return notifications;
 
-  if (!highPriorityTasks.length) return notifications; // No high-priority tasks exist, so no warnings needed.
-
-  // Identify non-high-priority tasks
   const nonHighPriorityTasks = tasks.filter(
     task => !(task.priority && (task.priority.startsWith("A") || task.priority.startsWith("B")))
   );
 
-  // Define threshold (1 hour in milliseconds)
-  const oneHourInMs = 60 * 60 * 1000;
-
-  // Identify which high-priority categories exist
-    const highPriorityLetters = [...new Set(highPriorityTasks.map(task => task.priority[0]))].sort();  
-    let priorityMessage =
+  const highPriorityLetters = [...new Set(highPriorityTasks.map(task => task.priority[0]))].sort();  
+  const priorityMessage =
     highPriorityLetters.length === 1
       ? highPriorityLetters[0]
-      : `${highPriorityLetters.join(" and ")}`;
+      : highPriorityLetters.join(" and ");
 
   for (const task of nonHighPriorityTasks) {
     if (task.isTimerRunning && task.timerStartTime) {
       const elapsedTime =
         (task.timeSpent || 0) * 1000 + (now - new Date(task.timerStartTime));
 
-      if (elapsedTime >= oneHourInMs) {
+      if (elapsedTime >= thresholdMs) {
         if (!task.notifiedWarning) {
-          // Construct the warning message
-          const message = `Warning: You have spent over 1 hour on the task "${task.title}" which is non high priority. Consider switching to high priority work (there are ${priorityMessage} tasks to do).`;
-
+          const message = `Warning: You have spent over ${thresholdHours} hour${thresholdHours > 1 ? "s" : ""} on the task "${task.title}" which is non high priority. Consider switching to high priority work (there are ${priorityMessage} tasks to do).`;
+          
           notifications.push({
             userId,
             message,
@@ -171,7 +176,6 @@ const generateWarningNotifications = async (userId, now) => {
             taskId: task._id,
           });
 
-          // Mark the warning as sent so it does not send repeatedly
           await Task.findByIdAndUpdate(task._id, {
             notifiedWarning: true,
           });

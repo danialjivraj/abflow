@@ -107,7 +107,7 @@ describe("Frequent Notifications", () => {
         const scheduledNotifs = await generateScheduledNotifications(defaultUser.userId, now);
         expect(scheduledNotifs.length).toBe(1);
         const expectedMessage =
-            'Reminder: Your scheduled task "Test Task Scheduled" will start at 17:44 (in 5 minutes).';
+            'Reminder: Your scheduled task "Test Task Scheduled" will start at 17:44 (in less than 4 minutes).';
         expect(scheduledNotifs[0].message).toBe(expectedMessage);
     });
 
@@ -122,11 +122,41 @@ describe("Frequent Notifications", () => {
         const scheduledNotifs = await generateScheduledNotifications(defaultUser.userId, now);
         expect(scheduledNotifs.length).toBe(1);
         expect(scheduledNotifs[0].message).toBe(
-            'Reminder: Your scheduled task "Edge Scheduled Task" will start at 17:45 (in 5 minutes).'
+            'Reminder: Your scheduled task "Edge Scheduled Task" will start at 17:45 (in less than 5 minutes).'
         );
     });
 
+    it("should generate scheduled notification using a custom threshold from user settings", async () => {
+        await User.findOneAndUpdate(
+            { userId: defaultUser.userId },
+            { "settingsPreferences.notifyScheduledTaskIsDue": 30 },
+            { new: true }
+        );
+
+        const now = new Date();
+        const scheduledStart = new Date(now.getTime() + 29 * 60 * 1000);
+        await Task.create({
+            ...getBaseTask(),
+            title: "Custom Threshold Task",
+            scheduledStart,
+        });
+
+        const scheduledNotifs = await generateScheduledNotifications(defaultUser.userId, now);
+        expect(scheduledNotifs.length).toBe(1);
+
+        const expectedTime = scheduledStart.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+        const expectedMessage = `Reminder: Your scheduled task "Custom Threshold Task" will start at ${expectedTime} (in less than 29 minutes).`;
+        expect(scheduledNotifs[0].message).toBe(expectedMessage);
+    });
+
+
     it("should not generate scheduled notification if task is scheduled just over 5 minutes away", async () => {
+        await User.findOneAndUpdate(
+            { userId: defaultUser.userId },
+            { "settingsPreferences.notifyScheduledTaskIsDue": 5 },
+            { new: true }
+        );
+
         const now = new Date();
         const scheduledStart = new Date(now.getTime() + 5 * 60 * 1000 + 1); // Over 5 minutes away: 17:45:01 UTC
         await Task.create({
@@ -387,6 +417,47 @@ describe("Frequent Notifications", () => {
         expect(warningNotifs[0].message).toBe(
             'Warning: You have spent over 1 hour on the task "Long Running Non-High Priority Task" which is non high priority. Consider switching to high priority work (there are A and B tasks to do).'
         );
+    });
+
+    it("should generate warning notification using custom threshold of 3 hours for non-high-priority tasks", async () => {
+        const customUser = await User.create({
+            userId: "user_custom",
+            settingsPreferences: { notifyNonPriorityGoesOvertime: 3 }
+        });
+
+        const now = new Date();
+
+        await Task.create({
+            ...getBaseTask(),
+            userId: customUser.userId,
+            title: "A High Priority Task",
+            priority: "A1",
+        });
+        await Task.create({
+            ...getBaseTask(),
+            userId: customUser.userId,
+            title: "B High Priority Task",
+            priority: "B1",
+        });
+
+        const timerStartTime = new Date(now.getTime() - 3.5 * 60 * 60 * 1000);
+        await Task.create({
+            ...getBaseTask(),
+            userId: customUser.userId,
+            title: "Custom Threshold Warning Task",
+            isTimerRunning: true,
+            timerStartTime,
+            timeSpent: 0,
+        });
+
+        const warningNotifs = await generateWarningNotifications(customUser.userId, now);
+        expect(warningNotifs.length).toBe(1);
+        expect(warningNotifs[0].message).toBe(
+            'Warning: You have spent over 3 hours on the task "Custom Threshold Warning Task" which is non high priority. Consider switching to high priority work (there are A and B tasks to do).'
+        );
+
+        const updatedTask = await Task.findOne({ title: "Custom Threshold Warning Task" });
+        expect(updatedTask.notifiedWarning).toBe(true);
     });
 
     it("should generate warning if a 'E' non-high-priority task exceeds 1 hour and A and B high-priority tasks exist and timer is off", async () => {
