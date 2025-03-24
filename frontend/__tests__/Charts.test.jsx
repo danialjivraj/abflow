@@ -863,6 +863,10 @@ describe("Charts Component Integration Tests", () => {
         screen.getByText("Preferences reset to default!")
       ).toBeInTheDocument()
     );
+    
+    const defaultResult = await fetchChartPreferences(auth.currentUser.userId);
+
+    expect(defaultResult.data.chartPreferences).toEqual(defaultPreferences);
 
     cleanup();
     renderWithContext(<Charts />);
@@ -870,7 +874,6 @@ describe("Charts Component Integration Tests", () => {
       expect(screen.queryByText("Loading preferences...")).toBeNull()
     );
 
-    const defaultResult = await fetchChartPreferences(auth.currentUser.userId);
     expect(defaultResult.data.chartPreferences).toEqual(defaultPreferences);
   });
 });

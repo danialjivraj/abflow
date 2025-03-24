@@ -606,6 +606,7 @@ const Dashboard = (props) => {
           tasks={currentTasks}
           updateTaskInState={updateTaskInState}
           onCreateTaskShortcut={(start, end) => {
+            if (userSettings.disableToCreateTask) return;
             setScheduledStartShortcut(start);
             setScheduledEndShortcut(end);
             navigate(`${baseRoute}/createtask`);
