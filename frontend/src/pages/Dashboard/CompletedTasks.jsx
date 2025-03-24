@@ -75,6 +75,8 @@ const groupTasksByFilter = (tasks, filter) => {
 
 const CompletedTasks = ({
   completedTasks,
+  hideOldCompletedTasksDays = 365,
+  hideOldCompletedTasksNever = true,
   currentTime,
   openViewTaskModal,
   deleteTask,
@@ -93,7 +95,16 @@ const CompletedTasks = ({
     setLocalCompletedTasks(completedTasks);
   }, [completedTasks]);
 
-  const groupedTasks = groupTasksByFilter(localCompletedTasks, activeFilter);
+  const filteredTasks = hideOldCompletedTasksNever 
+  ? localCompletedTasks 
+  : localCompletedTasks.filter(task => {
+      if (!task.completedAt) return false;
+      const completedDate = new Date(task.completedAt);
+      const diffDays = (currentTime - completedDate) / (1000 * 60 * 60 * 24);
+      return diffDays <= hideOldCompletedTasksDays;
+    });
+
+  const groupedTasks = groupTasksByFilter(filteredTasks, activeFilter);
 
   return (
     <div className="completed-tasks-page">

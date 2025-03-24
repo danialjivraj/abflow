@@ -584,6 +584,8 @@ const Dashboard = (props) => {
       return (
         <CompletedTasks
           completedTasks={completedTasks}
+          hideOldCompletedTasksDays={userSettings.hideOldCompletedTasksDays}
+          hideOldCompletedTasksNever={userSettings.hideOldCompletedTasksNever}
           setCompletedTasks={setCompletedTasks}
           currentTime={currentTime}
           openViewTaskModal={openViewTaskModal}

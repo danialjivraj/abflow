@@ -2431,13 +2431,11 @@ select {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  flex-wrap: wrap;
   gap: 16px;
 }
 
 .setting-row span {
   flex: 1;
-  min-width: 220px;
 }
 
 .setting-row select,
@@ -2514,4 +2512,23 @@ select {
   text-align: center;
   font-size: 18px;
   color: #aaa;
+}
+.hide-tasks-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.never-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.setting-row input[type="number"]:disabled {
+  background-color: #444;
+  color: #aaa;
+  cursor: not-allowed;
+  opacity: 0.6;
 }

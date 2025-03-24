@@ -26,6 +26,7 @@ const Settings = ({ updateDefaultBoardView }) => {
     inactivityTimeoutHours: 1,
     defaultPriority: "A1",
     hideOldCompletedTasksDays: 30,
+    hideOldCompletedTasksNever: false,
     defaultBoardView: "boards",
     disableToCreateTask: false,
     confirmBeforeDelete: true,
@@ -69,7 +70,11 @@ const Settings = ({ updateDefaultBoardView }) => {
 
   const handleChange = (e) => {
     const { name, type, value, checked } = e.target;
-    const val = type === "checkbox" ? checked : value;
+    let val = type === "checkbox" ? checked : value;
+
+    if (type === "number") {
+      val = Math.max(0, Number(val));
+    }
     const updated = { ...settings, [name]: val };
     setSettings(updated);
 
@@ -156,13 +161,26 @@ const Settings = ({ updateDefaultBoardView }) => {
             </label>
             <label className="setting-row">
               <span>Hide Completed Tasks Older Than (days)</span>
-              <input
-                type="number"
-                name="hideOldCompletedTasksDays"
-                value={settings.hideOldCompletedTasksDays}
-                onChange={handleChange}
-                className="setting-number-input"
-              />
+
+              <div className="hide-tasks-right">
+                <input
+                  type="number"
+                  name="hideOldCompletedTasksDays"
+                  value={settings.hideOldCompletedTasksDays}
+                  onChange={handleChange}
+                  className="setting-number-input"
+                  disabled={settings.hideOldCompletedTasksNever}
+                />
+                <label className="never-checkbox">
+                  <input
+                    type="checkbox"
+                    name="hideOldCompletedTasksNever"
+                    checked={settings.hideOldCompletedTasksNever}
+                    onChange={handleChange}
+                  />
+                  <span>Never</span>
+                </label>
+              </div>
             </label>
           </>
         );
@@ -288,7 +306,9 @@ const Settings = ({ updateDefaultBoardView }) => {
           {SECTIONS.map((section) => (
             <div
               key={section}
-              className={`sidebar-item ${activeSection === section ? "active" : ""}`}
+              className={`sidebar-item ${
+                activeSection === section ? "active" : ""
+              }`}
               onClick={() => setActiveSection(section)}
             >
               {section}
