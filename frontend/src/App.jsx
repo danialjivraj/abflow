@@ -14,6 +14,7 @@ import Settings from "./pages/Settings";
 import PrivateRoute from "./components/PrivateRoute";
 import { NotificationsProvider } from "./contexts/NotificationsContext";
 import { fetchSettingsPreferences } from "./services/preferencesService";
+import { updateAccentColor } from "./utils/themeUtils";
 
 const DefaultDashboardRedirect = ({ defaultBoardView, preferencesLoaded }) => {
   if (!preferencesLoaded) return <p>Loading dashboard settings...</p>;
@@ -56,6 +57,7 @@ function App() {
         setUser(null);
         setDefaultBoardView("boards");
         setPreferencesLoaded(false);
+        updateAccentColor("Green");
       } else {
         setUser(user);
         fetchSettingsPreferences(user.uid)
@@ -72,6 +74,7 @@ function App() {
             setDefaultBoardView(prefs.defaultBoardView || "boards");
             setUserSettings((prev) => ({ ...prev, ...prefs }));
             setPreferencesLoaded(true);
+            updateAccentColor(prefs.themeAccent || "Green");
           })
           .catch((err) => {
             console.error("Error fetching preferences:", err);
@@ -121,9 +124,7 @@ function App() {
             <Route path="/profile" element={<Profile />} />
             <Route
               path="/settings"
-              element={
-                <Settings updateDefaultBoardView={setDefaultBoardView} />
-              }
+              element={<Settings updateDefaultBoardView={setDefaultBoardView} />}
             />
           </Route>
           <Route path="/" element={<Navigate to="/login" />} />

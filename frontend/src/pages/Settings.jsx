@@ -8,6 +8,7 @@ import {
   updateSettingsPreferences,
 } from "../services/preferencesService";
 import { getSettingsTopBarConfig } from "../config/topBarConfig.jsx";
+import { updateAccentColor, updateTopbarAccentColor } from "../utils/themeUtils";
 import "../components/styles.css";
 
 const SECTIONS = [
@@ -33,6 +34,7 @@ const Settings = ({ updateDefaultBoardView }) => {
     notifyNonPriorityGoesOvertime: 60,
     notifyScheduledTaskIsDue: 60,
     themeAccent: "Green",
+    topbarAccent: "Blue",
   });
   const [initialSettings, setInitialSettings] = useState(null);
   const [userId, setUserId] = useState(null);
@@ -71,7 +73,6 @@ const Settings = ({ updateDefaultBoardView }) => {
   const handleChange = (e) => {
     const { name, type, value, checked } = e.target;
     let val = type === "checkbox" ? checked : value;
-
     if (type === "number") {
       val = Math.max(0, Number(val));
     }
@@ -96,6 +97,9 @@ const Settings = ({ updateDefaultBoardView }) => {
         setSaveStatus("Settings saved!");
         setInitialSettings(settings);
         updateDefaultBoardView(settings.defaultBoardView);
+        // Apply both accent colours after settings have been saved.
+        updateAccentColor(settings.themeAccent);
+        updateTopbarAccentColor(settings.topbarAccent);
         setTimeout(() => setSaveStatus(""), 2000);
       })
       .catch((err) => {
@@ -161,7 +165,6 @@ const Settings = ({ updateDefaultBoardView }) => {
             </label>
             <label className="setting-row">
               <span>Hide Completed Tasks Older Than (days)</span>
-
               <div className="hide-tasks-right">
                 <input
                   type="number"
@@ -251,6 +254,20 @@ const Settings = ({ updateDefaultBoardView }) => {
                     </option>
                   )
                 )}
+              </select>
+            </label>
+            <label className="setting-row">
+              <span>Topbar Theme Accent</span>
+              <select
+                name="topbarAccent"
+                value={settings.topbarAccent}
+                onChange={handleChange}
+              >
+                {["Blue", "Red", "Purple", "Black"].map((color) => (
+                  <option key={color} value={color}>
+                    {color}
+                  </option>
+                ))}
               </select>
             </label>
           </>
