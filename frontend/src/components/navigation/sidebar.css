@@ -1,14 +1,46 @@
+:root {
+  /* Light mode */
+  --sidebar-bg: #ffffff;
+  --sidebar-text: #333333;
+  --sidebar-shadow: rgba(0, 0, 0, 0.1);
+  --sidebar-heading-color: #4CAF50;
+  --sidebar-hover-bg: #e9e9e9;
+  --sidebar-active-bg: #4CAF50;
+  --logout-bg: #ef4444;
+  --logout-hover-bg: #dc2626;
+  --settings-bg: #3b65ee;
+  --settings-hover-bg: #204fcf;
+  --settings-active-bg: #1e40af;
+  --settings-active-hover-bg: #1e3a8a;
+}
+
+[data-theme="dark"] {
+  /* Dark mode */
+  --sidebar-bg: #2a2a2a;
+  --sidebar-text: #ffffff;
+  --sidebar-shadow: rgba(0, 0, 0, 0.1);
+  --sidebar-heading-color: #4CAF50;
+  --sidebar-hover-bg: #3a3a3a;
+  --sidebar-active-bg: #4CAF50;
+  --logout-bg: #ef4444;
+  --logout-hover-bg: #dc2626;
+  --settings-bg: #3b65ee;
+  --settings-hover-bg: #204fcf;
+  --settings-active-bg: #1e40af;
+  --settings-active-hover-bg: #1e3a8a;
+}
+
 .sidebar {
   position: fixed;
   top: 0;
   left: 0;
   width: 240px;
   height: 100vh;
-  background-color: #2a2a2a;
-  color: #ffffff;
+  background-color: var(--sidebar-bg);
+  color: var(--sidebar-text);
   padding: 18px;
   box-sizing: border-box;
-  box-shadow: 1.8px 0 4.5px rgba(0, 0, 0, 0.1);
+  box-shadow: 1.8px 0 4.5px var(--sidebar-shadow);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -23,7 +55,7 @@
 .sidebar h2 {
   font-size: 21.6px;
   font-weight: bold;
-  color: #4CAF50;
+  color: var(--sidebar-heading-color);
   margin-bottom: 18px;
 }
 
@@ -42,18 +74,18 @@
 }
 
 .sidebar nav ul li:hover {
-  background-color: #3a3a3a;
+  background-color: var(--sidebar-hover-bg);
   transform: translateX(4.5px);
 }
 
 .sidebar nav ul li.active {
-  background-color: #4CAF50;
+  background-color: var(--sidebar-active-bg);
   color: #ffffff;
   font-weight: bold;
 }
 
 .logout-btn {
-  background-color: #ef4444;
+  background-color: var(--logout-bg);
   color: white;
   border: none;
   padding: 9px 12.6px;
@@ -64,11 +96,11 @@
 }
 
 .logout-btn:hover {
-  background-color: #dc2626;
+  background-color: var(--logout-hover-bg);
 }
 
 .settings-btn {
-  background-color: #3b65ee;
+  background-color: var(--settings-bg);
   color: white;
   border: none;
   padding: 9px 12.6px;
@@ -76,19 +108,19 @@
   cursor: pointer;
   font-weight: bold;
   transition: background 0.2s ease-in-out;
-  margin-bottom: 9px; 
-  width: 100%; 
+  margin-bottom: 9px;
+  width: 100%;
 }
 
 .settings-btn:hover {
-  background-color: #204fcf;
+  background-color: var(--settings-hover-bg);
 }
 
 .settings-btn.active {
-  background-color: #1e40af;
+  background-color: var(--settings-active-bg);
   color: white;
 }
 
 .settings-btn.active:hover {
-  background-color: #1e3a8a;
+  background-color: var(--settings-active-hover-bg);
 }

@@ -77,7 +77,7 @@ describe("TiptapEditor Component - Additional Tests", () => {
     expect(screen.getByTitle("Heading 2")).toBeInTheDocument();
     expect(screen.getByTitle("Heading 3")).toBeInTheDocument();
     expect(screen.getByTitle("Highlight")).toBeInTheDocument();
-    expect(screen.getByTitle("Colour Palette")).toBeInTheDocument();
+    expect(screen.getByTitle("Toggle Text Colour")).toBeInTheDocument();
   });
 
   test("emoji picker toggles on clicking emoji button and hides when clicking outside", async () => {

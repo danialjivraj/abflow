@@ -46,23 +46,11 @@ const ScheduleView = ({ tasks, updateTaskInState, onCreateTaskShortcut }) => {
     setUnscheduledTasks(unscheduled);
   }, [tasks]);
 
-  const priorityColors = {
-    A1: "#ff4d4d",
-    A2: "#ff6666",
-    A3: "#ff9999",
-    B1: "#4d4dff",
-    B2: "#6666ff",
-    B3: "#9999ff",
-    C1: "#4dff4d",
-    C2: "#66ff66",
-    C3: "#99ff99",
-    D: "#cc66ff",
-    E: "#ff9966",
-  };
 
-  // Custom event renderers
   const CustomEvent = ({ event }) => {
-    const priorityColor = priorityColors[event.priority] || "#555";
+    const priorityColor = event.priority
+      ? `var(--priority-${event.priority})`
+      : "#555";
     const eventTime = `${moment(event.start).format("h:mm A")} - ${moment(
       event.end
     ).format("h:mm A")}`;
@@ -71,10 +59,7 @@ const ScheduleView = ({ tasks, updateTaskInState, onCreateTaskShortcut }) => {
       <div className="custom-event">
         <span className="event-time">{eventTime}</span>
         <span>{event.title}</span>
-        <div
-          className="priority-strip"
-          style={{ backgroundColor: priorityColor }}
-        >
+        <div className="priority-strip" style={{ backgroundColor: priorityColor }}>
           <span className="priority-label">{event.priority}</span>
         </div>
       </div>
@@ -82,7 +67,9 @@ const ScheduleView = ({ tasks, updateTaskInState, onCreateTaskShortcut }) => {
   };
 
   const CustomEventForMonth = ({ event }) => {
-    const priorityColor = priorityColors[event.priority] || "#555";
+    const priorityColor = event.priority
+      ? `var(--priority-${event.priority})`
+      : "#555";
     const eventTime = `${moment(event.start).format("h:mm A")} - ${moment(
       event.end
     ).format("h:mm A")}`;
@@ -91,10 +78,7 @@ const ScheduleView = ({ tasks, updateTaskInState, onCreateTaskShortcut }) => {
       <div className="custom-event-month">
         <span className="event-time">{eventTime}</span>
         <span>{event.title}</span>
-        <div
-          className="priority-strip"
-          style={{ backgroundColor: priorityColor }}
-        >
+        <div className="priority-strip" style={{ backgroundColor: priorityColor }}>
           <span className="priority-label">{event.priority}</span>
         </div>
       </div>
@@ -102,7 +86,9 @@ const ScheduleView = ({ tasks, updateTaskInState, onCreateTaskShortcut }) => {
   };
 
   const CustomAgendaEvent = ({ event }) => {
-    const priorityColor = priorityColors[event.priority] || "#555";
+    const priorityColor = event.priority
+      ? `var(--priority-${event.priority})`
+      : "#555";
     const eventTime = `${moment(event.start).format("h:mm A")} - ${moment(
       event.end
     ).format("h:mm A")}`;
@@ -111,10 +97,7 @@ const ScheduleView = ({ tasks, updateTaskInState, onCreateTaskShortcut }) => {
       <div className="custom-agenda-event">
         <span className="event-time">{eventTime}</span>
         <span>{event.title}</span>
-        <div
-          className="priority-strip"
-          style={{ backgroundColor: priorityColor }}
-        >
+        <div className="priority-strip" style={{ backgroundColor: priorityColor }}>
           <span className="priority-label">{event.priority}</span>
         </div>
       </div>
@@ -122,10 +105,10 @@ const ScheduleView = ({ tasks, updateTaskInState, onCreateTaskShortcut }) => {
   };
 
   const filteredUnscheduledTasks = unscheduledTasks
-  .filter((task) =>
-    task.title.toLowerCase().includes(searchQuery.toLowerCase())
-  )
-  .sort((a, b) => a.title.localeCompare(b.title));
+    .filter((task) =>
+      task.title.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .sort((a, b) => a.title.localeCompare(b.title));
 
   useEffect(() => {
     if (!showUnscheduledPanel) {
@@ -239,7 +222,7 @@ const ScheduleView = ({ tasks, updateTaskInState, onCreateTaskShortcut }) => {
         console.error("Error updating task:", error);
       });
 
-    setRefreshKey((prev) => prev + 1); // Force re-render
+    setRefreshKey((prev) => prev + 1);
     setDraggedTask(null);
     setDropPosition(null);
   };
@@ -307,7 +290,6 @@ const ScheduleView = ({ tasks, updateTaskInState, onCreateTaskShortcut }) => {
                   onClick={() => handleUnscheduledTaskClick(task)}
                 >
                   {truncatedTitle}
-
                   <div className={`priority-circle priority-${task.priority}`}>
                     {task.priority}
                   </div>

@@ -38,9 +38,13 @@ const Settings = () => {
   const [saveStatus, setSaveStatus] = useState("");
   const [settingsLoaded, setSettingsLoaded] = useState(false);
   const [activeSection, setActiveSection] = useState(SECTIONS[0]);
-  const [darkMode, setDarkMode] = useState(() => {
-    return localStorage.getItem("darkMode") === "true";
-  });
+
+  const applyTheme = (isDarkMode) => {
+    document.documentElement.setAttribute(
+      "data-theme",
+      isDarkMode ? "dark" : "light"
+    );
+  };
 
   useEffect(() => {
     const currentUser = auth.currentUser;
@@ -54,6 +58,7 @@ const Settings = () => {
           setSettings(merged);
           setInitialSettings(merged);
           setSettingsLoaded(true);
+          applyTheme(merged.darkMode);
         })
         .catch((err) => {
           console.error("Failed to fetch settings:", err);
@@ -68,10 +73,14 @@ const Settings = () => {
     const updated = { ...settings, [name]: val };
     setSettings(updated);
 
-    if (name === "darkMode" && userId) {
-      updateSettingsPreferences(userId, updated).catch((err) =>
-        console.error("Failed to update dark mode:", err)
-      );
+    if (name === "darkMode") {
+      applyTheme(val);
+      localStorage.setItem("darkMode", val); // update localStorage for global consistency
+      if (userId) {
+        updateSettingsPreferences(userId, updated).catch((err) =>
+          console.error("Failed to update dark mode:", err)
+        );
+      }
     }
   };
 
@@ -259,15 +268,19 @@ const Settings = () => {
   return (
     <Layout>
       <TopBar
-        buttons={getSettingsTopBarConfig(
-          () =>
-            setDarkMode((prev) => {
-              const newVal = !prev;
-              localStorage.setItem("darkMode", newVal);
-              return newVal;
-            }),
-          darkMode
-        )}
+        buttons={getSettingsTopBarConfig(() => {
+          const newDarkMode = !settings.darkMode;
+          setSettings((prev) => ({ ...prev, darkMode: newDarkMode }));
+          applyTheme(newDarkMode);
+          if (userId) {
+            updateSettingsPreferences(userId, {
+              ...settings,
+              darkMode: newDarkMode,
+            }).catch((err) =>
+              console.error("Failed to update dark mode:", err)
+            );
+          }
+        }, settings.darkMode)}
       />
       <div className="settings-wrapper">
         <aside className="settings-sidebar">

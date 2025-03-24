@@ -1,10 +1,109 @@
+:root {
+  /* Light mode */
+  --bg-color: #ffffff;
+  --bg2-color: #f0f0f0;
+  --component-bg: #f5f5f5;
+  --text-color: #333333;
+  --border-color: #e0e0e0;
+  --panelheading-color: #333333;
+  --dropdown-bg: #ffffff;
+  --input-bg: #ffffff;
+  --hover-bg: #e9e9e9;
+  --event-bg: #e2e2e2;
+  --priority-circle-bg: rgba(0, 0, 0, 0.75);
+
+  /* Priority colors */
+  --priority-A1: #ff4d4d;
+  --priority-A2: #ff6666;
+  --priority-A3: #ff9999;
+  --priority-B1: #4d4dff;
+  --priority-B2: #6666ff;
+  --priority-B3: #9999ff;
+  --priority-C1: #4dff4d;
+  --priority-C2: #66ff66;
+  --priority-C3: #99ff99;
+  --priority-D:  #cc66ff;
+  --priority-E:  #ff9966;
+}
+
+[data-theme="dark"] {
+  /* Dark mode */
+  --bg-color: #1a1a1a;
+  --bg2-color: #3a3a3a;
+  --component-bg: #2a2a2a;
+  --text-color: #ffffff;
+  --border-color: #444;
+  --panelheading-color: #ffffff;
+  --dropdown-bg: #2a2a2a;
+  --input-bg: #3a3a3a;
+  --hover-bg: #3a3a3a;
+  --event-bg: #333;
+  --priority-circle-bg: rgba(0, 0, 0, 0.5);
+
+  /* Priority colors */
+  --priority-A1: #ff4d4d;
+  --priority-A2: #ff6666;
+  --priority-A3: #ff9999;
+  --priority-B1: #4d4dff;
+  --priority-B2: #6666ff;
+  --priority-B3: #9999ff;
+  --priority-C1: #4dff4d;
+  --priority-C2: #66ff66;
+  --priority-C3: #99ff99;
+  --priority-D:  #cc66ff;
+  --priority-E:  #ff9966;
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  background-color: #1a1a1a;
-  color: #ffffff;
+  background-color: var(--bg-color);
+  color: var(--text-color);
 }
 
+::-webkit-scrollbar {
+  width: 7.2px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg2-color);
+}
+::-webkit-scrollbar-thumb {
+  background: #bbb;
+  border-radius: 3.6px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #999;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-track {
+  background: var(--component-bg);
+}
+
+input[type="checkbox"] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 1px solid var(--border-color);
+  border-radius: 3px;
+  background-color: var(--input-bg);
+  cursor: pointer;
+  position: relative;
+}
+input[type="checkbox"]:checked::before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 5px;
+  width: 4px;
+  height: 8px;
+  border: solid #2d74d1;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* ---------------------- General Layout ---------------------- */
 .kanban-container {
   padding: 18px;
   width: 100%;
@@ -20,10 +119,10 @@ body {
 
 .task-input {
   padding: 9px;
-  border: 1px solid #444;
+  border: 1px solid var(--border-color);
   border-radius: 3.6px;
-  background-color: #2a2a2a;
-  color: #ffffff;
+  background-color: var(--input-bg);
+  color: var(--text-color);
   flex-grow: 1;
 }
 
@@ -33,18 +132,18 @@ body {
 
 select {
   padding: 9px;
-  border: 1px solid #444;
+  border: 1px solid var(--border-color);
   border-radius: 3.6px;
-  background-color: #2a2a2a;
-  color: #ffffff;
+  background-color: var(--component-bg);
+  color: var(--text-color);
 }
 
 .add-task-btn {
   padding: 0;
   border: none;
   border-radius: 3.6px;
-  background-color: #2a2a2a;
-  color: #ffffff;
+  background-color: var(--component-bg);
+  color: var(--text-color);
   cursor: pointer;
   font-size: 27px;
   font-weight: bold;
@@ -68,7 +167,7 @@ select {
 }
 
 .add-task-btn:hover {
-  background-color: #3a3a3a;
+  background-color: var(--hover-bg);
 }
 
 .rename-board-wrapper {
@@ -80,10 +179,10 @@ select {
 
 .rename-board-wrapper input {
   padding: 9px;
-  border: 1px solid #444;
+  border: 1px solid var(--border-color);
   border-radius: 3.6px;
-  background-color: #2a2a2a;
-  color: #ffffff;
+  background-color: var(--input-bg);
+  color: var(--text-color);
   width: 85%;
   box-sizing: border-box;
 }
@@ -111,7 +210,7 @@ select {
 }
 
 .kanban-column {
-  background-color: #2a2a2a;
+  background-color: var(--component-bg);
   border-radius: 3.6px;
   padding: 13.5px;
   width: 270px;
@@ -124,7 +223,7 @@ select {
 .kanban-column h2 {
   margin: 0 0 9px 0;
   font-size: 16.2px;
-  color: #ffffff;
+  color: var(--text-color);
   word-break: break-word;
   overflow-wrap: break-word;
   white-space: normal;
@@ -140,12 +239,12 @@ select {
 }
 
 .task-card {
-  background-color: #3a3a3a;
+  background-color: var(--bg2-color);
   border-radius: 3.6px;
   padding: 12.6px;
   margin-bottom: 9px;
   box-shadow: 0 0.9px 2.7px rgba(0, 0, 0, 0.1);
-  color: #ffffff;
+  color: var(--text-color);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -178,7 +277,7 @@ select {
   width: 25.2px;
   height: 25.2px;
   border-radius: 50%;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: var(--priority-circle-bg);
   color: white;
   flex-shrink: 0;
 }
@@ -194,10 +293,10 @@ select {
 
 .add-board-wrapper input {
   padding: 9px;
-  border: 1px solid #444;
+  border: 1px solid var(--border-color);
   border-radius: 3.6px;
-  background-color: #2a2a2a;
-  color: #ffffff;
+  background-color: var(--input-bg);
+  color: var(--text-color);
   width: 100%;
   box-sizing: border-box;
   min-width: 200px;
@@ -219,8 +318,8 @@ select {
   padding: 9px;
   border: none;
   border-radius: 3.6px;
-  background-color: #2a2a2a;
-  color: #ffffff;
+  background-color: var(--component-bg);
+  color: var(--text-color);
   cursor: pointer;
   font-size: 14.4px;
   display: flex;
@@ -241,8 +340,8 @@ select {
 
 .dropdown-menu {
   position: absolute;
-  background-color: #2a2a2a;
-  border: 1px solid #444;
+  background-color: var(--dropdown-bg);
+  border: 1px solid var(--border-color);
   border-radius: 3.6px;
   box-shadow: 0 1.8px 3.6px rgba(0, 0, 0, 0.2);
   z-index: 10;
@@ -258,12 +357,12 @@ select {
   background: none;
   border: none;
   cursor: pointer;
-  color: #ffffff;
+  color: var(--text-color);
   font-size: 12.6px;
 }
 
 .dropdown-menu button:hover {
-  background-color: #3a3a3a;
+  background-color: var(--hover-bg);
 }
 
 .due-date {
@@ -278,51 +377,41 @@ select {
 
 .tick-btn:hover,
 .cross-btn:hover {
-  background-color: #3a3a3a;
+  background-color: var(--hover-bg);
 }
 
 .task-card b.priority-A1 {
-  color: #ff4d4d;
+  color: var(--priority-A1);
 }
-
 .task-card b.priority-A2 {
-  color: #ff6666;
+  color: var(--priority-A2);
 }
-
 .task-card b.priority-A3 {
-  color: #ff9999;
+  color: var(--priority-A3);
 }
-
 .task-card b.priority-B1 {
-  color: #4d4dff;
+  color: var(--priority-B1);
 }
-
 .task-card b.priority-B2 {
-  color: #6666ff;
+  color: var(--priority-B2);
 }
-
 .task-card b.priority-B3 {
-  color: #9999ff;
+  color: var(--priority-B3);
 }
-
 .task-card b.priority-C1 {
-  color: #4dff4d;
+  color: var(--priority-C1);
 }
-
 .task-card b.priority-C2 {
-  color: #66ff66;
+  color: var(--priority-C2);
 }
-
 .task-card b.priority-C3 {
-  color: #99ff99;
+  color: var(--priority-C3);
 }
-
 .task-card b.priority-D {
-  color: #cc66ff;
+  color: var(--priority-D);
 }
-
 .task-card b.priority-E {
-  color: #ff9966;
+  color: var(--priority-E);
 }
 
 .Draggable {
@@ -351,11 +440,11 @@ select {
 }
 
 .kanban-column::-webkit-scrollbar-track {
-  background: #2a2a2a;
+  background: var(--component-bg);
 }
 
 .kanban-column::-webkit-scrollbar-thumb {
-  background: #4a4a4a;
+  background: var(--border-color);
   border-radius: 3.6px;
 }
 
@@ -385,7 +474,7 @@ select {
   border: none;
   cursor: pointer;
   font-size: 1.35rem;
-  color: #ffffff;
+  color: var(--text-color);
   padding: 3.6px;
   display: flex;
   align-items: center;
@@ -411,12 +500,13 @@ select {
 }
 
 .dots-button:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(0, 0, 0, 0.1);
 }
 
-.dots-button.active, .dots-button.dropdown-active {
+.dots-button.active,
+.dots-button.dropdown-active {
   opacity: 1;
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(0, 0, 0, 0.1);
 }
 
 .dropdown-menu.open {
@@ -431,13 +521,13 @@ select {
   background: none;
   border: none;
   cursor: pointer;
-  color: #ffffff;
+  color: var(--text-color);
   border-radius: 0px;
   transition: background-color 0.2s ease;
 }
 
 .dropdown-menu button:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(0, 0, 0, 0.1);
   border-radius: 0px;
 }
 
@@ -517,27 +607,27 @@ select {
 }
 
 .react-datepicker {
-  background-color: #2a2a2a;
-  border: 1px solid #444;
-  color: #ffffff;
+  background-color: var(--component-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
   font-family: inherit;
 }
 
 .react-datepicker__header {
-  background-color: #3a3a3a;
-  border-bottom: 1px solid #444;
+  background-color: var(--bg2-color);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .react-datepicker__current-month,
 .react-datepicker-time__header,
 .react-datepicker-year-header {
-  color: #ffffff;
+  color: var(--text-color);
 }
 
 .react-datepicker__day-name,
 .react-datepicker__day,
 .react-datepicker__time-name {
-  color: #ffffff;
+  color: var(--text-color);
 }
 
 .react-datepicker__day:hover,
@@ -580,16 +670,16 @@ select {
 }
 
 .react-datepicker__time-container {
-  background-color: #2a2a2a;
-  border-left: 1px solid #444;
+  background-color: var(--component-bg);
+  border-left: 1px solid var(--border-color);
 }
 
 .react-datepicker__time-container .react-datepicker__time {
-  background-color: #2a2a2a;
+  background-color: var(--component-bg);
 }
 
 .react-datepicker__time-container .react-datepicker__time-box ul.react-datepicker__time-list li.react-datepicker__time-list-item {
-  color: #ffffff !important;
+  color: var(--text-color) !important;
 }
 
 .react-datepicker__time-container .react-datepicker__time-box ul.react-datepicker__time-list li.react-datepicker__time-list-item:hover {
@@ -603,9 +693,9 @@ select {
 }
 
 .react-datepicker__input-container input {
-  background-color: #3a3a3a;
-  color: #ffffff;
-  border: 1px solid #444;
+  background-color: var(--bg2-color);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
   border-radius: 5.4px;
   padding: 10.8px;
   font-size: 16.2px;
@@ -613,7 +703,7 @@ select {
 
 .react-datepicker__day--today {
   background-color: #3a7a3c !important;
-  color: rgb(255, 255, 255) !important;
+  color: #ffffff !important;
   border-radius: 50% !important;
 }
 
@@ -621,7 +711,6 @@ select {
   background-color: #2d74d1 !important;
   color: #ffffff !important;
 }
-
 
 .completed-tasks-container {
   max-width: 800px;
@@ -638,34 +727,34 @@ select {
 
 .filter-option {
   cursor: pointer;
-  background-color: #2a2a2a;
+  background-color: var(--component-bg);
   padding: 8px 12px;
   border-radius: 4px;
-  border: 1px solid #444;
+  border: 1px solid var(--border-color);
   transition: background-color 0.2s;
 }
 
 .filter-option:hover,
 .filter-option.active {
-  background-color: #3a3a3a;
+  background-color: var(--hover-bg);
 }
 
 .task-group-heading {
   text-align: center;
   margin: 30px 0 10px;
   font-size: 1.2rem;
-  color: #ccc;
-  border-bottom: 1px solid #444;
+  color: var(--panelheading-color);
+  border-bottom: 1px solid var(--border-color);
   padding-bottom: 5px;
 }
 
 /* ==============================
  Schedule Page
- ============================== */
+ ============================= */
 .schedule-view-container {
   height: 80vh;
   padding: 1rem;
-  background-color: #1a1a1a;
+  background-color: var(--bg-color);
   position: relative;
 }
 
@@ -673,16 +762,16 @@ select {
   font-size: 24px;
   font-weight: bold;
   margin-bottom: 20px;
-  color: #ffffff;
+  color: var(--text-color);
 }
 
 .unscheduled-panel-toggle-button {
   position: absolute;
   top: 1rem;
   right: 1rem;
-  background: #3a3a3a;
+  background: var(--bg2-color);
   border: none;
-  color: #fff;
+  color: var(--text-color);
   padding: 0.5rem;
   border-radius: 4px;
   cursor: pointer;
@@ -697,7 +786,7 @@ select {
   top: 4rem;
   right: 1rem;
   width: 300px;
-  background-color: #2a2a2a;
+  background-color: var(--component-bg);
   padding: 1rem;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
@@ -707,7 +796,7 @@ select {
 }
 
 .unscheduled-panel-heading {
-  color: #fff;
+  color: var(--text-color);
   margin-bottom: 0.5rem;
   margin-top: 0;
 }
@@ -719,11 +808,11 @@ select {
 
 .unscheduled-task-item {
   position: relative;
-  padding: 0.5rem 0.5rem 0.5rem 0.5rem;
+  padding: 0.5rem;
   padding-right: 48px;
   margin: 0.5rem 0;
-  background-color: #3a3a3a;
-  color: #fff;
+  background-color: var(--bg2-color);
+  color: var(--text-color);
   border-radius: 4px;
   cursor: pointer;
   word-wrap: break-word;
@@ -737,34 +826,32 @@ select {
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: var(--priority-circle-bg);
   font-size: 12px;
   font-weight: bold;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-  
+
 /* Search Input Container */
 .search-container {
-    position: relative;
-    width: 100%;
-    margin-bottom: 1rem;
+  position: relative;
+  width: 100%;
+  margin-bottom: 1rem;
 }
-  
-/* Search Input */
+
 .unscheduled-panel-search {
   width: 100%;
   padding: 0.5rem 2rem 0.5rem 0.5rem;
   border-radius: 4px;
-  border: 1px solid #444;
-  background-color: #3a3a3a;
-  color: #fff;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg2-color);
+  color: var(--text-color);
   font-size: 14px;
   box-sizing: border-box;
 }
 
-/* Clear Search Button */
 .clear-search-button {
   position: absolute;
   right: 0.5rem;
@@ -772,7 +859,7 @@ select {
   transform: translateY(-50%);
   background: none;
   border: none;
-  color: #fff;
+  color: var(--text-color);
   cursor: pointer;
   padding: 0;
   display: flex;
@@ -783,8 +870,9 @@ select {
 }
 
 .clear-search-button:hover {
-  color: #ccc;
+  color: var(--panelheading-color);
 }
+
 .unscheduled-tasks-list {
   list-style-type: none;
   padding: 0;
@@ -796,8 +884,8 @@ select {
 
 .rbc-calendar {
   height: 104%;
-  background-color: #1a1a1a;
-  color: #fff;
+  background-color: var(--bg-color);
+  color: var(--text-color);
 }
 
 .rbc-event-label {
@@ -810,35 +898,35 @@ select {
 
 .rbc-month-view,
 .rbc-time-view {
-  border: 1px solid #2a2a2a;
+  border: 1px solid var(--component-bg);
 }
 
 .rbc-month-row {
-  border-bottom: 1px solid #2a2a2a;
+  border-bottom: 1px solid var(--component-bg);
 }
 
 .rbc-header {
-  background-color: #1e1e1e;
-  color: #fff;
+  background-color: var(--bg2-color);
+  color: var(--text-color);
   padding: 10px;
-  border-bottom: 1px solid #2a2a2a;
+  border-bottom: 1px solid var(--component-bg);
   font-weight: 500;
 }
 
 .rbc-off-range-bg {
-  background-color: #1e1e1e;
+  background-color: var(--bg-color);
 }
 
 .rbc-today {
-  background-color: #2a2a2a;
+  background-color: var(--component-bg);
 }
 
 .rbc-event {
-  background-color: #333;
+  background-color: var(--event-bg);
   border: none;
   border-radius: 4px;
   padding: 0;
-  color: #fff;
+  color: var(--text-color);
   font-size: 14px;
   transition: background-color 0.3s ease;
   display: flex;
@@ -848,7 +936,7 @@ select {
 }
 
 .rbc-event:hover {
-  background-color: #444;
+  background-color: var(--hover-bg);
 }
 
 .rbc-selected {
@@ -856,20 +944,20 @@ select {
 }
 
 .rbc-show-more {
-  color: #fff;
+  color: var(--text-color);
 }
 
 .rbc-toolbar {
-  background-color: #1e1e1e;
+  background-color: var(--bg2-color);
   padding: 10px;
   border-radius: 5px;
   margin-bottom: 15px;
 }
 
 .rbc-toolbar button {
-  background-color: #333;
-  color: #fff;
-  border: none;
+  background-color: var(--bg2-color);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
   padding: 5px 10px;
   margin: 0 5px;
   border-radius: 4px;
@@ -878,14 +966,14 @@ select {
 }
 
 .rbc-toolbar button:hover {
-  background-color: #444;
+  background-color: var(--hover-bg);
 }
 
 .rbc-toolbar button.rbc-active {
-  background-color: #555;
+  background-color: var(--component-bg);
+  color: var(--text-color);
 }
 
-/* Custom Event Styles */
 .custom-event,
 .custom-event-month,
 .custom-agenda-event {
@@ -898,8 +986,8 @@ select {
   padding: 5px 30px 5px 5px;
   white-space: normal;
   word-break: break-all;
-  background-color: #333;
-  color: #fff;
+  background-color: var(--event-bg);
+  color: var(--text-color);
   font-size: 14px;
   border-radius: 4px;
   word-wrap: break-word;
@@ -929,7 +1017,7 @@ select {
 
 .event-time {
   font-size: 12px;
-  color: #ccc;
+  color: var(--panelheading-color);
   margin-bottom: 5px;
 }
 
@@ -942,7 +1030,6 @@ select {
   background-color: #ff4d4d;
   border-top-right-radius: 4px;
   border-bottom-right-radius: 4px;
-
   display: flex;
   align-items: flex-start;
   justify-content: center;
@@ -968,32 +1055,32 @@ select {
   opacity: 0.9;
 }
 
-.rbc-allday-cell{
+.rbc-allday-cell {
   display: none;
 }
 
 .rbc-time-header {
-  background-color: #2a2a2a;
-  border-bottom: 1px solid #444;
+  background-color: var(--component-bg);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .rbc-time-header-cell {
-  background-color: #2a2a2a;
-  border-left: 1px solid #444;
-  border-right: 1px solid #444;
-  color: #fff;
+  background-color: var(--component-bg);
+  border-left: 1px solid var(--border-color);
+  border-right: 1px solid var(--border-color);
+  color: var(--text-color);
 }
 
 .rbc-time-header-gutter {
-  background-color: #2a2a2a;
-  border-right: 1px solid #444;
-  color: #fff;
+  background-color: var(--component-bg);
+  border-right: 1px solid var(--border-color);
+  color: var(--text-color);
 }
 
 .rbc-header {
-  background-color: #2a2a2a;
-  color: #fff;
-  border: 1px solid #444;
+  background-color: var(--component-bg);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
   font-weight: 600;
 }
 
@@ -1002,7 +1089,7 @@ select {
 }
 
 .rbc-day-bg {
-  background-color: #1a1a1a;
+  background-color: var(--bg-color);
 }
 
 .rbc-day-slot .rbc-time-slot {
@@ -1010,32 +1097,32 @@ select {
 }
 
 .rbc-time-slot {
-  border-color: #444;
+  border-color: var(--border-color);
 }
 
 .rbc-time-gutter,
 .rbc-time-gutter .rbc-timeslot-group {
-  background-color: #1a1a1a;
-  border-right: 1px solid #444;
+  background-color: var(--bg-color);
+  border-right: 1px solid var(--border-color);
 }
 
 .rbc-timeslot-group {
-  border-color: #444;
+  border-color: var(--border-color);
 }
 
 .rbc-agenda-view table {
-  border: 1px solid #444;
-  background-color: #1a1a1a;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-color);
 }
 
 .rbc-agenda-view thead {
-  background-color: #2a2a2a;
-  color: #fff;
-  border-bottom: 1px solid #444;
+  background-color: var(--component-bg);
+  color: var(--text-color);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .rbc-agenda-view tbody tr {
-  border-bottom: 1px solid #444;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .priority-circle {
@@ -1046,50 +1133,50 @@ select {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: var(--priority-circle-bg);
   font-size: 14px;
   font-weight: bold;
   flex-shrink: 0;
 }
 
 .priority-circle.priority-A1 {
-  color: #ff4d4d;
+  color: var(--priority-A1);
 }
 .priority-circle.priority-A2 {
-  color: #ff6666;
+  color: var(--priority-A2);
 }
 .priority-circle.priority-A3 {
-  color: #ff9999;
+  color: var(--priority-A3);
 }
 .priority-circle.priority-B1 {
-  color: #4d4dff;
+  color: var(--priority-B1);
 }
 .priority-circle.priority-B2 {
-  color: #6666ff;
+  color: var(--priority-B2);
 }
 .priority-circle.priority-B3 {
-  color: #9999ff;
+  color: var(--priority-B3);
 }
 .priority-circle.priority-C1 {
-  color: #4dff4d;
+  color: var(--priority-C1);
 }
 .priority-circle.priority-C2 {
-  color: #66ff66;
+  color: var(--priority-C2);
 }
 .priority-circle.priority-C3 {
-  color: #99ff99;
+  color: var(--priority-C3);
 }
 .priority-circle.priority-D {
-  color: #cc66ff;
+  color: var(--priority-D);
 }
 .priority-circle.priority-E {
-  color: #ff9966;
+  color: var(--priority-E);
 }
 
 /* ==============================
  Charts Page
- ============================== */
- .charts-page {
+ ============================= */
+.charts-page {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -1116,8 +1203,8 @@ select {
 }
 
 .filters-card {
-  background-color: #2a2a2a;
-  border: 1px solid #444;
+  background-color: var(--component-bg);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   padding: 1rem;
   display: flex;
@@ -1150,10 +1237,10 @@ select {
 .filter-group input[type="text"],
 .filter-group input[type="number"] {
   padding: 0.4rem;
-  border: 1px solid #444;
+  border: 1px solid var(--border-color);
   border-radius: 4px;
-  background-color: #3a3a3a;
-  color: #fff;
+  background-color: var(--bg2-color);
+  color: var(--text-color);
   font-size: 0.9rem;
 }
 
@@ -1176,9 +1263,9 @@ select {
   width: 100%;
   margin-bottom: 0.4rem;
   padding: 0.4rem;
-  background-color: #3a3a3a;
-  color: #fff;
-  border: 1px solid #444;
+  background-color: var(--bg2-color);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
   border-radius: 4px;
   font-size: 0.9rem;
 }
@@ -1186,17 +1273,10 @@ select {
 .advanced-filters {
   display: flex;
   flex-direction: column;
-  gap: 1rem; /* or whatever spacing you prefer */
-  border-top: 1px solid #444;
+  gap: 1rem;
+  border-top: 1px solid var(--border-color);
   padding-top: 1rem;
   margin-top: 1rem;
-}
-
-.comparison-range {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
 }
 
 .comparison-range {
@@ -1216,7 +1296,7 @@ select {
 .toggle-btn {
   background: none;
   border: none;
-  color: #fff;
+  color: var(--text-color);
   cursor: pointer;
   padding: 0;
   font-size: 1rem;
@@ -1229,7 +1309,7 @@ select {
 .multi-select-dropdown {
   position: relative;
   font-size: 0.9rem;
-  color: #fff;
+  color: var(--text-color);
 }
 
 .multi-select-dropdown label {
@@ -1238,8 +1318,8 @@ select {
 
 .dropdown-header {
   padding: 0.4rem;
-  background-color: #3a3a3a;
-  border: 1px solid #444;
+  background-color: var(--bg2-color);
+  border: 1px solid var(--border-color);
   border-radius: 4px;
   cursor: pointer;
   display: flex;
@@ -1257,7 +1337,7 @@ select {
   transform: translateY(-50%);
   width: 14px;
   height: 14px;
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>');
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23666" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>');
   background-repeat: no-repeat;
   background-position: center;
   transition: transform 0.2s ease-in-out;
@@ -1270,8 +1350,8 @@ select {
   right: 0;
   max-height: 200px;
   overflow-y: auto;
-  background-color: #3a3a3a;
-  border: 1px solid #444;
+  background-color: var(--dropdown-bg);
+  border: 1px solid var(--border-color);
   border-top: none;
   z-index: 10;
   padding: 0.5rem;
@@ -1294,7 +1374,10 @@ select {
   outline: none !important;
 }
 
-
+.recharts-cartesian-axis-tick-value,
+.recharts-cartesian-axis-tick tspan {
+  fill: var(--text-color) !important;
+}
 
 /* Button styles */
 .save-btn {
@@ -1328,26 +1411,27 @@ select {
 /* Message style */
 .preferences-message {
   font-size: 0.9rem;
-  color: #fff;
+  color: var(--text-color);
   text-align: center;
 }
+
 .filters-scrollable {
   flex: 1;
-  max-height: 75vh; /* Your desired max height for scrolling */
+  max-height: 75vh;
   overflow-y: auto;
 }
 
-/* Make the buttons sticky at the bottom of the filters-card */
+/* Buttons at the Bottom of Filters Card */
 .preferences-buttons {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem; /* Adjust the gap between buttons as needed */
-  margin-top: 1rem; /* Add some margin to separate from the above content */
+  gap: 0.5rem;
+  margin-top: 1rem;
 }
 
 .preferences-buttons button {
-  width: 100%; /* Make buttons fill the width of the container */
-  text-align: center; /* Center the text inside the buttons */
+  width: 100%;
+  text-align: center;
 }
 
 /* ==============================
@@ -1369,13 +1453,13 @@ select {
 }
 
 .modal-content {
-  background-color: #2a2a2a;
+  background-color: var(--component-bg);
   padding: 18px;
   border-radius: 7.2px;
   width: 675px;
   max-height: 80vh;
   overflow-y: auto;
-  color: #ffffff;
+  color: var(--text-color);
   box-shadow: 0 3.6px 7.2px rgba(0, 0, 0, 0.3);
   position: relative;
   display: flex;
@@ -1440,7 +1524,7 @@ select {
   font-weight: bold;
   margin-bottom: 4.5px;
   display: block;
-  color: #ddd;
+  color: var(--panelheading-color);
   font-size: 16.2px;
 }
 
@@ -1449,10 +1533,10 @@ select {
 .create-task-modal .modal-content textarea {
   width: 100%;
   padding: 10.8px;
-  border: 1px solid #444;
+  border: 1px solid var(--border-color);
   border-radius: 5.4px;
-  background-color: #3a3a3a;
-  color: #ffffff;
+  background-color: var(--bg2-color);
+  color: var(--text-color);
   box-sizing: border-box;
   margin-bottom: 10.8px;
   font-size: 14.4px;
@@ -1465,9 +1549,9 @@ select {
   font-size: 16.2px;
   font-family: inherit;
   font-weight: normal;
-  background-color: #3a3a3a;
-  border: 1px solid #444;
-  color: #ffffff;
+  background-color: var(--bg2-color);
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
   padding: 10.8px;
   border-radius: 3.6px;
   width: 100%;
@@ -1573,9 +1657,9 @@ select {
   max-width: 1000px;
   max-height: 80vh;
   overflow-y: auto;
-  background-color: #2a2a2a;
+  background-color: var(--component-bg);
   border-radius: 7.2px;
-  color: #ffffff;
+  color: var(--text-color);
   box-shadow: 0 3.6px 7.2px rgba(0, 0, 0, 0.3);
   position: relative;
   display: flex;
@@ -1641,8 +1725,8 @@ select {
   font-weight: 600;
   margin: 0;
   padding-bottom: 4px;
-  border-bottom: 1px solid #444;
-  color: #ccc;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--panelheading-color);
 }
 
 .field-row {
@@ -1656,7 +1740,7 @@ select {
   flex: 0 0 100px;
   font-weight: 500;
   font-size: 14px;
-  color: #ddd;
+  color: var(--panelheading-color);
   margin-bottom: 0;
   display: flex;
   align-items: center;
@@ -1666,8 +1750,8 @@ select {
 .view-task-field {
   border: none;
   border-radius: 5.4px;
-  background-color: #2a2a2a;
-  color: #ffffff;
+  background-color: var(--component-bg);
+  color: var(--text-color);
   font-size: 14.4px;
   display: flex;
   align-items: center;
@@ -1684,7 +1768,7 @@ select {
 .scroll-wrapper {
   max-height: 400px;
   overflow-y: auto;
-  background-color: #2a2a2a;
+  background-color: var(--component-bg);
   border-radius: 5.4px;
   padding: 0;
   margin: 0;
@@ -1720,7 +1804,7 @@ select {
 }
 
 .text-container:hover {
-  background-color: #3a3a3a;
+  background-color: var(--hover-bg);
   cursor: pointer;
 }
 
@@ -1733,10 +1817,10 @@ select {
 .view-modal-content textarea {
   width: 100%;
   padding: 10.8px;
-  border: 1px solid #444;
+  border: 1px solid var(--border-color);
   border-radius: 5.4px;
-  background-color: #3a3a3a;
-  color: #ffffff;
+  background-color: var(--bg2-color);
+  color: var(--text-color);
   box-sizing: border-box;
   font-size: 14.4px;
   margin-bottom: 0;
@@ -1746,7 +1830,7 @@ select {
   resize: none;
   border: none;
   background: transparent;
-  color: #fff;
+  color: var(--text-color);
   font-size: 14.4px;
   width: 100%;
   padding: 10px;
@@ -1761,8 +1845,8 @@ select {
   padding: 10px;
   display: flex;
   justify-content: flex-end;
-  border-top: 1px solid #444;
-  background-color: #2a2a2a;
+  border-top: 1px solid var(--border-color);
+  background-color: var(--component-bg);
 }
 
 .complete-task-button,
@@ -1837,14 +1921,14 @@ select {
 .modal-title-label {
   font-size: 14px;
   font-weight: bold;
-  color: #ccc;
+  color: var(--panelheading-color);
   display: block;
   margin-bottom: 0.25rem;
 }
 
 .modal-title-divider {
   border: none;
-  border-bottom: 1px solid #444;
+  border-bottom: 1px solid var(--border-color);
   margin-top: 0.5rem;
   width: 95%;
   margin-left: 0;
@@ -1931,7 +2015,7 @@ select {
 }
 
 .timer-toggle-container.off .toggle-label-left {
-  color: #fff;
+  color: var(--text-color);
 }
 .timer-toggle-container.off .toggle-label-right {
   color: #888;
@@ -1941,14 +2025,14 @@ select {
   color: #888;
 }
 .timer-toggle-container.on .toggle-label-right {
-  color: #fff;
+  color: var(--text-color);
 }
 
 .toggle-slider {
   position: relative;
   width: 50px;
   height: 24px;
-  background-color: #444;
+  background-color: var(--border-color);
   border-radius: 9999px;
   transition: background-color 0.3s ease;
 }
@@ -1988,7 +2072,7 @@ select {
   cursor: not-allowed;
 }
 .timer-toggle-container.off .toggle-label-left {
-  color: #fff;
+  color: var(--text-color);
 }
 .timer-toggle-container.off .toggle-label-right {
   color: #888;
@@ -1999,10 +2083,10 @@ select {
   width: 500px;
   max-height: 80vh;
   overflow-y: auto;
-  background-color: #2a2a2a;
+  background-color: var(--component-bg);
   padding: 18px;
   border-radius: 7.2px;
-  color: #ffffff;
+  color: var(--text-color);
   box-shadow: 0 3.6px 7.2px rgba(0, 0, 0, 0.3);
   position: relative;
   display: flex;
@@ -2032,17 +2116,17 @@ select {
   font-weight: bold;
   margin-bottom: 4.5px;
   display: block;
-  color: #ddd;
+  color: var(--panelheading-color);
   font-size: 16.2px;
 }
 
 .schedule-modal .modal-body input[type="datetime-local"] {
   width: 100%;
   padding: 10.8px;
-  border: 1px solid #444;
+  border: 1px solid var(--border-color);
   border-radius: 5.4px;
-  background-color: #3a3a3a;
-  color: #ffffff;
+  background-color: var(--bg2-color);
+  color: var(--text-color);
   box-sizing: border-box;
   font-size: 14.4px;
 }
@@ -2132,7 +2216,7 @@ select {
 }
 
 .schedule-modal .title-container .title-label {
-  color: #ddd;
+  color: var(--panelheading-color);
   font-size: 16.2px;
   font-weight: bold;
   margin-bottom: 2px;
@@ -2140,7 +2224,7 @@ select {
 }
 
 .schedule-modal .title-container .title-text {
-  color: #fff;
+  color: var(--text-color);
   font-size: 14.4px;
   padding: 4px;
   white-space: normal;
@@ -2148,7 +2232,7 @@ select {
 }
 
 .schedule-modal .time-label {
-  color: #ddd;
+  color: var(--panelheading-color);
   font-size: 16.2px;
   font-weight: bold;
   margin-bottom: 2px;
@@ -2176,7 +2260,6 @@ select {
   gap: 10px;
 }
 
-
 /* Group Modal Specific Styles */
 .group-modal-task-list {
   display: flex;
@@ -2190,7 +2273,6 @@ select {
 
 .group-key-text {
   word-break: break-all;
-
   white-space: normal;
   overflow-wrap: break-word;
   display: inline-block;
@@ -2237,7 +2319,6 @@ select {
   }
 }
 
-
 /* ==============================
  Profile page
 ============================== */
@@ -2246,11 +2327,11 @@ select {
   display: flex;
   justify-content: center;
   padding: 2rem;
-  background-color: #1a1a1a;
+  background-color: var(--bg-color);
 }
 
 .profile-card {
-  background-color: #2a2a2a;
+  background-color: var(--component-bg);
   border-radius: 10px;
   padding: 2rem;
   width: 400px;
@@ -2262,7 +2343,7 @@ select {
 .profile-card h1 {
   margin-bottom: 1rem;
   font-size: 2rem;
-  color: #fff;
+  color: var(--text-color);
 }
 
 .profile-info {
@@ -2289,19 +2370,19 @@ select {
   color: #bbb;
 }
 
-/* ========= Sidebar Layout ========== */
+/* ========= Sidebar Layout ========= */
 .settings-wrapper {
   display: flex;
   min-height: calc(100vh - 80px);
-  background-color: #1a1a1a;
-  color: white;
+  background-color: var(--bg-color);
+  color: var(--text-color);
 }
 
 .settings-sidebar {
   width: 220px;
-  border-right: 1px solid #333;
+  border-right: 1px solid var(--border-color);
   padding: 24px 0;
-  background-color: #1a1a1a;
+  background-color: var(--bg-color);
   display: flex;
   flex-direction: column;
 }
@@ -2309,14 +2390,14 @@ select {
 .sidebar-item {
   padding: 14px 24px;
   cursor: pointer;
-  color: #ccc;
+  color: var(--panelheading-color);
   font-size: 15px;
   transition: background 0.2s, color 0.2s;
 }
 
 .sidebar-item:hover {
-  background-color: #2a2a2a;
-  color: #fff;
+  background-color: var(--component-bg);
+  color: var(--text-color);
 }
 
 .sidebar-item.active {
@@ -2325,7 +2406,7 @@ select {
   font-weight: 500;
 }
 
-/* ========= Main Content ========== */
+/* ========= Main Content ========= */
 .settings-content {
   flex: 1;
   padding: 40px;
@@ -2360,9 +2441,9 @@ select {
 
 .setting-row select,
 .setting-row input[type="number"] {
-  background-color: #2a2a2a;
-  border: 1px solid #444;
-  color: #fff;
+  background-color: var(--component-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
   padding: 8px 12px;
   border-radius: 6px;
   font-size: 14px;
@@ -2375,7 +2456,7 @@ select {
   accent-color: #2d74d1;
 }
 
-/* ========= Save Button ========== */
+/* ========= Save Button ========= */
 .settings-save-footer {
   margin-top: 20px;
   position: relative;
@@ -2426,7 +2507,7 @@ select {
   }
 }
 
-/* ========= Loading ========== */
+/* ========= Loading ========= */
 .settings-loading {
   padding: 60px;
   text-align: center;

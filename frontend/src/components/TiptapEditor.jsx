@@ -11,8 +11,8 @@ import { Highlight } from "@tiptap/extension-highlight";
 import { CharacterCount } from "@tiptap/extension-character-count";
 import { TextStyle } from "@tiptap/extension-text-style";
 import { Color } from "@tiptap/extension-color";
-import Picker from '@emoji-mart/react';
-import data from '@emoji-mart/data';
+import Picker from "@emoji-mart/react";
+import data from "@emoji-mart/data";
 import TextAlign from "@tiptap/extension-text-align";
 import React, { useState, useRef, useEffect } from "react";
 import {
@@ -43,21 +43,23 @@ import {
 } from "react-icons/fa";
 
 const Toolbar = ({ editor }) => {
-  const [isBlack, setIsBlack] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [emojiPickerPosition, setEmojiPickerPosition] = useState({ top: 0, left: 0 });
-
+  const [emojiPickerPosition, setEmojiPickerPosition] = useState({
+    top: 0,
+    left: 0,
+  });
   const emojiPickerRef = useRef(null);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target)) {
+      if (
+        emojiPickerRef.current &&
+        !emojiPickerRef.current.contains(event.target)
+      ) {
         setShowEmojiPicker(false);
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
-
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
@@ -76,14 +78,13 @@ const Toolbar = ({ editor }) => {
     }
   };
 
-  if (!editor) {
-    return null;
-  }
+  if (!editor) return null;
 
   const toggleTextColor = () => {
-    const newColor = isBlack ? "#ffffff" : "#000000";
+    const currentTheme =
+      document.documentElement.getAttribute("data-theme") || "light";
+    const newColor = currentTheme === "light" ? "#000000" : "#ffffff";
     editor.chain().focus().setColor(newColor).run();
-    setIsBlack(!isBlack);
   };
 
   const doesDocumentHaveTables = () => {
@@ -98,6 +99,10 @@ const Toolbar = ({ editor }) => {
   };
 
   const hasTables = doesDocumentHaveTables();
+
+  const currentTheme =
+    document.documentElement.getAttribute("data-theme") || "light";
+  const defaultColor = currentTheme === "light" ? "#333333" : "#ffffff";
 
   return (
     <div className="tiptap-toolbar">
@@ -245,11 +250,14 @@ const Toolbar = ({ editor }) => {
         <FaSmile />
       </button>
 
-      {/* Show Emoji Picker Popup if 'showEmojiPicker' is true */}
+      {/* Emoji Picker Popup */}
       {showEmojiPicker && (
         <div
           className="emoji-picker-popup"
-          style={{ top: emojiPickerPosition.top, left: emojiPickerPosition.left }}
+          style={{
+            top: emojiPickerPosition.top,
+            left: emojiPickerPosition.left,
+          }}
           ref={emojiPickerRef}
         >
           <Picker data={data} onEmojiSelect={addEmojiToEditor} />
@@ -269,13 +277,13 @@ const Toolbar = ({ editor }) => {
       </button>
 
       {/* Text Color */}
-      <button onClick={toggleTextColor} title="Colour Palette">
+      <button onClick={toggleTextColor} title="Toggle Text Colour">
         <FaPalette />
       </button>
       <input
         type="color"
         onChange={(e) => editor.chain().focus().setColor(e.target.value).run()}
-        value={editor.getAttributes("textStyle").color || "#ffffff"}
+        value={editor.getAttributes("textStyle").color || defaultColor}
         title="Text Color"
       />
 
@@ -296,14 +304,18 @@ const Toolbar = ({ editor }) => {
       {/* Tables */}
       <button
         onClick={() =>
-          editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()
+          editor
+            .chain()
+            .focus()
+            .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
+            .run()
         }
         title="Insert Table"
       >
         <FaTable />
       </button>
 
-      {/* Show table-related options only if the document has any tables */}
+      {/* Table Options */}
       {hasTables && (
         <>
           <button
@@ -359,28 +371,20 @@ const TiptapEditor = ({ value, onChange }) => {
     extensions: [
       StarterKit,
       Underline,
-      Table.configure({
-        resizable: true,
-      }),
+      Table.configure({ resizable: true }),
       TableRow,
       TableHeader,
       TableCell,
       TaskList,
-      TaskItem.configure({
-        nested: true,
-      }),
-      Highlight.configure({
-        multicolor: true,
-      }),
+      TaskItem.configure({ nested: true }),
+      Highlight.configure({ multicolor: true }),
       TextStyle,
       Color,
-      CharacterCount.configure({
-        limit: 10000,
-      }),
+      CharacterCount.configure({ limit: 10000 }),
       TextAlign.configure({
-        types: ['heading', 'paragraph'],
-        alignments: ['left', 'center', 'right', 'justify'],
-        defaultAlignment: 'left',
+        types: ["heading", "paragraph"],
+        alignments: ["left", "center", "right", "justify"],
+        defaultAlignment: "left",
       }),
     ],
     content: value,
@@ -389,7 +393,6 @@ const TiptapEditor = ({ value, onChange }) => {
     },
     editorProps: {
       attributes: {
-        style: "color: #ffffff;",
       },
     },
   });

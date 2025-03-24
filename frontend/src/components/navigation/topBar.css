@@ -1,22 +1,54 @@
+:root {
+  /* Light mode */
+  --topbar-bg: #ffffff;
+  --topbar-border: #e0e0e0;
+  --topbar-button-color: #333333;
+  --topbar-button-hover: #000000;
+  --topbar-active-button-color: #2d74d1;
+  --notification-button-color: #333333;
+  --notification-button-active: #d1921d;
+  --create-task-btn-bg: #2d74d1;
+  --create-task-btn-hover: #0056b3;
+  --toggle-bg-light: #ccc;
+  --toggle-bg-dark: #2d74d1;
+  --toggle-icon-color: #222222;
+}
+
+[data-theme="dark"] {
+  /* Dark mode */
+  --topbar-bg: #2a2a2a;
+  --topbar-border: #444;
+  --topbar-button-color: #ccc;
+  --topbar-button-hover: #ffffff;
+  --topbar-active-button-color: #2d74d1;
+  --notification-button-color: #ccc;
+  --notification-button-active: #d1921d;
+  --create-task-btn-bg: #2d74d1;
+  --create-task-btn-hover: #0056b3;
+  --toggle-bg-light: #ccc;
+  --toggle-bg-dark: #2d74d1;
+  --toggle-icon-color: #222222;
+}
+
 .top-bar {
   position: fixed;
   top: 0;
   left: 240px;
   right: 0;
   height: 50px;
-  background-color: #2a2a2a;
+  background-color: var(--topbar-bg);
   display: flex;
   align-items: center;
   padding: 0 18px;
   box-shadow: 0 1.8px 3.6px rgba(0, 0, 0, 0.2);
   z-index: 998;
   gap: 9px;
-  border-bottom: 1px solid #444;
+  border-bottom: 1px solid var(--topbar-border);
   margin-bottom: 90px;
 }
 
 .create-top-bar-task-btn {
-  background-color: #2d74d1;
+  background-color: var(--create-task-btn-bg);
   color: white;
   border: none;
   padding: 7.2px 14.4px;
@@ -27,13 +59,13 @@
 }
 
 .create-top-bar-task-btn:hover {
-  background-color: #0056b3;
+  background-color: var(--create-task-btn-hover);
 }
 
 .top-bar-button {
   background: none;
   border: none;
-  color: #ccc;
+  color: var(--topbar-button-color);
   font-size: 15px;
   cursor: pointer;
   padding: 0 12px;
@@ -50,15 +82,14 @@
 }
 
 .top-bar-button:hover {
-  color: #fff;
+  color: var(--topbar-button-hover);
 }
 
 .top-bar-button.active {
-  color: #2d74d1;
+  color: var(--topbar-active-button-color);
   font-weight: 500;
 }
 
-/* Container to push notification button to the far right */
 .notifications-container {
   margin-left: auto;
 }
@@ -68,7 +99,7 @@
   background: none;
   border: none;
   cursor: pointer;
-  color: #ccc;
+  color: var(--notification-button-color);
   transition: color 0.2s ease;
   font-size: 24px;
   margin-top: 5px;
@@ -80,7 +111,7 @@
 }
 
 .notification-button.active {
-  color: #d1921d;
+  color: var(--notification-button-active);
 }
 
 .notification-button.active svg {
@@ -95,8 +126,8 @@
   min-width: 16px;
   height: 16px;
   border-radius: 15px;
-  background: #d1921d;
-  color: #1a1a1a;
+  background: var(--notification-button-active);
+  color: var(--topbar-bg);
   font-size: 13px;
   font-weight: bold;
   display: flex;
@@ -129,7 +160,6 @@
 .toggle-wrapper {
   width: 52px;
   height: 24px;
-  background-color: #444;
   border-radius: 50px;
   padding: 2px;
   display: flex;
@@ -138,11 +168,11 @@
 }
 
 .toggle-wrapper.light {
-  background-color: #ccc;
+  background-color: var(--toggle-bg-light);
 }
 
 .toggle-wrapper.dark {
-  background-color: #2d74d1;
+  background-color: var(--toggle-bg-dark);
 }
 
 .toggle-thumb {
@@ -166,5 +196,5 @@
 
 .toggle-icon {
   font-size: 12px;
-  color: #222;
+  color: var(--toggle-icon-color);
 }

@@ -22,13 +22,12 @@ import {
   PolarRadiusAxis,
 } from "recharts";
 import DatePicker from "react-datepicker";
+import { fetchTasks } from "../services/tasksService";
+import { fetchColumnOrder } from "../services/columnsService";
 import {
-  fetchTasks,
-} from "../services/tasksService";
-import {
-  fetchColumnOrder,
-} from "../services/columnsService";
-import { fetchChartPreferences, updateChartPreferences } from "../services/preferencesService";
+  fetchChartPreferences,
+  updateChartPreferences,
+} from "../services/preferencesService";
 import { auth } from "../firebase";
 import Layout from "../components/navigation/Layout";
 import TopBar from "../components/navigation/TopBar";
@@ -36,14 +35,46 @@ import { startOfISOWeek, format } from "date-fns";
 import "react-datepicker/dist/react-datepicker.css";
 import ViewTaskModal from "../components/modals/ViewTaskModal";
 import GroupTasksModal from "../components/modals/GroupTasksModal";
-import { useParams, useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import {
+  useParams,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
 import { getChartsTopBarConfig } from "../config/topBarConfig.jsx";
 
 // Options for multi-selects
-const allowedPriorities = ["A1", "A2", "A3", "B1", "B2", "B3", "C1", "C2", "C3", "D", "E"];
-const dayOptions = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+const allowedPriorities = [
+  "A1",
+  "A2",
+  "A3",
+  "B1",
+  "B2",
+  "B3",
+  "C1",
+  "C2",
+  "C3",
+  "D",
+  "E",
+];
+const dayOptions = [
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday",
+];
 
-const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#A28EFF", "#FF6699"];
+const COLORS = [
+  "#0088FE",
+  "#00C49F",
+  "#FFBB28",
+  "#FF8042",
+  "#A28EFF",
+  "#FF6699",
+];
 
 const MultiSelectDropdown = ({ label, options, selectedOptions, onChange }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -190,8 +221,10 @@ const Charts = () => {
     if (params.yAxisMetric) setYAxisMetric(params.yAxisMetric);
     if (params.sortOrder) setSortOrder(params.sortOrder);
     if (params.dueFilter) setDueFilter(params.dueFilter);
-    if (params.priorityFilters) setPriorityFilters(params.priorityFilters.split(","));
-    if (params.dayOfWeekFilters) setDayOfWeekFilters(params.dayOfWeekFilters.split(","));
+    if (params.priorityFilters)
+      setPriorityFilters(params.priorityFilters.split(","));
+    if (params.dayOfWeekFilters)
+      setDayOfWeekFilters(params.dayOfWeekFilters.split(","));
     if (params.statusFilters) setStatusFilters(params.statusFilters.split(","));
     if (params.assignedToFilter) setAssignedToFilter(params.assignedToFilter);
     if (params.minTaskCount) setMinTaskCount(params.minTaskCount);
@@ -199,9 +232,12 @@ const Charts = () => {
     if (params.minTimeSpent) setMinTimeSpent(params.minTimeSpent);
     if (params.minTimeUnit) setMinTimeUnit(params.minTimeUnit);
     if (params.scheduledOnly) setScheduledOnly(params.scheduledOnly === "true");
-    if (params.includeZeroMetrics) setIncludeZeroMetrics(params.includeZeroMetrics === "true");
-    if (params.includeNoDueDate) setIncludeNoDueDate(params.includeNoDueDate === "true");
-    if (params.comparisonMode) setComparisonMode(params.comparisonMode === "true");
+    if (params.includeZeroMetrics)
+      setIncludeZeroMetrics(params.includeZeroMetrics === "true");
+    if (params.includeNoDueDate)
+      setIncludeNoDueDate(params.includeNoDueDate === "true");
+    if (params.comparisonMode)
+      setComparisonMode(params.comparisonMode === "true");
     if (params.compStartDate) setCompStartDate(new Date(params.compStartDate));
     if (params.compEndDate) setCompEndDate(new Date(params.compEndDate));
   }, []); // run on mount
@@ -295,10 +331,12 @@ const Charts = () => {
     fetchColumns();
   }, []);
 
-  const statusOptions = Object.entries(columnsMapping).map(([colId, colName]) => ({
-    value: colId,
-    label: colName,
-  }));
+  const statusOptions = Object.entries(columnsMapping).map(
+    ([colId, colName]) => ({
+      value: colId,
+      label: colName,
+    })
+  );
 
   // -------------------- Load Preferences from Backend --------------------
   useEffect(() => {
@@ -310,31 +348,59 @@ const Charts = () => {
           const prefs = res.data.chartPreferences;
           const params = Object.fromEntries([...searchParams]);
 
-          if (!params.timeRangeType && prefs.timeRangeType) setTimeRangeType(prefs.timeRangeType);
+          if (!params.timeRangeType && prefs.timeRangeType)
+            setTimeRangeType(prefs.timeRangeType);
           if (!params.taskType && prefs.taskType) setTaskType(prefs.taskType);
-          if (!params.chartType && prefs.chartType) setChartType(prefs.chartType);
-          if (!params.xAxisField && prefs.xAxisField) setXAxisField(prefs.xAxisField);
-          if (!params.yAxisMetric && prefs.yAxisMetric) setYAxisMetric(prefs.yAxisMetric);
-          if (!params.sortOrder && prefs.sortOrder) setSortOrder(prefs.sortOrder);
-          if (!params.dueFilter && prefs.dueFilter) setDueFilter(prefs.dueFilter);
-          if (!params.priorityFilters && prefs.priorityFilters) setPriorityFilters(prefs.priorityFilters);
-          if (!params.dayOfWeekFilters && prefs.dayOfWeekFilters) setDayOfWeekFilters(prefs.dayOfWeekFilters);
-          if (!params.statusFilters && prefs.statusFilters) setStatusFilters(prefs.statusFilters);
-          if (!params.assignedToFilter && prefs.assignedToFilter) setAssignedToFilter(prefs.assignedToFilter);
-          if (!params.minTaskCount && prefs.minTaskCount) setMinTaskCount(prefs.minTaskCount);
-          if (!params.minStoryPoints && prefs.minStoryPoints) setMinStoryPoints(prefs.minStoryPoints);
-          if (!params.minTimeSpent && prefs.minTimeSpent) setMinTimeSpent(prefs.minTimeSpent);
-          if (!params.minTimeUnit && prefs.minTimeUnit) setMinTimeUnit(prefs.minTimeUnit);
-          if (params.scheduledOnly === undefined && prefs.scheduledOnly !== undefined)
+          if (!params.chartType && prefs.chartType)
+            setChartType(prefs.chartType);
+          if (!params.xAxisField && prefs.xAxisField)
+            setXAxisField(prefs.xAxisField);
+          if (!params.yAxisMetric && prefs.yAxisMetric)
+            setYAxisMetric(prefs.yAxisMetric);
+          if (!params.sortOrder && prefs.sortOrder)
+            setSortOrder(prefs.sortOrder);
+          if (!params.dueFilter && prefs.dueFilter)
+            setDueFilter(prefs.dueFilter);
+          if (!params.priorityFilters && prefs.priorityFilters)
+            setPriorityFilters(prefs.priorityFilters);
+          if (!params.dayOfWeekFilters && prefs.dayOfWeekFilters)
+            setDayOfWeekFilters(prefs.dayOfWeekFilters);
+          if (!params.statusFilters && prefs.statusFilters)
+            setStatusFilters(prefs.statusFilters);
+          if (!params.assignedToFilter && prefs.assignedToFilter)
+            setAssignedToFilter(prefs.assignedToFilter);
+          if (!params.minTaskCount && prefs.minTaskCount)
+            setMinTaskCount(prefs.minTaskCount);
+          if (!params.minStoryPoints && prefs.minStoryPoints)
+            setMinStoryPoints(prefs.minStoryPoints);
+          if (!params.minTimeSpent && prefs.minTimeSpent)
+            setMinTimeSpent(prefs.minTimeSpent);
+          if (!params.minTimeUnit && prefs.minTimeUnit)
+            setMinTimeUnit(prefs.minTimeUnit);
+          if (
+            params.scheduledOnly === undefined &&
+            prefs.scheduledOnly !== undefined
+          )
             setScheduledOnly(prefs.scheduledOnly);
-          if (params.includeZeroMetrics === undefined && prefs.includeZeroMetrics !== undefined)
+          if (
+            params.includeZeroMetrics === undefined &&
+            prefs.includeZeroMetrics !== undefined
+          )
             setIncludeZeroMetrics(prefs.includeZeroMetrics);
-          if (params.includeNoDueDate === undefined && prefs.includeNoDueDate !== undefined)
+          if (
+            params.includeNoDueDate === undefined &&
+            prefs.includeNoDueDate !== undefined
+          )
             setIncludeNoDueDate(prefs.includeNoDueDate);
-          if (params.comparisonMode === undefined && prefs.comparisonMode !== undefined)
+          if (
+            params.comparisonMode === undefined &&
+            prefs.comparisonMode !== undefined
+          )
             setComparisonMode(prefs.comparisonMode);
-          if (!params.compStartDate && prefs.compStartDate) setCompStartDate(new Date(prefs.compStartDate));
-          if (!params.compEndDate && prefs.compEndDate) setCompEndDate(new Date(prefs.compEndDate));
+          if (!params.compStartDate && prefs.compStartDate)
+            setCompStartDate(new Date(prefs.compStartDate));
+          if (!params.compEndDate && prefs.compEndDate)
+            setCompEndDate(new Date(prefs.compEndDate));
           if (!params.customStartDate && prefs.customStartDate)
             setCustomStartDate(new Date(prefs.customStartDate));
           if (!params.customEndDate && prefs.customEndDate)
@@ -363,7 +429,9 @@ const Charts = () => {
         break;
       }
       case "2weeks": {
-        startDate = startOfISOWeek(new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000));
+        startDate = startOfISOWeek(
+          new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000)
+        );
         startDate.setHours(0, 0, 0, 0);
         endDate = new Date(startDate);
         endDate.setDate(endDate.getDate() + 13);
@@ -371,8 +439,24 @@ const Charts = () => {
         break;
       }
       case "month": {
-        startDate = new Date(today.getFullYear(), today.getMonth(), 1, 0, 0, 0, 0);
-        endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0, 23, 59, 59, 999);
+        startDate = new Date(
+          today.getFullYear(),
+          today.getMonth(),
+          1,
+          0,
+          0,
+          0,
+          0
+        );
+        endDate = new Date(
+          today.getFullYear(),
+          today.getMonth() + 1,
+          0,
+          23,
+          59,
+          59,
+          999
+        );
         break;
       }
       case "year": {
@@ -381,10 +465,16 @@ const Charts = () => {
         break;
       }
       case "all-time": {
-        const validTasks = tasks.filter((task) => task.createdAt || task.completedAt);
+        const validTasks = tasks.filter(
+          (task) => task.createdAt || task.completedAt
+        );
         if (validTasks.length > 0) {
           const earliest = new Date(
-            Math.min(...validTasks.map((task) => new Date(task.createdAt || task.completedAt)))
+            Math.min(
+              ...validTasks.map(
+                (task) => new Date(task.createdAt || task.completedAt)
+              )
+            )
           );
           startDate = earliest;
         } else {
@@ -418,7 +508,8 @@ const Charts = () => {
         if (!task.completedAt) return false;
         const d = new Date(task.completedAt);
         return d >= startDate && d <= endDate;
-      } else { // both
+      } else {
+        // both
         let d;
         if (task.taskCompleted) {
           if (!task.completedAt) return false;
@@ -430,7 +521,7 @@ const Charts = () => {
         return d >= startDate && d <= endDate;
       }
     });
-  
+
     if (dueFilter !== "both") {
       const now = new Date();
       filtered = filtered.filter((task) => {
@@ -441,34 +532,39 @@ const Charts = () => {
     } else if (!includeNoDueDate) {
       filtered = filtered.filter((task) => task.dueDate);
     }
-  
+
     if (priorityFilters.length > 0) {
-      filtered = filtered.filter((task) => priorityFilters.includes(task.priority));
+      filtered = filtered.filter((task) =>
+        priorityFilters.includes(task.priority)
+      );
     }
-  
+
     if (dayOfWeekFilters.length > 0) {
       filtered = filtered.filter((task) => {
-        const d = task.taskCompleted ? new Date(task.completedAt) : new Date(task.createdAt);
+        const d = task.taskCompleted
+          ? new Date(task.completedAt)
+          : new Date(task.createdAt);
         return dayOfWeekFilters.includes(format(d, "EEEE"));
       });
     }
-  
+
     if (statusFilters.length > 0) {
       filtered = filtered.filter((task) => statusFilters.includes(task.status));
     }
-  
+
     if (assignedToFilter.trim() !== "") {
       const term = assignedToFilter.trim().toLowerCase();
       filtered = filtered.filter(
-        (task) => task.assignedTo && task.assignedTo.toLowerCase().includes(term)
+        (task) =>
+          task.assignedTo && task.assignedTo.toLowerCase().includes(term)
       );
     }
-  
+
     if (minStoryPoints !== "" && !isNaN(parseInt(minStoryPoints, 10))) {
       const minVal = parseInt(minStoryPoints, 10);
       filtered = filtered.filter((task) => (task.storyPoints || 0) >= minVal);
     }
-  
+
     if (minTimeSpent !== "" && !isNaN(parseFloat(minTimeSpent))) {
       const value = parseFloat(minTimeSpent);
       let threshold = value;
@@ -476,30 +572,35 @@ const Charts = () => {
       else if (minTimeUnit === "hours") threshold = value * 3600;
       filtered = filtered.filter((task) => (task.timeSpent || 0) >= threshold);
     }
-  
+
     if (scheduledOnly) {
-      filtered = filtered.filter((task) => task.scheduledStart != null && task.scheduledStart !== "");
+      filtered = filtered.filter(
+        (task) => task.scheduledStart != null && task.scheduledStart !== ""
+      );
     }
-  
+
     return filtered;
   };
-  
 
   // -------------------- Grouping Functions --------------------
   const groupTasks = (tasksList) => {
     const groupMap = {};
-  
+
     tasksList.forEach((task) => {
-      let d = task.taskCompleted ? new Date(task.completedAt) : new Date(task.createdAt);
+      let d = task.taskCompleted
+        ? new Date(task.completedAt)
+        : new Date(task.createdAt);
       let key;
       if (xAxisField === "day") {
         key = format(d, "EEEE");
       } else if (xAxisField === "priority") {
         key = task.priority || "None";
       } else if (xAxisField === "status") {
-        key = task.taskCompleted ? "Completed" : (columnsMapping[task.status] || task.status);
+        key = task.taskCompleted
+          ? "Completed"
+          : columnsMapping[task.status] || task.status;
       }
-  
+
       if (!groupMap[key]) {
         groupMap[key] = { key, count: 0, timeSpent: 0, storyPoints: 0 };
       }
@@ -507,19 +608,23 @@ const Charts = () => {
       groupMap[key].timeSpent += task.timeSpent || 0;
       groupMap[key].storyPoints += task.storyPoints || 0;
     });
-  
+
     if (includeZeroMetrics) {
       let possibleKeys = [];
       if (xAxisField === "day") {
-        possibleKeys = dayOfWeekFilters.length > 0 ? dayOfWeekFilters : dayOptions;
+        possibleKeys =
+          dayOfWeekFilters.length > 0 ? dayOfWeekFilters : dayOptions;
       } else if (xAxisField === "priority") {
-        possibleKeys = priorityFilters.length > 0 ? priorityFilters : allowedPriorities;
+        possibleKeys =
+          priorityFilters.length > 0 ? priorityFilters : allowedPriorities;
       } else if (xAxisField === "status") {
         possibleKeys =
           statusFilters.length > 0
-            ? statusFilters.map(val => columnsMapping[val] || val)
+            ? statusFilters.map((val) => columnsMapping[val] || val)
             : (() => {
-                const keys = columnsMapping ? Object.values(columnsMapping) : [];
+                const keys = columnsMapping
+                  ? Object.values(columnsMapping)
+                  : [];
                 if (!keys.includes("Completed")) {
                   keys.push("Completed");
                 }
@@ -532,9 +637,9 @@ const Charts = () => {
         }
       });
     }
-  
+
     let groupedData = Object.values(groupMap);
-  
+
     if (xAxisField === "status") {
       if (taskType === "active") {
         groupedData = groupedData.filter((item) => item.key !== "Completed");
@@ -542,20 +647,28 @@ const Charts = () => {
         groupedData = groupedData.filter((item) => item.key === "Completed");
       }
     }
-  
+
     return groupedData;
   };
 
   const mergeData = (mainData, compData) => {
     const merged = {};
     mainData.forEach((item) => {
-      merged[item.key] = { key: item.key, mainValue: item[yAxisMetric] || 0, compValue: 0 };
+      merged[item.key] = {
+        key: item.key,
+        mainValue: item[yAxisMetric] || 0,
+        compValue: 0,
+      };
     });
     compData.forEach((item) => {
       if (merged[item.key]) {
         merged[item.key].compValue = item[yAxisMetric] || 0;
       } else {
-        merged[item.key] = { key: item.key, mainValue: 0, compValue: item[yAxisMetric] || 0 };
+        merged[item.key] = {
+          key: item.key,
+          mainValue: 0,
+          compValue: item[yAxisMetric] || 0,
+        };
       }
     });
     return Object.values(merged);
@@ -682,12 +795,16 @@ const Charts = () => {
     const mainTasks = applyAllFilters(tasks, startDate, endDate)
       .filter((task) => {
         if (xAxisField === "day") {
-          const d = new Date(task.taskCompleted ? task.completedAt : task.createdAt);
+          const d = new Date(
+            task.taskCompleted ? task.completedAt : task.createdAt
+          );
           return format(d, "EEEE") === groupKey;
         } else if (xAxisField === "priority") {
           return (task.priority || "None") === groupKey;
         } else if (xAxisField === "status") {
-          const statusLabel = task.taskCompleted ? "Completed" : columnsMapping[task.status] || task.status;
+          const statusLabel = task.taskCompleted
+            ? "Completed"
+            : columnsMapping[task.status] || task.status;
           return statusLabel === groupKey;
         }
         return false;
@@ -699,12 +816,16 @@ const Charts = () => {
       compTasks = applyAllFilters(tasks, compStartDate, compEndDate)
         .filter((task) => {
           if (xAxisField === "day") {
-            const d = new Date(task.taskCompleted ? task.completedAt : task.createdAt);
+            const d = new Date(
+              task.taskCompleted ? task.completedAt : task.createdAt
+            );
             return format(d, "EEEE") === groupKey;
           } else if (xAxisField === "priority") {
             return (task.priority || "None") === groupKey;
           } else if (xAxisField === "status") {
-            const statusLabel = task.taskCompleted ? "Completed" : columnsMapping[task.status] || task.status;
+            const statusLabel = task.taskCompleted
+              ? "Completed"
+              : columnsMapping[task.status] || task.status;
             return statusLabel === groupKey;
           }
           return false;
@@ -713,7 +834,16 @@ const Charts = () => {
     }
     setSelectedMainGroupTasks(mainTasks);
     setSelectedCompGroupTasks(compTasks);
-  }, [modalOpen, tasks, xAxisField, columnsMapping, comparisonMode, compStartDate, compEndDate, groupKey]);
+  }, [
+    modalOpen,
+    tasks,
+    xAxisField,
+    columnsMapping,
+    comparisonMode,
+    compStartDate,
+    compEndDate,
+    groupKey,
+  ]);
 
   useEffect(() => {
     if (userClosedModal && location.pathname.includes("/grouptasks")) {
@@ -729,12 +859,16 @@ const Charts = () => {
     const mainTasks = applyAllFilters(tasks, startDate, endDate)
       .filter((task) => {
         if (xAxisField === "day") {
-          const d = new Date(task.taskCompleted ? task.completedAt : task.createdAt);
+          const d = new Date(
+            task.taskCompleted ? task.completedAt : task.createdAt
+          );
           return format(d, "EEEE") === clickedKey;
         } else if (xAxisField === "priority") {
           return (task.priority || "None") === clickedKey;
         } else if (xAxisField === "status") {
-          const statusLabel = task.taskCompleted ? "Completed" : columnsMapping[task.status] || task.status;
+          const statusLabel = task.taskCompleted
+            ? "Completed"
+            : columnsMapping[task.status] || task.status;
           return statusLabel === clickedKey;
         }
         return false;
@@ -746,12 +880,16 @@ const Charts = () => {
       compTasks = applyAllFilters(tasks, compStartDate, compEndDate)
         .filter((task) => {
           if (xAxisField === "day") {
-            const d = new Date(task.taskCompleted ? task.completedAt : task.createdAt);
+            const d = new Date(
+              task.taskCompleted ? task.completedAt : task.createdAt
+            );
             return format(d, "EEEE") === clickedKey;
           } else if (xAxisField === "priority") {
             return (task.priority || "None") === clickedKey;
           } else if (xAxisField === "status") {
-            const statusLabel = task.taskCompleted ? "Completed" : columnsMapping[task.status] || task.status;
+            const statusLabel = task.taskCompleted
+              ? "Completed"
+              : columnsMapping[task.status] || task.status;
             return statusLabel === clickedKey;
           }
           return false;
@@ -769,7 +907,9 @@ const Charts = () => {
     setSelectedTask(task);
     setIsViewTaskModalOpen(true);
     if (location.pathname.includes("/grouptasks") && groupKey) {
-      navigate(`/charts/grouptasks/${groupKey}/viewtask/${task._id}${location.search}`);
+      navigate(
+        `/charts/grouptasks/${groupKey}/viewtask/${task._id}${location.search}`
+      );
     } else {
       navigate(`/charts/viewtask/${task._id}${location.search}`);
     }
@@ -868,7 +1008,7 @@ const Charts = () => {
 
   const axisFormatter = (value) =>
     yAxisMetric === "timeSpent" ? `${value.toFixed(2)}h` : value.toFixed(0);
-  
+
   const axisWordLimit = (value, index) => {
     const limit = 20;
     if (typeof value !== "string") return "";
@@ -887,13 +1027,22 @@ const Charts = () => {
           <AreaChart
             data={chartData}
             onClick={(e) => {
-              if (e && e.activePayload && e.activePayload.length > 0 && e.activePayload[0].payload) {
+              if (
+                e &&
+                e.activePayload &&
+                e.activePayload.length > 0 &&
+                e.activePayload[0].payload
+              ) {
                 handleChartClick({ payload: e.activePayload[0].payload });
               }
             }}
           >
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="key" tick={{ fill: "white" }} tickFormatter={axisWordLimit}/>
+            <XAxis
+              dataKey="key"
+              tick={{ fill: "white" }}
+              tickFormatter={axisWordLimit}
+            />
             <YAxis tick={{ fill: "white" }} tickFormatter={axisFormatter} />
             <Tooltip
               formatter={tooltipFormatter}
@@ -935,13 +1084,22 @@ const Charts = () => {
           <BarChart
             data={chartData}
             onClick={(e) => {
-              if (e && e.activePayload && e.activePayload.length > 0 && e.activePayload[0].payload) {
+              if (
+                e &&
+                e.activePayload &&
+                e.activePayload.length > 0 &&
+                e.activePayload[0].payload
+              ) {
                 handleChartClick({ payload: e.activePayload[0].payload });
               }
             }}
           >
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="key" tick={{ fill: "white" }} tickFormatter={axisWordLimit}/>
+            <XAxis
+              dataKey="key"
+              tick={{ fill: "white" }}
+              tickFormatter={axisWordLimit}
+            />
             <YAxis tick={{ fill: "white" }} tickFormatter={axisFormatter} />
             <Tooltip
               formatter={tooltipFormatter}
@@ -969,13 +1127,22 @@ const Charts = () => {
           <LineChart
             data={chartData}
             onClick={(e) => {
-              if (e && e.activePayload && e.activePayload.length > 0 && e.activePayload[0].payload) {
+              if (
+                e &&
+                e.activePayload &&
+                e.activePayload.length > 0 &&
+                e.activePayload[0].payload
+              ) {
                 handleChartClick({ payload: e.activePayload[0].payload });
               }
             }}
           >
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="key" tick={{ fill: "white" }} tickFormatter={axisWordLimit}/>
+            <XAxis
+              dataKey="key"
+              tick={{ fill: "white" }}
+              tickFormatter={axisWordLimit}
+            />
             <YAxis tick={{ fill: "white" }} tickFormatter={axisFormatter} />
             <Tooltip
               formatter={tooltipFormatter}
@@ -1036,10 +1203,15 @@ const Charts = () => {
               onClick={handleChartClick}
             >
               {chartData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                <Cell
+                  key={`cell-${index}`}
+                  fill={COLORS[index % COLORS.length]}
+                />
               ))}
             </Pie>
-            <Legend formatter={(value, entry, index) => axisWordLimit(value, index)} />
+            <Legend
+              formatter={(value, entry, index) => axisWordLimit(value, index)}
+            />
             <Tooltip
               formatter={tooltipFormatter}
               contentStyle={{
@@ -1062,7 +1234,9 @@ const Charts = () => {
             data={chartData}
             onClick={(e) => {
               if (e.activeLabel) {
-                const dataPoint = chartData.find((d) => d.key === e.activeLabel);
+                const dataPoint = chartData.find(
+                  (d) => d.key === e.activeLabel
+                );
                 if (dataPoint) {
                   handleChartClick({ payload: dataPoint });
                 }
@@ -1070,11 +1244,17 @@ const Charts = () => {
             }}
           >
             <PolarGrid strokeDasharray="3 3" />
-            <PolarAngleAxis dataKey="key" tick={{ fill: "white" }} tickFormatter={axisWordLimit}/>
+            <PolarAngleAxis
+              dataKey="key"
+              tick={{ fill: "var(--text-color)" }}
+              tickFormatter={axisWordLimit}
+            />
             <PolarRadiusAxis
-              tick={{ fill: "white" }}
+              tick={{ fill: "var(--text-color)" }}
               tickFormatter={(value) =>
-                yAxisMetric === "timeSpent" ? `${value.toFixed(2)}h` : value.toFixed(0)
+                yAxisMetric === "timeSpent"
+                  ? `${value.toFixed(2)}h`
+                  : value.toFixed(0)
               }
             />
             <Tooltip
@@ -1117,332 +1297,353 @@ const Charts = () => {
     return <div>Loading preferences...</div>;
   }
 
-// -------------------- Render --------------------
-return (
-  <Layout>
-    <TopBar
-      buttons={getChartsTopBarConfig(setChartType)}
-      openModal={() => {}}
-      navigate={navigate}
-      activeChartType={chartType}
-    />
-    <div className="charts-page">
-      <h1 className="charts-title">Charts</h1>
-      <div className="charts-container">
-        <div className="charts-left">
-          <div className="filters-card">
-            {/* Filter UI */}
-            <div className="filter-group">
-              <label htmlFor="time-range-select">Time Range</label>
-              <select
-                id="time-range-select"
-                value={timeRangeType}
-                onChange={(e) => setTimeRangeType(e.target.value)}
-              >
-                <option value="week">This Week</option>
-                <option value="2weeks">Last 2 Weeks</option>
-                <option value="month">This Month</option>
-                <option value="year">This Year</option>
-                <option value="all-time">All Time</option>
-                <option value="custom">Custom</option>
-              </select>
-            </div>
-            {timeRangeType === "custom" && (
-              <div className="custom-range">
-                <label htmlFor="custom-start-date">Start Date</label>
-                <DatePicker
-                  id="custom-start-date"
-                  selected={customStartDate}
-                  onChange={(date) => setCustomStartDate(date)}
-                  dateFormat="d MMMM, yyyy"
-                  placeholderText="Select start date"
-                  disabledKeyboardNavigation
-                />
-                <label htmlFor="custom-end-date">End Date</label>
-                <DatePicker
-                  id="custom-end-date"
-                  selected={customEndDate}
-                  onChange={(date) => setCustomEndDate(date)}
-                  dateFormat="d MMMM, yyyy"
-                  placeholderText="Select end date"
-                  disabledKeyboardNavigation
-                />
+  // -------------------- Render --------------------
+  return (
+    <Layout>
+      <TopBar
+        buttons={getChartsTopBarConfig(setChartType)}
+        openModal={() => {}}
+        navigate={navigate}
+        activeChartType={chartType}
+      />
+      <div className="charts-page">
+        <h1 className="charts-title">Charts</h1>
+        <div className="charts-container">
+          <div className="charts-left">
+            <div className="filters-card">
+              {/* Filter UI */}
+              <div className="filter-group">
+                <label htmlFor="time-range-select">Time Range</label>
+                <select
+                  id="time-range-select"
+                  value={timeRangeType}
+                  onChange={(e) => setTimeRangeType(e.target.value)}
+                >
+                  <option value="week">This Week</option>
+                  <option value="2weeks">Last 2 Weeks</option>
+                  <option value="month">This Month</option>
+                  <option value="year">This Year</option>
+                  <option value="all-time">All Time</option>
+                  <option value="custom">Custom</option>
+                </select>
               </div>
-            )}
-            <div className="filter-group">
-              <label htmlFor="task-type-select">Task Type</label>
-              <select
-                id="task-type-select"
-                value={taskType}
-                onChange={(e) => setTaskType(e.target.value)}
-              >
-                <option value="active">Active (In Boards)</option>
-                <option value="completed">Completed</option>
-                <option value="both">Both</option>
-              </select>
-            </div>
-            <div className="filter-group">
-              <label htmlFor="x-axis-field-select">X-Axis Field</label>
-              <select
-                id="x-axis-field-select"
-                value={xAxisField}
-                onChange={(e) => setXAxisField(e.target.value)}
-              >
-                <option value="day">Day</option>
-                <option value="priority">Priority</option>
-                <option value="status">Status</option>
-              </select>
-            </div>
-            <div className="filter-group">
-              <label htmlFor="y-axis-metric-select">Y-Axis Metric</label>
-              <select
-                id="y-axis-metric-select"
-                value={yAxisMetric}
-                onChange={(e) => setYAxisMetric(e.target.value)}
-              >
-                <option value="count">Task Count</option>
-                <option value="timeSpent">Time Spent</option>
-                <option value="storyPoints">Story Points</option>
-              </select>
-            </div>
-            <div className="filter-group">
-              <label htmlFor="sort-order-select">Sort By</label>
-              <select
-                id="sort-order-select"
-                value={sortOrder}
-                onChange={(e) => setSortOrder(e.target.value)}
-              >
-                <option value="none">None</option>
-                <option value="asc">Ascending</option>
-                <option value="desc">Descending</option>
-              </select>
-            </div>
-            <div className="filter-group">
-              <button
-                onClick={() => setShowAdvancedFilters((prev) => !prev)}
-                className="toggle-btn"
-              >
-                {showAdvancedFilters ? "Hide Advanced ▲" : "Show Advanced ▼"}
-              </button>
-            </div>
-            {showAdvancedFilters && (
-              <div className="advanced-filters">
-                <div className="filter-group">
-                  <label htmlFor="due-filter-select">Due Date</label>
-                  <select
-                    id="due-filter-select"
-                    value={dueFilter}
-                    onChange={(e) => setDueFilter(e.target.value)}
-                  >
-                    <option value="both">Both</option>
-                    <option value="due">Due</option>
-                    <option value="overdue">Overdue</option>
-                  </select>
-                </div>
-                <div className="filter-group">
-                  <MultiSelectDropdown
-                    label="Priority"
-                    options={allowedPriorities.map((p) => ({ value: p, label: p }))}
-                    selectedOptions={priorityFilters}
-                    onChange={setPriorityFilters}
+              {timeRangeType === "custom" && (
+                <div className="custom-range">
+                  <label htmlFor="custom-start-date">Start Date</label>
+                  <DatePicker
+                    id="custom-start-date"
+                    selected={customStartDate}
+                    onChange={(date) => setCustomStartDate(date)}
+                    dateFormat="d MMMM, yyyy"
+                    placeholderText="Select start date"
+                    disabledKeyboardNavigation
+                  />
+                  <label htmlFor="custom-end-date">End Date</label>
+                  <DatePicker
+                    id="custom-end-date"
+                    selected={customEndDate}
+                    onChange={(date) => setCustomEndDate(date)}
+                    dateFormat="d MMMM, yyyy"
+                    placeholderText="Select end date"
+                    disabledKeyboardNavigation
                   />
                 </div>
-                <div className="filter-group">
-                  <MultiSelectDropdown
-                    label="Day of the Week"
-                    options={dayOptions.map((d) => ({ value: d, label: d }))}
-                    selectedOptions={dayOfWeekFilters}
-                    onChange={setDayOfWeekFilters}
-                  />
-                </div>
-                <div className="filter-group">
-                  <MultiSelectDropdown
-                    label="Status"
-                    options={statusOptions}
-                    selectedOptions={statusFilters}
-                    onChange={setStatusFilters}
-                  />
-                </div>
-                <div className="filter-group">
-                  <label htmlFor="assigned-to-filter">Assigned To</label>
-                  <input
-                    id="assigned-to-filter"
-                    type="text"
-                    placeholder="Filter by assignee"
-                    value={assignedToFilter}
-                    onChange={(e) => setAssignedToFilter(e.target.value)}
-                  />
-                </div>
-                <div className="filter-group">
-                  <label htmlFor="min-task-count">Minimum Task Count</label>
-                  <input
-                    id="min-task-count"
-                    type="number"
-                    min="0"
-                    placeholder="0"
-                    value={minTaskCount}
-                    onChange={(e) => setMinTaskCount(e.target.value)}
-                  />
-                </div>
-                <div className="filter-group">
-                  <label htmlFor="min-story-points">Minimum Story Points</label>
-                  <input
-                    id="min-story-points"
-                    type="number"
-                    min="0"
-                    placeholder="0"
-                    value={minStoryPoints}
-                    onChange={(e) => setMinStoryPoints(e.target.value)}
-                  />
-                </div>
-                <div className="filter-group">
-                  <label htmlFor="min-time-spent">Minimum Time Spent</label>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+              )}
+              <div className="filter-group">
+                <label htmlFor="task-type-select">Task Type</label>
+                <select
+                  id="task-type-select"
+                  value={taskType}
+                  onChange={(e) => setTaskType(e.target.value)}
+                >
+                  <option value="active">Active (In Boards)</option>
+                  <option value="completed">Completed</option>
+                  <option value="both">Both</option>
+                </select>
+              </div>
+              <div className="filter-group">
+                <label htmlFor="x-axis-field-select">X-Axis Field</label>
+                <select
+                  id="x-axis-field-select"
+                  value={xAxisField}
+                  onChange={(e) => setXAxisField(e.target.value)}
+                >
+                  <option value="day">Day</option>
+                  <option value="priority">Priority</option>
+                  <option value="status">Status</option>
+                </select>
+              </div>
+              <div className="filter-group">
+                <label htmlFor="y-axis-metric-select">Y-Axis Metric</label>
+                <select
+                  id="y-axis-metric-select"
+                  value={yAxisMetric}
+                  onChange={(e) => setYAxisMetric(e.target.value)}
+                >
+                  <option value="count">Task Count</option>
+                  <option value="timeSpent">Time Spent</option>
+                  <option value="storyPoints">Story Points</option>
+                </select>
+              </div>
+              <div className="filter-group">
+                <label htmlFor="sort-order-select">Sort By</label>
+                <select
+                  id="sort-order-select"
+                  value={sortOrder}
+                  onChange={(e) => setSortOrder(e.target.value)}
+                >
+                  <option value="none">None</option>
+                  <option value="asc">Ascending</option>
+                  <option value="desc">Descending</option>
+                </select>
+              </div>
+              <div className="filter-group">
+                <button
+                  onClick={() => setShowAdvancedFilters((prev) => !prev)}
+                  className="toggle-btn"
+                >
+                  {showAdvancedFilters ? "Hide Advanced ▲" : "Show Advanced ▼"}
+                </button>
+              </div>
+              {showAdvancedFilters && (
+                <div className="advanced-filters">
+                  <div className="filter-group">
+                    <label htmlFor="due-filter-select">Due Date</label>
+                    <select
+                      id="due-filter-select"
+                      value={dueFilter}
+                      onChange={(e) => setDueFilter(e.target.value)}
+                    >
+                      <option value="both">Both</option>
+                      <option value="due">Due</option>
+                      <option value="overdue">Overdue</option>
+                    </select>
+                  </div>
+                  <div className="filter-group">
+                    <MultiSelectDropdown
+                      label="Priority"
+                      options={allowedPriorities.map((p) => ({
+                        value: p,
+                        label: p,
+                      }))}
+                      selectedOptions={priorityFilters}
+                      onChange={setPriorityFilters}
+                    />
+                  </div>
+                  <div className="filter-group">
+                    <MultiSelectDropdown
+                      label="Day of the Week"
+                      options={dayOptions.map((d) => ({ value: d, label: d }))}
+                      selectedOptions={dayOfWeekFilters}
+                      onChange={setDayOfWeekFilters}
+                    />
+                  </div>
+                  <div className="filter-group">
+                    <MultiSelectDropdown
+                      label="Status"
+                      options={statusOptions}
+                      selectedOptions={statusFilters}
+                      onChange={setStatusFilters}
+                    />
+                  </div>
+                  <div className="filter-group">
+                    <label htmlFor="assigned-to-filter">Assigned To</label>
                     <input
-                      id="min-time-spent"
+                      id="assigned-to-filter"
+                      type="text"
+                      placeholder="Filter by assignee"
+                      value={assignedToFilter}
+                      onChange={(e) => setAssignedToFilter(e.target.value)}
+                    />
+                  </div>
+                  <div className="filter-group">
+                    <label htmlFor="min-task-count">Minimum Task Count</label>
+                    <input
+                      id="min-task-count"
                       type="number"
                       min="0"
                       placeholder="0"
-                      value={minTimeSpent}
-                      onChange={(e) => setMinTimeSpent(e.target.value)}
-                      style={{ width: "80px" }}
+                      value={minTaskCount}
+                      onChange={(e) => setMinTaskCount(e.target.value)}
                     />
-                    <div className="min-time-unit-options">
-                      <label>
-                        <input
-                          type="radio"
-                          name="minTimeUnit"
-                          value="seconds"
-                          checked={minTimeUnit === "seconds"}
-                          onChange={(e) => setMinTimeUnit(e.target.value)}
-                        />
-                        Seconds
-                      </label>
-                      <label>
-                        <input
-                          type="radio"
-                          name="minTimeUnit"
-                          value="minutes"
-                          checked={minTimeUnit === "minutes"}
-                          onChange={(e) => setMinTimeUnit(e.target.value)}
-                        />
-                        Minutes
-                      </label>
-                      <label>
-                        <input
-                          type="radio"
-                          name="minTimeUnit"
-                          value="hours"
-                          checked={minTimeUnit === "hours"}
-                          onChange={(e) => setMinTimeUnit(e.target.value)}
-                        />
-                        Hours
-                      </label>
+                  </div>
+                  <div className="filter-group">
+                    <label htmlFor="min-story-points">
+                      Minimum Story Points
+                    </label>
+                    <input
+                      id="min-story-points"
+                      type="number"
+                      min="0"
+                      placeholder="0"
+                      value={minStoryPoints}
+                      onChange={(e) => setMinStoryPoints(e.target.value)}
+                    />
+                  </div>
+                  <div className="filter-group">
+                    <label htmlFor="min-time-spent">Minimum Time Spent</label>
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "0.5rem",
+                      }}
+                    >
+                      <input
+                        id="min-time-spent"
+                        type="number"
+                        min="0"
+                        placeholder="0"
+                        value={minTimeSpent}
+                        onChange={(e) => setMinTimeSpent(e.target.value)}
+                        style={{ width: "80px" }}
+                      />
+                      <div className="min-time-unit-options">
+                        <label>
+                          <input
+                            type="radio"
+                            name="minTimeUnit"
+                            value="seconds"
+                            checked={minTimeUnit === "seconds"}
+                            onChange={(e) => setMinTimeUnit(e.target.value)}
+                          />
+                          Seconds
+                        </label>
+                        <label>
+                          <input
+                            type="radio"
+                            name="minTimeUnit"
+                            value="minutes"
+                            checked={minTimeUnit === "minutes"}
+                            onChange={(e) => setMinTimeUnit(e.target.value)}
+                          />
+                          Minutes
+                        </label>
+                        <label>
+                          <input
+                            type="radio"
+                            name="minTimeUnit"
+                            value="hours"
+                            checked={minTimeUnit === "hours"}
+                            onChange={(e) => setMinTimeUnit(e.target.value)}
+                          />
+                          Hours
+                        </label>
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div className="filter-group">
-                  <label htmlFor="scheduled-only">Scheduled Only</label>
-                  <input
-                    id="scheduled-only"
-                    type="checkbox"
-                    checked={scheduledOnly}
-                    onChange={(e) => setScheduledOnly(e.target.checked)}
-                  />
-                </div>
-                <div className="filter-group">
-                  <label htmlFor="include-zero-metrics">Include Zero Metrics</label>
-                  <input
-                    id="include-zero-metrics"
-                    type="checkbox"
-                    checked={includeZeroMetrics}
-                    onChange={(e) => setIncludeZeroMetrics(e.target.checked)}
-                  />
-                </div>
-                <div className="filter-group">
-                  <label htmlFor="include-no-due-date">Include Tasks Without Due Date</label>
-                  <input
-                    id="include-no-due-date"
-                    type="checkbox"
-                    checked={includeNoDueDate}
-                    onChange={(e) => setIncludeNoDueDate(e.target.checked)}
-                  />
-                </div>
-                <div className="filter-group">
-                  <label htmlFor="comparison-mode">Comparison Mode</label>
-                  <input
-                    id="comparison-mode"
-                    type="checkbox"
-                    checked={comparisonMode}
-                    onChange={(e) => setComparisonMode(e.target.checked)}
-                  />
-                </div>
-                {comparisonMode && (
-                  <div className="comparison-range">
-                    <div className="filter-group">
-                      <label htmlFor="comp-start-date">Comparison Start Date</label>
-                      <DatePicker
-                        id="comp-start-date"
-                        selected={compStartDate}
-                        onChange={(date) => setCompStartDate(date)}
-                        dateFormat="d MMMM, yyyy"
-                        placeholderText="Select start date"
-                        disabledKeyboardNavigation
-                      />
-                    </div>
-                    <div className="filter-group">
-                      <label htmlFor="comp-end-date">Comparison End Date</label>
-                      <DatePicker
-                        id="comp-end-date"
-                        selected={compEndDate}
-                        onChange={(date) => setCompEndDate(date)}
-                        dateFormat="d MMMM, yyyy"
-                        placeholderText="Select end date"
-                        disabledKeyboardNavigation
-                      />
-                    </div>
+                  <div className="filter-group">
+                    <label htmlFor="scheduled-only">Scheduled Only</label>
+                    <input
+                      id="scheduled-only"
+                      type="checkbox"
+                      checked={scheduledOnly}
+                      onChange={(e) => setScheduledOnly(e.target.checked)}
+                    />
                   </div>
+                  <div className="filter-group">
+                    <label htmlFor="include-zero-metrics">
+                      Include Zero Metrics
+                    </label>
+                    <input
+                      id="include-zero-metrics"
+                      type="checkbox"
+                      checked={includeZeroMetrics}
+                      onChange={(e) => setIncludeZeroMetrics(e.target.checked)}
+                    />
+                  </div>
+                  <div className="filter-group">
+                    <label htmlFor="include-no-due-date">
+                      Include Tasks Without Due Date
+                    </label>
+                    <input
+                      id="include-no-due-date"
+                      type="checkbox"
+                      checked={includeNoDueDate}
+                      onChange={(e) => setIncludeNoDueDate(e.target.checked)}
+                    />
+                  </div>
+                  <div className="filter-group">
+                    <label htmlFor="comparison-mode">Comparison Mode</label>
+                    <input
+                      id="comparison-mode"
+                      type="checkbox"
+                      checked={comparisonMode}
+                      onChange={(e) => setComparisonMode(e.target.checked)}
+                    />
+                  </div>
+                  {comparisonMode && (
+                    <div className="comparison-range">
+                      <div className="filter-group">
+                        <label htmlFor="comp-start-date">
+                          Comparison Start Date
+                        </label>
+                        <DatePicker
+                          id="comp-start-date"
+                          selected={compStartDate}
+                          onChange={(date) => setCompStartDate(date)}
+                          dateFormat="d MMMM, yyyy"
+                          placeholderText="Select start date"
+                          disabledKeyboardNavigation
+                        />
+                      </div>
+                      <div className="filter-group">
+                        <label htmlFor="comp-end-date">
+                          Comparison End Date
+                        </label>
+                        <DatePicker
+                          id="comp-end-date"
+                          selected={compEndDate}
+                          onChange={(date) => setCompEndDate(date)}
+                          dateFormat="d MMMM, yyyy"
+                          placeholderText="Select end date"
+                          disabledKeyboardNavigation
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+              <div className="preferences-buttons">
+                <button onClick={saveUserPreferences} className="save-btn">
+                  Save Preferences
+                </button>
+                <button onClick={resetUserPreferences} className="reset-btn">
+                  Default Preferences
+                </button>
+                {message && (
+                  <div className="preferences-message">{message}</div>
                 )}
               </div>
-            )}
-            <div className="preferences-buttons">
-              <button onClick={saveUserPreferences} className="save-btn">
-                Save Preferences
-              </button>
-              <button onClick={resetUserPreferences} className="reset-btn">
-                Default Preferences
-              </button>
-              {message && <div className="preferences-message">{message}</div>}
             </div>
           </div>
+          <div className="charts-right">{renderChart()}</div>
         </div>
-        <div className="charts-right">{renderChart()}</div>
       </div>
-    </div>
 
-    <GroupTasksModal
-      modalOpen={modalOpen}
-      setModalOpen={closeGroupTasksModal}
-      mainGroupTasks={selectedMainGroupTasks}
-      compGroupTasks={selectedCompGroupTasks}
-      openReadOnlyViewTaskModal={openReadOnlyViewTaskModal}
-      comparisonMode={comparisonMode}
-      selectedGroup={groupKey}
-    />
-    {isViewTaskModalOpen && (
-      <ViewTaskModal
-        isModalOpen={isViewTaskModalOpen}
-        closeModal={closeViewTaskModal}
-        task={selectedTask}
-        handleUpdateTask={() => {}}
-        columns={columnsMapping}
-        startTimer={() => {}}
-        stopTimer={() => {}}
-        readOnly={true}
+      <GroupTasksModal
+        modalOpen={modalOpen}
+        setModalOpen={closeGroupTasksModal}
+        mainGroupTasks={selectedMainGroupTasks}
+        compGroupTasks={selectedCompGroupTasks}
+        openReadOnlyViewTaskModal={openReadOnlyViewTaskModal}
+        comparisonMode={comparisonMode}
+        selectedGroup={groupKey}
       />
-    )}
-  </Layout>
-);
+      {isViewTaskModalOpen && (
+        <ViewTaskModal
+          isModalOpen={isViewTaskModalOpen}
+          closeModal={closeViewTaskModal}
+          task={selectedTask}
+          handleUpdateTask={() => {}}
+          columns={columnsMapping}
+          startTimer={() => {}}
+          stopTimer={() => {}}
+          readOnly={true}
+        />
+      )}
+    </Layout>
+  );
 };
 
 export default Charts;
