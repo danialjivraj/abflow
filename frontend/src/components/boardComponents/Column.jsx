@@ -32,6 +32,8 @@ const Column = ({
   onBoardRename,
   onBoardDelete,
   columns,
+  confirmBeforeDeleteBoard = true,
+  confirmBeforeDeleteTask,
 }) => {
   const columnDropdownRef = useRef(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -156,7 +158,15 @@ const Column = ({
                     >
                       Rename
                     </button>
-                    <button onClick={() => setIsDeleteModalOpen(true)}>
+                    <button
+                      onClick={() => {
+                        if (!confirmBeforeDeleteBoard) {
+                          handleDelete();
+                        } else {
+                          setIsDeleteModalOpen(true);
+                        }
+                      }}
+                    >
                       Delete
                     </button>
                   </div>
@@ -186,6 +196,7 @@ const Column = ({
                       stopTimer={stopTimer}
                       openViewTaskModal={openViewTaskModal}
                       handleCompleteTask={handleCompleteTask}
+                      confirmBeforeDeleteTask={confirmBeforeDeleteTask}
                     />
                   ))}
                   {provided.placeholder}

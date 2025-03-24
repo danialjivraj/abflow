@@ -647,6 +647,8 @@ const Dashboard = (props) => {
           setRenameBoardError={setRenameBoardError}
           onBoardRename={onBoardRename}
           onBoardDelete={onBoardDelete}
+          confirmBeforeDeleteBoard={userSettings.confirmBeforeDeleteBoard}
+          confirmBeforeDeleteTask={userSettings.confirmBeforeDeleteTask}
         />
       );
     }

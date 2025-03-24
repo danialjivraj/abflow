@@ -35,6 +35,8 @@ const BoardsView = ({
   setRenameBoardError,
   onBoardRename,
   onBoardDelete,
+  confirmBeforeDeleteBoard,
+  confirmBeforeDeleteTask,
 }) => {
   return (
     <>
@@ -76,6 +78,8 @@ const BoardsView = ({
                     onBoardRename={onBoardRename}
                     onBoardDelete={onBoardDelete}
                     columns={columns}
+                    confirmBeforeDeleteBoard={confirmBeforeDeleteBoard}
+                    confirmBeforeDeleteTask={confirmBeforeDeleteTask}
                   />
                 ))}
                 {provided.placeholder}

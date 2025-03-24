@@ -27,6 +27,7 @@ const TaskCard = ({
   handleCompleteTask,
   handleBackToBoards,
   hideDots,
+  confirmBeforeDeleteTask = true,
 }) => {
   const dropdownMenuRef = useRef(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -87,7 +88,6 @@ const TaskCard = ({
         {task.dueDate && (
           <span className={`due-date ${dueDateClass}`}>{dueDateText}</span>
         )}
-
         {calendarColor && (
           <svg
             className="calendar-icon"
@@ -109,7 +109,6 @@ const TaskCard = ({
             <line x1="3" y1="10" x2="21" y2="10" />
           </svg>
         )}
-
         {task.isTimerRunning && (
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -129,7 +128,6 @@ const TaskCard = ({
             <path d="M18 19l2 2" />
           </svg>
         )}
-
         <b
           className={`priority-${task.priority.replace(/\s+/g, "")}`}
           title={priorityTitle}
@@ -193,7 +191,11 @@ const TaskCard = ({
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    setIsDeleteModalOpen(true);
+                    if (!confirmBeforeDeleteTask) {
+                      deleteTask(task._id);
+                    } else {
+                      setIsDeleteModalOpen(true);
+                    }
                     setIsTaskDropdownOpen(null);
                   }}
                 >

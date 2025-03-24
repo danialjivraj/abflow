@@ -224,8 +224,14 @@ describe("Column Component - Integration Tests", () => {
     });
   });
 
-  test("handles board deletion flow", async () => {
-    render(<Column {...defaultProps} isDropdownOpen={baseColumn.columnId} />);
+  test("handles board deletion flow (confirmation enabled)", async () => {
+    render(
+      <Column
+        {...defaultProps}
+        isDropdownOpen={baseColumn.columnId}
+        confirmBeforeDeleteBoard={true}
+      />
+    );
     const dotsButton = screen.getByText("⋮") || screen.getByText("‧‧‧");
     fireEvent.click(dotsButton);
     const deleteButton = screen.getByText("Delete");
@@ -238,6 +244,26 @@ describe("Column Component - Integration Tests", () => {
       expect(deleteBoard).toHaveBeenCalledWith("user1", baseColumn.columnId);
       expect(defaultProps.onBoardDelete).toHaveBeenCalledWith(baseColumn.columnId);
       expect(defaultProps.setIsDropdownOpen).toHaveBeenCalledWith(null);
+    });
+  });
+
+  test("does not open delete confirmation modal when confirmBeforeDeleteBoard is false", async () => {
+    render(
+      <Column
+        {...defaultProps}
+        isDropdownOpen={baseColumn.columnId}
+        confirmBeforeDeleteBoard={false}
+      />
+    );
+    const dotsButton = screen.getByText("⋮") || screen.getByText("‧‧‧");
+    fireEvent.click(dotsButton);
+    const deleteButton = screen.getByText("Delete");
+    fireEvent.click(deleteButton);
+    expect(screen.queryByTestId("delete-modal")).toBeNull();
+    const { deleteBoard } = require("../../../src/services/columnsService");
+    await waitFor(() => {
+      expect(deleteBoard).toHaveBeenCalledWith("user1", baseColumn.columnId);
+      expect(defaultProps.onBoardDelete).toHaveBeenCalledWith(baseColumn.columnId);
     });
   });
 

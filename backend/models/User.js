@@ -63,7 +63,8 @@ const UserSchema = new Schema({
           default: "boards"
         },
         disableToCreateTask: { type: Boolean, default: false },
-        confirmBeforeDelete: { type: Boolean, default: true },
+        confirmBeforeDeleteTask: { type: Boolean, default: true },
+        confirmBeforeDeleteBoard: { type: Boolean, default: true },
         notifyNonPriorityGoesOvertime: { type: Number, default: 1 },
         notifyScheduledTaskIsDue: { type: Number, default: 5 },
         themeAccent: {

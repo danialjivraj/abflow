@@ -1,3 +1,4 @@
+// Settings.jsx
 import React, { useEffect, useState } from "react";
 import Layout from "../components/navigation/Layout";
 import TopBar from "../components/navigation/TopBar";
@@ -31,7 +32,8 @@ const Settings = ({ updateDefaultBoardView }) => {
     hideOldCompletedTasksNever: false,
     defaultBoardView: "boards",
     disableToCreateTask: false,
-    confirmBeforeDelete: true,
+    confirmBeforeDeleteTask: true,
+    confirmBeforeDeleteBoard: true,
     notifyNonPriorityGoesOvertime: 60,
     notifyScheduledTaskIsDue: 60,
     themeAccent: "Green",
@@ -256,42 +258,51 @@ const Settings = ({ updateDefaultBoardView }) => {
             </label>
           </>
         );
-        case "Account & Behavior":
-            return (
-              <>
-                <label className="setting-row">
-                  <span>Inactivity Timeout (hours)</span>
-                  <div className="hide-tasks-right">
-                    <input
-                      type="number"
-                      name="inactivityTimeoutHours"
-                      value={settings.inactivityTimeoutHours}
-                      onChange={handleChange}
-                      className="setting-number-input"
-                      disabled={settings.inactivityTimeoutNever}  // disable if "Never" is checked
-                    />
-                    <label className="never-checkbox">
-                      <input
-                        type="checkbox"
-                        name="inactivityTimeoutNever"
-                        checked={settings.inactivityTimeoutNever}
-                        onChange={handleChange}
-                      />
-                      <span>Never</span>
-                    </label>
-                  </div>
-                </label>
-                <label className="setting-row">
-                  <span>Require Confirmation Before Deleting</span>
+      case "Account & Behavior":
+        return (
+          <>
+            <label className="setting-row">
+              <span>Inactivity Timeout (hours)</span>
+              <div className="hide-tasks-right">
+                <input
+                  type="number"
+                  name="inactivityTimeoutHours"
+                  value={settings.inactivityTimeoutHours}
+                  onChange={handleChange}
+                  className="setting-number-input"
+                  disabled={settings.inactivityTimeoutNever}
+                />
+                <label className="never-checkbox">
                   <input
                     type="checkbox"
-                    name="confirmBeforeDelete"
-                    checked={settings.confirmBeforeDelete}
+                    name="inactivityTimeoutNever"
+                    checked={settings.inactivityTimeoutNever}
                     onChange={handleChange}
                   />
+                  <span>Never</span>
                 </label>
-              </>
-            );
+              </div>
+            </label>
+            <label className="setting-row">
+              <span>Require Confirmation Before Deleting Task</span>
+              <input
+                type="checkbox"
+                name="confirmBeforeDeleteTask"
+                checked={settings.confirmBeforeDeleteTask}
+                onChange={handleChange}
+              />
+            </label>
+            <label className="setting-row">
+              <span>Require Confirmation Before Deleting Board</span>
+              <input
+                type="checkbox"
+                name="confirmBeforeDeleteBoard"
+                checked={settings.confirmBeforeDeleteBoard}
+                onChange={handleChange}
+              />
+            </label>
+          </>
+        );
       default:
         return null;
     }

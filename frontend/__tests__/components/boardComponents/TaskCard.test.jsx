@@ -312,6 +312,33 @@ describe("TaskCard - Integration Tests", () => {
   });
 
   // --- Delete Modal ---
+  test("does not open delete confirmation modal when confirmBeforeDeleteTask is false", () => {
+    renderWithDnd(
+      <TaskCard
+        {...defaultProps}
+        isTaskDropdownOpen={defaultTask._id}
+        confirmBeforeDeleteTask={false}
+      />
+    );
+    const deleteButton = screen.getByText("Delete");
+    fireEvent.click(deleteButton);
+    expect(screen.queryByTestId("delete-modal")).toBeNull();
+    expect(defaultProps.deleteTask).toHaveBeenCalledWith(defaultTask._id);
+  });
+
+  test("opens delete confirmation modal when confirmBeforeDeleteTask is true", () => {
+    renderWithDnd(
+      <TaskCard
+        {...defaultProps}
+        isTaskDropdownOpen={defaultTask._id}
+        confirmBeforeDeleteTask={true}
+      />
+    );
+    const deleteButton = screen.getByText("Delete");
+    fireEvent.click(deleteButton);
+    expect(screen.getByTestId("delete-modal")).toBeInTheDocument();
+  });
+
   test("opens delete confirmation modal when 'Delete' is clicked", () => {
     renderWithDnd(
       <TaskCard {...defaultProps} isTaskDropdownOpen={defaultTask._id} />
