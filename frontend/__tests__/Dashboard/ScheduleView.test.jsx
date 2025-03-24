@@ -457,4 +457,26 @@ describe("ScheduleView - Integration Tests", () => {
     const unscheduledList = document.querySelector(".unscheduled-tasks-list");
     expect(unscheduledList).not.toHaveTextContent("Unscheduled Task");
   });
+
+  test("does not call onCreateTaskShortcut when disableToCreateTask is true", () => {
+    const disableToCreateTask = true;
+  
+    const onCreateTaskShortcut = jest.fn();
+    const conditionalOnCreateTaskShortcut = (start, end) => {
+      if (disableToCreateTask) return;
+      onCreateTaskShortcut(start, end);
+    };
+  
+    renderWithRouter(
+      <ScheduleView
+        tasks={tasks}
+        updateTaskInState={() => {}}
+        onCreateTaskShortcut={conditionalOnCreateTaskShortcut}
+      />
+    );
+  
+    fireEvent.click(screen.getByText("Trigger Slot Selection (Week)"));
+  
+    expect(onCreateTaskShortcut).not.toHaveBeenCalled();
+  });
 });
