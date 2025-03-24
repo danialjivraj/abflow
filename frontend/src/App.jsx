@@ -14,7 +14,7 @@ import Settings from "./pages/Settings";
 import PrivateRoute from "./components/PrivateRoute";
 import { NotificationsProvider } from "./contexts/NotificationsContext";
 import { fetchSettingsPreferences } from "./services/preferencesService";
-import { updateAccentColor } from "./utils/themeUtils";
+import { updateAccentColor, updateTopbarAccentColor } from "./utils/themeUtils";
 
 const DefaultDashboardRedirect = ({ defaultBoardView, preferencesLoaded }) => {
   if (!preferencesLoaded) return <p>Loading dashboard settings...</p>;
@@ -37,6 +37,7 @@ function App() {
     notifyNonPriorityGoesOvertime: 60,
     notifyScheduledTaskIsDue: 60,
     themeAccent: "Green",
+    topbarAccent: "Blue",
   });
 
   useEffect(() => {
@@ -58,6 +59,7 @@ function App() {
         setDefaultBoardView("boards");
         setPreferencesLoaded(false);
         updateAccentColor("Green");
+        updateTopbarAccentColor("Blue");
       } else {
         setUser(user);
         fetchSettingsPreferences(user.uid)
@@ -75,6 +77,7 @@ function App() {
             setUserSettings((prev) => ({ ...prev, ...prefs }));
             setPreferencesLoaded(true);
             updateAccentColor(prefs.themeAccent || "Green");
+            updateTopbarAccentColor(prefs.topbarAccent || "Blue");
           })
           .catch((err) => {
             console.error("Error fetching preferences:", err);

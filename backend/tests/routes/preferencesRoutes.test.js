@@ -160,7 +160,8 @@ describe("Preferences Routes", () => {
       confirmBeforeDelete: false,
       notifyNonPriorityGoesOvertime: 2,
       notifyScheduledTaskIsDue: 30,
-      themeAccent: "Blue"
+      themeAccent: "Green",
+      topbarAccent: "Blue"
     };
 
     // ---------------------------

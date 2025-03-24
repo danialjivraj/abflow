@@ -40,6 +40,7 @@ function createBaseUser(overrides = {}) {
       notifyNonPriorityGoesOvertime: 1,
       notifyScheduledTaskIsDue: 5,
       themeAccent: "Green",
+      topbarAccent: "Blue",
     },
     lastWeeklyNotification: null,
     ...overrides,

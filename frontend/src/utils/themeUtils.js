@@ -26,20 +26,31 @@ export const updateAccentColor = (themeAccent) => {
   };
   
   export const updateTopbarAccentColor = (topbarAccent) => {
-    let topbarColor;
+    let activeTextColor, createBtnBg, createTaskBtnHover;
     switch (topbarAccent) {
       case "Red":
-        topbarColor = "#dc3545";
+        activeTextColor = "#dc3545";
+        createBtnBg = "#dc3545";
+        createTaskBtnHover = "#c82333";
         break;
       case "Purple":
-        topbarColor = "#6f42c1";
+        activeTextColor = "#6f42c1";
+        createBtnBg = "#6f42c1";
+        createTaskBtnHover = "#5a32a3";
         break;
       case "Black":
-        topbarColor = "#343a40";
+        activeTextColor = "#343a40";
+        createBtnBg = "#343a40";
+        createTaskBtnHover = "#2c2f33";
         break;
-      default:
-        topbarColor = "#007bff";
+      default: // Blue (default)
+        activeTextColor = "#007bff";
+        createBtnBg = "#007bff";
+        createTaskBtnHover = "#0056b3";
     }
-    document.documentElement.style.setProperty("--topbar-bg", topbarColor);
+    document.documentElement.style.setProperty("--topbar-active-button-color", activeTextColor);
+    document.documentElement.style.setProperty("--create-top-bar-btn-bg", createBtnBg);
+    document.documentElement.style.setProperty("--create-task-btn-bg", createBtnBg);
+    document.documentElement.style.setProperty("--create-task-btn-hover", createTaskBtnHover);
   };
   

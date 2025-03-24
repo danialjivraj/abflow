@@ -97,7 +97,6 @@ const Settings = ({ updateDefaultBoardView }) => {
         setSaveStatus("Settings saved!");
         setInitialSettings(settings);
         updateDefaultBoardView(settings.defaultBoardView);
-        // Apply both accent colours after settings have been saved.
         updateAccentColor(settings.themeAccent);
         updateTopbarAccentColor(settings.topbarAccent);
         setTimeout(() => setSaveStatus(""), 2000);
@@ -144,19 +143,7 @@ const Settings = ({ updateDefaultBoardView }) => {
                 value={settings.defaultPriority}
                 onChange={handleChange}
               >
-                {[
-                  "A1",
-                  "A2",
-                  "A3",
-                  "B1",
-                  "B2",
-                  "B3",
-                  "C1",
-                  "C2",
-                  "C3",
-                  "D",
-                  "E",
-                ].map((p) => (
+                {["A1", "A2", "A3", "B1", "B2", "B3", "C1", "C2", "C3", "D", "E"].map((p) => (
                   <option key={p} value={p}>
                     {p}
                   </option>
@@ -214,9 +201,7 @@ const Settings = ({ updateDefaultBoardView }) => {
               />
             </label>
             <label className="setting-row">
-              <span>
-                Notify When Non-Priority Task Goes Overtime (in hours)
-              </span>
+              <span>Notify When Non-Priority Task Goes Overtime (in hours)</span>
               <input
                 type="number"
                 name="notifyNonPriorityGoesOvertime"
@@ -247,13 +232,11 @@ const Settings = ({ updateDefaultBoardView }) => {
                 value={settings.themeAccent}
                 onChange={handleChange}
               >
-                {["Green", "Blue", "Orange", "Purple", "Yellow"].map(
-                  (color) => (
-                    <option key={color} value={color}>
-                      {color}
-                    </option>
-                  )
-                )}
+                {["Green", "Blue", "Orange", "Purple", "Yellow"].map((color) => (
+                  <option key={color} value={color}>
+                    {color}
+                  </option>
+                ))}
               </select>
             </label>
             <label className="setting-row">
@@ -323,9 +306,7 @@ const Settings = ({ updateDefaultBoardView }) => {
           {SECTIONS.map((section) => (
             <div
               key={section}
-              className={`sidebar-item ${
-                activeSection === section ? "active" : ""
-              }`}
+              className={`sidebar-item ${activeSection === section ? "active" : ""}`}
               onClick={() => setActiveSection(section)}
             >
               {section}
@@ -336,17 +317,11 @@ const Settings = ({ updateDefaultBoardView }) => {
           <h1 className="settings-title">{activeSection}</h1>
           <div className="settings-section">{renderSection()}</div>
           <div className="settings-save-footer">
-            <button
-              className="save-settings-btn"
-              onClick={handleSave}
-              disabled={!isChanged}
-            >
+            <button className="save-settings-btn" onClick={handleSave} disabled={!isChanged}>
               Save Settings
             </button>
             <div className="save-status-placeholder">
-              {saveStatus && (
-                <div className="save-status-msg">{saveStatus}</div>
-              )}
+              {saveStatus && <div className="save-status-msg">{saveStatus}</div>}
             </div>
           </div>
         </div>

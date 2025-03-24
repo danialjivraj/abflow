@@ -69,6 +69,11 @@ const UserSchema = new Schema({
           type: String,
           enum: ["Green", "Blue", "Orange", "Purple", "Yellow"],
           default: "Green"
+        },
+        topbarAccent: {
+          type: String,
+          enum: ["Blue", "Red", "Purple", "Black"],
+          default: "Blue"
         }
       },
       { _id: false }
