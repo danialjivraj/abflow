@@ -18,7 +18,7 @@ const SECTIONS = [
   "Account & Behavior",
 ];
 
-const Settings = () => {
+const Settings = ({ updateDefaultBoardView }) => {
   const navigate = useNavigate();
   const [settings, setSettings] = useState({
     darkMode: false,
@@ -75,7 +75,7 @@ const Settings = () => {
 
     if (name === "darkMode") {
       applyTheme(val);
-      localStorage.setItem("darkMode", val); // update localStorage for global consistency
+      localStorage.setItem("darkMode", val);
       if (userId) {
         updateSettingsPreferences(userId, updated).catch((err) =>
           console.error("Failed to update dark mode:", err)
@@ -90,6 +90,7 @@ const Settings = () => {
       .then(() => {
         setSaveStatus("Settings saved!");
         setInitialSettings(settings);
+        updateDefaultBoardView(settings.defaultBoardView);
         setTimeout(() => setSaveStatus(""), 2000);
       })
       .catch((err) => {
@@ -287,9 +288,7 @@ const Settings = () => {
           {SECTIONS.map((section) => (
             <div
               key={section}
-              className={`sidebar-item ${
-                activeSection === section ? "active" : ""
-              }`}
+              className={`sidebar-item ${activeSection === section ? "active" : ""}`}
               onClick={() => setActiveSection(section)}
             >
               {section}
