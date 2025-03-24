@@ -6,7 +6,7 @@ import notificationSound from "../assets/notification.mp3";
 
 export const NotificationsContext = createContext();
 
-export const NotificationsProvider = ({ children }) => {
+export const NotificationsProvider = ({ children, muteNotifications }) => {
   const [notifications, setNotifications] = useState([]);
   const prevNotificationsRef = useRef([]);
 
@@ -43,11 +43,13 @@ export const NotificationsProvider = ({ children }) => {
 
   useEffect(() => {
     if (notifications.length > prevNotificationsRef.current.length) {
-      const audio = new Audio(notificationSound);
-      audio.play().catch(() => {});
+      if (!muteNotifications) {
+        const audio = new Audio(notificationSound);
+        audio.play().catch(() => {});
+      }
     }
     prevNotificationsRef.current = notifications;
-  }, [notifications]);
+  }, [notifications, muteNotifications]);
 
   return (
     <NotificationsContext.Provider value={{ notifications, setNotifications }}>

@@ -61,7 +61,8 @@ function App() {
         fetchSettingsPreferences(user.uid)
           .then((res) => {
             const prefs = res.data.settingsPreferences || {};
-            const darkMode = prefs.darkMode !== undefined ? prefs.darkMode : false;
+            const darkMode =
+              prefs.darkMode !== undefined ? prefs.darkMode : false;
             localStorage.setItem("darkMode", darkMode);
             document.documentElement.setAttribute(
               "data-theme",
@@ -85,7 +86,7 @@ function App() {
   if (loading) return <p>Loading...</p>;
 
   return (
-    <NotificationsProvider>
+    <NotificationsProvider muteNotifications={userSettings.muteNotifications}>
       <Router>
         <Routes>
           <Route
@@ -104,7 +105,12 @@ function App() {
             />
             <Route
               path="/dashboard/*"
-              element={<Dashboard userSettings={userSettings} setUserSettings={setUserSettings} />}
+              element={
+                <Dashboard
+                  userSettings={userSettings}
+                  setUserSettings={setUserSettings}
+                />
+              }
             />
             <Route path="/charts" element={<Charts />} />
             <Route path="/charts/grouptasks/:groupKey" element={<Charts />} />
@@ -115,7 +121,9 @@ function App() {
             <Route path="/profile" element={<Profile />} />
             <Route
               path="/settings"
-              element={<Settings updateDefaultBoardView={setDefaultBoardView} />}
+              element={
+                <Settings updateDefaultBoardView={setDefaultBoardView} />
+              }
             />
           </Route>
           <Route path="/" element={<Navigate to="/login" />} />
