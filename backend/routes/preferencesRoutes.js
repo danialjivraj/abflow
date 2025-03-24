@@ -36,7 +36,7 @@ router.put("/:userId", async (req, res) => {
     const user = await User.findOneAndUpdate(
       { userId },
       update,
-      { new: true, upsert: true }
+      { new: true, upsert: true, runValidators: true }
     );
 
     res.json({

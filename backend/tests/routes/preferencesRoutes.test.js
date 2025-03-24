@@ -129,6 +129,21 @@ describe("Preferences Routes", () => {
 
         expect(res.body.chartPreferences).toEqual(newChartPrefs);
       });
+
+      it("should return 500 when invalid chartPreferences data is provided", async () => {
+        const invalidChartPrefs = {
+          chartType: "invalidChartType",
+          xAxisField: "status",
+          yAxisMetric: "count",
+        };
+
+        const res = await request(app)
+          .put(`/api/preferences/${defaultUser.userId}`)
+          .send({ chartPreferences: invalidChartPrefs })
+          .expect(500);
+
+        expect(res.body.error).toBe("Failed to update user preferences");
+      });
     });
   });
 
@@ -185,6 +200,17 @@ describe("Preferences Routes", () => {
           .expect(200);
 
         expect(res.body.settingsPreferences).toEqual(newSettings);
+      });
+
+      it("should return 500 when invalid settingsPreferences data is provided", async () => {
+        const invalidSettings = { ...newSettings, defaultPriority: "invalidPriority" };
+
+        const res = await request(app)
+          .put(`/api/preferences/${defaultUser.userId}`)
+          .send({ settingsPreferences: invalidSettings })
+          .expect(500);
+
+        expect(res.body.error).toBe("Failed to update user preferences");
       });
     });
   });
