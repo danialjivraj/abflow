@@ -1,3 +1,5 @@
+import { FaSun, FaMoon } from "react-icons/fa";
+
 export const getDashboardTopBarConfig = (openModal, navigate) => [
   {
     label: "Boards",
@@ -58,4 +60,23 @@ export const getChartsTopBarConfig = (setChartType) => [
 ];
 
 export const getProfileTopBarConfig = () => [
+];
+
+export const getSettingsTopBarConfig = (toggleDarkMode, isDarkMode) => [
+  {
+    type: "custom",
+    render: () => (
+      <div className="dark-mode-toggle-container" onClick={toggleDarkMode}>
+        <div className={`toggle-wrapper ${isDarkMode ? "dark" : "light"}`}>
+          <div className="toggle-thumb">
+            {isDarkMode ? (
+              <FaMoon className="toggle-icon" />
+            ) : (
+              <FaSun className="toggle-icon" />
+            )}
+          </div>
+        </div>
+      </div>
+    ),
+  },
 ];

@@ -2288,3 +2288,148 @@ select {
   font-size: 1rem;
   color: #bbb;
 }
+
+/* ========= Sidebar Layout ========== */
+.settings-wrapper {
+  display: flex;
+  min-height: calc(100vh - 80px);
+  background-color: #1a1a1a;
+  color: white;
+}
+
+.settings-sidebar {
+  width: 220px;
+  border-right: 1px solid #333;
+  padding: 24px 0;
+  background-color: #1a1a1a;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-item {
+  padding: 14px 24px;
+  cursor: pointer;
+  color: #ccc;
+  font-size: 15px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.sidebar-item:hover {
+  background-color: #2a2a2a;
+  color: #fff;
+}
+
+.sidebar-item.active {
+  background-color: #2d74d1;
+  color: #fff;
+  font-weight: 500;
+}
+
+/* ========= Main Content ========== */
+.settings-content {
+  flex: 1;
+  padding: 40px;
+  overflow-y: auto;
+}
+
+.settings-title {
+  font-size: 24px;
+  margin-bottom: 24px;
+  font-weight: 600;
+}
+
+.settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 60px;
+}
+
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.setting-row span {
+  flex: 1;
+  min-width: 220px;
+}
+
+.setting-row select,
+.setting-row input[type="number"] {
+  background-color: #2a2a2a;
+  border: 1px solid #444;
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  min-width: 140px;
+}
+
+.setting-row input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #2d74d1;
+}
+
+/* ========= Save Button ========== */
+.settings-save-footer {
+  margin-top: 20px;
+  position: relative;
+  height: 60px;
+}
+
+.save-settings-btn {
+  background-color: #2d74d1;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.save-settings-btn:hover {
+  background-color: #0056b3;
+}
+
+.save-settings-btn:disabled {
+  background-color: #444;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.save-status-placeholder {
+  height: 24px;
+  margin-top: 8px;
+}
+
+.save-status-msg {
+  font-size: 14px;
+  color: #4caf50;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ========= Loading ========== */
+.settings-loading {
+  padding: 60px;
+  text-align: center;
+  font-size: 18px;
+  color: #aaa;
+}

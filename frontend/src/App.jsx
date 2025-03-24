@@ -5,6 +5,7 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import Charts from "./pages/Charts";  
 import Profile from "./pages/Profile";  
+import Settings from "./pages/Settings";
 import PrivateRoute from "./components/PrivateRoute"; 
 import { NotificationsProvider } from "./contexts/NotificationsContext";
 
@@ -37,6 +38,7 @@ function App() {
             <Route path="/charts/grouptasks/:groupKey/viewtask/:taskId" element={<Charts />} />
 
             <Route path="/profile" element={<Profile />} />
+            <Route path="/settings" element={<Settings />} />
           </Route>
 
           <Route path="/" element={<Navigate to="/login" />} />

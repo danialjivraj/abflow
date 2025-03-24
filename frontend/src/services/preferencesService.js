@@ -20,3 +20,22 @@ export const fetchChartPreferences = (userId) => {
 export const updateChartPreferences = (userId, preferences) => {
   return axios.put(`${API_URL}/${userId}`, { chartPreferences: preferences });
 };
+
+/**
+ * Fetch user settings preferences.
+ * @param {string} userId
+ * @returns {Promise} Axios GET request
+ */
+export const fetchSettingsPreferences = (userId) => {
+  return axios.get(`${API_URL}/${userId}`);
+};
+
+/**
+ * Update user settings preferences.
+ * @param {string} userId
+ * @param {Object} preferences
+ * @returns {Promise} Axios PUT request
+ */
+export const updateSettingsPreferences = (userId, preferences) => {
+  return axios.put(`${API_URL}/${userId}`, { settingsPreferences: preferences });
+};

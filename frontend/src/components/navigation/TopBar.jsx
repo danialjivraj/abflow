@@ -11,7 +11,6 @@ const TopBar = ({ buttons, openModal, navigate, activeChartType }) => {
   const dropdownRef = useRef(null);
   const { notifications } = useContext(NotificationsContext);
 
-  // Count only unread notifications
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   const displayCount =
@@ -24,7 +23,6 @@ const TopBar = ({ buttons, openModal, navigate, activeChartType }) => {
       unreadCount
     );
 
-  // Use button.path if available, otherwise compare button.value to activeChartType
   const isActive = (button) => {
     if (button.path) {
       return location.pathname.startsWith(button.path);
@@ -48,6 +46,14 @@ const TopBar = ({ buttons, openModal, navigate, activeChartType }) => {
   return (
     <div className="top-bar">
       {buttons.map((button, index) => {
+        if (button.type === "custom") {
+          return (
+            <div key={index} className="top-bar-custom">
+              {button.render()}
+            </div>
+          );
+        }
+
         const activeClass = isActive(button) ? "active" : "";
         return (
           <button
@@ -71,7 +77,9 @@ const TopBar = ({ buttons, openModal, navigate, activeChartType }) => {
           {unreadCount > 0 && (
             <span
               className={`notification-count ${
-                unreadCount > 99 ? "plus-notification" : "regular-notification"
+                unreadCount > 99
+                  ? "plus-notification"
+                  : "regular-notification"
               }`}
             >
               {displayCount}

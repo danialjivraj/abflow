@@ -4,7 +4,7 @@ import TopBar from "../components/navigation/TopBar";
 import { auth } from "../firebase";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { getProfileTopBarConfig } from "../config/topBarConfig";
+import { getProfileTopBarConfig } from "../config/topBarConfig.jsx";
 import "../components/styles.css";
 
 const Profile = () => {

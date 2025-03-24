@@ -66,3 +66,29 @@
 .logout-btn:hover {
   background-color: #dc2626;
 }
+
+.settings-btn {
+  background-color: #3b65ee;
+  color: white;
+  border: none;
+  padding: 9px 12.6px;
+  border-radius: 5.4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.2s ease-in-out;
+  margin-bottom: 9px; 
+  width: 100%; 
+}
+
+.settings-btn:hover {
+  background-color: #204fcf;
+}
+
+.settings-btn.active {
+  background-color: #1e40af;
+  color: white;
+}
+
+.settings-btn.active:hover {
+  background-color: #1e3a8a;
+}

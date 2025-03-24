@@ -92,7 +92,7 @@ describe("Preferences Routes", () => {
                     .send({})
                     .expect(400);
 
-                expect(res.body.error).toBe("No chartPreferences provided");
+                expect(res.body.error).toBe("No preferences provided");
             });
         });
     });

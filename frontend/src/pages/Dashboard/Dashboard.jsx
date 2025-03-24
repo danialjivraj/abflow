@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef, useContext } from "react";
 import Layout from "../../components/navigation/Layout";
 import TopBar from "../../components/navigation/TopBar";
-import { getDashboardTopBarConfig } from "../../config/topBarConfig";
+import { getDashboardTopBarConfig } from "../../config/topBarConfig.jsx";
 import CreateTaskModal from "../../components/modals/CreateTaskModal";
 import ViewTaskModal from "../../components/modals/ViewTaskModal";
 import ScheduleEditModal from "../../components/modals/ScheduleEditModal";

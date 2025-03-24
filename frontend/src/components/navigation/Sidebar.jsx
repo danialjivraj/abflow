@@ -34,6 +34,12 @@ const Sidebar = () => {
           </ul>
         </nav>
       </div>
+      <button
+        onClick={() => navigate("/settings")}
+        className={`settings-btn ${location.pathname === "/settings" ? "active" : ""}`}
+      >
+        Settings
+      </button>
       <button onClick={() => auth.signOut()} className="logout-btn">
         Logout
       </button>

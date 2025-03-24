@@ -43,6 +43,37 @@ const UserSchema = new Schema({
     ),
     default: () => ({})
   },
+  settingsPreferences: {
+    type: new Schema(
+      {
+        darkMode: { type: Boolean, default: true },
+        muteNotifications: { type: Boolean, default: false },
+        inactivityTimeoutHours: { type: Number, default: 1 },
+        defaultPriority: {
+          type: String,
+          enum: ["A1", "A2", "A3", "B1", "B2", "B3", "C1", "C2", "C3", "D", "E"],
+          default: "A1"
+        },
+        hideOldCompletedTasksDays: { type: Number, default: 30 },
+        defaultBoardView: {
+          type: String,
+          enum: ["boards", "schedule", "completedtasks"],
+          default: "boards"
+        },
+        disableToCreateTask: { type: Boolean, default: false },
+        confirmBeforeDelete: { type: Boolean, default: true },
+        notifyNonPriorityGoesOvertime: { type: Number, default: 1 },
+        notifyScheduledTaskIsDue: { type: Number, default: 60 },
+        themeAccent: {
+          type: String,
+          enum: ["Green", "Blue", "Orange", "Purple", "Yellow"],
+          default: "Green"
+        }
+      },
+      { _id: false }
+    ),
+    default: () => ({})
+  },
   lastWeeklyNotification: { type: Date, default: null },
 });
 
