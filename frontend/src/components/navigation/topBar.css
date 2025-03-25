@@ -1,6 +1,6 @@
 :root {
   /* Light mode */
-  --topbar-bg: #ffffff;
+  --topbar-bg: #dbdbdb;
   --topbar-border: #e0e0e0;
   --topbar-button-color: #333333;
   --topbar-button-hover: #000000;
@@ -9,7 +9,7 @@
   --notification-button-active: #d1921d;
   --create-task-btn-bg: #2d74d1;
   --create-task-btn-hover: #0056b3;
-  --toggle-bg-light: #ccc;
+  --toggle-bg-light: #929292;
   --toggle-bg-dark: #2d74d1;
   --toggle-icon-color: #222222;
 }
