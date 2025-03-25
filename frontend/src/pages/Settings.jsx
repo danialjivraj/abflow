@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Layout from "../components/navigation/Layout";
 import TopBar from "../components/navigation/TopBar";
@@ -84,8 +84,7 @@ const CATEGORY_DEFAULTS = {
   },
   Notifications: {
     muteNotifications: DEFAULT_SETTINGS.muteNotifications,
-    notifyNonPriorityGoesOvertime:
-      DEFAULT_SETTINGS.notifyNonPriorityGoesOvertime,
+    notifyNonPriorityGoesOvertime: DEFAULT_SETTINGS.notifyNonPriorityGoesOvertime,
     notifyScheduledTaskIsDue: DEFAULT_SETTINGS.notifyScheduledTaskIsDue,
   },
   "Interface Customisation": {
@@ -101,6 +100,14 @@ const CATEGORY_DEFAULTS = {
   },
 };
 
+const presetColors = {
+  Green: "#4CAF50",
+  Blue: "#007bff",
+  Orange: "#ff9800",
+  Purple: "#9c27b0",
+  Yellow: "#ffeb3b",
+};
+
 const Settings = ({ updateDefaultBoardView }) => {
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [initialSettings, setInitialSettings] = useState(null);
@@ -108,6 +115,9 @@ const Settings = ({ updateDefaultBoardView }) => {
   const [saveStatus, setSaveStatus] = useState("");
   const [settingsLoaded, setSettingsLoaded] = useState(false);
   const [showPriorityColors, setShowPriorityColors] = useState(false);
+
+  const themeAccentColorRef = useRef(null);
+  const topbarAccentColorRef = useRef(null);
 
   const { section } = useParams();
   const navigate = useNavigate();
@@ -180,6 +190,31 @@ const Settings = ({ updateDefaultBoardView }) => {
           console.error("Failed to update dark mode:", err)
         );
       }
+    }
+  };
+
+  const handleAccentSelectChange = (e) => {
+    const { name, value } = e.target;
+
+    setSettings((prev) => ({ ...prev, [name]: value }));
+
+    if (value === "Custom") {
+      setTimeout(() => {
+        if (name === "themeAccent" && themeAccentColorRef.current) {
+          if (themeAccentColorRef.current.showPicker) {
+            themeAccentColorRef.current.showPicker();
+          } else {
+            themeAccentColorRef.current.click();
+          }
+        }
+        if (name === "topbarAccent" && topbarAccentColorRef.current) {
+          if (topbarAccentColorRef.current.showPicker) {
+            topbarAccentColorRef.current.showPicker();
+          } else {
+            topbarAccentColorRef.current.click();
+          }
+        }
+      }, 0);
     }
   };
 
@@ -424,62 +459,62 @@ const Settings = ({ updateDefaultBoardView }) => {
             <label className="setting-row">
               <span>Sidebar Theme Accent</span>
               <div className="accent-container">
+                <input
+                  type="color"
+                  className="custom-color-input"
+                  ref={themeAccentColorRef}
+                  value={
+                    settings.themeAccent === "Custom"
+                      ? settings.themeAccentCustom
+                      : presetColors[settings.themeAccent] || "#4CAF50"
+                  }
+                  onChange={handleThemeAccentCustomChange}
+                  disabled={settings.themeAccent !== "Custom"}
+                />
                 <select
                   name="themeAccent"
                   value={settings.themeAccent}
-                  onChange={handleChange}
+                  onChange={handleAccentSelectChange}
                 >
-                  {[
-                    "Green",
-                    "Blue",
-                    "Orange",
-                    "Purple",
-                    "Yellow",
-                    "Custom",
-                  ].map((color) => (
-                    <option key={color} value={color}>
-                      {color}
-                    </option>
-                  ))}
+                  {["Green", "Blue", "Orange", "Purple", "Yellow", "Custom"].map(
+                    (color) => (
+                      <option key={color} value={color}>
+                        {color}
+                      </option>
+                    )
+                  )}
                 </select>
-                {settings.themeAccent === "Custom" && (
-                  <input
-                    type="color"
-                    value={settings.themeAccentCustom || "#4CAF50"}
-                    onChange={handleThemeAccentCustomChange}
-                  />
-                )}
               </div>
             </label>
 
             <label className="setting-row">
               <span>Topbar Theme Accent</span>
               <div className="accent-container">
+                <input
+                  type="color"
+                  className="custom-color-input"
+                  ref={topbarAccentColorRef}
+                  value={
+                    settings.topbarAccent === "Custom"
+                      ? settings.topbarAccentCustom
+                      : presetColors[settings.topbarAccent] || "#007bff"
+                  }
+                  onChange={handleTopbarAccentCustomChange}
+                  disabled={settings.topbarAccent !== "Custom"}
+                />
                 <select
                   name="topbarAccent"
                   value={settings.topbarAccent}
-                  onChange={handleChange}
+                  onChange={handleAccentSelectChange}
                 >
-                  {[
-                    "Green",
-                    "Blue",
-                    "Orange",
-                    "Purple",
-                    "Yellow",
-                    "Custom",
-                  ].map((color) => (
-                    <option key={color} value={color}>
-                      {color}
-                    </option>
-                  ))}
+                  {["Green", "Blue", "Orange", "Purple", "Yellow", "Custom"].map(
+                    (color) => (
+                      <option key={color} value={color}>
+                        {color}
+                      </option>
+                    )
+                  )}
                 </select>
-                {settings.topbarAccent === "Custom" && (
-                  <input
-                    type="color"
-                    value={settings.topbarAccentCustom || "#007bff"}
-                    onChange={handleTopbarAccentCustomChange}
-                  />
-                )}
               </div>
             </label>
 
@@ -597,9 +632,7 @@ const Settings = ({ updateDefaultBoardView }) => {
           {SECTIONS.map((sec) => (
             <div
               key={sec}
-              className={`sidebar-item ${
-                activeSection === sec ? "active" : ""
-              }`}
+              className={`sidebar-item ${activeSection === sec ? "active" : ""}`}
               onClick={() => handleSectionClick(sec)}
             >
               {sec}
