@@ -13,6 +13,8 @@ import {
   updateTopbarAccentColor,
   updatePriorityCSSVariables,
 } from "../utils/themeUtils";
+import { ToastContainer, Slide, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "../components/styles.css";
 
 const SECTIONS = [
@@ -84,7 +86,8 @@ const CATEGORY_DEFAULTS = {
   },
   Notifications: {
     muteNotifications: DEFAULT_SETTINGS.muteNotifications,
-    notifyNonPriorityGoesOvertime: DEFAULT_SETTINGS.notifyNonPriorityGoesOvertime,
+    notifyNonPriorityGoesOvertime:
+      DEFAULT_SETTINGS.notifyNonPriorityGoesOvertime,
     notifyScheduledTaskIsDue: DEFAULT_SETTINGS.notifyScheduledTaskIsDue,
   },
   "Interface Customisation": {
@@ -112,7 +115,6 @@ const Settings = ({ updateDefaultBoardView }) => {
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [initialSettings, setInitialSettings] = useState(null);
   const [userId, setUserId] = useState(null);
-  const [saveStatus, setSaveStatus] = useState("");
   const [settingsLoaded, setSettingsLoaded] = useState(false);
   const [showPriorityColors, setShowPriorityColors] = useState(false);
 
@@ -195,9 +197,7 @@ const Settings = ({ updateDefaultBoardView }) => {
 
   const handleAccentSelectChange = (e) => {
     const { name, value } = e.target;
-
     setSettings((prev) => ({ ...prev, [name]: value }));
-
     if (value === "Custom") {
       setTimeout(() => {
         if (name === "themeAccent" && themeAccentColorRef.current) {
@@ -241,7 +241,6 @@ const Settings = ({ updateDefaultBoardView }) => {
     if (!userId) return;
     updateSettingsPreferences(userId, settings)
       .then(() => {
-        setSaveStatus("Settings saved!");
         setInitialSettings(settings);
         updateDefaultBoardView(settings.defaultBoardView);
 
@@ -256,13 +255,11 @@ const Settings = ({ updateDefaultBoardView }) => {
           updateTopbarAccentColor(settings.topbarAccent);
         }
         updatePriorityCSSVariables(settings.priorityColours);
-
-        setTimeout(() => setSaveStatus(""), 2000);
+        toast.success("Settings saved!");
       })
       .catch((err) => {
         console.error("Failed to save settings:", err);
-        setSaveStatus("Failed to save.");
-        setTimeout(() => setSaveStatus(""), 3000);
+        toast.error("Failed to save settings.");
       });
   };
 
@@ -476,13 +473,18 @@ const Settings = ({ updateDefaultBoardView }) => {
                   value={settings.themeAccent}
                   onChange={handleAccentSelectChange}
                 >
-                  {["Green", "Blue", "Orange", "Purple", "Yellow", "Custom"].map(
-                    (color) => (
-                      <option key={color} value={color}>
-                        {color}
-                      </option>
-                    )
-                  )}
+                  {[
+                    "Green",
+                    "Blue",
+                    "Orange",
+                    "Purple",
+                    "Yellow",
+                    "Custom",
+                  ].map((color) => (
+                    <option key={color} value={color}>
+                      {color}
+                    </option>
+                  ))}
                 </select>
               </div>
             </label>
@@ -507,13 +509,18 @@ const Settings = ({ updateDefaultBoardView }) => {
                   value={settings.topbarAccent}
                   onChange={handleAccentSelectChange}
                 >
-                  {["Green", "Blue", "Orange", "Purple", "Yellow", "Custom"].map(
-                    (color) => (
-                      <option key={color} value={color}>
-                        {color}
-                      </option>
-                    )
-                  )}
+                  {[
+                    "Green",
+                    "Blue",
+                    "Orange",
+                    "Purple",
+                    "Yellow",
+                    "Custom",
+                  ].map((color) => (
+                    <option key={color} value={color}>
+                      {color}
+                    </option>
+                  ))}
                 </select>
               </div>
             </label>
@@ -632,7 +639,9 @@ const Settings = ({ updateDefaultBoardView }) => {
           {SECTIONS.map((sec) => (
             <div
               key={sec}
-              className={`sidebar-item ${activeSection === sec ? "active" : ""}`}
+              className={`sidebar-item ${
+                activeSection === sec ? "active" : ""
+              }`}
               onClick={() => handleSectionClick(sec)}
             >
               {sec}
@@ -657,10 +666,16 @@ const Settings = ({ updateDefaultBoardView }) => {
             <button className="btn default-all-btn" onClick={resetAll}>
               Default All
             </button>
-            {saveStatus && <div className="save-status-msg">{saveStatus}</div>}
           </div>
         </div>
       </div>
+      <ToastContainer
+        position="top-center"
+        autoClose={2000}
+        theme={settings.darkMode ? "dark" : "light"}
+        transition={Slide}
+        hideProgressBar="true"
+      />
     </Layout>
   );
 };
