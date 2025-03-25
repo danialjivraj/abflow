@@ -67,6 +67,8 @@ function App() {
         setUser(null);
         setDefaultBoardView("boards");
         setPreferencesLoaded(false);
+        localStorage.setItem("darkMode", "true");
+        document.documentElement.setAttribute("data-theme", "dark");
         updateAccentColor("Green");
         updateTopbarAccentColor("Blue");
       } else {
