@@ -1,7 +1,7 @@
 :root {
   /* Light mode */
   --topbar-bg: #dbdbdb;
-  --topbar-border: #e0e0e0;
+  --topbar-border: #c0c0c0;
   --topbar-button-color: #333333;
   --topbar-button-hover: #000000;
   --topbar-active-button-color: #2d74d1;
@@ -28,6 +28,10 @@
   --toggle-bg-light: #ccc;
   --toggle-bg-dark: #2d74d1;
   --toggle-icon-color: #222222;
+}
+
+[data-theme="light"] .top-bar {
+  box-shadow: none;
 }
 
 .top-bar {
