@@ -316,7 +316,7 @@ describe("Settings component", () => {
     const saveButton = screen.getByRole("button", { name: "Save Settings" });
     expect(saveButton).not.toBeDisabled();
     userEvent.click(saveButton);
-    const errorMsg = await screen.findByText("Failed to save.");
+    const errorMsg = await screen.findByText("Failed to save settings.");
     expect(errorMsg).toBeInTheDocument();
   });
 });

@@ -1306,8 +1306,8 @@ const Charts = () => {
         navigate={navigate}
         activeChartType={chartType}
       />
+      <h1 className="page-title">Charts</h1>
       <div className="charts-page">
-        <h1 className="charts-title">Charts</h1>
         <div className="charts-container">
           <div className="charts-left">
             <div className="filters-card">
@@ -1433,7 +1433,10 @@ const Charts = () => {
                   <div className="filter-group">
                     <MultiSelectDropdown
                       label="Day of the Week"
-                      options={dayOptions.map((d) => ({ value: d, label: d }))}
+                      options={dayOptions.map((d) => ({
+                        value: d,
+                        label: d,
+                      }))}
                       selectedOptions={dayOfWeekFilters}
                       onChange={setDayOfWeekFilters}
                     />

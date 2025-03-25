@@ -143,7 +143,8 @@ describe("Profile Page", () => {
       </BrowserRouter>
     );
 
-    expect(await screen.findByText("Your Profile")).toBeInTheDocument();
+    const profileHeading = await screen.findByRole("heading", { name: "Profile" });
+    expect(profileHeading).toBeInTheDocument();
     expect(await screen.findByText("36")).toBeInTheDocument();
     expect(await screen.findByText("13")).toBeInTheDocument();
   });
@@ -204,5 +205,26 @@ describe("Profile Page", () => {
         "http://localhost:5000/api/profile/user1"
       );
     });
+  });
+
+  it("should render decimal profile points correctly", async () => {
+    axios.get.mockResolvedValueOnce({
+      data: { points: 23.5, tasksCompleted: 5 },
+    });
+  
+    render(
+      <BrowserRouter>
+        <NotificationsProvider>
+          <Profile />
+        </NotificationsProvider>
+      </BrowserRouter>
+    );
+  
+    const profileHeading = await screen.findByRole("heading", {
+      name: "Profile",
+    });
+    expect(profileHeading).toBeInTheDocument();
+    expect(await screen.findByText("23.5")).toBeInTheDocument();
+    expect(await screen.findByText("5")).toBeInTheDocument();
   });
 });

@@ -40,7 +40,7 @@ const BoardsView = ({
 }) => {
   return (
     <>
-      <h1>Boards</h1>
+      <h1 className="page-title">Boards</h1>
       <div className="kanban-container">
         <DragDropContext onDragEnd={handleDragEnd}>
           <Droppable droppableId="all-columns" direction="horizontal" type="COLUMN">

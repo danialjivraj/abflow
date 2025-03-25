@@ -108,7 +108,7 @@ const CompletedTasks = ({
 
   return (
     <div className="completed-tasks-page">
-      <h1>Completed Tasks</h1>
+      <h1 className="page-title">Completed Tasks</h1>
       {/* Filter Bar */}
       <div className="filter-container">
         {["day", "week", "month", "year"].map((filter) => (

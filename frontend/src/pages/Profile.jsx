@@ -17,7 +17,9 @@ const Profile = () => {
       if (!currentUser) return;
       const userId = currentUser.uid;
       try {
-        const response = await axios.get(`http://localhost:5000/api/profile/${userId}`);
+        const response = await axios.get(
+          `http://localhost:5000/api/profile/${userId}`
+        );
         setProfile(response.data);
       } catch (error) {
         console.error("Error fetching profile data:", error);
@@ -30,9 +32,9 @@ const Profile = () => {
   return (
     <Layout>
       <TopBar buttons={getProfileTopBarConfig(() => {}, navigate)} />
+      <h1 className="page-title">Profile</h1>
       <div className="profile-page">
         <div className="profile-card">
-          <h1>Your Profile</h1>
           <div className="profile-info">
             <div className="profile-stat">
               <h2>{profile.points}</h2>

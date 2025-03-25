@@ -104,6 +104,19 @@ input[type="checkbox"]:checked::before {
 }
 
 /* ---------------------- General Layout ---------------------- */
+.page-title {
+  font-size: 2rem;
+  padding-left: 1rem;
+  font-weight: 600;
+  color: var(--panelheading-color);
+  text-align: left;
+  margin: 20px 0;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border-bottom: 2px solid var(--border-color);
+  padding-bottom: 10px;
+}
+
 .kanban-container {
   padding: 18px;
   width: 100%;
@@ -767,7 +780,7 @@ select {
 
 .unscheduled-panel-toggle-button {
   position: absolute;
-  top: 1rem;
+  top: 4rem;
   right: 1rem;
   background: var(--bg2-color);
   border: none;
@@ -783,7 +796,7 @@ select {
 
 .unscheduled-panel {
   position: absolute;
-  top: 4rem;
+  top: -2rem;
   right: 1rem;
   width: 300px;
   background-color: var(--component-bg);
@@ -1183,10 +1196,6 @@ select {
   padding: 1.5rem;
   min-height: 50vh;
   box-sizing: border-box;
-}
-
-.charts-title {
-  margin: 0 0 0.5rem 0;
 }
 
 .charts-container {
@@ -2325,8 +2334,7 @@ select {
 
 .profile-page {
   display: flex;
-  justify-content: center;
-  padding: 2rem;
+  padding-left: 2rem;
   background-color: var(--bg-color);
 }
 
@@ -2373,9 +2381,10 @@ select {
 /* Settings */
 .settings-wrapper {
   display: flex;
-  height: calc(100vh - 100px);
+  height: calc(100vh - 165px);
   background-color: var(--bg-color);
   color: var(--text-color);
+  margin-top: -20px;
 }
 
 .settings-sidebar {

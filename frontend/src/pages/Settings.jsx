@@ -634,6 +634,8 @@ const Settings = ({ updateDefaultBoardView }) => {
           }
         }, settings.darkMode)}
       />
+      <h1 className="page-title">Settings</h1>
+
       <div className="settings-wrapper">
         <aside className="settings-sidebar">
           {SECTIONS.map((sec) => (
