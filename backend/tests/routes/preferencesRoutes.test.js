@@ -162,8 +162,23 @@ describe("Preferences Routes", () => {
       confirmBeforeDeleteTask: true,
       notifyNonPriorityGoesOvertime: 2,
       notifyScheduledTaskIsDue: 30,
+      priorityColours: {
+        A1: "#ff4d4d",
+        A2: "#ff6666",
+        A3: "#ff9999",
+        B1: "#4d4dff",
+        B2: "#6666ff",
+        B3: "#9999ff",
+        C1: "#4dff4d",
+        C2: "#66ff66",
+        C3: "#99ff99",
+        D: "#cc66ff",
+        E: "#ff9966",
+      },
       themeAccent: "Green",
-      topbarAccent: "Blue"
+      themeAccentCustom: "",
+      topbarAccent: "Blue",
+      topbarAccentCustom: ""
     };
 
     // ---------------------------

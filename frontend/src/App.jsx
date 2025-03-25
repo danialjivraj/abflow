@@ -14,7 +14,11 @@ import Settings from "./pages/Settings";
 import PrivateRoute from "./components/PrivateRoute";
 import { NotificationsProvider } from "./contexts/NotificationsContext";
 import { fetchSettingsPreferences } from "./services/preferencesService";
-import { updateAccentColor, updateTopbarAccentColor } from "./utils/themeUtils";
+import {
+  updateAccentColor,
+  updateTopbarAccentColor,
+  updatePriorityCSSVariables,
+} from "./utils/themeUtils";
 
 const DefaultDashboardRedirect = ({ defaultBoardView, preferencesLoaded }) => {
   if (!preferencesLoaded) return <p>Loading dashboard settings...</p>;
@@ -80,8 +84,19 @@ function App() {
             setDefaultBoardView(prefs.defaultBoardView || "boards");
             setUserSettings((prev) => ({ ...prev, ...prefs }));
             setPreferencesLoaded(true);
-            updateAccentColor(prefs.themeAccent || "Green");
-            updateTopbarAccentColor(prefs.topbarAccent || "Blue");
+            if (prefs.themeAccent === "Custom") {
+              updateAccentColor(prefs.themeAccentCustom);
+            } else {
+              updateAccentColor(prefs.themeAccent || "Green");
+            }
+            if (prefs.topbarAccent === "Custom") {
+              updateTopbarAccentColor(prefs.topbarAccentCustom);
+            } else {
+              updateTopbarAccentColor(prefs.topbarAccent || "Blue");
+            }
+            if (prefs.priorityColours) {
+              updatePriorityCSSVariables(prefs.priorityColours);
+            }
           })
           .catch((err) => {
             console.error("Error fetching preferences:", err);
@@ -107,14 +122,14 @@ function App() {
     }
 
     const timeoutDuration =
-      userSettings.inactivityTimeoutHours * 60 * 60 * 1000; // to milliseconds
+      userSettings.inactivityTimeoutHours * 60 * 60 * 1000;
 
     const resetTimer = () => {
       clearLogoutTimer();
       logoutTimerRef.current = setTimeout(() => {
-        auth.signOut().then(() =>
-          console.log("User logged out due to inactivity.")
-        );
+        auth
+          .signOut()
+          .then(() => console.log("User logged out due to inactivity."));
       }, timeoutDuration);
     };
 
@@ -175,8 +190,10 @@ function App() {
             />
             <Route path="/profile" element={<Profile />} />
             <Route
-              path="/settings"
-              element={<Settings updateDefaultBoardView={setDefaultBoardView} />}
+              path="/settings/:section/*"
+              element={
+                <Settings updateDefaultBoardView={setDefaultBoardView} />
+              }
             />
           </Route>
           <Route path="/" element={<Navigate to="/login" />} />

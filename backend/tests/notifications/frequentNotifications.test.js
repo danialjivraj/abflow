@@ -144,8 +144,7 @@ describe("Frequent Notifications", () => {
         const scheduledNotifs = await generateScheduledNotifications(defaultUser.userId, now);
         expect(scheduledNotifs.length).toBe(1);
 
-        const expectedTime = scheduledStart.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-        const expectedMessage = `Reminder: Your scheduled task "Custom Threshold Task" will start at ${expectedTime} (in less than 29 minutes).`;
+        const expectedMessage = `Reminder: Your scheduled task "Custom Threshold Task" will start at 18:09 (in less than 29 minutes).`;
         expect(scheduledNotifs[0].message).toBe(expectedMessage);
     });
 

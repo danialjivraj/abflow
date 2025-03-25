@@ -1,7 +1,15 @@
-import { updateAccentColor, updateTopbarAccentColor } from "../../src/utils/themeUtils";
+import { 
+  updateAccentColor, 
+  updateTopbarAccentColor, 
+  updatePriorityCSSVariables 
+} from "../../src/utils/themeUtils";
 
 describe("themeUtils", () => {
   describe("updateAccentColor", () => {
+    beforeEach(() => {
+      document.documentElement.style = "";
+    });
+
     it("should update sidebar accent color to Blue", () => {
       updateAccentColor("Blue");
       expect(document.documentElement.style.getPropertyValue("--sidebar-active-bg")).toBe("#007bff");
@@ -31,9 +39,19 @@ describe("themeUtils", () => {
       expect(document.documentElement.style.getPropertyValue("--sidebar-active-bg")).toBe("#4CAF50");
       expect(document.documentElement.style.getPropertyValue("--sidebar-heading-color")).toBe("#4CAF50");
     });
+
+    it("should update sidebar accent color to a custom color if a hex value is provided", () => {
+      updateAccentColor("#abcdef");
+      expect(document.documentElement.style.getPropertyValue("--sidebar-active-bg")).toBe("#abcdef");
+      expect(document.documentElement.style.getPropertyValue("--sidebar-heading-color")).toBe("#abcdef");
+    });
   });
 
   describe("updateTopbarAccentColor", () => {
+    beforeEach(() => {
+      document.documentElement.style = "";
+    });
+
     it("should update topbar accent color to Blue (default)", () => {
       updateTopbarAccentColor("Blue");
       expect(document.documentElement.style.getPropertyValue("--topbar-active-button-color")).toBe("#007bff");
@@ -72,6 +90,40 @@ describe("themeUtils", () => {
       expect(document.documentElement.style.getPropertyValue("--create-top-bar-btn-bg")).toBe("#007bff");
       expect(document.documentElement.style.getPropertyValue("--create-task-btn-bg")).toBe("#007bff");
       expect(document.documentElement.style.getPropertyValue("--create-task-btn-hover")).toBe("#0056b3");
+    });
+
+    it("should update topbar accent color to a custom color if a hex value is provided", () => {
+      updateTopbarAccentColor("#123456");
+      expect(document.documentElement.style.getPropertyValue("--topbar-active-button-color")).toBe("#123456");
+      expect(document.documentElement.style.getPropertyValue("--create-top-bar-btn-bg")).toBe("#123456");
+      expect(document.documentElement.style.getPropertyValue("--create-task-btn-bg")).toBe("#123456");
+      expect(document.documentElement.style.getPropertyValue("--create-task-btn-hover")).toBe("#123456");
+    });
+  });
+
+  describe("updatePriorityCSSVariables", () => {
+    beforeEach(() => {
+      document.documentElement.style = "";
+    });
+
+    it("should update all priority CSS variables correctly", () => {
+      const colors = {
+        A1: "#111111",
+        A2: "#222222",
+        A3: "#333333",
+        B1: "#444444",
+        B2: "#555555",
+        B3: "#666666",
+        C1: "#777777",
+        C2: "#888888",
+        C3: "#999999",
+        D:  "#aaaaaa",
+        E:  "#bbbbbb",
+      };
+      updatePriorityCSSVariables(colors);
+      Object.keys(colors).forEach((priority) => {
+        expect(document.documentElement.style.getPropertyValue(`--priority-${priority}`)).toBe(colors[priority]);
+      });
     });
   });
 });

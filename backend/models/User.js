@@ -41,14 +41,14 @@ const UserSchema = new Schema({
       },
       { _id: false }
     ),
-    default: () => ({})
+    default: () => ({}),
   },
   settingsPreferences: {
     type: new Schema(
       {
         darkMode: { type: Boolean, default: true },
         muteNotifications: { type: Boolean, default: false },
-        inactivityTimeoutHours: { type: Number, default: 1 },
+        inactivityTimeoutHours: { type: Number, default: 24 },
         inactivityTimeoutNever: { type: Boolean, default: true },
         defaultPriority: {
           type: String,
@@ -69,18 +69,36 @@ const UserSchema = new Schema({
         notifyScheduledTaskIsDue: { type: Number, default: 5 },
         themeAccent: {
           type: String,
-          enum: ["Green", "Blue", "Orange", "Purple", "Yellow"],
+          enum: ["Green", "Blue", "Orange", "Purple", "Yellow", "Custom"],
           default: "Green"
         },
+        themeAccentCustom: { type: String, default: "" },
         topbarAccent: {
           type: String,
-          enum: ["Blue", "Red", "Purple", "Black"],
+          enum: ["Blue", "Red", "Purple", "Black", "Custom"],
           default: "Blue"
-        }
+        },
+        topbarAccentCustom: { type: String, default: "" },
+        priorityColours: {
+          type: Object,
+          default: {
+            A1: "#ff4d4d",
+            A2: "#ff6666",
+            A3: "#ff9999",
+            B1: "#4d4dff",
+            B2: "#6666ff",
+            B3: "#9999ff",
+            C1: "#4dff4d",
+            C2: "#66ff66",
+            C3: "#99ff99",
+            D: "#cc66ff",
+            E: "#ff9966",
+          }
+        },
       },
       { _id: false }
     ),
-    default: () => ({})
+    default: () => ({}),
   },
   lastWeeklyNotification: { type: Date, default: null },
 });

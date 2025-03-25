@@ -35,8 +35,8 @@ const Sidebar = () => {
         </nav>
       </div>
       <button
-        onClick={() => navigate("/settings")}
-        className={`settings-btn ${location.pathname === "/settings" ? "active" : ""}`}
+        onClick={() => navigate("/settings/productivity-ux")}
+        className={`settings-btn ${location.pathname.startsWith("/settings") ? "active" : ""}`}
       >
         Settings
       </button>

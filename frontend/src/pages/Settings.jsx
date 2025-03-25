@@ -1,55 +1,144 @@
-// Settings.jsx
 import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import Layout from "../components/navigation/Layout";
 import TopBar from "../components/navigation/TopBar";
 import { auth } from "../firebase";
-import { useNavigate } from "react-router-dom";
 import {
   fetchSettingsPreferences,
   updateSettingsPreferences,
 } from "../services/preferencesService";
 import { getSettingsTopBarConfig } from "../config/topBarConfig.jsx";
-import { updateAccentColor, updateTopbarAccentColor } from "../utils/themeUtils";
+import {
+  updateAccentColor,
+  updateTopbarAccentColor,
+  updatePriorityCSSVariables,
+} from "../utils/themeUtils";
 import "../components/styles.css";
 
 const SECTIONS = [
   "Productivity & UX",
   "Scheduling",
   "Notifications",
-  "Interface Customization",
+  "Interface Customisation",
   "Account & Behavior",
 ];
 
+const sectionToSlug = {
+  "Productivity & UX": "productivity-ux",
+  Scheduling: "scheduling",
+  Notifications: "notifications",
+  "Interface Customisation": "interface-customisation",
+  "Account & Behavior": "account-behavior",
+};
+
+const slugToSection = Object.fromEntries(
+  Object.entries(sectionToSlug).map(([key, value]) => [value, key])
+);
+
+const DEFAULT_SECTION = "Productivity & UX";
+
+const DEFAULT_SETTINGS = {
+  darkMode: true,
+  muteNotifications: false,
+  inactivityTimeoutHours: 24,
+  inactivityTimeoutNever: true,
+  defaultPriority: "A1",
+  hideOldCompletedTasksDays: 365,
+  hideOldCompletedTasksNever: true,
+  defaultBoardView: "boards",
+  disableToCreateTask: false,
+  confirmBeforeDeleteTask: true,
+  confirmBeforeDeleteBoard: true,
+  notifyNonPriorityGoesOvertime: 1,
+  notifyScheduledTaskIsDue: 5,
+  themeAccent: "Green",
+  themeAccentCustom: "",
+  topbarAccent: "Blue",
+  topbarAccentCustom: "",
+  priorityColours: {
+    A1: "#ff4d4d",
+    A2: "#ff6666",
+    A3: "#ff9999",
+    B1: "#4d4dff",
+    B2: "#6666ff",
+    B3: "#9999ff",
+    C1: "#4dff4d",
+    C2: "#66ff66",
+    C3: "#99ff99",
+    D: "#cc66ff",
+    E: "#ff9966",
+  },
+};
+
+const CATEGORY_DEFAULTS = {
+  "Productivity & UX": {
+    defaultBoardView: DEFAULT_SETTINGS.defaultBoardView,
+    defaultPriority: DEFAULT_SETTINGS.defaultPriority,
+    confirmBeforeDeleteTask: DEFAULT_SETTINGS.confirmBeforeDeleteTask,
+    confirmBeforeDeleteBoard: DEFAULT_SETTINGS.confirmBeforeDeleteBoard,
+    hideOldCompletedTasksDays: DEFAULT_SETTINGS.hideOldCompletedTasksDays,
+    hideOldCompletedTasksNever: DEFAULT_SETTINGS.hideOldCompletedTasksNever,
+  },
+  Scheduling: {
+    disableToCreateTask: DEFAULT_SETTINGS.disableToCreateTask,
+  },
+  Notifications: {
+    muteNotifications: DEFAULT_SETTINGS.muteNotifications,
+    notifyNonPriorityGoesOvertime:
+      DEFAULT_SETTINGS.notifyNonPriorityGoesOvertime,
+    notifyScheduledTaskIsDue: DEFAULT_SETTINGS.notifyScheduledTaskIsDue,
+  },
+  "Interface Customisation": {
+    themeAccent: DEFAULT_SETTINGS.themeAccent,
+    themeAccentCustom: DEFAULT_SETTINGS.themeAccentCustom,
+    topbarAccent: DEFAULT_SETTINGS.topbarAccent,
+    topbarAccentCustom: DEFAULT_SETTINGS.topbarAccentCustom,
+    priorityColours: DEFAULT_SETTINGS.priorityColours,
+  },
+  "Account & Behavior": {
+    inactivityTimeoutHours: DEFAULT_SETTINGS.inactivityTimeoutHours,
+    inactivityTimeoutNever: DEFAULT_SETTINGS.inactivityTimeoutNever,
+  },
+};
+
 const Settings = ({ updateDefaultBoardView }) => {
-  const navigate = useNavigate();
-  const [settings, setSettings] = useState({
-    darkMode: false,
-    muteNotifications: false,
-    inactivityTimeoutHours: 1,
-    inactivityTimeoutNever: true,
-    defaultPriority: "A1",
-    hideOldCompletedTasksDays: 30,
-    hideOldCompletedTasksNever: false,
-    defaultBoardView: "boards",
-    disableToCreateTask: false,
-    confirmBeforeDeleteTask: true,
-    confirmBeforeDeleteBoard: true,
-    notifyNonPriorityGoesOvertime: 60,
-    notifyScheduledTaskIsDue: 60,
-    themeAccent: "Green",
-    topbarAccent: "Blue",
-  });
+  const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [initialSettings, setInitialSettings] = useState(null);
   const [userId, setUserId] = useState(null);
   const [saveStatus, setSaveStatus] = useState("");
   const [settingsLoaded, setSettingsLoaded] = useState(false);
-  const [activeSection, setActiveSection] = useState(SECTIONS[0]);
+  const [showPriorityColors, setShowPriorityColors] = useState(false);
+
+  const { section } = useParams();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!section) {
+      navigate(`/settings/${sectionToSlug[DEFAULT_SECTION]}`, {
+        replace: true,
+      });
+    }
+  }, [section, navigate]);
+
+  const activeSection = slugToSection[section] || DEFAULT_SECTION;
 
   const applyTheme = (isDarkMode) => {
     document.documentElement.setAttribute(
       "data-theme",
       isDarkMode ? "dark" : "light"
     );
+  };
+
+  const resetCategory = (category) => {
+    const defaults = CATEGORY_DEFAULTS[category];
+    setSettings((prev) => ({ ...prev, ...defaults }));
+  };
+
+  const resetAll = () => {
+    setSettings((prevSettings) => ({
+      ...DEFAULT_SETTINGS,
+      darkMode: prevSettings.darkMode,
+    }));
   };
 
   useEffect(() => {
@@ -60,11 +149,12 @@ const Settings = ({ updateDefaultBoardView }) => {
       fetchSettingsPreferences(id)
         .then((res) => {
           const prefs = res.data.settingsPreferences || {};
-          const merged = { ...settings, ...prefs };
+          const merged = { ...DEFAULT_SETTINGS, ...prefs };
           setSettings(merged);
           setInitialSettings(merged);
           setSettingsLoaded(true);
           applyTheme(merged.darkMode);
+          updatePriorityCSSVariables(merged.priorityColours);
         })
         .catch((err) => {
           console.error("Failed to fetch settings:", err);
@@ -93,6 +183,25 @@ const Settings = ({ updateDefaultBoardView }) => {
     }
   };
 
+  const handleThemeAccentCustomChange = (e) => {
+    setSettings((prev) => ({ ...prev, themeAccentCustom: e.target.value }));
+  };
+
+  const handleTopbarAccentCustomChange = (e) => {
+    setSettings((prev) => ({ ...prev, topbarAccentCustom: e.target.value }));
+  };
+
+  const handlePriorityColorChange = (e, priority) => {
+    const newColor = e.target.value;
+    setSettings((prev) => ({
+      ...prev,
+      priorityColours: {
+        ...prev.priorityColours,
+        [priority]: newColor,
+      },
+    }));
+  };
+
   const handleSave = () => {
     if (!userId) return;
     updateSettingsPreferences(userId, settings)
@@ -100,8 +209,19 @@ const Settings = ({ updateDefaultBoardView }) => {
         setSaveStatus("Settings saved!");
         setInitialSettings(settings);
         updateDefaultBoardView(settings.defaultBoardView);
-        updateAccentColor(settings.themeAccent);
-        updateTopbarAccentColor(settings.topbarAccent);
+
+        if (settings.themeAccent === "Custom") {
+          updateAccentColor(settings.themeAccentCustom);
+        } else {
+          updateAccentColor(settings.themeAccent);
+        }
+        if (settings.topbarAccent === "Custom") {
+          updateTopbarAccentColor(settings.topbarAccentCustom);
+        } else {
+          updateTopbarAccentColor(settings.topbarAccent);
+        }
+        updatePriorityCSSVariables(settings.priorityColours);
+
         setTimeout(() => setSaveStatus(""), 2000);
       })
       .catch((err) => {
@@ -111,8 +231,16 @@ const Settings = ({ updateDefaultBoardView }) => {
       });
   };
 
-  const isChanged =
-    JSON.stringify(settings) !== JSON.stringify(initialSettings);
+  const isChanged = (() => {
+    if (!initialSettings) return false;
+    const { darkMode, ...currentWithoutDarkMode } = settings;
+    const { darkMode: initialDarkMode, ...initialWithoutDarkMode } =
+      initialSettings;
+    return (
+      JSON.stringify(currentWithoutDarkMode) !==
+      JSON.stringify(initialWithoutDarkMode)
+    );
+  })();
 
   if (!settingsLoaded) {
     return (
@@ -139,6 +267,7 @@ const Settings = ({ updateDefaultBoardView }) => {
                 <option value="completedtasks">Completed Tasks</option>
               </select>
             </label>
+
             <label className="setting-row">
               <span>Default Task Priority on Create</span>
               <select
@@ -146,13 +275,26 @@ const Settings = ({ updateDefaultBoardView }) => {
                 value={settings.defaultPriority}
                 onChange={handleChange}
               >
-                {["A1", "A2", "A3", "B1", "B2", "B3", "C1", "C2", "C3", "D", "E"].map((p) => (
+                {[
+                  "A1",
+                  "A2",
+                  "A3",
+                  "B1",
+                  "B2",
+                  "B3",
+                  "C1",
+                  "C2",
+                  "C3",
+                  "D",
+                  "E",
+                ].map((p) => (
                   <option key={p} value={p}>
                     {p}
                   </option>
                 ))}
               </select>
             </label>
+
             <label className="setting-row">
               <span>Require Confirmation Before Deleting Task</span>
               <input
@@ -162,6 +304,7 @@ const Settings = ({ updateDefaultBoardView }) => {
                 onChange={handleChange}
               />
             </label>
+
             <label className="setting-row">
               <span>Require Confirmation Before Deleting Board</span>
               <input
@@ -171,6 +314,7 @@ const Settings = ({ updateDefaultBoardView }) => {
                 onChange={handleChange}
               />
             </label>
+
             <label className="setting-row">
               <span>Hide Completed Tasks Older Than (days)</span>
               <div className="hide-tasks-right">
@@ -193,6 +337,15 @@ const Settings = ({ updateDefaultBoardView }) => {
                 </label>
               </div>
             </label>
+
+            <div className="category-button-row">
+              <button
+                className="btn-sm default-category-btn"
+                onClick={() => resetCategory("Productivity & UX")}
+              >
+                Default Productivity & UX
+              </button>
+            </div>
           </>
         );
       case "Scheduling":
@@ -207,6 +360,15 @@ const Settings = ({ updateDefaultBoardView }) => {
                 onChange={handleChange}
               />
             </label>
+
+            <div className="category-button-row">
+              <button
+                className="btn-sm default-category-btn"
+                onClick={() => resetCategory("Scheduling")}
+              >
+                Default Scheduling
+              </button>
+            </div>
           </>
         );
       case "Notifications":
@@ -221,8 +383,11 @@ const Settings = ({ updateDefaultBoardView }) => {
                 onChange={handleChange}
               />
             </label>
+
             <label className="setting-row">
-              <span>Notify When Non-Priority Task Goes Overtime (in hours)</span>
+              <span>
+                Notify When Non-Priority Task Goes Overtime (in hours)
+              </span>
               <input
                 type="number"
                 name="notifyNonPriorityGoesOvertime"
@@ -231,6 +396,7 @@ const Settings = ({ updateDefaultBoardView }) => {
                 className="setting-number-input"
               />
             </label>
+
             <label className="setting-row">
               <span>Notify When a Scheduled Task is Due (in minutes)</span>
               <input
@@ -241,39 +407,120 @@ const Settings = ({ updateDefaultBoardView }) => {
                 className="setting-number-input"
               />
             </label>
+
+            <div className="category-button-row">
+              <button
+                className="btn-sm default-category-btn"
+                onClick={() => resetCategory("Notifications")}
+              >
+                Default Notifications
+              </button>
+            </div>
           </>
         );
-      case "Interface Customization":
+      case "Interface Customisation":
         return (
           <>
             <label className="setting-row">
               <span>Sidebar Theme Accent</span>
-              <select
-                name="themeAccent"
-                value={settings.themeAccent}
-                onChange={handleChange}
-              >
-                {["Green", "Blue", "Orange", "Purple", "Yellow"].map((color) => (
-                  <option key={color} value={color}>
-                    {color}
-                  </option>
-                ))}
-              </select>
+              <div className="accent-container">
+                <select
+                  name="themeAccent"
+                  value={settings.themeAccent}
+                  onChange={handleChange}
+                >
+                  {[
+                    "Green",
+                    "Blue",
+                    "Orange",
+                    "Purple",
+                    "Yellow",
+                    "Custom",
+                  ].map((color) => (
+                    <option key={color} value={color}>
+                      {color}
+                    </option>
+                  ))}
+                </select>
+                {settings.themeAccent === "Custom" && (
+                  <input
+                    type="color"
+                    value={settings.themeAccentCustom || "#4CAF50"}
+                    onChange={handleThemeAccentCustomChange}
+                  />
+                )}
+              </div>
             </label>
+
             <label className="setting-row">
               <span>Topbar Theme Accent</span>
-              <select
-                name="topbarAccent"
-                value={settings.topbarAccent}
-                onChange={handleChange}
-              >
-                {["Blue", "Red", "Purple", "Black"].map((color) => (
-                  <option key={color} value={color}>
-                    {color}
-                  </option>
-                ))}
-              </select>
+              <div className="accent-container">
+                <select
+                  name="topbarAccent"
+                  value={settings.topbarAccent}
+                  onChange={handleChange}
+                >
+                  {["Blue", "Red", "Purple", "Black", "Custom"].map((color) => (
+                    <option key={color} value={color}>
+                      {color}
+                    </option>
+                  ))}
+                </select>
+                {settings.topbarAccent === "Custom" && (
+                  <input
+                    type="color"
+                    value={settings.topbarAccentCustom || "#007bff"}
+                    onChange={handleTopbarAccentCustomChange}
+                  />
+                )}
+              </div>
             </label>
+
+            <div
+              className="priority-colors-header"
+              onClick={() => setShowPriorityColors(!showPriorityColors)}
+            >
+              <span>Task Priority Colors</span>
+              <span className="dropdown-arrow">
+                {showPriorityColors ? "▲" : "▼"}
+              </span>
+            </div>
+            {showPriorityColors && (
+              <div className="priority-colors-container">
+                {[
+                  ["A1", "A2", "A3"],
+                  ["B1", "B2", "B3"],
+                  ["C1", "C2", "C3"],
+                  ["D"],
+                  ["E"],
+                ].map((group, groupIndex) => (
+                  <div className="priority-row" key={groupIndex}>
+                    {group.map((priority) => (
+                      <div className="priority-color-row" key={priority}>
+                        <label>{priority}</label>
+                        <input
+                          type="color"
+                          name={priority}
+                          value={settings.priorityColours[priority]}
+                          onChange={(e) =>
+                            handlePriorityColorChange(e, priority)
+                          }
+                        />
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="category-button-row">
+              <button
+                className="btn-sm default-category-btn"
+                onClick={() => resetCategory("Interface Customisation")}
+              >
+                Default Interface Customisation
+              </button>
+            </div>
           </>
         );
       case "Account & Behavior":
@@ -301,11 +548,24 @@ const Settings = ({ updateDefaultBoardView }) => {
                 </label>
               </div>
             </label>
+
+            <div className="category-button-row">
+              <button
+                className="btn-sm default-category-btn"
+                onClick={() => resetCategory("Account & Behavior")}
+              >
+                Default Account & Behavior
+              </button>
+            </div>
           </>
         );
       default:
         return null;
     }
+  };
+
+  const handleSectionClick = (sec) => {
+    navigate(`/settings/${sectionToSlug[sec]}`);
   };
 
   return (
@@ -327,26 +587,37 @@ const Settings = ({ updateDefaultBoardView }) => {
       />
       <div className="settings-wrapper">
         <aside className="settings-sidebar">
-          {SECTIONS.map((section) => (
+          {SECTIONS.map((sec) => (
             <div
-              key={section}
-              className={`sidebar-item ${activeSection === section ? "active" : ""}`}
-              onClick={() => setActiveSection(section)}
+              key={sec}
+              className={`sidebar-item ${
+                activeSection === sec ? "active" : ""
+              }`}
+              onClick={() => handleSectionClick(sec)}
             >
-              {section}
+              {sec}
             </div>
           ))}
         </aside>
-        <div className="settings-content">
-          <h1 className="settings-title">{activeSection}</h1>
-          <div className="settings-section">{renderSection()}</div>
-          <div className="settings-save-footer">
-            <button className="save-settings-btn" onClick={handleSave} disabled={!isChanged}>
+        <div className="settings-main-container">
+          <div className="settings-scroll-container">
+            <div className="settings-content">
+              <h1 className="settings-title">{activeSection}</h1>
+              <div className="settings-section">{renderSection()}</div>
+            </div>
+          </div>
+          <div className="settings-footer">
+            <button
+              className="btn save-settings-btn"
+              onClick={handleSave}
+              disabled={!isChanged}
+            >
               Save Settings
             </button>
-            <div className="save-status-placeholder">
-              {saveStatus && <div className="save-status-msg">{saveStatus}</div>}
-            </div>
+            <button className="btn default-all-btn" onClick={resetAll}>
+              Default All
+            </button>
+            {saveStatus && <div className="save-status-msg">{saveStatus}</div>}
           </div>
         </div>
       </div>
