@@ -4,7 +4,10 @@ import {
   NotificationsProvider,
   NotificationsContext,
 } from "../../src/contexts/NotificationsContext";
-import { fetchNotifications } from "../../src/services/notificationService";
+import {
+  fetchNotifications,
+  updateNotification,
+} from "../../src/services/notificationService";
 import { auth } from "../../src/firebase";
 import { createBaseUser } from "../../_testUtils/createBaseUser";
 import { createBaseNotification } from "../../_testUtils/createBaseNotification";
@@ -19,6 +22,7 @@ const NotificationsTestConsumer = ({ onChange }) => {
 
 jest.mock("../../src/services/notificationService", () => ({
   fetchNotifications: jest.fn(),
+  updateNotification: jest.fn().mockResolvedValue({}),
 }));
 
 let currentUser = null;
@@ -70,22 +74,21 @@ describe("NotificationsContext", () => {
     expect(getByText("Test Child")).toBeInTheDocument();
   });
 
-  it("plays sound when 1 notification is added after initial load", async () => {
+  it("plays sound when 1 notification (soundPlayed:false) is added after initial load", async () => {
     const notificationsHistory = [];
     const onChange = (notifs) => {
       notificationsHistory.push(notifs);
     };
 
     fetchNotifications
-      .mockResolvedValueOnce({
-        data: { notifications: [] },
-      })
+      .mockResolvedValueOnce({ data: { notifications: [] } })
       .mockResolvedValueOnce({
         data: {
           notifications: [
             createBaseNotification({
               _id: "notif1",
               message: "First notification",
+              soundPlayed: false,
             }),
           ],
         },
@@ -96,6 +99,7 @@ describe("NotificationsContext", () => {
             createBaseNotification({
               _id: "notif1",
               message: "First notification",
+              soundPlayed: true,
             }),
           ],
         },
@@ -114,35 +118,38 @@ describe("NotificationsContext", () => {
       jest.advanceTimersByTime(100);
       await Promise.resolve();
     });
-
     await waitFor(() => {
-      expect(notificationsHistory.length).toBeGreaterThan(0);
-      expect(notificationsHistory[notificationsHistory.length - 1].length).toBe(
-        1
-      );
+      expect(
+        notificationsHistory[notificationsHistory.length - 1]
+      ).toHaveLength(0);
     });
 
     await act(async () => {
       jest.advanceTimersByTime(1100);
     });
 
-    await waitFor(() => {
-      expect(notificationsHistory[notificationsHistory.length - 1].length).toBe(
-        1
-      );
-    });
-
     await waitFor(
       () => {
+        expect(updateNotification).toHaveBeenCalledWith("notif1", {
+          soundPlayed: true,
+        });
         expect(playMock).toHaveBeenCalled();
       },
       { timeout: 3000 }
     );
 
+    await act(async () => {
+      jest.advanceTimersByTime(1100);
+    });
+    await waitFor(() => {
+      const latest = notificationsHistory[notificationsHistory.length - 1];
+      expect(latest[0].soundPlayed).toBe(true);
+    });
+
     jest.useRealTimers();
   });
 
-  it("plays sound when new notifications are added after initial load", async () => {
+  it("plays sound when new notification is added after initial load", async () => {
     const notificationsHistory = [];
     const onChange = (notifs) => {
       notificationsHistory.push(notifs);
@@ -155,6 +162,7 @@ describe("NotificationsContext", () => {
             createBaseNotification({
               _id: "notif1",
               message: "First notification",
+              soundPlayed: true,
             }),
           ],
         },
@@ -165,10 +173,12 @@ describe("NotificationsContext", () => {
             createBaseNotification({
               _id: "notif1",
               message: "First notification",
+              soundPlayed: true,
             }),
             createBaseNotification({
               _id: "notif2",
               message: "Second notification",
+              soundPlayed: false,
             }),
           ],
         },
@@ -179,10 +189,12 @@ describe("NotificationsContext", () => {
             createBaseNotification({
               _id: "notif1",
               message: "First notification",
+              soundPlayed: true,
             }),
             createBaseNotification({
               _id: "notif2",
               message: "Second notification",
+              soundPlayed: true,
             }),
           ],
         },
@@ -201,50 +213,51 @@ describe("NotificationsContext", () => {
       jest.advanceTimersByTime(100);
       await Promise.resolve();
     });
-
     await waitFor(() => {
-      expect(notificationsHistory.length).toBeGreaterThan(0);
-      expect(notificationsHistory[notificationsHistory.length - 1].length).toBe(
-        1
-      );
+      const latest = notificationsHistory[notificationsHistory.length - 1];
+      expect(latest).toHaveLength(1);
     });
 
     await act(async () => {
       jest.advanceTimersByTime(1100);
     });
 
-    await waitFor(() => {
-      expect(notificationsHistory[notificationsHistory.length - 1].length).toBe(
-        2
-      );
-    });
-
     await waitFor(
       () => {
+        expect(updateNotification).toHaveBeenCalledWith("notif2", {
+          soundPlayed: true,
+        });
         expect(playMock).toHaveBeenCalled();
       },
       { timeout: 3000 }
     );
 
+    await act(async () => {
+      jest.advanceTimersByTime(1100);
+    });
+    await waitFor(() => {
+      const latest = notificationsHistory[notificationsHistory.length - 1];
+      expect(latest.find((n) => n._id === "notif2").soundPlayed).toBe(true);
+    });
+
     jest.useRealTimers();
   });
 
-  it("plays sound again when an additional notification is added after a previous notification", async () => {
+  it("plays sound again when an additional notification is added after a previous one", async () => {
     const notificationsHistory = [];
     const onChange = (notifs) => {
       notificationsHistory.push(notifs);
     };
 
     fetchNotifications
-      .mockResolvedValueOnce({
-        data: { notifications: [] },
-      })
+      .mockResolvedValueOnce({ data: { notifications: [] } })
       .mockResolvedValueOnce({
         data: {
           notifications: [
             createBaseNotification({
               _id: "notif1",
               message: "First notification",
+              soundPlayed: false,
             }),
           ],
         },
@@ -255,10 +268,12 @@ describe("NotificationsContext", () => {
             createBaseNotification({
               _id: "notif1",
               message: "First notification",
+              soundPlayed: true,
             }),
             createBaseNotification({
               _id: "notif2",
               message: "Second notification",
+              soundPlayed: false,
             }),
           ],
         },
@@ -269,14 +284,17 @@ describe("NotificationsContext", () => {
             createBaseNotification({
               _id: "notif1",
               message: "First notification",
+              soundPlayed: true,
             }),
             createBaseNotification({
               _id: "notif2",
               message: "Second notification",
+              soundPlayed: true,
             }),
             createBaseNotification({
               _id: "notif3",
               message: "Third notification",
+              soundPlayed: false,
             }),
           ],
         },
@@ -300,51 +318,47 @@ describe("NotificationsContext", () => {
       jest.advanceTimersByTime(1100);
     });
     await waitFor(() => {
-      expect(notificationsHistory[notificationsHistory.length - 1].length).toBe(
-        1
-      );
+      const latest = notificationsHistory[notificationsHistory.length - 1];
+      expect(latest).toHaveLength(1);
     });
-    // First increase should play sound.
-    await waitFor(
-      () => {
-        expect(playMock).toHaveBeenCalledTimes(1);
-      },
-      { timeout: 3000 }
-    );
+    await waitFor(() => {
+      expect(playMock).toHaveBeenCalledTimes(1);
+      expect(updateNotification).toHaveBeenCalledWith("notif1", {
+        soundPlayed: true,
+      });
+    });
     playMock.mockClear();
+    jest.clearAllMocks();
 
     await act(async () => {
       jest.advanceTimersByTime(1100);
     });
     await waitFor(() => {
-      expect(notificationsHistory[notificationsHistory.length - 1].length).toBe(
-        2
-      );
+      const latest = notificationsHistory[notificationsHistory.length - 1];
+      expect(latest).toHaveLength(2);
     });
-    // Second increase should play sound.
-    await waitFor(
-      () => {
-        expect(playMock).toHaveBeenCalledTimes(1);
-      },
-      { timeout: 3000 }
-    );
+    await waitFor(() => {
+      expect(playMock).toHaveBeenCalledTimes(1);
+      expect(updateNotification).toHaveBeenCalledWith("notif2", {
+        soundPlayed: true,
+      });
+    });
     playMock.mockClear();
+    jest.clearAllMocks();
 
     await act(async () => {
       jest.advanceTimersByTime(1100);
     });
     await waitFor(() => {
-      expect(notificationsHistory[notificationsHistory.length - 1].length).toBe(
-        3
-      );
+      const latest = notificationsHistory[notificationsHistory.length - 1];
+      expect(latest).toHaveLength(3);
     });
-    // Third increase should play sound again.
-    await waitFor(
-      () => {
-        expect(playMock).toHaveBeenCalledTimes(1);
-      },
-      { timeout: 3000 }
-    );
+    await waitFor(() => {
+      expect(playMock).toHaveBeenCalledTimes(1);
+      expect(updateNotification).toHaveBeenCalledWith("notif3", {
+        soundPlayed: true,
+      });
+    });
 
     jest.useRealTimers();
   });
@@ -357,33 +371,43 @@ describe("NotificationsContext", () => {
       },
     });
     auth.currentUser = { uid: baseUser.userId };
-  
+
     fetchNotifications
       .mockResolvedValueOnce({ data: { notifications: [] } })
       .mockResolvedValueOnce({
         data: {
           notifications: [
-            createBaseNotification({ _id: "notif1", message: "Muted notification" }),
+            createBaseNotification({
+              _id: "notif1",
+              message: "Muted notification",
+              soundPlayed: false,
+            }),
           ],
         },
       })
       .mockResolvedValue({
         data: {
           notifications: [
-            createBaseNotification({ _id: "notif1", message: "Muted notification" }),
+            createBaseNotification({
+              _id: "notif1",
+              message: "Muted notification",
+              soundPlayed: false,
+            }),
           ],
         },
       });
-  
+
     jest.useFakeTimers();
-  
+
     render(
-      <NotificationsProvider muteNotifications={baseUser.settingsPreferences.muteNotifications}>
+      <NotificationsProvider
+        muteNotifications={baseUser.settingsPreferences.muteNotifications}
+      >
         <div>Test Child</div>
         <NotificationsTestConsumer onChange={() => {}} />
       </NotificationsProvider>
     );
-  
+
     await act(async () => {
       jest.advanceTimersByTime(100);
       await Promise.resolve();
@@ -391,21 +415,25 @@ describe("NotificationsContext", () => {
     await act(async () => {
       jest.advanceTimersByTime(1100);
     });
-  
-    await waitFor(() => {
-      expect(playMock).not.toHaveBeenCalled();
-    }, { timeout: 3000 });
-  
+
+    await waitFor(
+      () => {
+        expect(playMock).not.toHaveBeenCalled();
+      },
+      { timeout: 3000 }
+    );
+
     jest.useRealTimers();
   });
 
-  it("does not play sound if notifications count does not increase", async () => {
+  it("does not play sound if notification count does not increase", async () => {
     fetchNotifications.mockResolvedValue({
       data: {
         notifications: [
           createBaseNotification({
             _id: "notif1",
             message: "Only notification",
+            soundPlayed: true,
           }),
         ],
       },

@@ -164,4 +164,39 @@ describe("Notification Routes", () => {
       expect(res.body.error).toBe("Notification not found");
     });
   });
+
+  // ---------------------------
+  // Check soundPlayed
+  // ---------------------------
+  describe("SoundPlayed Field", () => {
+    it("should default to false when a notification is created", async () => {
+      const notificationData = {
+        userId: defaultUser.userId,
+        message: "Test Notification",
+      };
+  
+      const res = await request(app)
+        .post("/api/notifications")
+        .send(notificationData)
+        .expect(200);
+  
+      expect(res.body.notification.soundPlayed).toBe(false);
+    });
+  
+    it("should update the soundPlayed field", async () => {
+      // Create a notification with the default soundPlayed (false)
+      const notification = await Notification.create({
+        userId: defaultUser.userId,
+        message: "Test Notification",
+      });
+  
+      // Update the notification's soundPlayed field to true
+      const res = await request(app)
+        .patch(`/api/notifications/${notification._id}`)
+        .send({ soundPlayed: true })
+        .expect(200);
+  
+      expect(res.body.notification.soundPlayed).toBe(true);
+    });
+  });
 });

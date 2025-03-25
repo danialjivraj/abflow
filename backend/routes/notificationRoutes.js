@@ -40,14 +40,13 @@ router.delete("/:notificationId", async (req, res) => {
   }
 });
 
-// patch update a notification's read status by its id
 router.patch("/:notificationId", async (req, res) => {
   try {
     const { notificationId } = req.params;
-    const { read } = req.body;
+    const updateData = req.body;
     const notification = await Notification.findByIdAndUpdate(
       notificationId,
-      { read },
+      updateData,
       { new: true }
     );
     if (!notification) {

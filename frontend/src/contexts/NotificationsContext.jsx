@@ -1,6 +1,6 @@
-import React, { createContext, useState, useEffect, useRef } from "react";
+import React, { createContext, useState, useEffect } from "react";
 import { auth } from "../firebase";
-import { fetchNotifications } from "../services/notificationService";
+import { fetchNotifications, updateNotification } from "../services/notificationService";
 import { onAuthStateChanged } from "firebase/auth";
 import notificationSound from "../assets/notification.mp3";
 
@@ -8,7 +8,6 @@ export const NotificationsContext = createContext();
 
 export const NotificationsProvider = ({ children, muteNotifications }) => {
   const [notifications, setNotifications] = useState([]);
-  const prevNotificationsRef = useRef([]);
 
   const loadNotifications = async (userId) => {
     try {
@@ -42,13 +41,25 @@ export const NotificationsProvider = ({ children, muteNotifications }) => {
   }, []);
 
   useEffect(() => {
-    if (notifications.length > prevNotificationsRef.current.length) {
-      if (!muteNotifications) {
-        const audio = new Audio(notificationSound);
-        audio.play().catch(() => {});
-      }
+    const newUnplayed = notifications.filter((n) => !n.read && !n.soundPlayed);
+
+    if (newUnplayed.length > 0 && !muteNotifications) {
+      const audio = new Audio(notificationSound);
+      audio.play().catch(() => {});
+
+      newUnplayed.forEach(async (notif) => {
+        try {
+          await updateNotification(notif._id, { soundPlayed: true });
+          setNotifications((prev) =>
+            prev.map((n) =>
+              n._id === notif._id ? { ...n, soundPlayed: true } : n
+            )
+          );
+        } catch (error) {
+          console.error("Error updating notification soundPlayed:", error);
+        }
+      });
     }
-    prevNotificationsRef.current = notifications;
   }, [notifications, muteNotifications]);
 
   return (
