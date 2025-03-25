@@ -2485,8 +2485,8 @@ select {
 }
 
 .btn-sm.default-category-btn {
-  background-color: #e0e0e0;
-  color: #333;
+  background-color: var(--border-color);
+  color: var(--text-color);
   font-size: 13px;
   padding: 6px 12px;
   border-radius: 4px;
@@ -2495,7 +2495,7 @@ select {
 }
 
 .btn-sm.default-category-btn:hover {
-  background-color: #ccc;
+  background-color: color-mix(in srgb, var(--border-color), black 20%);
 }
 
 .btn {
