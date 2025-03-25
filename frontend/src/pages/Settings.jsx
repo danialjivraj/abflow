@@ -460,7 +460,14 @@ const Settings = ({ updateDefaultBoardView }) => {
                   value={settings.topbarAccent}
                   onChange={handleChange}
                 >
-                  {["Blue", "Red", "Purple", "Black", "Custom"].map((color) => (
+                  {[
+                    "Green",
+                    "Blue",
+                    "Orange",
+                    "Purple",
+                    "Yellow",
+                    "Custom",
+                  ].map((color) => (
                     <option key={color} value={color}>
                       {color}
                     </option>

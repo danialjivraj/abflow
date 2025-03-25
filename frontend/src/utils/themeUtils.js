@@ -23,7 +23,7 @@ export const updateAccentColor = (themeAccent) => {
       accentColor = "#ffc107";
       headingColor = "#ffc107";
       break;
-    default: // "Green" or anything else
+    default: // "Green"
       accentColor = "#4CAF50";
       headingColor = "#4CAF50";
   }
@@ -42,25 +42,36 @@ export const updateTopbarAccentColor = (topbarAccent) => {
 
   let activeTextColor, createBtnBg, createTaskBtnHover;
   switch (topbarAccent) {
-    case "Red":
-      activeTextColor = "#dc3545";
-      createBtnBg = "#dc3545";
-      createTaskBtnHover = "#c82333";
+    case "Green":
+      activeTextColor = "#4CAF50";
+      createBtnBg = "#4CAF50";
+      createTaskBtnHover = "#45a049";
+      break;
+    case "Orange":
+      activeTextColor = "#fd7e14";
+      createBtnBg = "#fd7e14";
+      createTaskBtnHover = "#e66a00";
       break;
     case "Purple":
       activeTextColor = "#6f42c1";
       createBtnBg = "#6f42c1";
       createTaskBtnHover = "#5a32a3";
       break;
-    case "Black":
-      activeTextColor = "#343a40";
-      createBtnBg = "#343a40";
-      createTaskBtnHover = "#2c2f33";
+    case "Yellow":
+      activeTextColor = "#ffc107";
+      createBtnBg = "#ffc107";
+      createTaskBtnHover = "#e0a800";
+      break;
+    case "Blue":
+      activeTextColor = "#007bff";
+      createBtnBg = "#007bff";
+      createTaskBtnHover = "#0056b3";
       break;
     default: // "Blue"
       activeTextColor = "#007bff";
       createBtnBg = "#007bff";
       createTaskBtnHover = "#0056b3";
+      break;
   }
   document.documentElement.style.setProperty("--topbar-active-button-color", activeTextColor);
   document.documentElement.style.setProperty("--create-top-bar-btn-bg", createBtnBg);

@@ -60,12 +60,20 @@ describe("themeUtils", () => {
       expect(document.documentElement.style.getPropertyValue("--create-task-btn-hover")).toBe("#0056b3");
     });
 
-    it("should update topbar accent color to Red", () => {
-      updateTopbarAccentColor("Red");
-      expect(document.documentElement.style.getPropertyValue("--topbar-active-button-color")).toBe("#dc3545");
-      expect(document.documentElement.style.getPropertyValue("--create-top-bar-btn-bg")).toBe("#dc3545");
-      expect(document.documentElement.style.getPropertyValue("--create-task-btn-bg")).toBe("#dc3545");
-      expect(document.documentElement.style.getPropertyValue("--create-task-btn-hover")).toBe("#c82333");
+    it("should update topbar accent color to Green", () => {
+      updateTopbarAccentColor("Green");
+      expect(document.documentElement.style.getPropertyValue("--topbar-active-button-color")).toBe("#4CAF50");
+      expect(document.documentElement.style.getPropertyValue("--create-top-bar-btn-bg")).toBe("#4CAF50");
+      expect(document.documentElement.style.getPropertyValue("--create-task-btn-bg")).toBe("#4CAF50");
+      expect(document.documentElement.style.getPropertyValue("--create-task-btn-hover")).toBe("#45a049");
+    });
+
+    it("should update topbar accent color to Orange", () => {
+      updateTopbarAccentColor("Orange");
+      expect(document.documentElement.style.getPropertyValue("--topbar-active-button-color")).toBe("#fd7e14");
+      expect(document.documentElement.style.getPropertyValue("--create-top-bar-btn-bg")).toBe("#fd7e14");
+      expect(document.documentElement.style.getPropertyValue("--create-task-btn-bg")).toBe("#fd7e14");
+      expect(document.documentElement.style.getPropertyValue("--create-task-btn-hover")).toBe("#e66a00");
     });
 
     it("should update topbar accent color to Purple", () => {
@@ -76,12 +84,12 @@ describe("themeUtils", () => {
       expect(document.documentElement.style.getPropertyValue("--create-task-btn-hover")).toBe("#5a32a3");
     });
 
-    it("should update topbar accent color to Black", () => {
-      updateTopbarAccentColor("Black");
-      expect(document.documentElement.style.getPropertyValue("--topbar-active-button-color")).toBe("#343a40");
-      expect(document.documentElement.style.getPropertyValue("--create-top-bar-btn-bg")).toBe("#343a40");
-      expect(document.documentElement.style.getPropertyValue("--create-task-btn-bg")).toBe("#343a40");
-      expect(document.documentElement.style.getPropertyValue("--create-task-btn-hover")).toBe("#2c2f33");
+    it("should update topbar accent color to Yellow", () => {
+      updateTopbarAccentColor("Yellow");
+      expect(document.documentElement.style.getPropertyValue("--topbar-active-button-color")).toBe("#ffc107");
+      expect(document.documentElement.style.getPropertyValue("--create-top-bar-btn-bg")).toBe("#ffc107");
+      expect(document.documentElement.style.getPropertyValue("--create-task-btn-bg")).toBe("#ffc107");
+      expect(document.documentElement.style.getPropertyValue("--create-task-btn-hover")).toBe("#e0a800");
     });
 
     it("should update topbar accent color to default (Blue) if an unknown value is provided", () => {
