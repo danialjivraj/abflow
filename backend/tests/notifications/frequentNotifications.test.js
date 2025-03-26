@@ -148,7 +148,6 @@ describe("Frequent Notifications", () => {
         expect(scheduledNotifs[0].message).toBe(expectedMessage);
     });
 
-
     it("should not generate scheduled notification if task is scheduled just over 5 minutes away", async () => {
         await User.findOneAndUpdate(
             { userId: defaultUser.userId },
@@ -175,6 +174,18 @@ describe("Frequent Notifications", () => {
             title: "Already Notified Task",
             scheduledStart,
             lastNotifiedScheduledStart: scheduledStart, // Already notified
+        });
+        const scheduledNotifs = await generateScheduledNotifications(defaultUser.userId, now);
+        expect(scheduledNotifs.length).toBe(0);
+    });
+
+    it("should not generate scheduled notification if task is scheduled less than 1 minute away", async () => {
+        const now = new Date();
+        const scheduledStart = new Date(now.getTime() + 30 * 1000);
+        await Task.create({
+            ...getBaseTask(),
+            title: "Zero Minute Task",
+            scheduledStart,
         });
         const scheduledNotifs = await generateScheduledNotifications(defaultUser.userId, now);
         expect(scheduledNotifs.length).toBe(0);

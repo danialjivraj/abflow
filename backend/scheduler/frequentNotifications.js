@@ -33,28 +33,32 @@ const generateScheduledNotifications = async (userId, now) => {
       const scheduledStart = new Date(task.scheduledStart);
       const diffScheduled = scheduledStart - now;
       if (diffScheduled > 0 && diffScheduled <= thresholdMs) {
-        if (
-          !task.lastNotifiedScheduledStart ||
-          new Date(task.lastNotifiedScheduledStart).toISOString() !== scheduledStart.toISOString()
-        ) {
-          const scheduledTime = scheduledStart.toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          });
-          const remainingMinutes = Math.floor((diffScheduled) / 60000);
-          const message = `Reminder: Your scheduled task "${task.title}" will start at ${scheduledTime} (in less than ${remainingMinutes} minute${remainingMinutes !== 1 ? "s" : ""}).`;
-          notifications.push({
-            userId,
-            message,
-            createdAt: now,
-            taskId: task._id,
-          });
-          await Task.findByIdAndUpdate(task._id, {
-            lastNotifiedScheduledStart: scheduledStart,
-          });
-          console.log(`--> Scheduled notification created for task "${task.title}".`);
+        const remainingMinutes = Math.floor(diffScheduled / 60000);
+        if (remainingMinutes > 0) {
+          if (
+            !task.lastNotifiedScheduledStart ||
+            new Date(task.lastNotifiedScheduledStart).toISOString() !== scheduledStart.toISOString()
+          ) {
+            const scheduledTime = scheduledStart.toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            });
+            const message = `Reminder: Your scheduled task "${task.title}" will start at ${scheduledTime} (in less than ${remainingMinutes} minute${remainingMinutes !== 1 ? "s" : ""}).`;
+            notifications.push({
+              userId,
+              message,
+              createdAt: now,
+              taskId: task._id,
+            });
+            await Task.findByIdAndUpdate(task._id, {
+              lastNotifiedScheduledStart: scheduledStart,
+            });
+            console.log(`--> Scheduled notification created for task "${task.title}".`);
+          } else {
+            console.log(`--> Scheduled notification already sent for task "${task.title}".`);
+          }
         } else {
-          console.log(`--> Scheduled notification already sent for task "${task.title}".`);
+          console.log(`--> Skipped notification for task "${task.title}" because remaining minutes is 0.`);
         }
       }
     }
@@ -154,7 +158,7 @@ const generateWarningNotifications = async (userId, now) => {
     task => !(task.priority && (task.priority.startsWith("A") || task.priority.startsWith("B")))
   );
 
-  const highPriorityLetters = [...new Set(highPriorityTasks.map(task => task.priority[0]))].sort();  
+  const highPriorityLetters = [...new Set(highPriorityTasks.map(task => task.priority[0]))].sort();
   const priorityMessage =
     highPriorityLetters.length === 1
       ? highPriorityLetters[0]
@@ -168,7 +172,7 @@ const generateWarningNotifications = async (userId, now) => {
       if (elapsedTime >= thresholdMs) {
         if (!task.notifiedWarning) {
           const message = `Warning: You have spent over ${thresholdHours} hour${thresholdHours > 1 ? "s" : ""} on the task "${task.title}" which is non high priority. Consider switching to high priority work (there are ${priorityMessage} tasks to do).`;
-          
+
           notifications.push({
             userId,
             message,
@@ -229,11 +233,11 @@ const generateFrequentNotifications = async () => {
   }
 };
 
-module.exports = { 
-  shouldCreateNotification, 
-  generateScheduledNotifications, 
-  generateUpcomingNotifications, 
-  generateOverdueNotifications, 
-  generateWarningNotifications, 
-  generateFrequentNotifications 
+module.exports = {
+  shouldCreateNotification,
+  generateScheduledNotifications,
+  generateUpcomingNotifications,
+  generateOverdueNotifications,
+  generateWarningNotifications,
+  generateFrequentNotifications
 };
