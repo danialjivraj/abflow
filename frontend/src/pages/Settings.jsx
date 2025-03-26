@@ -676,8 +676,9 @@ const Settings = ({ updateDefaultBoardView }) => {
         autoClose={2000}
         theme={settings.darkMode ? "dark" : "light"}
         transition={Slide}
-        hideProgressBar="true"
-      />
+        hideProgressBar={true}
+        pauseOnHover={false}
+        />
     </Layout>
   );
 };
