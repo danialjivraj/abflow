@@ -1,8 +1,20 @@
 import React from "react";
-import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+} from "@testing-library/react";
 import Column from "../../../src/components/boardComponents/Column";
 import { createBaseColumn } from "../../../_testUtils/createBaseColumn";
 import { createBaseTask } from "../../../_testUtils/createBaseTask";
+
+jest.mock("react-toastify", () => ({
+  toast: {
+    success: jest.fn(),
+    error: jest.fn(),
+  },
+}));
 
 jest.mock("@hello-pangea/dnd", () => ({
   Draggable: ({ children, draggableId }) => (
@@ -39,16 +51,19 @@ jest.mock("../../../src/services/columnsService", () => ({
   deleteBoard: jest.fn(() => Promise.resolve()),
 }));
 
-jest.mock("../../../src/components/modals/DeleteConfirmationModal", () => (props) => {
-  if (!props.isOpen) return null;
-  return (
-    <div data-testid="delete-modal">
-      <span>{`Delete ${props.entityType}: ${props.entityName}`}</span>
-      <button onClick={props.onConfirm}>Confirm Delete</button>
-      <button onClick={props.onClose}>Cancel Delete</button>
-    </div>
-  );
-});
+jest.mock(
+  "../../../src/components/modals/DeleteConfirmationModal",
+  () => (props) => {
+    if (!props.isOpen) return null;
+    return (
+      <div data-testid="delete-modal">
+        <span>{`Delete ${props.entityType}: ${props.entityName}`}</span>
+        <button onClick={props.onConfirm}>Confirm Delete</button>
+        <button onClick={props.onClose}>Cancel Delete</button>
+      </div>
+    );
+  }
+);
 
 jest.mock("../../../src/components/boardComponents/TaskCard", () => (props) => (
   <div data-testid="task-card">{props.task.title}</div>
@@ -96,7 +111,6 @@ describe("Column Component - Unit Tests", () => {
     jest.clearAllMocks();
   });
 
-  // --- Rendering Tests ---
   test("renders column header when not renaming", () => {
     render(<Column {...defaultProps} />);
     expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent(
@@ -120,7 +134,6 @@ describe("Column Component - Unit Tests", () => {
     expect(screen.getByText("❌")).toBeInTheDocument();
   });
 
-  // --- Interaction Tests ---
   test("clicking cross button in rename mode cancels renaming", () => {
     render(
       <Column
@@ -167,7 +180,9 @@ describe("Column Component - Unit Tests", () => {
       screen.getByText("‧‧‧") ||
       screen.getByRole("button", { name: /⋮|…/i });
     fireEvent.click(dotsButton);
-    expect(defaultProps.setIsDropdownOpen).toHaveBeenCalledWith(baseColumn.columnId);
+    expect(defaultProps.setIsDropdownOpen).toHaveBeenCalledWith(
+      baseColumn.columnId
+    );
   });
 
   test("closes dropdown when clicking outside", () => {
@@ -191,10 +206,10 @@ describe("Column Component - Unit Tests", () => {
 describe("Column Component - Integration Tests", () => {
   afterEach(() => {
     jest.clearAllMocks();
-    require("../../../src/firebase").auth.currentUser = originalAuth.currentUser;
+    require("../../../src/firebase").auth.currentUser =
+      originalAuth.currentUser;
   });
 
-  // --- Renaming & Deletion Flows ---
   test("handles board renaming flow", async () => {
     function TestWrapper() {
       const [newBoardName, setNewBoardName] = React.useState("Old Name");
@@ -242,7 +257,9 @@ describe("Column Component - Integration Tests", () => {
     await waitFor(() => {
       const { deleteBoard } = require("../../../src/services/columnsService");
       expect(deleteBoard).toHaveBeenCalledWith("user1", baseColumn.columnId);
-      expect(defaultProps.onBoardDelete).toHaveBeenCalledWith(baseColumn.columnId);
+      expect(defaultProps.onBoardDelete).toHaveBeenCalledWith(
+        baseColumn.columnId
+      );
       expect(defaultProps.setIsDropdownOpen).toHaveBeenCalledWith(null);
     });
   });
@@ -263,13 +280,52 @@ describe("Column Component - Integration Tests", () => {
     const { deleteBoard } = require("../../../src/services/columnsService");
     await waitFor(() => {
       expect(deleteBoard).toHaveBeenCalledWith("user1", baseColumn.columnId);
-      expect(defaultProps.onBoardDelete).toHaveBeenCalledWith(baseColumn.columnId);
+      expect(defaultProps.onBoardDelete).toHaveBeenCalledWith(
+        baseColumn.columnId
+      );
+    });
+    await waitFor(() => {
+      const { toast } = require("react-toastify");
+      expect(toast.success).toHaveBeenCalledWith("Board deleted!");
+    });
+  });
+
+  test("displays error toast when board deletion fails", async () => {
+    const { deleteBoard } = require("../../../src/services/columnsService");
+    deleteBoard.mockImplementationOnce(() => Promise.reject(new Error("Delete failed")));
+  
+    render(
+      <Column
+        {...defaultProps}
+        isDropdownOpen={baseColumn.columnId}
+        confirmBeforeDeleteBoard={true}
+      />
+    );
+  
+    const dotsButton = screen.getByText("⋮") || screen.getByText("‧‧‧");
+    fireEvent.click(dotsButton);
+  
+    const deleteButton = screen.getByText("Delete");
+    fireEvent.click(deleteButton);
+  
+    expect(screen.getByTestId("delete-modal")).toBeInTheDocument();
+  
+    const confirmButton = screen.getByText("Confirm Delete");
+    fireEvent.click(confirmButton);
+  
+    await waitFor(() => {
+      expect(deleteBoard).toHaveBeenCalledWith("user1", baseColumn.columnId);
+    });
+  
+    await waitFor(() => {
+      const { toast } = require("react-toastify");
+      expect(toast.error).toHaveBeenCalledWith("Failed to delete board!");
     });
   });
 
   test("throws error when renaming board to an empty name", async () => {
     const setRenameBoardErrorMock = jest.fn();
-  
+
     function TestWrapper() {
       const [newBoardName, setNewBoardName] = React.useState("");
       return (
@@ -283,17 +339,19 @@ describe("Column Component - Integration Tests", () => {
         />
       );
     }
-  
+
     render(<TestWrapper />);
-  
+
     const input = screen.getByRole("textbox");
     fireEvent.change(input, { target: { value: "" } });
-  
+
     const tickButton = screen.getByText("✔️");
     fireEvent.click(tickButton);
-  
+
     await waitFor(() => {
-      expect(setRenameBoardErrorMock).toHaveBeenCalledWith("Board name cannot be empty.");
+      expect(setRenameBoardErrorMock).toHaveBeenCalledWith(
+        "Board name cannot be empty."
+      );
     });
   });
 
@@ -301,11 +359,11 @@ describe("Column Component - Integration Tests", () => {
     const existingBoardName = "Existing Board";
     const columns = {
       [baseColumn.columnId]: { name: baseColumn.name, items: [] },
-      "anotherColumnId": { name: existingBoardName, items: [] },
+      anotherColumnId: { name: existingBoardName, items: [] },
     };
-  
+
     const setRenameBoardErrorMock = jest.fn();
-  
+
     function TestWrapper() {
       const [newBoardName, setNewBoardName] = React.useState(baseColumn.name);
       return (
@@ -320,23 +378,25 @@ describe("Column Component - Integration Tests", () => {
         />
       );
     }
-  
+
     render(<TestWrapper />);
-  
+
     const input = screen.getByRole("textbox");
     fireEvent.change(input, { target: { value: existingBoardName } });
-  
+
     const tickButton = screen.getByText("✔️");
     fireEvent.click(tickButton);
-  
+
     await waitFor(() => {
-      expect(setRenameBoardErrorMock).toHaveBeenCalledWith("Board name already taken.");
+      expect(setRenameBoardErrorMock).toHaveBeenCalledWith(
+        "Board name already taken."
+      );
     });
   });
 
   test("throws error when renaming board to reserved name 'Completed'", async () => {
     const setRenameBoardErrorMock = jest.fn();
-  
+
     function TestWrapper() {
       const [newBoardName, setNewBoardName] = React.useState(baseColumn.name);
       return (
@@ -350,17 +410,19 @@ describe("Column Component - Integration Tests", () => {
         />
       );
     }
-  
+
     render(<TestWrapper />);
-  
+
     const input = screen.getByRole("textbox");
     fireEvent.change(input, { target: { value: "Completed" } });
-  
+
     const tickButton = screen.getByText("✔️");
     fireEvent.click(tickButton);
-  
+
     await waitFor(() => {
-      expect(setRenameBoardErrorMock).toHaveBeenCalledWith("Board name 'Completed' is reserved.");
+      expect(setRenameBoardErrorMock).toHaveBeenCalledWith(
+        "Board name 'Completed' is reserved."
+      );
     });
   });
 
@@ -370,7 +432,9 @@ describe("Column Component - Integration Tests", () => {
     fireEvent.click(dotsButton);
     const renameOption = screen.getByText("Rename");
     fireEvent.click(renameOption);
-    expect(defaultProps.setRenamingColumnId).toHaveBeenCalledWith(baseColumn.columnId);
+    expect(defaultProps.setRenamingColumnId).toHaveBeenCalledWith(
+      baseColumn.columnId
+    );
     expect(defaultProps.setNewBoardName).toHaveBeenCalledWith(baseColumn.name);
     expect(defaultProps.setRenameBoardError).toHaveBeenCalledWith("");
     expect(defaultProps.setIsDropdownOpen).toHaveBeenCalledWith(null);
@@ -402,7 +466,6 @@ describe("Column Component - Integration Tests", () => {
     });
   });
 
-  // --- Task Rendering Tests ---
   test("renders multiple task cards when columnData contains several tasks", () => {
     const multiTaskProps = {
       ...defaultProps,
@@ -435,7 +498,6 @@ describe("Column Component - Integration Tests", () => {
     expect(screen.queryByTestId("task-card")).toBeNull();
   });
 
-  // --- Outside Click Tests ---
   test("click outside while in renaming mode does not exit renaming", () => {
     function TestWrapper() {
       const [newBoardName, setNewBoardName] = React.useState("New Name");

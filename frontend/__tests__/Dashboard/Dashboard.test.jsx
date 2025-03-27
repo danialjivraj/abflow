@@ -1,8 +1,9 @@
 import React from "react";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import Dashboard, { getBaseRoute } from "../../src/pages/Dashboard/Dashboard";
 import { NotificationsContext } from "../../src/contexts/NotificationsContext";
+import { toast } from "react-toastify";
 
 jest.mock("../../src/firebase", () => {
   const { createBaseUser } = require("../../_testUtils/createBaseUser");
@@ -10,6 +11,13 @@ jest.mock("../../src/firebase", () => {
     auth: { currentUser: { uid: createBaseUser().userId } },
   };
 });
+
+jest.mock("react-toastify", () => ({
+  toast: {
+    success: jest.fn(),
+    error: jest.fn(),
+  },
+}));
 
 jest.mock("../../src/services/tasksService", () => ({
   fetchTasks: jest.fn(() => Promise.resolve({ data: [] })),
@@ -80,7 +88,19 @@ jest.mock("../../src/components/modals/ScheduleEditModal", () => {
 });
 
 jest.mock("../../src/pages/Dashboard/BoardsView", () => {
-  return (props) => <div data-testid="boards-view">BoardsView</div>;
+  return (props) => (
+    <div data-testid="boards-view">
+      BoardsView
+      {props.deleteTask && (
+        <button
+          data-testid="delete-task-button-task-1"
+          onClick={() => props.deleteTask("task-1")}
+        >
+          Delete Task
+        </button>
+      )}
+    </div>
+  );
 });
 
 jest.mock("../../src/pages/Dashboard/CompletedTasks", () => {
@@ -110,6 +130,60 @@ const Wrapper = ({ children }) => (
     {children}
   </NotificationsContext.Provider>
 );
+
+// --- Tests ---
+describe("handleDeleteTask toast messages", () => {
+  beforeEach(() => {
+    toast.success.mockClear();
+    toast.error.mockClear();
+  });
+
+  test("displays success toast on successful task deletion", async () => {
+    render(
+      <Wrapper>
+        <MemoryRouter initialEntries={["/dashboard/boards"]}>
+          <Dashboard
+            userSettings={defaultUserSettings}
+            setUserSettings={jest.fn()}
+          />
+        </MemoryRouter>
+      </Wrapper>
+    );
+
+    const deleteButton = screen.getByTestId("delete-task-button-task-1");
+    fireEvent.click(deleteButton);
+
+    await waitFor(() => {
+      expect(toast.success).toHaveBeenCalledWith("Task deleted!");
+    });
+  });
+
+  test("displays error toast when task deletion fails", async () => {
+    const { deleteTaskAPI } = require("../../src/services/tasksService");
+    deleteTaskAPI.mockImplementationOnce(() =>
+      Promise.reject(new Error("Delete failed"))
+    );
+
+    render(
+      <Wrapper>
+        <MemoryRouter initialEntries={["/dashboard/boards"]}>
+          <Dashboard
+            userSettings={defaultUserSettings}
+            setUserSettings={jest.fn()}
+          />
+        </MemoryRouter>
+      </Wrapper>
+    );
+
+    const deleteButton = screen.getByTestId("delete-task-button-task-1");
+    fireEvent.click(deleteButton);
+
+    await waitFor(() => {
+      expect(toast.error).toHaveBeenCalledWith("Failed to delete task!");
+    });
+  });
+});
+
 
 // --- Tests ---
 describe("Dashboard Component", () => {
