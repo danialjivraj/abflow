@@ -35,6 +35,14 @@ jest.mock("../../src/utils/dateUtils", () => ({
   getCalendarIconColor: jest.fn(() => "red"),
 }));
 
+jest.mock("react-toastify", () => ({
+  toast: {
+    success: jest.fn(),
+    error: jest.fn(),
+  },
+}));
+const { toast } = require("react-toastify");
+
 const defaultProps = {
   isModalOpen: true,
   closeModal: jest.fn(),
@@ -358,7 +366,7 @@ describe("ViewTaskModal - Integration Tests", () => {
   });
 
   // Move to Boards / Complete Task Tests
-  test("calls handleUpdateTask when 'Back to Boards' is clicked for a completed task", async () => {
+  test("calls handleUpdateTask when 'Back to Boards' is clicked for a completed task and shows success toast", async () => {
     const updatedTask = createBaseTask({ status: "completed" });
     const props = { ...defaultProps, task: updatedTask, readOnly: false };
     const { updateTask } = require("../../src/services/tasksService");
@@ -371,10 +379,26 @@ describe("ViewTaskModal - Integration Tests", () => {
     await waitFor(() => {
       expect(updateTask).toHaveBeenCalled();
       expect(props.handleUpdateTask).toHaveBeenCalled();
+      expect(toast.success).toHaveBeenCalledWith("Task moved back to boards!");
+      expect(props.closeModal).toHaveBeenCalled();
     });
   });
 
-  test("calls completeTask when 'Complete Task' is clicked", async () => {
+  test("shows error toast when 'Back to Boards' fails", async () => {
+    const updatedTask = createBaseTask({ status: "completed" });
+    const props = { ...defaultProps, task: updatedTask, readOnly: false };
+    const { updateTask } = require("../../src/services/tasksService");
+    updateTask.mockRejectedValue(new Error("Error moving task"));
+    render(<ViewTaskModal {...props} />);
+    const backToBoardsButton = await screen.findByText("Back to Boards");
+    fireEvent.click(backToBoardsButton);
+    await waitFor(() => {
+      expect(updateTask).toHaveBeenCalled();
+      expect(toast.error).toHaveBeenCalledWith("Error moving task back to boards.");
+    });
+  });
+
+  test("calls completeTask when 'Complete Task' is clicked and shows success toast", async () => {
     const task = createBaseTask({ status: "in-progress" });
     const props = { ...defaultProps, readOnly: false, task };
     render(<ViewTaskModal {...props} />);
@@ -385,7 +409,22 @@ describe("ViewTaskModal - Integration Tests", () => {
         require("../../src/services/tasksService").completeTask
       ).toHaveBeenCalledWith(task._id);
       expect(props.handleUpdateTask).toHaveBeenCalled();
+      expect(toast.success).toHaveBeenCalledWith("Task completed!");
       expect(props.closeModal).toHaveBeenCalled();
+    });
+  });
+
+  test("shows error toast when 'Complete Task' fails", async () => {
+    const task = createBaseTask({ status: "in-progress" });
+    const props = { ...defaultProps, readOnly: false, task };
+    const { completeTask } = require("../../src/services/tasksService");
+    completeTask.mockRejectedValue(new Error("Completion failed"));
+    render(<ViewTaskModal {...props} />);
+    const completeTaskButton = screen.getByText("Complete Task");
+    fireEvent.click(completeTaskButton);
+    await waitFor(() => {
+      expect(completeTask).toHaveBeenCalledWith(task._id);
+      expect(toast.error).toHaveBeenCalledWith("Error completing task.");
     });
   });
 });

@@ -12,6 +12,7 @@ import {
 } from "../../utils/dateUtils";
 import { completeTask } from "../../services/tasksService";
 import { updateTask } from "../../services/tasksService";
+import { toast } from "react-toastify";
 
 const allowedPriorities = [
   "A1", "A2", "A3",
@@ -438,9 +439,11 @@ const ViewTaskModal = ({
           );
         });
       }
+      toast.success("Task completed!");
       closeModal();
     } catch (error) {
       console.error("Error completing task:", error);
+      toast.error("Error completing task.");
     }
   };
 
@@ -549,12 +552,13 @@ const ViewTaskModal = ({
       const response = await updateTask(updatedTask);
       const updatedTaskFromBackend = response.data;
       handleUpdateTask(updatedTaskFromBackend);
+      toast.success("Task moved back to boards!");
       closeModal();
     } catch (error) {
       console.error("Error moving task back to boards:", error);
+      toast.error("Error moving task back to boards.");
     }
   };
-  
 
   const handleOverlayClick = (e) => {
     if (
