@@ -33,6 +33,13 @@ const TopBar = ({ buttons, openModal, navigate, activeChartType }) => {
   };
 
   useEffect(() => {
+    window.openNotifications = () => setShowNotifications(true);
+    return () => {
+      delete window.openNotifications;
+    };
+  }, []);
+
+  useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setShowNotifications(false);
@@ -61,11 +68,7 @@ const TopBar = ({ buttons, openModal, navigate, activeChartType }) => {
             onClick={() => button.onClick(openModal, navigate)}
             className={`${button.className} ${activeClass}`}
           >
-            {button.icon && (
-              <span className="top-bar-icon">
-                {button.icon}
-              </span>
-            )}
+            {button.icon && <span className="top-bar-icon">{button.icon}</span>}
             {button.label}
           </button>
         );

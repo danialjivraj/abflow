@@ -1,5 +1,6 @@
 import React from "react";
 import { render, waitFor, act } from "@testing-library/react";
+import { renderToStaticMarkup } from "react-dom/server";
 import {
   NotificationsProvider,
   NotificationsContext,
@@ -11,6 +12,16 @@ import {
 import { auth } from "../../src/firebase";
 import { createBaseUser } from "../../_testUtils/createBaseUser";
 import { createBaseNotification } from "../../_testUtils/createBaseNotification";
+import { toast } from "react-toastify";
+
+jest.mock("react-toastify", () => ({
+  toast: {
+    info: jest.fn(),
+    success: jest.fn(),
+    error: jest.fn(),
+    dismiss: jest.fn(),
+  },
+}));
 
 const NotificationsTestConsumer = ({ onChange }) => {
   const { notifications } = React.useContext(NotificationsContext);
@@ -459,5 +470,199 @@ describe("NotificationsContext", () => {
     expect(playMock).not.toHaveBeenCalled();
 
     jest.useRealTimers();
+  });
+
+  describe("NotificationsContext Toast Logic", () => {
+    it("displays correct toast message for Alert prefix", async () => {
+      fetchNotifications.mockResolvedValue({
+        data: {
+          notifications: [
+            createBaseNotification({
+              _id: "notif1",
+              message: "Alert: Something happened",
+              soundPlayed: false,
+            }),
+          ],
+        },
+      });
+      jest.useFakeTimers();
+      render(
+        <NotificationsProvider>
+          <div>Test Child</div>
+        </NotificationsProvider>
+      );
+      await act(async () => {
+        jest.advanceTimersByTime(1100);
+      });
+      await waitFor(() => {
+        expect(toast.info).toHaveBeenCalled();
+        const messageElement = toast.info.mock.calls[0][0];
+        const rendered = renderToStaticMarkup(messageElement);
+        expect(rendered).toContain(
+          'You got an <span class="notification-title-alert">Alert</span>notification!'
+        );
+      });
+      jest.useRealTimers();
+    });
+
+    it("displays correct toast message for Weekly Insight prefix with line break", async () => {
+      fetchNotifications.mockResolvedValue({
+        data: {
+          notifications: [
+            createBaseNotification({
+              _id: "notif1",
+              message: "Weekly Insight: Check your stats",
+              soundPlayed: false,
+            }),
+          ],
+        },
+      });
+      jest.useFakeTimers();
+      render(
+        <NotificationsProvider>
+          <div>Test Child</div>
+        </NotificationsProvider>
+      );
+      await act(async () => {
+        jest.advanceTimersByTime(1100);
+      });
+      await waitFor(() => {
+        expect(toast.info).toHaveBeenCalled();
+        const messageElement = toast.info.mock.calls[0][0];
+        const rendered = renderToStaticMarkup(messageElement);
+        expect(rendered).toContain(
+          'You got a <span class="notification-title-insight">Weekly Insight</span><br/>notification!'
+        );
+      });
+      jest.useRealTimers();
+    });
+
+    it("displays correct toast message for Reminder prefix", async () => {
+      fetchNotifications.mockResolvedValue({
+        data: {
+          notifications: [
+            createBaseNotification({
+              _id: "notif1",
+              message: "Reminder: Check your schedule",
+              soundPlayed: false,
+            }),
+          ],
+        },
+      });
+      jest.useFakeTimers();
+      render(
+        <NotificationsProvider>
+          <div>Test Child</div>
+        </NotificationsProvider>
+      );
+      await act(async () => {
+        jest.advanceTimersByTime(1100);
+      });
+      await waitFor(() => {
+        expect(toast.info).toHaveBeenCalled();
+        const messageElement = toast.info.mock.calls[0][0];
+        const rendered = renderToStaticMarkup(messageElement);
+        expect(rendered).toContain(
+          'You got a <span class="notification-title-reminder">Reminder</span>notification!'
+        );
+      });
+      jest.useRealTimers();
+    });
+
+    it("displays correct toast message for Warning prefix", async () => {
+      fetchNotifications.mockResolvedValue({
+        data: {
+          notifications: [
+            createBaseNotification({
+              _id: "notif1",
+              message: "Warning: Check your system",
+              soundPlayed: false,
+            }),
+          ],
+        },
+      });
+      jest.useFakeTimers();
+      render(
+        <NotificationsProvider>
+          <div>Test Child</div>
+        </NotificationsProvider>
+      );
+      await act(async () => {
+        jest.advanceTimersByTime(1100);
+      });
+      await waitFor(() => {
+        expect(toast.info).toHaveBeenCalled();
+        const messageElement = toast.info.mock.calls[0][0];
+        const rendered = renderToStaticMarkup(messageElement);
+        expect(rendered).toContain(
+          'You got a <span class="notification-title-warning">Warning</span>notification!'
+        );
+      });
+      jest.useRealTimers();
+    });
+
+    it("displays correct toast message for default case", async () => {
+      fetchNotifications.mockResolvedValue({
+        data: {
+          notifications: [
+            createBaseNotification({
+              _id: "notif1",
+              message: "Random message without prefix",
+              soundPlayed: false,
+            }),
+          ],
+        },
+      });
+      jest.useFakeTimers();
+      render(
+        <NotificationsProvider>
+          <div>Test Child</div>
+        </NotificationsProvider>
+      );
+      await act(async () => {
+        jest.advanceTimersByTime(1100);
+      });
+      await waitFor(() => {
+        expect(toast.info).toHaveBeenCalled();
+        const messageElement = toast.info.mock.calls[0][0];
+        const rendered = renderToStaticMarkup(messageElement);
+        expect(rendered).toContain("You got a new notification!");
+      });
+      jest.useRealTimers();
+    });
+
+    it("closes toast and opens notification dropdown when toast is clicked", async () => {
+      window.openNotifications = jest.fn();
+      fetchNotifications.mockResolvedValue({
+        data: {
+          notifications: [
+            createBaseNotification({
+              _id: "notif1",
+              message: "Alert: Something happened",
+              soundPlayed: false,
+            }),
+          ],
+        },
+      });
+      jest.useFakeTimers();
+      render(
+        <NotificationsProvider>
+          <div>Test Child</div>
+        </NotificationsProvider>
+      );
+      await act(async () => {
+        jest.advanceTimersByTime(1100);
+      });
+      await waitFor(() => {
+        expect(toast.info).toHaveBeenCalled();
+      });
+
+      const onClickCallback = toast.info.mock.calls[0][1].onClick;
+
+      onClickCallback();
+      expect(window.openNotifications).toHaveBeenCalled();
+      expect(toast.dismiss).toHaveBeenCalled();
+      jest.useRealTimers();
+    });
   });
 });

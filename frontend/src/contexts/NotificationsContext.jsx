@@ -1,10 +1,81 @@
 import React, { createContext, useState, useEffect } from "react";
 import { auth } from "../firebase";
-import { fetchNotifications, updateNotification } from "../services/notificationService";
+import {
+  fetchNotifications,
+  updateNotification,
+} from "../services/notificationService";
 import { onAuthStateChanged } from "firebase/auth";
 import notificationSound from "../assets/notification.mp3";
+import { toast } from "react-toastify";
+import { FaEnvelope } from "react-icons/fa";
 
 export const NotificationsContext = createContext();
+
+const getToastDetails = (notification) => {
+  const prefixMap = {
+    "Weekly Insight:": {
+      keyword: "Weekly Insight",
+      className: "notification-title-insight",
+      icon: <FaEnvelope style={{ color: "var(--notif-title-insight)" }} />,
+      multiline: true,
+      article: "a",
+    },
+    "Alert:": {
+      keyword: "Alert",
+      className: "notification-title-alert",
+      icon: <FaEnvelope style={{ color: "var(--notif-title-alert)" }} />,
+      article: "an",
+    },
+    "Reminder:": {
+      keyword: "Reminder",
+      className: "notification-title-reminder",
+      icon: <FaEnvelope style={{ color: "var(--notif-title-reminder)" }} />,
+      article: "a",
+    },
+    "Warning:": {
+      keyword: "Warning",
+      className: "notification-title-warning",
+      icon: <FaEnvelope style={{ color: "var(--notif-title-warning)" }} />,
+      article: "a",
+    },
+  };
+
+  for (const prefix in prefixMap) {
+    if (notification.message.startsWith(prefix)) {
+      const details = prefixMap[prefix];
+      if (details.multiline) {
+        return {
+          message: (
+            <span style={{ whiteSpace: "nowrap" }}>
+              You got {details.article}{" "}
+              <span className={details.className}>{details.keyword}</span>
+              <br />
+              notification!
+            </span>
+          ),
+          icon: details.icon,
+        };
+      }
+      return {
+        message: (
+          <span style={{ whiteSpace: "nowrap" }}>
+            You got {details.article}{" "}
+            <span className={details.className}>{details.keyword}</span>
+            notification!
+          </span>
+        ),
+        icon: details.icon,
+      };
+    }
+  }
+
+  return {
+    message: (
+      <span style={{ whiteSpace: "nowrap" }}>You got a new notification!</span>
+    ),
+    icon: <FaEnvelope style={{ color: "#d1921d" }} />,
+  };
+};
 
 export const NotificationsProvider = ({ children, muteNotifications }) => {
   const [notifications, setNotifications] = useState([]);
@@ -46,6 +117,19 @@ export const NotificationsProvider = ({ children, muteNotifications }) => {
     if (newUnplayed.length > 0 && !muteNotifications) {
       const audio = new Audio(notificationSound);
       audio.play().catch(() => {});
+
+      const toastDetails = getToastDetails(newUnplayed[0]);
+
+      toast.info(toastDetails.message, {
+        autoClose: 5000,
+        icon: toastDetails.icon,
+        onClick: () => {
+          if (window.openNotifications) {
+            window.openNotifications();
+          }
+          toast.dismiss();
+        },
+      });
 
       newUnplayed.forEach(async (notif) => {
         try {
