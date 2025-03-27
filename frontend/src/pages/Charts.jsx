@@ -77,7 +77,6 @@ const COLORS = [
   "#FF6699",
 ];
 
-
 const Charts = () => {
   // -------------------- State --------------------
   const [tasks, setTasks] = useState([]);
@@ -630,31 +629,31 @@ const Charts = () => {
     }
     const mainFiltered = applyAllFilters(tasks, startDate, endDate);
     let mainGrouped = groupTasks(mainFiltered);
-
+  
     if (!includeZeroMetrics) {
       mainGrouped = mainGrouped.filter((item) => item[yAxisMetric] > 0);
     }
-
+  
     if (minTaskCount !== "" && !isNaN(parseInt(minTaskCount, 10))) {
       const minCount = parseInt(minTaskCount, 10);
       mainGrouped = mainGrouped.filter((item) => item.count >= minCount);
     }
-
+  
+    let newChartData;
     if (comparisonMode && compStartDate && compEndDate) {
       const compFiltered = applyAllFilters(tasks, compStartDate, compEndDate);
       let compGrouped = groupTasks(compFiltered);
-
+  
       if (!includeZeroMetrics) {
         compGrouped = compGrouped.filter((item) => item[yAxisMetric] > 0);
       }
-
+  
       if (minTaskCount !== "" && !isNaN(parseInt(minTaskCount, 10))) {
         const minCount = parseInt(minTaskCount, 10);
         compGrouped = compGrouped.filter((item) => item.count >= minCount);
       }
-
+  
       const merged = mergeData(mainGrouped, compGrouped);
-
       const converted = merged.map((item) => {
         if (yAxisMetric === "timeSpent") {
           return {
@@ -665,16 +664,23 @@ const Charts = () => {
         }
         return item;
       });
-      setChartData(converted);
+      newChartData = converted;
     } else {
-      const single = mainGrouped.map((item) => {
+      newChartData = mainGrouped.map((item) => {
         if (yAxisMetric === "timeSpent") {
           return { key: item.key, mainValue: item[yAxisMetric] / 3600 };
         }
         return { key: item.key, mainValue: item[yAxisMetric] };
       });
-      setChartData(single);
     }
+  
+    if (sortOrder === "asc") {
+      newChartData.sort((a, b) => a.mainValue - b.mainValue);
+    } else if (sortOrder === "desc") {
+      newChartData.sort((a, b) => b.mainValue - a.mainValue);
+    }
+  
+    setChartData(newChartData);
   }, [
     tasks,
     columnsMapping,
@@ -1139,7 +1145,7 @@ const Charts = () => {
               nameKey="key"
               cx="50%"
               cy="50%"
-              outerRadius={200}
+              outerRadius="80%"
               fill="#446688"
               label={(entry) => {
                 const percentage = total > 0 ? (entry.value / total) * 100 : 0;
@@ -1156,6 +1162,7 @@ const Charts = () => {
                 />
               ))}
             </Pie>
+
             <Legend
               formatter={(value, entry, index) => axisWordLimit(value, index)}
             />
