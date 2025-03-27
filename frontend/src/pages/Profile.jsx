@@ -11,6 +11,7 @@ import {
   updateName,
 } from "../services/profileService";
 import "../components/styles.css";
+import { toast } from "react-toastify";
 
 const Profile = () => {
   const [profile, setProfile] = useState(null);
@@ -74,8 +75,10 @@ const Profile = () => {
         }));
         setPendingFile(null);
         setPendingPreview(null);
+        toast.success("Image saved!");
       } catch (error) {
         console.error("Error uploading new picture:", error);
+        toast.error("Failed to save image!");
       }
     } else if (pendingRemove) {
       try {
@@ -85,8 +88,10 @@ const Profile = () => {
           profilePicture: response.data.profilePicture,
         }));
         setPendingRemove(false);
+        toast.success("Image saved!");
       } catch (error) {
         console.error("Error removing profile picture:", error);
+        toast.error("Failed to remove image!");
       }
     }
   };
@@ -108,8 +113,10 @@ const Profile = () => {
         name: response.data.name,
       }));
       setIsEditing(false);
+      toast.success("Name saved!");
     } catch (error) {
       console.error("Error updating name:", error);
+      toast.error("Failed to update name!");
     }
   };
 

@@ -8,8 +8,16 @@ import { BrowserRouter } from "react-router-dom";
 import { NotificationsProvider } from "../src/contexts/NotificationsContext";
 import { createBaseTask } from "../_testUtils/createBaseTask";
 import { createBaseUser } from "../_testUtils/createBaseUser";
+import * as profileService from "../src/services/profileService";
 
 jest.mock("axios");
+
+jest.mock("react-toastify", () => ({
+  toast: {
+    success: jest.fn(),
+    error: jest.fn(),
+  },
+}));
 
 describe("Profile Page", () => {
   beforeEach(() => {
@@ -138,15 +146,15 @@ describe("Profile Page", () => {
       { points: 0, tasksCompleted: 0 }
     );
 
-    axios.get.mockResolvedValueOnce({ 
-      data: { 
-        ...aggregatedProfile, 
+    axios.get.mockResolvedValueOnce({
+      data: {
+        ...aggregatedProfile,
         totalHours: 0,
         profilePicture: "",
-        name: "Test User"
-      } 
+        name: "Test User",
+      },
     });
-    
+
     render(
       <BrowserRouter>
         <NotificationsProvider>
@@ -342,7 +350,6 @@ describe("Profile Page", () => {
       type: "image/jpeg",
     });
     fireEvent.change(fileInput, { target: { files: [file] } });
-
     userEvent.click(await screen.findByText("Save"));
 
     await waitFor(() => {
@@ -558,7 +565,7 @@ describe("Profile Page", () => {
           ...data,
         },
       });
-  
+
       render(
         <BrowserRouter>
           <NotificationsProvider>
@@ -567,48 +574,218 @@ describe("Profile Page", () => {
         </BrowserRouter>
       );
     };
-  
+
     const checkStat = async (label, shortValue, fullValue) => {
       const stat = await screen.findByText(shortValue);
       expect(stat).toBeInTheDocument();
       expect(stat).toHaveAttribute("title", fullValue.toString());
       expect(screen.getByText(label)).toBeInTheDocument();
     };
-  
+
     it("formats all fields with no suffix (<1,000)", async () => {
       await renderProfile({
         points: 500,
         tasksCompleted: 999,
         totalHours: 320,
       });
-  
+
       await checkStat("Points", "500", 500);
       await checkStat("Tasks Completed", "999", 999);
       await checkStat("Hours Spent", "320", 320);
     });
-  
+
     it("formats all fields with 'k' suffix (1,000 - 999,999)", async () => {
       await renderProfile({
         points: 1500,
         tasksCompleted: 999999,
         totalHours: 1001,
       });
-  
+
       await checkStat("Points", "1.5k", 1500);
       await checkStat("Tasks Completed", "1000.0k", 999999);
       await checkStat("Hours Spent", "1.0k", 1001);
     });
-  
+
     it("formats all fields with 'M' suffix (≥1,000,000)", async () => {
       await renderProfile({
         points: 1234567,
         tasksCompleted: 2500000,
         totalHours: 1000000,
       });
-  
+
       await checkStat("Points", "1.2M", 1234567);
       await checkStat("Tasks Completed", "2.5M", 2500000);
       await checkStat("Hours Spent", "1.0M", 1000000);
+    });
+  });
+
+  it("should allow user to edit their name and show a success toast", async () => {
+    axios.get.mockResolvedValueOnce({
+      data: {
+        points: 10,
+        tasksCompleted: 1,
+        totalHours: "0.00",
+        profilePicture: "",
+        name: "User",
+      },
+    });
+    axios.put.mockResolvedValueOnce({
+      data: { message: "Name updated successfully", name: "New Name" },
+    });
+    const { container } = render(
+      <BrowserRouter>
+        <NotificationsProvider>
+          <Profile />
+        </NotificationsProvider>
+      </BrowserRouter>
+    );
+
+    await screen.findByText("User");
+
+    const heading = container.querySelector(".editable-name");
+    userEvent.click(heading);
+
+    const nameInput = await screen.findByPlaceholderText("Enter your name");
+    fireEvent.change(nameInput, { target: { value: "New Name" } });
+    fireEvent.blur(nameInput);
+
+    const tickButton = screen.getByText("✔️");
+    userEvent.click(tickButton);
+
+    await waitFor(() => {
+      expect(axios.put).toHaveBeenCalledWith(
+        "http://localhost:5000/api/profile/updateName/user1",
+        { name: "New Name" }
+      );
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText("New Name")).toBeInTheDocument();
+    });
+
+    const { toast } = require("react-toastify");
+    expect(toast.success).toHaveBeenCalledWith("Name saved!");
+  });
+
+  it("should show an error toast if name update fails", async () => {
+    axios.get.mockResolvedValueOnce({
+      data: {
+        points: 10,
+        tasksCompleted: 1,
+        totalHours: "0.00",
+        profilePicture: "",
+        name: "User",
+      },
+    });
+    axios.put.mockRejectedValueOnce(new Error("Update failed"));
+
+    render(
+      <BrowserRouter>
+        <NotificationsProvider>
+          <Profile />
+        </NotificationsProvider>
+      </BrowserRouter>
+    );
+
+    await screen.findByText("User");
+
+    userEvent.click(screen.getByText("User"));
+    const nameInput = await screen.findByPlaceholderText("Enter your name");
+    fireEvent.change(nameInput, { target: { value: "New Name" } });
+    fireEvent.blur(nameInput);
+
+    const tickButton = screen.getByText("✔️");
+    userEvent.click(tickButton);
+
+    await waitFor(() => {
+      const { toast } = require("react-toastify");
+      expect(toast.error).toHaveBeenCalledWith("Failed to update name!");
+    });
+  });
+
+  it("should show a success toast when profile picture is saved", async () => {
+    axios.get.mockResolvedValueOnce({
+      data: {
+        points: 0,
+        tasksCompleted: 0,
+        totalHours: "0.00",
+        profilePicture: "",
+        name: "User",
+      },
+    });
+    const fixedTimestamp = 1695673440987;
+    jest.spyOn(Date, "now").mockReturnValue(fixedTimestamp);
+    axios.post.mockResolvedValueOnce({
+      data: {
+        message: "Profile picture updated",
+        profilePicture: `/uploads/user1-${fixedTimestamp}.jpg`,
+      },
+    });
+
+    const { container } = render(
+      <BrowserRouter>
+        <NotificationsProvider>
+          <Profile />
+        </NotificationsProvider>
+      </BrowserRouter>
+    );
+
+    await screen.findByAltText("Profile");
+
+    userEvent.click(screen.getByAltText("Profile"));
+    const fileInput = container.querySelector('input[type="file"]');
+    const file = new File(["dummy image content"], "test.jpg", {
+      type: "image/jpeg",
+    });
+    fireEvent.change(fileInput, { target: { files: [file] } });
+    userEvent.click(await screen.findByText("Save"));
+
+    await waitFor(() => {
+      expect(axios.post).toHaveBeenCalled();
+    });
+
+    const { toast } = require("react-toastify");
+    expect(toast.success).toHaveBeenCalledWith("Image saved!");
+
+    jest.restoreAllMocks();
+  });
+
+  it("should show an error toast when profile picture upload fails", async () => {
+    axios.get.mockResolvedValueOnce({
+      data: {
+        points: 0,
+        tasksCompleted: 0,
+        totalHours: "0.00",
+        profilePicture: "",
+        name: "User",
+      },
+    });
+
+    jest
+      .spyOn(profileService, "uploadProfilePicture")
+      .mockRejectedValueOnce(new Error("Upload failed"));
+
+    const { container } = render(
+      <BrowserRouter>
+        <NotificationsProvider>
+          <Profile />
+        </NotificationsProvider>
+      </BrowserRouter>
+    );
+
+    await screen.findByAltText("Profile");
+
+    userEvent.click(screen.getByAltText("Profile"));
+    const fileInput = container.querySelector('input[type="file"]');
+    const file = new File(["dummy image content"], "test.jpg", {
+      type: "image/jpeg",
+    });
+    fireEvent.change(fileInput, { target: { files: [file] } });
+    userEvent.click(await screen.findByText("Save"));
+
+    await waitFor(() => {
+      const { toast } = require("react-toastify");
+      expect(toast.error).toHaveBeenCalledWith("Failed to save image!");
     });
   });
 });
