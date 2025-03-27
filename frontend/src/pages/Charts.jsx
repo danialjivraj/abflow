@@ -42,6 +42,7 @@ import {
   useSearchParams,
 } from "react-router-dom";
 import { getChartsTopBarConfig } from "../config/topBarConfig.jsx";
+import MultiSelectDropdown from "../utils/MultiSelectDropdown";
 
 // Options for multi-selects
 const allowedPriorities = [
@@ -76,60 +77,6 @@ const COLORS = [
   "#FF6699",
 ];
 
-const MultiSelectDropdown = ({ label, options, selectedOptions, onChange }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef(null);
-
-  useEffect(() => {
-    function handleClickOutside(e) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-        setIsOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const toggleOption = (optionValue) => {
-    if (selectedOptions.includes(optionValue)) {
-      onChange(selectedOptions.filter((o) => o !== optionValue));
-    } else {
-      onChange([...selectedOptions, optionValue]);
-    }
-  };
-
-  const selectedLabels = options
-    .filter((opt) => selectedOptions.includes(opt.value))
-    .map((opt) => opt.label);
-
-  return (
-    <div className="multi-select-dropdown" ref={dropdownRef}>
-      <label>{label}</label>
-      <div
-        className={`dropdown-header${isOpen ? " open" : ""}`}
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        {selectedLabels.length > 0 ? selectedLabels.join(", ") : "All"}
-      </div>
-      {isOpen && (
-        <div className="dropdown-options">
-          {options.map((opt, index) => (
-            <div key={index} className="dropdown-option">
-              <label>
-                <input
-                  type="checkbox"
-                  checked={selectedOptions.includes(opt.value)}
-                  onChange={() => toggleOption(opt.value)}
-                />
-                {opt.label}
-              </label>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-};
 
 const Charts = () => {
   // -------------------- State --------------------
@@ -1421,6 +1368,7 @@ const Charts = () => {
                   </div>
                   <div className="filter-group">
                     <MultiSelectDropdown
+                      fallbackText="All"
                       label="Priority"
                       options={allowedPriorities.map((p) => ({
                         value: p,
@@ -1432,6 +1380,7 @@ const Charts = () => {
                   </div>
                   <div className="filter-group">
                     <MultiSelectDropdown
+                      fallbackText="All"
                       label="Day of the Week"
                       options={dayOptions.map((d) => ({
                         value: d,
@@ -1443,6 +1392,7 @@ const Charts = () => {
                   </div>
                   <div className="filter-group">
                     <MultiSelectDropdown
+                      fallbackText="All"
                       label="Status"
                       options={statusOptions}
                       selectedOptions={statusFilters}

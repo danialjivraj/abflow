@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import TaskCard from "../../components/boardComponents/TaskCard";
 import { formatDueDate } from "../../utils/dateUtils";
+import FilterBar from "../../components/boardComponents/FilterBar";
 
 const groupTasksByFilter = (tasks, filter) => {
   const groups = {};
@@ -86,30 +87,140 @@ const CompletedTasks = ({
   setIsTaskHovered,
   isTaskDropdownOpen,
   setIsTaskDropdownOpen,
-  handleBackToBoards
+  handleBackToBoards,
 }) => {
-  const [localCompletedTasks, setLocalCompletedTasks] = useState(completedTasks);
+  const [localCompletedTasks, setLocalCompletedTasks] =
+    useState(completedTasks);
   const [activeFilter, setActiveFilter] = useState("week");
+
+  const [filters, setFilters] = useState({
+    taskName: "",
+    priority: [],
+    assignedTo: "",
+    storyPoints: "",
+    timerRunning: null,
+    dueStatus: null,
+    today: null,
+    startDate: null,
+    endDate: null,
+  });
 
   useEffect(() => {
     setLocalCompletedTasks(completedTasks);
   }, [completedTasks]);
 
-  const filteredTasks = hideOldCompletedTasksNever 
-  ? localCompletedTasks 
-  : localCompletedTasks.filter(task => {
-      if (!task.completedAt) return false;
-      const completedDate = new Date(task.completedAt);
-      const diffDays = (currentTime - completedDate) / (1000 * 60 * 60 * 24);
-      return diffDays <= hideOldCompletedTasksDays;
+  // Filter out tasks older than the allowed days unless showing all
+  const tasksAfterDateFilter = hideOldCompletedTasksNever
+    ? localCompletedTasks
+    : localCompletedTasks.filter((task) => {
+        if (!task.completedAt) return false;
+        const completedDate = new Date(task.completedAt);
+        const diffDays = (currentTime - completedDate) / (1000 * 60 * 60 * 24);
+        return diffDays <= hideOldCompletedTasksDays;
+      });
+
+  const filterCompletedTasks = (tasks) => {
+    return tasks.filter((task) => {
+      // Task Name
+      if (
+        filters.taskName &&
+        !task.title.toLowerCase().includes(filters.taskName.toLowerCase())
+      ) {
+        return false;
+      }
+
+      // Priority
+      if (filters.priority.length > 0 && !filters.priority.includes(task.priority)) {
+        return false;
+      }
+
+      // Assigned To
+      if (
+        filters.assignedTo &&
+        (!task.assignedTo ||
+          !task.assignedTo
+            .toLowerCase()
+            .includes(filters.assignedTo.toLowerCase()))
+      ) {
+        return false;
+      }
+
+      // Story Points
+      if (
+        filters.storyPoints &&
+        task.storyPoints !== Number(filters.storyPoints)
+      ) {
+        return false;
+      }
+
+      // Timer Running
+      if (
+        filters.timerRunning !== undefined &&
+        filters.timerRunning !== null &&
+        task.isTimerRunning !== filters.timerRunning
+      ) {
+        return false;
+      }
+
+      // Due Status
+      if (filters.dueStatus) {
+        if (filters.dueStatus === "none") {
+          if (task.dueDate) return false;
+        } else if (task.dueDate) {
+          const now = new Date();
+          const dueDate = new Date(task.dueDate);
+
+          if (filters.dueStatus === "due" && dueDate < now) {
+            return false;
+          }
+          if (filters.dueStatus === "overdue" && dueDate >= now) {
+            return false;
+          }
+        } else {
+          return false;
+        }
+      }
+
+      // Date Range (startDate/endDate)
+      if (filters.startDate) {
+        const taskDate = new Date(task.completedAt);
+        if (taskDate < filters.startDate) {
+          return false;
+        }
+      }
+      if (filters.endDate) {
+        const taskDate = new Date(task.completedAt);
+        if (taskDate > filters.endDate) {
+          return false;
+        }
+      }
+
+      return true;
     });
+  };
+
+  const filteredTasks = filterCompletedTasks(
+    tasksAfterDateFilter.filter((task) => task.completedAt)
+  );
 
   const groupedTasks = groupTasksByFilter(filteredTasks, activeFilter);
 
   return (
     <div className="completed-tasks-page">
       <h1 className="page-title">Completed Tasks</h1>
-      {/* Filter Bar */}
+
+      {/* Completed Tasks FilterBar */}
+      <div className="completed-filter-bar">
+        <FilterBar
+          filters={filters}
+          setFilters={setFilters}
+          showTimer={false}
+          rangeFilter={true}
+          showCalendar={false}
+        />
+      </div>
+
+      {/* Grouping filter options */}
       <div className="filter-container">
         {["day", "week", "month", "year"].map((filter) => (
           <div
@@ -122,32 +233,36 @@ const CompletedTasks = ({
         ))}
       </div>
 
-      {/* Centered Tasks Container */}
+      {/* Completed tasks container */}
       <div className="completed-tasks-container">
-        {groupedTasks.map((group) => (
-          <div key={group.key}>
-            <div className="task-group-heading">{group.key}</div>
-            {group.tasks.map((task, index) => (
-              <TaskCard
-                key={task._id}
-                task={task}
-                index={index}
-                draggable={false}
-                formatDueDate={formatDueDate}
-                currentTime={currentTime}
-                isTaskHovered={isTaskHovered}
-                setIsTaskHovered={setIsTaskHovered}
-                isTaskDropdownOpen={isTaskDropdownOpen}
-                setIsTaskDropdownOpen={setIsTaskDropdownOpen}
-                deleteTask={deleteTask}
-                startTimer={startTimer}
-                stopTimer={stopTimer}
-                openViewTaskModal={openViewTaskModal}
-                handleBackToBoards={handleBackToBoards}
-              />
-            ))}
-          </div>
-        ))}
+        {groupedTasks.length === 0 ? (
+          <div className="no-tasks-message">There are no completed tasks.</div>
+        ) : (
+          groupedTasks.map((group) => (
+            <div key={group.key}>
+              <div className="task-group-heading">{group.key}</div>
+              {group.tasks.map((task, index) => (
+                <TaskCard
+                  key={task._id}
+                  task={task}
+                  index={index}
+                  draggable={false}
+                  formatDueDate={formatDueDate}
+                  currentTime={currentTime}
+                  isTaskHovered={isTaskHovered}
+                  setIsTaskHovered={setIsTaskHovered}
+                  isTaskDropdownOpen={isTaskDropdownOpen}
+                  setIsTaskDropdownOpen={setIsTaskDropdownOpen}
+                  deleteTask={deleteTask}
+                  startTimer={startTimer}
+                  stopTimer={stopTimer}
+                  openViewTaskModal={openViewTaskModal}
+                  handleBackToBoards={handleBackToBoards}
+                />
+              ))}
+            </div>
+          ))
+        )}
       </div>
     </div>
   );

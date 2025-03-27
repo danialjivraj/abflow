@@ -42,12 +42,14 @@ const BoardsView = (props) => {
 
   const [filters, setFilters] = useState({
     taskName: "",
-    priority: "",
+    priority: [],
     assignedTo: "",
     storyPoints: "",
     timerRunning: null,
     today: null,
     dueStatus: null,
+    startDate: null,
+    endDate: null,
   });
 
   const filterTasks = (tasks) => {
@@ -59,7 +61,7 @@ const BoardsView = (props) => {
         return false;
       }
 
-      if (filters.priority && task.priority !== filters.priority) {
+      if (filters.priority.length > 0 && !filters.priority.includes(task.priority)) {
         return false;
       }
 
