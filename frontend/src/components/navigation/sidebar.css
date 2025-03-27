@@ -66,6 +66,8 @@
 }
 
 .sidebar nav ul li {
+  display: flex;
+  align-items: center;
   margin-bottom: 13.5px;
   padding: 9px;
   border-radius: 3.6px;
@@ -84,32 +86,24 @@
   font-weight: bold;
 }
 
+.settings-btn,
 .logout-btn {
-  background-color: var(--logout-bg);
-  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border: none;
   padding: 9px 12.6px;
   border-radius: 5.4px;
   cursor: pointer;
   font-weight: bold;
   transition: background 0.2s ease-in-out;
-}
-
-.logout-btn:hover {
-  background-color: var(--logout-hover-bg);
+  width: 100%;
 }
 
 .settings-btn {
   background-color: var(--settings-bg);
   color: white;
-  border: none;
-  padding: 9px 12.6px;
-  border-radius: 5.4px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: background 0.2s ease-in-out;
   margin-bottom: 9px;
-  width: 100%;
 }
 
 .settings-btn:hover {
@@ -123,4 +117,13 @@
 
 .settings-btn.active:hover {
   background-color: var(--settings-active-hover-bg);
+}
+
+.logout-btn {
+  background-color: var(--logout-bg);
+  color: white;
+}
+
+.logout-btn:hover {
+  background-color: var(--logout-hover-bg);
 }

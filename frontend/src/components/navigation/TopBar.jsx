@@ -12,7 +12,6 @@ const TopBar = ({ buttons, openModal, navigate, activeChartType }) => {
   const { notifications } = useContext(NotificationsContext);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
-
   const displayCount =
     unreadCount > 99 ? (
       <>
@@ -55,12 +54,18 @@ const TopBar = ({ buttons, openModal, navigate, activeChartType }) => {
         }
 
         const activeClass = isActive(button) ? "active" : "";
+
         return (
           <button
             key={index}
             onClick={() => button.onClick(openModal, navigate)}
             className={`${button.className} ${activeClass}`}
           >
+            {button.icon && (
+              <span className="top-bar-icon">
+                {button.icon}
+              </span>
+            )}
             {button.label}
           </button>
         );
@@ -77,9 +82,7 @@ const TopBar = ({ buttons, openModal, navigate, activeChartType }) => {
           {unreadCount > 0 && (
             <span
               className={`notification-count ${
-                unreadCount > 99
-                  ? "plus-notification"
-                  : "regular-notification"
+                unreadCount > 99 ? "plus-notification" : "regular-notification"
               }`}
             >
               {displayCount}

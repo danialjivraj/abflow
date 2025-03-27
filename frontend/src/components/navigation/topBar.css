@@ -67,6 +67,8 @@
 }
 
 .top-bar-button {
+  display: flex;
+  align-items: center;
   background: none;
   border: none;
   color: var(--topbar-button-color);
@@ -92,6 +94,12 @@
 .top-bar-button.active {
   color: var(--topbar-active-button-color);
   font-weight: 500;
+}
+
+.top-bar-icon {
+  display: flex;
+  align-items: center;
+  margin-right: 8px;
 }
 
 .notifications-container {

@@ -1,4 +1,14 @@
+import React from "react";
+import { 
+  FiGrid, 
+  FiCalendar, 
+  FiCheckSquare, 
+  FiBarChart2, 
+  FiPieChart, 
+} from "react-icons/fi";
+import { RiPentagonLine } from "react-icons/ri";
 import { FaSun, FaMoon } from "react-icons/fa";
+import { FaChartLine, FaChartArea } from "react-icons/fa";
 
 export const getDashboardTopBarConfig = (openModal, navigate) => [
   {
@@ -6,18 +16,21 @@ export const getDashboardTopBarConfig = (openModal, navigate) => [
     path: "/dashboard/boards",
     onClick: () => navigate("/dashboard/boards"),
     className: "top-bar-button boards-btn",
+    icon: <FiGrid size={18} />,
   },
   {
     label: "Schedule",
     path: "/dashboard/schedule",
     onClick: () => navigate("/dashboard/schedule"),
     className: "top-bar-button schedule-btn",
+    icon: <FiCalendar size={18} />,
   },
   {
     label: "Completed Tasks",
     path: "/dashboard/completedtasks",
     onClick: () => navigate("/dashboard/completedtasks"),
     className: "top-bar-button completed-tasks-btn",
+    icon: <FiCheckSquare size={18} />,
   },
   {
     label: "Create Task",
@@ -32,30 +45,35 @@ export const getChartsTopBarConfig = (setChartType) => [
     value: "bar",
     onClick: () => setChartType("bar"),
     className: "top-bar-button",
+    icon: <FiBarChart2 size={18} />,
   },
   {
     label: "Line",
     value: "line",
     onClick: () => setChartType("line"),
     className: "top-bar-button",
+    icon: <FaChartLine size={18} />,
   },
   {
     label: "Pie",
     value: "pie",
     onClick: () => setChartType("pie"),
     className: "top-bar-button",
+    icon: <FiPieChart size={18} />,
   },
   {
     label: "Area",
     value: "area",
     onClick: () => setChartType("area"),
     className: "top-bar-button",
+    icon: <FaChartArea size={18} />,
   },
   {
     label: "Radar",
     value: "radar",
     onClick: () => setChartType("radar"),
     className: "top-bar-button",
+    icon: <RiPentagonLine size={18} />,
   },
 ];
 
