@@ -53,12 +53,12 @@ const generateScheduledNotifications = async (userId, now) => {
             await Task.findByIdAndUpdate(task._id, {
               lastNotifiedScheduledStart: scheduledStart,
             });
-            console.log(`--> Scheduled notification created for task "${task.title}".`);
+            //console.log(`--> Scheduled notification created for task "${task.title}".`);
           } else {
-            console.log(`--> Scheduled notification already sent for task "${task.title}".`);
+            //console.log(`--> Scheduled notification already sent for task "${task.title}".`);
           }
         } else {
-          console.log(`--> Skipped notification for task "${task.title}" because remaining minutes is 0.`);
+          //console.log(`--> Skipped notification for task "${task.title}" because remaining minutes is 0.`);
         }
       }
     }
@@ -91,9 +91,9 @@ const generateUpcomingNotifications = async (userId, now) => {
             lastNotifiedUpcoming: now,
             notifiedUpcoming: true,
           });
-          console.log(`--> Upcoming notification created for task "${task.title}".`);
+          //console.log(`--> Upcoming notification created for task "${task.title}".`);
         } else {
-          console.log(`--> Upcoming notification already sent recently for task "${task.title}".`);
+          //console.log(`--> Upcoming notification already sent recently for task "${task.title}".`);
         }
       }
     }
@@ -125,9 +125,9 @@ const generateOverdueNotifications = async (userId, now) => {
             lastNotifiedOverdue: now,
             notifiedOverdue: true,
           });
-          console.log(`--> Overdue notification created for task "${task.title}".`);
+          //console.log(`--> Overdue notification created for task "${task.title}".`);
         } else {
-          console.log(`--> Overdue notification already sent recently for task "${task.title}".`);
+          //console.log(`--> Overdue notification already sent recently for task "${task.title}".`);
         }
       }
     }
@@ -184,7 +184,7 @@ const generateWarningNotifications = async (userId, now) => {
             notifiedWarning: true,
           });
 
-          console.log(`--> Warning notification created for task "${task.title}".`);
+          //console.log(`--> Warning notification created for task "${task.title}".`);
         }
       }
     }
@@ -204,7 +204,7 @@ const generateFrequentNotifications = async () => {
 
     for (const user of users) {
       const userId = user.userId;
-      console.log(`Processing notifications for user ${userId}...`);
+      //console.log(`Processing notifications for user ${userId}...`);
 
       // Generate each type of notification independently
       const scheduledNotifs = await generateScheduledNotifications(userId, now);
@@ -223,9 +223,9 @@ const generateFrequentNotifications = async () => {
       // Insert all notifications into the database
       if (notificationsToCreate.length) {
         await Notification.insertMany(notificationsToCreate);
-        console.log(`Frequent notifications generated for user ${userId}:`, notificationsToCreate);
+        //console.log(`Frequent notifications generated for user ${userId}:`, notificationsToCreate);
       } else {
-        console.log(`No new frequent notifications created for user ${userId}.`);
+        //console.log(`No new frequent notifications created for user ${userId}.`);
       }
     }
   } catch (error) {

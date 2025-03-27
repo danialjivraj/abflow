@@ -1,3 +1,10 @@
+const fs = require("fs");
+const path = require("path");
+const uploadDir = "uploads";
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir);
+}
+
 require("dotenv").config();
 require("./scheduler/scheduler");
 
@@ -15,9 +22,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-mongoose.connect(process.env.MONGO_URI, { serverSelectionTimeoutMS: 5000 })
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+mongoose
+  .connect(process.env.MONGO_URI, { serverSelectionTimeoutMS: 5000 })
   .then(() => console.log("✅ MongoDB Connected"))
-  .catch(err => console.error("❌ MongoDB Connection Error:", err.message));
+  .catch((err) => console.error("❌ MongoDB Connection Error:", err.message));
 
 app.use("/api/tasks", taskRoutes);
 app.use("/api/columns", columnsRoute);

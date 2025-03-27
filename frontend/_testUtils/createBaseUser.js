@@ -1,6 +1,8 @@
 function createBaseUser(overrides = {}) {
   return {
     userId: "user1",
+    name: "User",
+    profilePicture: "",
     welcomeColumnsAndTask: false,
     chartPreferences: {
       timeRangeType: "week",

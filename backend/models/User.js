@@ -3,6 +3,8 @@ const { Schema } = mongoose;
 
 const UserSchema = new Schema({
   userId: { type: String, required: true, unique: true },
+  name: { type: String, default: "User" },
+  profilePicture: { type: String, default: "" },
   welcomeColumnsAndTask: { type: Boolean, default: false },
   chartPreferences: {
     type: new Schema(

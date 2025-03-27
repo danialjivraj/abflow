@@ -1,5 +1,6 @@
 import React from "react";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, fireEvent } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import Profile from "../src/pages/Profile";
 import axios from "axios";
 import { auth } from "../src/firebase";
@@ -16,10 +17,17 @@ describe("Profile Page", () => {
     auth.currentUser = { uid: user.userId };
   });
 
+  beforeAll(() => {
+    global.URL.createObjectURL = jest.fn(() => "blob:http://localhost/dummy");
+  });
+
   afterEach(() => {
     jest.clearAllMocks();
   });
 
+  // ---------------------------------------
+  // UNIT TESTS
+  // ---------------------------------------
   it("should render profile data correctly using base tasks and user", async () => {
     const completedTasks = [
       createBaseTask({
@@ -114,7 +122,6 @@ describe("Profile Page", () => {
         points: 3.5,
       }),
     ];
-    // Pending task that should not be counted
     const pendingTask = createBaseTask({
       _id: "14",
       title: "Pending Task",
@@ -131,10 +138,15 @@ describe("Profile Page", () => {
       { points: 0, tasksCompleted: 0 }
     );
 
-    axios.get.mockResolvedValueOnce({
-      data: aggregatedProfile,
+    axios.get.mockResolvedValueOnce({ 
+      data: { 
+        ...aggregatedProfile, 
+        totalHours: 0,
+        profilePicture: "",
+        name: "Test User"
+      } 
     });
-
+    
     render(
       <BrowserRouter>
         <NotificationsProvider>
@@ -143,10 +155,16 @@ describe("Profile Page", () => {
       </BrowserRouter>
     );
 
-    const profileHeading = await screen.findByRole("heading", { name: "Profile" });
+    const profileHeading = await screen.findByRole("heading", {
+      name: "Profile",
+    });
     expect(profileHeading).toBeInTheDocument();
-    expect(await screen.findByText("36")).toBeInTheDocument();
-    expect(await screen.findByText("13")).toBeInTheDocument();
+    expect(
+      await screen.findByText(String(aggregatedProfile.points))
+    ).toBeInTheDocument();
+    expect(
+      await screen.findByText(String(aggregatedProfile.tasksCompleted))
+    ).toBeInTheDocument();
   });
 
   it("should handle API errors gracefully", async () => {
@@ -169,11 +187,13 @@ describe("Profile Page", () => {
         expect.any(Error)
       );
     });
+
     consoleErrorSpy.mockRestore();
   });
 
   it("should not fetch profile data if no user is logged in", async () => {
     auth.currentUser = null;
+
     render(
       <BrowserRouter>
         <NotificationsProvider>
@@ -181,16 +201,23 @@ describe("Profile Page", () => {
         </NotificationsProvider>
       </BrowserRouter>
     );
+
     await waitFor(() => {
       expect(axios.get).not.toHaveBeenCalled();
     });
-    const zeros = screen.getAllByText("0");
-    expect(zeros).toHaveLength(2);
+
+    expect(screen.getByText("Loading profile...")).toBeInTheDocument();
   });
 
   it("should call axios.get with correct userId", async () => {
     axios.get.mockResolvedValueOnce({
-      data: { points: 10, tasksCompleted: 1 },
+      data: {
+        points: 10,
+        tasksCompleted: 1,
+        totalHours: "0.00",
+        profilePicture: "",
+        name: "User",
+      },
     });
 
     render(
@@ -200,6 +227,7 @@ describe("Profile Page", () => {
         </NotificationsProvider>
       </BrowserRouter>
     );
+
     await waitFor(() => {
       expect(axios.get).toHaveBeenCalledWith(
         "http://localhost:5000/api/profile/user1"
@@ -209,9 +237,15 @@ describe("Profile Page", () => {
 
   it("should render decimal profile points correctly", async () => {
     axios.get.mockResolvedValueOnce({
-      data: { points: 23.5, tasksCompleted: 5 },
+      data: {
+        points: 23.5,
+        tasksCompleted: 5,
+        totalHours: "0.00",
+        profilePicture: "",
+        name: "User",
+      },
     });
-  
+
     render(
       <BrowserRouter>
         <NotificationsProvider>
@@ -219,12 +253,362 @@ describe("Profile Page", () => {
         </NotificationsProvider>
       </BrowserRouter>
     );
-  
-    const profileHeading = await screen.findByRole("heading", {
-      name: "Profile",
-    });
-    expect(profileHeading).toBeInTheDocument();
+
     expect(await screen.findByText("23.5")).toBeInTheDocument();
     expect(await screen.findByText("5")).toBeInTheDocument();
+  });
+
+  // ---------------------------------------
+  // INTEGRATION TESTS
+  // ---------------------------------------
+  it("should allow user to edit their name", async () => {
+    axios.get.mockResolvedValueOnce({
+      data: {
+        points: 10,
+        tasksCompleted: 1,
+        totalHours: "0.00",
+        profilePicture: "",
+        name: "User",
+      },
+    });
+    axios.put.mockResolvedValueOnce({
+      data: { message: "Name updated successfully", name: "New Name" },
+    });
+
+    const { container } = render(
+      <BrowserRouter>
+        <NotificationsProvider>
+          <Profile />
+        </NotificationsProvider>
+      </BrowserRouter>
+    );
+
+    await screen.findByText("User");
+
+    const heading = container.querySelector(".editable-name");
+    userEvent.click(heading);
+
+    const nameInput = await screen.findByPlaceholderText("Enter your name");
+    fireEvent.change(nameInput, { target: { value: "New Name" } });
+    fireEvent.blur(nameInput);
+
+    const tickButton = screen.getByText("✔️");
+    userEvent.click(tickButton);
+
+    await waitFor(() => {
+      expect(axios.put).toHaveBeenCalledWith(
+        "http://localhost:5000/api/profile/updateName/user1",
+        { name: "New Name" }
+      );
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText("New Name")).toBeInTheDocument();
+    });
+  });
+
+  it("should allow user to upload a profile picture", async () => {
+    axios.get.mockResolvedValueOnce({
+      data: {
+        points: 0,
+        tasksCompleted: 0,
+        totalHours: "0.00",
+        profilePicture: "",
+        name: "User",
+      },
+    });
+    const fixedTimestamp = 1695673440987;
+    const dateNowSpy = jest.spyOn(Date, "now").mockReturnValue(fixedTimestamp);
+    axios.post.mockResolvedValueOnce({
+      data: {
+        message: "Profile picture updated",
+        profilePicture: `/uploads/user1-${fixedTimestamp}.jpg`,
+      },
+    });
+
+    const { container } = render(
+      <BrowserRouter>
+        <NotificationsProvider>
+          <Profile />
+        </NotificationsProvider>
+      </BrowserRouter>
+    );
+
+    await screen.findByAltText("Profile");
+
+    userEvent.click(screen.getByAltText("Profile"));
+    const fileInput = container.querySelector('input[type="file"]');
+    const file = new File(["dummy image content"], "test.jpg", {
+      type: "image/jpeg",
+    });
+    fireEvent.change(fileInput, { target: { files: [file] } });
+
+    userEvent.click(await screen.findByText("Save"));
+
+    await waitFor(() => {
+      expect(axios.post).toHaveBeenCalledWith(
+        "http://localhost:5000/api/profile/uploadProfilePicture/user1",
+        expect.any(FormData),
+        { headers: { "Content-Type": "multipart/form-data" } }
+      );
+    });
+
+    await waitFor(() => {
+      expect(screen.getByAltText("Profile").src).toContain(
+        `/uploads/user1-${fixedTimestamp}.jpg`
+      );
+    });
+
+    dateNowSpy.mockRestore();
+  });
+
+  it("should allow user to remove profile picture", async () => {
+    axios.get.mockResolvedValueOnce({
+      data: {
+        points: 0,
+        tasksCompleted: 0,
+        totalHours: "0.00",
+        profilePicture: "http://localhost:5000/uploads/test.jpg",
+        name: "User",
+      },
+    });
+    axios.put.mockResolvedValueOnce({
+      data: { message: "Profile picture removed", profilePicture: "" },
+    });
+
+    render(
+      <BrowserRouter>
+        <NotificationsProvider>
+          <Profile />
+        </NotificationsProvider>
+      </BrowserRouter>
+    );
+
+    await screen.findByAltText("Profile");
+
+    userEvent.click(
+      screen.getByRole("button", { name: "Remove profile picture" })
+    );
+    userEvent.click(await screen.findByText("Save"));
+
+    await waitFor(() => {
+      expect(axios.put).toHaveBeenCalledWith(
+        "http://localhost:5000/api/profile/removeProfilePicture/user1"
+      );
+    });
+
+    await waitFor(() => {
+      expect(screen.getByAltText("Profile").src).toContain(
+        "/default-profile-image.png"
+      );
+    });
+  });
+
+  it("should allow user to cancel profile picture changes", async () => {
+    axios.get.mockResolvedValueOnce({
+      data: {
+        points: 0,
+        tasksCompleted: 0,
+        totalHours: "0.00",
+        profilePicture: "http://localhost:5000/uploads/test.jpg",
+        name: "User",
+      },
+    });
+
+    const { container } = render(
+      <BrowserRouter>
+        <NotificationsProvider>
+          <Profile />
+        </NotificationsProvider>
+      </BrowserRouter>
+    );
+
+    await screen.findByAltText("Profile");
+
+    userEvent.click(screen.getByAltText("Profile"));
+    const fileInput = container.querySelector('input[type="file"]');
+    const file = new File(["dummy image content"], "newtest.jpg", {
+      type: "image/jpeg",
+    });
+    fireEvent.change(fileInput, { target: { files: [file] } });
+
+    userEvent.click(screen.getByText("Cancel"));
+
+    expect(axios.post).not.toHaveBeenCalled();
+    expect(axios.put).not.toHaveBeenCalled();
+
+    await waitFor(() => {
+      expect(screen.getByAltText("Profile").src).toContain("/uploads/test.jpg");
+    });
+  });
+
+  it("should update profilePicture URL correctly after saving new image", async () => {
+    axios.get.mockResolvedValueOnce({
+      data: {
+        points: 0,
+        tasksCompleted: 0,
+        totalHours: "0.00",
+        profilePicture: "",
+        name: "User",
+      },
+    });
+
+    const fixedTimestamp = 1695673999999;
+    jest.spyOn(Date, "now").mockReturnValue(fixedTimestamp);
+
+    const expectedPath = `/uploads/user1-${fixedTimestamp}.jpg`;
+
+    axios.post.mockResolvedValueOnce({
+      data: {
+        message: "Profile picture updated",
+        profilePicture: expectedPath,
+      },
+    });
+
+    const { container } = render(
+      <BrowserRouter>
+        <NotificationsProvider>
+          <Profile />
+        </NotificationsProvider>
+      </BrowserRouter>
+    );
+
+    await screen.findByAltText("Profile");
+
+    const profileImg = screen.getByAltText("Profile");
+    userEvent.click(profileImg);
+
+    const fileInput = container.querySelector('input[type="file"]');
+    const file = new File(["dummy"], "pic.jpg", { type: "image/jpeg" });
+    fireEvent.change(fileInput, { target: { files: [file] } });
+
+    const saveButton = await screen.findByText("Save");
+    userEvent.click(saveButton);
+
+    await waitFor(() => {
+      expect(axios.post).toHaveBeenCalled();
+    });
+
+    await waitFor(() => {
+      const updatedImg = screen.getByAltText("Profile");
+      expect(updatedImg.src).toContain(expectedPath);
+    });
+  });
+
+  it("should remain the same profilePicture URL after cancelling new image", async () => {
+    axios.get.mockResolvedValueOnce({
+      data: {
+        points: 0,
+        tasksCompleted: 0,
+        totalHours: "0.00",
+        profilePicture: "",
+        name: "User",
+      },
+    });
+
+    const fixedTimestamp = 1695673999999;
+    jest.spyOn(Date, "now").mockReturnValue(fixedTimestamp);
+
+    const expectedPath = `/uploads/user1-${fixedTimestamp}.jpg`;
+
+    axios.post.mockResolvedValueOnce({
+      data: {
+        message: "Profile picture updated",
+        profilePicture: expectedPath,
+      },
+    });
+
+    const { container } = render(
+      <BrowserRouter>
+        <NotificationsProvider>
+          <Profile />
+        </NotificationsProvider>
+      </BrowserRouter>
+    );
+
+    await screen.findByAltText("Profile");
+
+    const profileImg = screen.getByAltText("Profile");
+    userEvent.click(profileImg);
+
+    const fileInput = container.querySelector('input[type="file"]');
+    const file = new File(["dummy"], "pic.jpg", { type: "image/jpeg" });
+    fireEvent.change(fileInput, { target: { files: [file] } });
+
+    const cancelButton = await screen.findByText("Cancel");
+    userEvent.click(cancelButton);
+
+    await waitFor(() => {
+      expect(axios.post).not.toHaveBeenCalled();
+    });
+
+    await waitFor(() => {
+      const updatedImg = screen.getByAltText("Profile");
+      expect(updatedImg.src).toContain("");
+      expect(updatedImg.src).not.toContain(expectedPath);
+    });
+  });
+
+  describe("Number formatting for profile stats", () => {
+    const renderProfile = async (data) => {
+      axios.get.mockResolvedValueOnce({
+        data: {
+          profilePicture: "",
+          name: "User",
+          ...data,
+        },
+      });
+  
+      render(
+        <BrowserRouter>
+          <NotificationsProvider>
+            <Profile />
+          </NotificationsProvider>
+        </BrowserRouter>
+      );
+    };
+  
+    const checkStat = async (label, shortValue, fullValue) => {
+      const stat = await screen.findByText(shortValue);
+      expect(stat).toBeInTheDocument();
+      expect(stat).toHaveAttribute("title", fullValue.toString());
+      expect(screen.getByText(label)).toBeInTheDocument();
+    };
+  
+    it("formats all fields with no suffix (<1,000)", async () => {
+      await renderProfile({
+        points: 500,
+        tasksCompleted: 999,
+        totalHours: 320,
+      });
+  
+      await checkStat("Points", "500", 500);
+      await checkStat("Tasks Completed", "999", 999);
+      await checkStat("Hours Spent", "320", 320);
+    });
+  
+    it("formats all fields with 'k' suffix (1,000 - 999,999)", async () => {
+      await renderProfile({
+        points: 1500,
+        tasksCompleted: 999999,
+        totalHours: 1001,
+      });
+  
+      await checkStat("Points", "1.5k", 1500);
+      await checkStat("Tasks Completed", "1000.0k", 999999);
+      await checkStat("Hours Spent", "1.0k", 1001);
+    });
+  
+    it("formats all fields with 'M' suffix (≥1,000,000)", async () => {
+      await renderProfile({
+        points: 1234567,
+        tasksCompleted: 2500000,
+        totalHours: 1000000,
+      });
+  
+      await checkStat("Points", "1.2M", 1234567);
+      await checkStat("Tasks Completed", "2.5M", 2500000);
+      await checkStat("Hours Spent", "1.0M", 1000000);
+    });
   });
 });
