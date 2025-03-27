@@ -107,6 +107,7 @@ describe("Sidebar Component", () => {
       </MemoryRouter>
     );
     fireEvent.click(screen.getByText("Logout"));
+    fireEvent.click(screen.getByText("Yes"));
     expect(auth.signOut).toHaveBeenCalled();
   });
 });

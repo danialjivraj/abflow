@@ -1,3 +1,5 @@
+jest.setTimeout(10000);
+
 import React from "react";
 import {
   render,
