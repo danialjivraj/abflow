@@ -1843,6 +1843,11 @@ select {
   text-align: center;
 }
 
+.preferences-buttons button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* ==============================
  Modal
 ============================== */

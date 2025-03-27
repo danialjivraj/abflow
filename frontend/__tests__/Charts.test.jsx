@@ -15,6 +15,7 @@ import {
   useNavigate,
   useSearchParams,
 } from "react-router-dom";
+import { toast } from "react-toastify";
 
 import Charts from "../src/pages/Charts";
 import { NotificationsContext } from "../src/contexts/NotificationsContext";
@@ -707,7 +708,9 @@ describe("Charts Component Integration Tests", () => {
     cleanup();
   });
 
-  test("saves user preferences when the save button is clicked and persists them after reloading", async () => {
+  test("saves user preferences when the save button is clicked and calls toast.success", async () => {
+    jest.spyOn(toast, "success");
+
     expect(auth.currentUser.chartPreferences).toEqual(defaultPreferences);
 
     renderWithContext(<Charts />);
@@ -818,9 +821,9 @@ describe("Charts Component Integration Tests", () => {
     // save preferences
     fireEvent.click(screen.getByText("Save Preferences"));
     await waitFor(() =>
-      expect(
-        screen.getByText("Preferences saved successfully!")
-      ).toBeInTheDocument()
+      expect(toast.success).toHaveBeenCalledWith(
+        "Preferences saved successfully!"
+      )
     );
 
     const expectedPreferences = {
@@ -861,11 +864,10 @@ describe("Charts Component Integration Tests", () => {
     // default preferences
     fireEvent.click(screen.getByText("Default Preferences"));
     await waitFor(() =>
-      expect(
-        screen.getByText("Preferences reset to default!")
-      ).toBeInTheDocument()
+      expect(toast.success).toHaveBeenCalledWith(
+        "Preferences reset to default!"
+      )
     );
-    
     const defaultResult = await fetchChartPreferences(auth.currentUser.userId);
 
     expect(defaultResult.data.chartPreferences).toEqual(defaultPreferences);
@@ -877,5 +879,39 @@ describe("Charts Component Integration Tests", () => {
     );
 
     expect(defaultResult.data.chartPreferences).toEqual(defaultPreferences);
+  });
+
+  test("calls toast.error when saving preferences fails", async () => {
+    const {
+      updateChartPreferences,
+    } = require("../src/services/preferencesService");
+    updateChartPreferences.mockRejectedValueOnce(new Error("Save failed"));
+
+    jest.spyOn(toast, "error");
+
+    renderWithContext(<Charts />);
+    await waitFor(() => expect(screen.getByText("Charts")).toBeInTheDocument());
+
+    fireEvent.click(screen.getByText("Save Preferences"));
+    await waitFor(() =>
+      expect(toast.error).toHaveBeenCalledWith("Error saving preferences!")
+    );
+  });
+
+  test("calls toast.error when resetting preferences fails", async () => {
+    const {
+      updateChartPreferences,
+    } = require("../src/services/preferencesService");
+    updateChartPreferences.mockRejectedValueOnce(new Error("Reset failed"));
+
+    jest.spyOn(toast, "error");
+
+    renderWithContext(<Charts />);
+    await waitFor(() => expect(screen.getByText("Charts")).toBeInTheDocument());
+
+    fireEvent.click(screen.getByText("Default Preferences"));
+    await waitFor(() =>
+      expect(toast.error).toHaveBeenCalledWith("Error resetting preferences!")
+    );
   });
 });

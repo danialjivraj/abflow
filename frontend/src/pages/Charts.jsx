@@ -43,6 +43,7 @@ import {
 } from "react-router-dom";
 import { getChartsTopBarConfig } from "../config/topBarConfig.jsx";
 import MultiSelectDropdown from "../utils/MultiSelectDropdown";
+import { toast } from "react-toastify";
 
 // Options for multi-selects
 const allowedPriorities = [
@@ -82,7 +83,6 @@ const Charts = () => {
   const [tasks, setTasks] = useState([]);
   const [columnsMapping, setColumnsMapping] = useState({});
   const [loading, setLoading] = useState(true);
-  const [message, setMessage] = useState("");
 
   // Chart and Filter States
   const [timeRangeType, setTimeRangeType] = useState("week");
@@ -109,6 +109,9 @@ const Charts = () => {
   const [comparisonMode, setComparisonMode] = useState(false);
   const [compStartDate, setCompStartDate] = useState(null);
   const [compEndDate, setCompEndDate] = useState(null);
+
+  const [isSaveDisabled, setIsSaveDisabled] = useState(false);
+  const [isDefaultDisabled, setIsDefaultDisabled] = useState(false);
 
   // New state: wait until preferences are loaded
   const [preferencesLoaded, setPreferencesLoaded] = useState(false);
@@ -629,30 +632,30 @@ const Charts = () => {
     }
     const mainFiltered = applyAllFilters(tasks, startDate, endDate);
     let mainGrouped = groupTasks(mainFiltered);
-  
+
     if (!includeZeroMetrics) {
       mainGrouped = mainGrouped.filter((item) => item[yAxisMetric] > 0);
     }
-  
+
     if (minTaskCount !== "" && !isNaN(parseInt(minTaskCount, 10))) {
       const minCount = parseInt(minTaskCount, 10);
       mainGrouped = mainGrouped.filter((item) => item.count >= minCount);
     }
-  
+
     let newChartData;
     if (comparisonMode && compStartDate && compEndDate) {
       const compFiltered = applyAllFilters(tasks, compStartDate, compEndDate);
       let compGrouped = groupTasks(compFiltered);
-  
+
       if (!includeZeroMetrics) {
         compGrouped = compGrouped.filter((item) => item[yAxisMetric] > 0);
       }
-  
+
       if (minTaskCount !== "" && !isNaN(parseInt(minTaskCount, 10))) {
         const minCount = parseInt(minTaskCount, 10);
         compGrouped = compGrouped.filter((item) => item.count >= minCount);
       }
-  
+
       const merged = mergeData(mainGrouped, compGrouped);
       const converted = merged.map((item) => {
         if (yAxisMetric === "timeSpent") {
@@ -673,13 +676,13 @@ const Charts = () => {
         return { key: item.key, mainValue: item[yAxisMetric] };
       });
     }
-  
+
     if (sortOrder === "asc") {
       newChartData.sort((a, b) => a.mainValue - b.mainValue);
     } else if (sortOrder === "desc") {
       newChartData.sort((a, b) => b.mainValue - a.mainValue);
     }
-  
+
     setChartData(newChartData);
   }, [
     tasks,
@@ -877,7 +880,22 @@ const Charts = () => {
       navigate(`/charts${location.search}`);
     }
   };
+  const handleSavePreferences = async () => {
+    setIsSaveDisabled(true);
+    await saveUserPreferences();
+    setTimeout(() => {
+      setIsSaveDisabled(false);
+    }, 1000);
+  };
 
+  const handleResetPreferences = async () => {
+    setIsDefaultDisabled(true);
+    await resetUserPreferences();
+    setTimeout(() => {
+      setIsDefaultDisabled(false);
+    }, 1000);
+  };
+  // -------------------- Updated Preferences Functions with Toastify --------------------
   const saveUserPreferences = async () => {
     const currentUser = auth.currentUser;
     if (!currentUser) return;
@@ -908,10 +926,10 @@ const Charts = () => {
     };
     try {
       await updateChartPreferences(currentUser.uid, prefs);
-      setMessage("Preferences saved successfully!");
+      toast.success("Preferences saved successfully!");
     } catch (error) {
       console.error("Error saving preferences:", error);
-      setMessage("Error saving preferences!");
+      toast.error("Error saving preferences!");
     }
   };
 
@@ -944,10 +962,10 @@ const Charts = () => {
     if (!currentUser) return;
     try {
       await updateChartPreferences(currentUser.uid, defaultFilterSettings);
-      setMessage("Preferences reset to default!");
+      toast.success("Preferences reset to default!");
     } catch (error) {
       console.error("Error resetting preferences:", error);
-      setMessage("Error resetting preferences!");
+      toast.error("Error resetting preferences!");
     }
   };
 
@@ -1565,15 +1583,20 @@ const Charts = () => {
                 </div>
               )}
               <div className="preferences-buttons">
-                <button onClick={saveUserPreferences} className="save-btn">
+                <button
+                  onClick={handleSavePreferences}
+                  className="save-btn"
+                  disabled={isSaveDisabled}
+                >
                   Save Preferences
                 </button>
-                <button onClick={resetUserPreferences} className="reset-btn">
+                <button
+                  onClick={handleResetPreferences}
+                  className="reset-btn"
+                  disabled={isDefaultDisabled}
+                >
                   Default Preferences
                 </button>
-                {message && (
-                  <div className="preferences-message">{message}</div>
-                )}
               </div>
             </div>
           </div>
