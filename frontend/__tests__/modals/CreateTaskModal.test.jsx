@@ -15,6 +15,15 @@ jest.mock("../../src/components/TiptapEditor", () => {
   );
 });
 
+jest.mock("react-toastify", () => ({
+  toast: {
+    success: jest.fn(),
+    error: jest.fn(),
+  },
+}));
+
+const { toast } = require("react-toastify");
+
 const baseUser = createBaseUser({
   settingsPreferences: { defaultPriority: "B2" },
 });
@@ -57,7 +66,6 @@ describe("CreateTaskModal Unit Tests", () => {
     jest.clearAllMocks();
   });
 
-  // General Rendering Tests
   test("does not render when isModalOpen is false", () => {
     const { container } = render(
       <CreateTaskModal {...defaultProps} isModalOpen={false} />
@@ -84,15 +92,21 @@ test("opens with the default task priority from user settings and updates when c
     );
   }
   const { rerender } = render(
-    <TestWrapper defaultPriority={baseUser.settingsPreferences.defaultPriority} />
+    <TestWrapper
+      defaultPriority={baseUser.settingsPreferences.defaultPriority}
+    />
   );
   await waitFor(() => {
     expect(screen.getByDisplayValue("B2")).toBeInTheDocument();
   });
 
   baseUser.settingsPreferences.defaultPriority = "D";
-  rerender(<TestWrapper defaultPriority={baseUser.settingsPreferences.defaultPriority} />);
-  
+  rerender(
+    <TestWrapper
+      defaultPriority={baseUser.settingsPreferences.defaultPriority}
+    />
+  );
+
   await waitFor(() => {
     expect(screen.getByDisplayValue("D")).toBeInTheDocument();
   });
@@ -111,7 +125,9 @@ describe("CreateTaskModal Integration Tests", () => {
     test("renders board creation UI", () => {
       render(<CreateTaskModal {...defaultProps} columns={{}} />);
       expect(
-        screen.getByText("You need to create a board before you can create tasks.")
+        screen.getByText(
+          "You need to create a board before you can create tasks."
+        )
       ).toBeInTheDocument();
       const boardNameInput = screen.getByPlaceholderText("Enter board name");
       expect(boardNameInput).toBeInTheDocument();
@@ -450,6 +466,53 @@ describe("CreateTaskModal Integration Tests", () => {
         expect(
           screen.getByText("Warning: The selected due date is in the past.")
         ).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe("CreateTaskModal Toast Messages", () => {
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
+  
+    test("displays success toast message when task is created", async () => {
+      const mockHandleCreateTask = jest.fn().mockResolvedValue();
+      render(
+        <CreateTaskModal
+          {...defaultProps}
+          columns={{ backlog: { ...baseColumn, items: [] } }}
+          newTaskTitle="Test Task"
+          handleCreateTask={mockHandleCreateTask}
+        />
+      );
+      const createButton = screen.getByText("Create");
+      fireEvent.click(createButton);
+      await waitFor(() => {
+        expect(mockHandleCreateTask).toHaveBeenCalled();
+        expect(toast.success).toHaveBeenCalledWith("Task created!");
+      });
+    });
+  
+    test("displays error toast message when task creation fails", async () => {
+      const errorMsg = "Failed to create task";
+      const mockHandleCreateTask = jest
+        .fn()
+        .mockRejectedValue(new Error(errorMsg));
+      render(
+        <CreateTaskModal
+          {...defaultProps}
+          columns={{ backlog: { ...baseColumn, items: [] } }}
+          newTaskTitle="Test Task"
+          handleCreateTask={mockHandleCreateTask}
+        />
+      );
+      const createButton = screen.getByText("Create");
+      fireEvent.click(createButton);
+      await waitFor(() => {
+        expect(mockHandleCreateTask).toHaveBeenCalled();
+        expect(toast.error).toHaveBeenCalledWith(
+          "An error occurred while creating the task."
+        );
       });
     });
   });

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import TiptapEditor from "../TiptapEditor";
 import "react-datepicker/dist/react-datepicker.css";
+import { toast } from "react-toastify";
 
 const allowedPriorities = ["A1", "A2", "A3", "B1", "B2", "B3", "C1", "C2", "C3", "D", "E"];
 
@@ -112,7 +113,13 @@ const CreateTaskModal = ({
       return;
     }
     setErrorMessage("");
-    await handleCreateTask();
+    try {
+      await handleCreateTask();
+      toast.success("Task created!");
+    } catch (error) {
+      console.log(error.message);
+      toast.error("An error occurred while creating the task.");
+    }
   };
 
   return (
