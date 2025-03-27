@@ -13,11 +13,7 @@ import {
   updateSettingsPreferences,
 } from "../src/services/preferencesService";
 import { createBaseUser } from "../_testUtils/createBaseUser";
-
-jest.mock("../src/components/navigation/Layout", () => ({ children }) => (
-  <div>{children}</div>
-));
-jest.mock("../src/components/navigation/TopBar", () => () => <div>TopBar</div>);
+import { toast } from "react-toastify";
 
 export const NotificationsContext = createContext({ notifications: [] });
 
@@ -45,6 +41,22 @@ jest.mock("../src/utils/themeUtils", () => ({
   updateAccentColor: jest.fn(),
   updateTopbarAccentColor: jest.fn(),
   updatePriorityCSSVariables: jest.fn(),
+}));
+
+jest.mock("../src/components/navigation/Layout", () => ({ children }) => (
+  <div>{children}</div>
+));
+jest.mock("../src/components/navigation/TopBar", () => () => <div>TopBar</div>);
+
+jest.mock("../src/components/navigation/Layout", () => ({ children }) => (
+  <div>{children}</div>
+));
+jest.mock("../src/components/navigation/TopBar", () => () => <div>TopBar</div>);
+jest.mock("react-toastify", () => ({
+  toast: {
+    success: jest.fn(),
+    error: jest.fn(),
+  },
 }));
 
 describe("Settings component", () => {
@@ -131,16 +143,19 @@ describe("Settings component", () => {
     const boardSelect = screen.getByRole("combobox", {
       name: "Default Board View",
     });
-    boardSelect.value = "schedule";
-    boardSelect.dispatchEvent(new Event("change", { bubbles: true }));
-    expect(boardSelect.value).toBe("schedule");
+    await userEvent.selectOptions(boardSelect, "schedule");
+
+    await waitFor(() => {
+      expect(boardSelect.value).toBe("schedule");
+    });
 
     const saveButton = screen.getByRole("button", { name: "Save Settings" });
     expect(saveButton).not.toBeDisabled();
-    userEvent.click(saveButton);
+    await userEvent.click(saveButton);
 
-    const confirmation = await screen.findByText("Settings saved!");
-    expect(confirmation).toBeInTheDocument();
+    await waitFor(() => {
+      expect(toast.success).toHaveBeenCalledWith("Settings saved!");
+    });
 
     expect(updateDefaultBoardViewMock).toHaveBeenCalledWith("schedule");
     expect(updateSettingsPreferences).toHaveBeenCalled();
@@ -308,15 +323,22 @@ describe("Settings component", () => {
     await waitForElementToBeRemoved(() =>
       screen.queryByText("Loading settings...")
     );
+
     const boardSelect = screen.getByRole("combobox", {
       name: "Default Board View",
     });
-    boardSelect.value = "schedule";
-    boardSelect.dispatchEvent(new Event("change", { bubbles: true }));
+    await userEvent.selectOptions(boardSelect, "schedule");
+
+    await waitFor(() => {
+      expect(boardSelect.value).toBe("schedule");
+    });
+
     const saveButton = screen.getByRole("button", { name: "Save Settings" });
     expect(saveButton).not.toBeDisabled();
-    userEvent.click(saveButton);
-    const errorMsg = await screen.findByText("Failed to save settings.");
-    expect(errorMsg).toBeInTheDocument();
+    await userEvent.click(saveButton);
+
+    await waitFor(() => {
+      expect(toast.error).toHaveBeenCalledWith("Failed to save settings.");
+    });
   });
 });

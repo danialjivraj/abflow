@@ -13,7 +13,7 @@ import {
   updateTopbarAccentColor,
   updatePriorityCSSVariables,
 } from "../utils/themeUtils";
-import { ToastContainer, Slide, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "../components/styles.css";
 
@@ -671,14 +671,6 @@ const Settings = ({ updateDefaultBoardView }) => {
           </div>
         </div>
       </div>
-      <ToastContainer
-        position="top-center"
-        autoClose={2000}
-        theme={settings.darkMode ? "dark" : "light"}
-        transition={Slide}
-        hideProgressBar={true}
-        pauseOnHover={false}
-        />
     </Layout>
   );
 };

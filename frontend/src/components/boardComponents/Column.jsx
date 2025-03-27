@@ -5,6 +5,7 @@ import DeleteConfirmationModal from "../modals/DeleteConfirmationModal";
 import { renameBoard, deleteBoard } from "../../services/columnsService";
 import { auth } from "../../firebase";
 import { validateBoardName } from "../../utils/boardValidation";
+import { toast } from "react-toastify";
 
 const Column = ({
   columnId,
@@ -66,8 +67,10 @@ const Column = ({
       await deleteBoard(user.uid, columnId);
       onBoardDelete(columnId);
       setIsDropdownOpen(null);
+      toast.success("Board deleted!");
     } catch (error) {
       console.error("Error deleting board:", error);
+      toast.error("Failed to delete board!");
     }
   };
 

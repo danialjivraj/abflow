@@ -42,6 +42,7 @@ export const getBaseRoute = (pathname) => {
   }
   return validRoutes.includes(base) ? `/dashboard/${base}` : "/dashboard/boards";
 };
+import { toast } from "react-toastify";
 
 const Dashboard = (props) => {
   // ---------------------- state and refs ----------------------
@@ -347,8 +348,10 @@ const Dashboard = (props) => {
       setCompletedTasks((prevCompleted) =>
         prevCompleted.filter((task) => task._id !== taskId)
       );
+      toast.success("Task deleted!");
     } catch (error) {
       console.error("Error deleting task:", error);
+      toast.error("Failed to delete task!");
     }
   };
 

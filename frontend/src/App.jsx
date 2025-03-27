@@ -19,6 +19,8 @@ import {
   updateTopbarAccentColor,
   updatePriorityCSSVariables,
 } from "./utils/themeUtils";
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer, Slide } from "react-toastify";
 
 const DefaultDashboardRedirect = ({ defaultBoardView, preferencesLoaded }) => {
   if (!preferencesLoaded) return <p>Loading dashboard settings...</p>;
@@ -160,6 +162,15 @@ function App() {
   return (
     <NotificationsProvider muteNotifications={userSettings.muteNotifications}>
       <Router>
+        {/* ToastContainer renders toast notifications globally */}
+        <ToastContainer
+          position="top-center"
+          autoClose={2000}
+          theme={userSettings.darkMode ? "dark" : "light"}
+          transition={Slide}
+          hideProgressBar={true}
+          pauseOnHover={false}
+        />
         <Routes>
           <Route
             path="/login"
