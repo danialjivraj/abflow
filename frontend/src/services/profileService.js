@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:5000/api/profile";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL_DEPLOY;
+const API_URL = `${BASE_URL}/api/profile`;
 
 /**
  * Fetch the user’s profile data.

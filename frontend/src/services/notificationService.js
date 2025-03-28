@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const NOTIFICATIONS_API_URL = "http://localhost:5000/api/notifications";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL_DEPLOY;
+const NOTIFICATIONS_API_URL = `${BASE_URL}/api/notifications`;
 
 /**
  * Fetch notifications for a specific user from the persistent store.
