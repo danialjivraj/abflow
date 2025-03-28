@@ -138,12 +138,13 @@ const Profile = () => {
     );
   }
 
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL_DEPLOY;
   const displayImage = pendingRemove
     ? "/default-profile-image.png"
     : pendingPreview
     ? pendingPreview
     : profile.profilePicture
-    ? `http://localhost:5000${profile.profilePicture}`
+    ? `${BASE_URL}${profile.profilePicture}`
     : "/default-profile-image.png";
 
   return (
