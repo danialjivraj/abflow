@@ -14,6 +14,7 @@
   --priority-circle-bg: rgba(0, 0, 0, 0.75);
   --filtered-bg: #f7f7f7;
   --filtered-border: #a8a8a8;
+  --active-bg: #bfbfbf;
   /* Priority colors */
   --priority-A1: #ff4d4d;
   --priority-A2: #ff6666;
@@ -44,6 +45,7 @@
   --priority-circle-bg: rgba(0, 0, 0, 0.5);
   --filtered-bg: #444444;
   --filtered-border: #666666;
+  --active-bg: #555555;
   /* Priority colors */
   --priority-A1: #ff4d4d;
   --priority-A2: #ff6666;
@@ -1376,13 +1378,16 @@ select {
   transition: background-color 0.3s ease;
 }
 
-.rbc-toolbar button:hover {
-  background-color: var(--hover-bg);
+.rbc-toolbar button:focus {
+  outline: none;
 }
 
+.rbc-toolbar button:active,
+.rbc-toolbar button:focus,
 .rbc-toolbar button.rbc-active {
-  background-color: var(--component-bg);
-  color: var(--text-color);
+  background-color: var(--active-bg) !important;
+  color: var(--text-color) !important;
+  box-shadow: none !important;
 }
 
 .custom-event,
