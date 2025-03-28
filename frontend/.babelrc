@@ -1,19 +1,29 @@
 {
-    "presets": [
-      [
-        "@babel/preset-env",
-        {
-          "targets": {
-            "node": "current"
-          }
-        }
-      ],
-      [
-        "@babel/preset-react",
-        {
-          "runtime": "automatic"
-        }
-      ]
+  "presets": [
+    [
+      "@babel/preset-env",
+      {
+        "targets": { "node": "current" }
+      }
+    ],
+    [
+      "@babel/preset-react",
+      {
+        "runtime": "automatic"
+      }
+    ],
+    [
+      "babel-preset-vite",
+      {
+        "env": true,
+        "glob": false
+      }
     ]
-  }
-  
+  ],
+  "plugins": [
+    [
+      "babel-plugin-transform-import-meta",
+      { "metaObjectReplacement": "importMeta" }
+    ]
+  ]
+}
