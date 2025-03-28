@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from "react";
 import { Draggable } from "@hello-pangea/dnd";
 import { formatDueDate, formatCompletedDueDate, getCalendarIconColor } from "../../utils/dateUtils";
-import DeleteConfirmationModal from "../modals/DeleteConfirmationModal";
+import DeleteConfirmationModal from "../cool/DeleteConfirmationModal";
 
 const priorityMapping = {
   A: "A: Very Important",

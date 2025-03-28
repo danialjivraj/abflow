@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from "react";
 import { Droppable, Draggable } from "@hello-pangea/dnd";
 import TaskCard from "./TaskCard";
-import DeleteConfirmationModal from "../modals/DeleteConfirmationModal";
+import DeleteConfirmationModal from "../cool/DeleteConfirmationModal";
 import { renameBoard, deleteBoard } from "../../services/columnsService";
 import { auth } from "../../firebase";
 import { validateBoardName } from "../../utils/boardValidation";

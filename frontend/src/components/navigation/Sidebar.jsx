@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { auth } from "../../firebase";
 import { useNavigate, useLocation } from "react-router-dom";
 import { MdDashboard, MdBarChart, MdPerson, MdSettings, MdLogout } from "react-icons/md";
-import LogoutModal from "../modals/LogoutModal";
+import LogoutModal from "../cool/LogoutModal";
 import "./sidebar.css";
 
 const Sidebar = () => {
