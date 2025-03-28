@@ -139,7 +139,7 @@ const Profile = () => {
     );
   }
 
-  const BASE_URL = import.meta.env.VITE_API_BASE_URL_DEPLOY;
+  const BASE_URL = process.env.VITE_API_BASE_URL_DEPLOY || "http://fallback-url";
   const displayImage = pendingRemove
     ? "/default-profile-image.png"
     : pendingPreview
