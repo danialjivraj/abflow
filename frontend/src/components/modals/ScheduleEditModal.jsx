@@ -106,6 +106,7 @@ const ScheduleEditModal = ({ isModalOpen, eventData, onSave, onClose, onUnschedu
                 selected={start}
                 onChange={(date) => setStart(date)}
                 showTimeSelect
+                timeIntervals={15}
                 dateFormat="d MMMM, yyyy h:mm aa"
                 className="custom-date-picker"
                 placeholderText="Select start time"
@@ -117,6 +118,7 @@ const ScheduleEditModal = ({ isModalOpen, eventData, onSave, onClose, onUnschedu
               <DatePicker
                 selected={end}
                 onChange={(date) => setEnd(date)}
+                timeIntervals={15}
                 showTimeSelect
                 dateFormat="d MMMM, yyyy h:mm aa"
                 className="custom-date-picker"
