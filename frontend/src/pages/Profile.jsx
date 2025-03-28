@@ -12,6 +12,7 @@ import {
 } from "../services/profileService";
 import "../components/styles.css";
 import { toast } from "react-toastify";
+import { FaCheck, FaTimes } from "react-icons/fa";
 
 const Profile = () => {
   const [profile, setProfile] = useState(null);
@@ -217,7 +218,7 @@ const Profile = () => {
                 />
                 <div className="button-container">
                   <button className="tick-btn" onClick={handleNameUpdate}>
-                    ✔️
+                    <FaCheck className="icon icon-check" data-testid="tick-icon"/>
                   </button>
                   <button
                     className="cross-btn"
@@ -226,7 +227,7 @@ const Profile = () => {
                       setEditName(profile.name);
                     }}
                   >
-                    ❌
+                    <FaTimes className="icon icon-cross" data-testid="cross-icon"/>
                   </button>
                 </div>
               </div>

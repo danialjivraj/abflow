@@ -32,8 +32,8 @@ describe("AddBoard component - Unit Tests", () => {
   test("shows input and buttons when isAddingBoard is true", () => {
     setup({ isAddingBoard: true });
     expect(screen.getByPlaceholderText("Enter board name")).toBeInTheDocument();
-    expect(screen.getByText("✔️")).toBeInTheDocument();
-    expect(screen.getByText("❌")).toBeInTheDocument();
+    expect(screen.getByTestId("tick-icon")).toBeInTheDocument();
+    expect(screen.getByTestId("cross-icon")).toBeInTheDocument();
   });
 
   test("calls setIsAddingBoard, setNewBoardCreateName, setCreateBoardError when '+' is clicked", () => {
@@ -70,15 +70,15 @@ describe("AddBoard component - Unit Tests", () => {
     ).toBeInTheDocument();
   });
 
-  test("calls handleCreateBoard when ✔️ is clicked", () => {
+  test("calls handleCreateBoard when tick icon is clicked", () => {
     const props = setup({ isAddingBoard: true });
-    fireEvent.click(screen.getByText("✔️"));
+    fireEvent.click(screen.getByTestId("tick-icon"));
     expect(props.handleCreateBoard).toHaveBeenCalled();
   });
 
-  test("calls cancel logic when ❌ is clicked", () => {
+  test("calls cancel logic when cross icon is clicked", () => {
     const props = setup({ isAddingBoard: true });
-    fireEvent.click(screen.getByText("❌"));
+    fireEvent.click(screen.getByTestId("cross-icon"));
     expect(props.setIsAddingBoard).toHaveBeenCalledWith(false);
     expect(props.setNewBoardCreateName).toHaveBeenCalledWith("");
     expect(props.setCreateBoardError).toHaveBeenCalledWith("");
@@ -124,23 +124,23 @@ describe("AddBoard component - Integration Tests with Validation", () => {
   test("shows duplicate error message when board name is already taken", () => {
     const input = screen.getByPlaceholderText("Enter board name");
     fireEvent.change(input, { target: { value: "project alpha" } });
-    fireEvent.click(screen.getByText("✔️"));
+    fireEvent.click(screen.getByTestId("tick-icon"));
     expect(screen.getByText("Board name already taken.")).toBeInTheDocument();
   });
 
   test("shows reserved error message when board name 'Completed' is used", () => {
     const input = screen.getByPlaceholderText("Enter board name");
     fireEvent.change(input, { target: { value: "Completed" } });
-    fireEvent.click(screen.getByText("✔️"));
+    fireEvent.click(screen.getByTestId("tick-icon"));
     expect(
       screen.getByText("Board name 'Completed' is reserved.")
     ).toBeInTheDocument();
   });
 
-  test("shows emoty message when board name '' is used", () => {
+  test("shows empty message when board name '' is used", () => {
     const input = screen.getByPlaceholderText("Enter board name");
     fireEvent.change(input, { target: { value: "" } });
-    fireEvent.click(screen.getByText("✔️"));
+    fireEvent.click(screen.getByTestId("tick-icon"));
     expect(
       screen.getByText("Board name cannot be empty.")
     ).toBeInTheDocument();
@@ -149,7 +149,7 @@ describe("AddBoard component - Integration Tests with Validation", () => {
   test("does not show error when a valid board name is entered", () => {
     const input = screen.getByPlaceholderText("Enter board name");
     fireEvent.change(input, { target: { value: "New Board" } });
-    fireEvent.click(screen.getByText("✔️"));
+    fireEvent.click(screen.getByTestId("tick-icon"));
     expect(screen.queryByText("Board name cannot be empty.")).toBeNull();
     expect(
       screen.queryByText("Board name 'Completed' is reserved.")

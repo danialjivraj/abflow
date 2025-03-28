@@ -135,7 +135,7 @@ describe("CreateTaskModal Integration Tests", () => {
 
     test("calls handleCreateBoard when tick button is clicked", () => {
       render(<CreateTaskModal {...defaultProps} columns={{}} />);
-      const tickButton = screen.getByText("✔️");
+      const tickButton = screen.getByTestId("tick-icon");
       fireEvent.click(tickButton);
       expect(defaultProps.handleCreateBoard).toHaveBeenCalled();
     });

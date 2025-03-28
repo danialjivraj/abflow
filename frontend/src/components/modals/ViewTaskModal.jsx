@@ -13,6 +13,7 @@ import {
 import { completeTask } from "../../services/tasksService";
 import { updateTask } from "../../services/tasksService";
 import { toast } from "react-toastify";
+import { FaCheck, FaTimes } from "react-icons/fa";
 
 const allowedPriorities = [
   "A1", "A2", "A3",
@@ -155,10 +156,10 @@ const InlineTimeEditable = ({ value, onChange, onEditingChange, readOnly }) => {
           />
           <span>s</span>
           <button className="tick-btn" onClick={handleConfirm}>
-            ✔️
+            <FaCheck className="icon icon-check" data-testid="tick-icon"/>
           </button>
           <button className="cross-btn" onClick={handleCancel}>
-            ❌
+            <FaTimes className="icon icon-cross" data-testid="cross-icon"/>
           </button>
         </div>
       ) : (
@@ -295,10 +296,10 @@ const InlineEditable = ({
           {!isDropdown && (
             <div className="button-container">
               <button className="tick-btn" onClick={handleConfirm}>
-                ✔️
+                <FaCheck className="icon icon-check" data-testid="tick-icon"/>
               </button>
               <button className="cross-btn" onClick={handleCancel}>
-                ❌
+                <FaTimes className="icon icon-cross" data-testid="cross-icon"/>
               </button>
             </div>
           )}
@@ -364,10 +365,10 @@ const InlineTiptap = ({ value, onChange, onEditingChange, readOnly }) => {
           <TiptapEditor value={localValue} onChange={setLocalValue} />
           <div className="button-container description-buttons">
             <button className="tick-btn" onClick={handleConfirm}>
-              ✔️
+              <FaCheck className="icon icon-check" data-testid="tick-icon"/>
             </button>
             <button className="cross-btn" onClick={handleCancel}>
-              ❌
+              <FaTimes className="icon icon-cross" data-testid="cross-icon"/>
             </button>
           </div>
         </div>

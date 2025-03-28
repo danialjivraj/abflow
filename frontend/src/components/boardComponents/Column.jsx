@@ -6,6 +6,7 @@ import { renameBoard, deleteBoard } from "../../services/columnsService";
 import { auth } from "../../firebase";
 import { validateBoardName } from "../../utils/boardValidation";
 import { toast } from "react-toastify";
+import { FaCheck, FaTimes } from "react-icons/fa";
 
 const Column = ({
   columnId,
@@ -119,7 +120,7 @@ const Column = ({
                   )}
                   <div className="button-container">
                     <button className="tick-btn" onClick={handleRename}>
-                      ✔️
+                      <FaCheck className="icon icon-check" data-testid="tick-icon"/>
                     </button>
                     <button
                       className="cross-btn"
@@ -129,7 +130,7 @@ const Column = ({
                         setRenameBoardError("");
                       }}
                     >
-                      ❌
+                    <FaTimes className="icon icon-cross" data-testid="cross-icon"/>
                     </button>
                   </div>
                 </div>

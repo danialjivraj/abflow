@@ -300,7 +300,7 @@ describe("Profile Page", () => {
     fireEvent.change(nameInput, { target: { value: "New Name" } });
     fireEvent.blur(nameInput);
 
-    const tickButton = screen.getByText("✔️");
+    const tickButton = screen.getByTestId("tick-icon");
     userEvent.click(tickButton);
 
     await waitFor(() => {
@@ -649,7 +649,7 @@ describe("Profile Page", () => {
     fireEvent.change(nameInput, { target: { value: "New Name" } });
     fireEvent.blur(nameInput);
 
-    const tickButton = screen.getByText("✔️");
+    const tickButton = screen.getByTestId("tick-icon");
     userEvent.click(tickButton);
 
     await waitFor(() => {
@@ -694,7 +694,7 @@ describe("Profile Page", () => {
     fireEvent.change(nameInput, { target: { value: "New Name" } });
     fireEvent.blur(nameInput);
 
-    const tickButton = screen.getByText("✔️");
+    const tickButton = screen.getByTestId("tick-icon");
     userEvent.click(tickButton);
 
     await waitFor(() => {

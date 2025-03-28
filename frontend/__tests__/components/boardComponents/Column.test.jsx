@@ -130,8 +130,8 @@ describe("Column Component - Unit Tests", () => {
     const input = screen.getByRole("textbox");
     expect(input).toHaveValue("New Board Name");
     expect(screen.getByText("Name already taken")).toBeInTheDocument();
-    expect(screen.getByText("✔️")).toBeInTheDocument();
-    expect(screen.getByText("❌")).toBeInTheDocument();
+    expect(screen.getByTestId("tick-icon")).toBeInTheDocument();
+    expect(screen.getByTestId("cross-icon")).toBeInTheDocument();
   });
 
   test("clicking cross button in rename mode cancels renaming", () => {
@@ -143,7 +143,7 @@ describe("Column Component - Unit Tests", () => {
         renameBoardError="Some error"
       />
     );
-    const crossButton = screen.getByText("❌");
+    const crossButton = screen.getByTestId("cross-icon");
     fireEvent.click(crossButton);
     expect(defaultProps.setRenamingColumnId).toHaveBeenCalledWith(null);
     expect(defaultProps.setNewBoardName).toHaveBeenCalledWith("");
@@ -166,7 +166,7 @@ describe("Column Component - Unit Tests", () => {
       );
     }
     render(<TestWrapper />);
-    const tickButton = screen.getByText("✔️");
+    const tickButton = screen.getByTestId("tick-icon");
     fireEvent.click(tickButton);
     await waitFor(() => {
       expect(defaultProps.onBoardRename).not.toHaveBeenCalled();
@@ -228,7 +228,7 @@ describe("Column Component - Integration Tests", () => {
     render(<TestWrapper />);
     const input = screen.getByRole("textbox");
     fireEvent.change(input, { target: { value: "Renamed Board" } });
-    const tickButton = screen.getByText("✔️");
+    const tickButton = screen.getByTestId("tick-icon");
     fireEvent.click(tickButton);
     await waitFor(() => {
       expect(defaultProps.onBoardRename).toHaveBeenCalledWith(
@@ -345,7 +345,7 @@ describe("Column Component - Integration Tests", () => {
     const input = screen.getByRole("textbox");
     fireEvent.change(input, { target: { value: "" } });
 
-    const tickButton = screen.getByText("✔️");
+    const tickButton = screen.getByTestId("tick-icon");
     fireEvent.click(tickButton);
 
     await waitFor(() => {
@@ -384,7 +384,7 @@ describe("Column Component - Integration Tests", () => {
     const input = screen.getByRole("textbox");
     fireEvent.change(input, { target: { value: existingBoardName } });
 
-    const tickButton = screen.getByText("✔️");
+    const tickButton = screen.getByTestId("tick-icon");
     fireEvent.click(tickButton);
 
     await waitFor(() => {
@@ -416,7 +416,7 @@ describe("Column Component - Integration Tests", () => {
     const input = screen.getByRole("textbox");
     fireEvent.change(input, { target: { value: "Completed" } });
 
-    const tickButton = screen.getByText("✔️");
+    const tickButton = screen.getByTestId("tick-icon");
     fireEvent.click(tickButton);
 
     await waitFor(() => {
@@ -459,7 +459,7 @@ describe("Column Component - Integration Tests", () => {
     render(<TestWrapper />);
     const input = screen.getByRole("textbox");
     fireEvent.change(input, { target: { value: "Renamed Board" } });
-    const tickButton = screen.getByText("✔️");
+    const tickButton = screen.getByTestId("tick-icon");
     fireEvent.click(tickButton);
     await waitFor(() => {
       expect(defaultProps.onBoardRename).not.toHaveBeenCalled();

@@ -1,4 +1,5 @@
 import React from "react";
+import { FaCheck, FaTimes } from "react-icons/fa";
 
 const AddBoard = ({
   isAddingBoard,
@@ -28,7 +29,7 @@ const AddBoard = ({
           )}
           <div className="button-container">
             <button className="tick-btn" onClick={handleCreateBoard}>
-              ✔️
+              <FaCheck className="icon icon-check" data-testid="tick-icon"/>
             </button>
             <button
               className="cross-btn"
@@ -38,7 +39,7 @@ const AddBoard = ({
                 setCreateBoardError("");
               }}
             >
-              ❌
+              <FaTimes className="icon icon-cross" data-testid="cross-icon"/>
             </button>
           </div>
         </div>

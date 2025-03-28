@@ -164,7 +164,7 @@ describe("ViewTaskModal - Integration Tests", () => {
       fireEvent.click(descriptionField);
       const updateEditorButton = screen.getByText("Update Editor");
       fireEvent.click(updateEditorButton);
-      const tickButton = screen.getByText("✔️");
+      const tickButton = screen.getByTestId("tick-icon");
       fireEvent.click(tickButton);
       expect(defaultProps.handleUpdateTask).toHaveBeenCalled();
     });
@@ -270,7 +270,7 @@ describe("ViewTaskModal - Integration Tests", () => {
       fireEvent.click(descriptionField);
       const updateEditorButton = screen.getByText("Update Editor");
       fireEvent.click(updateEditorButton);
-      const tickButton = screen.getByText("✔️");
+      const tickButton = screen.getByTestId("tick-icon");
       fireEvent.click(tickButton);
       expect(defaultProps.handleUpdateTask).toHaveBeenCalled();
     });

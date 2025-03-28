@@ -107,6 +107,23 @@ input[type="checkbox"]:checked::before {
   transform: rotate(45deg);
 }
 
+.icon {
+  filter: drop-shadow(1px 0 0 black)
+          drop-shadow(-1px 0 0 black)
+          drop-shadow(0 1px 0 black)
+          drop-shadow(0 -1px 0 black);
+}
+
+.icon-check {
+  color: green;
+  font-size: 24px;
+}
+
+.icon-cross {
+  color: red;
+  font-size: 20px;
+}
+
 /* ---------------------- General Layout ---------------------- */
 
 /* Filter Bar Container */

@@ -3,6 +3,7 @@ import DatePicker from "react-datepicker";
 import TiptapEditor from "../TiptapEditor";
 import "react-datepicker/dist/react-datepicker.css";
 import { toast } from "react-toastify";
+import { FaCheck, FaTimes } from "react-icons/fa";
 
 const allowedPriorities = ["A1", "A2", "A3", "B1", "B2", "B3", "C1", "C2", "C3", "D", "E"];
 
@@ -153,10 +154,10 @@ const CreateTaskModal = ({
                 )}
                 <div className="button-container">
                   <button className="tick-btn" onClick={handleCreateBoard}>
-                    ✔️
+                    <FaCheck className="icon icon-check" data-testid="tick-icon"/>
                   </button>
                   <button className="cross-btn" onClick={() => setNewBoardCreateName("")}>
-                    ❌
+                    <FaTimes className="icon icon-cross" data-testid="cross-icon"/>
                   </button>
                 </div>
               </div>
