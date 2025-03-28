@@ -200,7 +200,7 @@ const generateFrequentNotifications = async () => {
   try {
     const users = await User.find({});
     const now = new Date();
-    console.log(`[${now.toISOString()}] generateFrequentNotifications is running...`);
+    //console.log(`[${now.toISOString()}] generateFrequentNotifications is running...`);
 
     for (const user of users) {
       const userId = user.userId;
