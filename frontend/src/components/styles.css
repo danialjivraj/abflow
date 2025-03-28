@@ -1852,25 +1852,36 @@ select {
  Modal
 ============================== */
 
-/* Common Modal Styles */
+/* The overlay centers its content and provides padding so nothing touches the viewport edges */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
+  width: 100%;
+  height: 100%;
   background-color: rgba(0, 0, 0, 0.4);
   display: flex;
   justify-content: center;
   align-items: center;
+  overflow-y: auto;
+  padding: 2rem;
+  box-sizing: border-box;
   z-index: 1000;
 }
 
+/* The container controls the width of the modal and ensures side margins */
+.modal-container {
+  width: calc(100% - 40px); /* Leaves 20px margin on each side */
+  max-width: 675px;
+  margin: auto;
+  box-sizing: border-box;
+}
+
+/* The actual modal content can remain a flex container for its internal layout */
 .modal-content {
   background-color: var(--component-bg);
   padding: 18px;
   border-radius: 7.2px;
-  width: 675px;
   max-height: 80vh;
   overflow-y: auto;
   color: var(--text-color);
@@ -1879,6 +1890,7 @@ select {
   display: flex;
   flex-direction: column;
 }
+
 
 .modal-content h2 {
   margin-top: 0;
@@ -1980,8 +1992,10 @@ select {
 }
 
 .create-task-modal .modal-content {
-  max-height: none;
-  overflow: visible;
+  width: calc(100% - 40px);
+  max-width: 675px;
+  margin: 2rem auto;
+  padding: 1rem;
 }
 
 .create-task-modal .story-points-container {

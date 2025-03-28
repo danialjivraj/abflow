@@ -124,18 +124,19 @@ const CreateTaskModal = ({
 
   return (
     <div className="modal-overlay" onClick={handleOverlayClick}>
-      <div className="create-task-modal">
-        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-          <button
-            className="close-modal"
-            onClick={() => {
-              if (!hasBoards) setNewBoardCreateName("");
-              closeModal();
-            }}
-          >
-            &times;
-          </button>
-          <h2>Create New Task</h2>
+      <div className="modal-container">
+        <div className="create-task-modal">
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <button
+              className="close-modal"
+              onClick={() => {
+                if (!hasBoards) setNewBoardCreateName("");
+                closeModal();
+              }}
+            >
+              &times;
+            </button>
+            <h2>Create New Task</h2>
           {!hasBoards ? (
             <div className="no-board-message">
               <p>You need to create a board before you can create tasks.</p>
@@ -256,7 +257,7 @@ const CreateTaskModal = ({
           )}
         </div>
       </div>
-    </div>
+    </div></div>
   );
 };
 

@@ -21,19 +21,19 @@ const DeleteConfirmationModal = ({
     }
     return "";
   };
-  
+
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <button className="close-modal" onClick={onClose}>
-          &times;
-        </button>
-        <h2>Confirm Deletion</h2>
-        <p
-          className="delete-confirmation-text"
-          dangerouslySetInnerHTML={{ __html: getMessage() }}
-        />
-        <div className="create-task-modal">
+      <div className="modal-container">
+        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <button className="close-modal" onClick={onClose}>
+            &times;
+          </button>
+          <h2>Confirm Deletion</h2>
+          <p
+            className="delete-confirmation-text"
+            dangerouslySetInnerHTML={{ __html: getMessage() }}
+          />
           <div className="button-group" style={{ justifyContent: "flex-end" }}>
             <button className="create-task-btn" onClick={onConfirm}>
               Yes
