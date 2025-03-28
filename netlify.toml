@@ -1,9 +1,3 @@
 [build]
-  base = "frontend"
-  command = "npm install --no-optional && npm run build"
+  command = "rm -rf node_modules && npm install && npm run build"
   publish = "dist"
-
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
