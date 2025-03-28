@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = process.env.VITE_API_BASE_URL_DEPLOY;
+const BASE_URL = import.meta.env.VITE_API_BASE_URL_DEPLOY;
 const API_URL = `${BASE_URL}/api/preferences`;
 
 /**
