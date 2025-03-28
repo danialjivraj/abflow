@@ -200,6 +200,35 @@ describe("Column Component - Unit Tests", () => {
   });
 });
 
+test("calls handleRename when Enter key is pressed in the rename input", async () => {
+  const onBoardRenameMock = jest.fn();
+
+  function TestWrapper() {
+    const [newBoardName, setNewBoardName] = React.useState("Valid Board");
+    const [renameBoardError, setRenameBoardError] = React.useState("");
+    return (
+      <Column
+        {...defaultProps}
+        renamingColumnId={baseColumn.columnId}
+        newBoardName={newBoardName}
+        setNewBoardName={setNewBoardName}
+        renameBoardError={renameBoardError}
+        setRenameBoardError={setRenameBoardError}
+        onBoardRename={onBoardRenameMock}
+      />
+    );
+  }
+  render(<TestWrapper />);
+  const input = screen.getByRole("textbox");
+  fireEvent.keyDown(input, { key: "Enter", code: "Enter", charCode: 13 });
+  await waitFor(() => {
+    expect(onBoardRenameMock).toHaveBeenCalledWith(
+      baseColumn.columnId,
+      "Valid Board"
+    );
+  });
+});
+
 // =======================
 // INTEGRATION TESTS
 // =======================

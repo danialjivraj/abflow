@@ -22,6 +22,11 @@ const AddBoard = ({
               setNewBoardCreateName(e.target.value);
               setCreateBoardError("");
             }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleCreateBoard();
+              }
+            }}
             autoFocus
           />
           {createBoardError && (
@@ -29,7 +34,7 @@ const AddBoard = ({
           )}
           <div className="button-container">
             <button className="tick-btn" onClick={handleCreateBoard}>
-              <FaCheck className="icon icon-check" data-testid="tick-icon"/>
+              <FaCheck className="icon icon-check" data-testid="tick-icon" />
             </button>
             <button
               className="cross-btn"
@@ -39,7 +44,7 @@ const AddBoard = ({
                 setCreateBoardError("");
               }}
             >
-              <FaTimes className="icon icon-cross" data-testid="cross-icon"/>
+              <FaTimes className="icon icon-cross" data-testid="cross-icon" />
             </button>
           </div>
         </div>

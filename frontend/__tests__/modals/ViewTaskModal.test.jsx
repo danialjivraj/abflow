@@ -159,6 +159,20 @@ describe("ViewTaskModal - Integration Tests", () => {
       expect(defaultProps.handleUpdateTask).toHaveBeenCalled();
     });
 
+    test("allows inline editing of time spent and confirms with Enter key", async () => {
+      render(<ViewTaskModal {...defaultProps} readOnly={false} />);
+      const timeDisplays = screen.getAllByText("Time: 3600");
+      const timeDisplay = timeDisplays[0];
+      fireEvent.click(timeDisplay);
+      const hourInput = screen.getByDisplayValue("1");
+      fireEvent.change(hourInput, { target: { value: "2" } });
+      fireEvent.keyDown(hourInput, { key: "Enter", code: "Enter" });
+      await waitFor(() => {
+        expect(defaultProps.handleUpdateTask).toHaveBeenCalled();
+      });
+    });
+    
+
     test("allows inline editing of description using TiptapEditor and confirms on tick", () => {
       const descriptionField = screen.getByText("This is a test description.");
       fireEvent.click(descriptionField);

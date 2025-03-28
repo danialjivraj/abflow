@@ -215,6 +215,11 @@ const Profile = () => {
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
                   autoFocus={isEditing}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleNameUpdate();
+                    }
+                  }}
                 />
                 <div className="button-container">
                   <button className="tick-btn" onClick={handleNameUpdate}>

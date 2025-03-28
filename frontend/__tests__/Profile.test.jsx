@@ -667,6 +667,49 @@ describe("Profile Page", () => {
     expect(toast.success).toHaveBeenCalledWith("Name saved!");
   });
 
+  it("should allow user to update their name by pressing Enter", async () => {
+    axios.get.mockResolvedValueOnce({
+      data: {
+        points: 10,
+        tasksCompleted: 1,
+        totalHours: "0.00",
+        profilePicture: "",
+        name: "User",
+      },
+    });
+    axios.put.mockResolvedValueOnce({
+      data: { message: "Name updated successfully", name: "Enter Updated Name" },
+    });
+
+    render(
+      <BrowserRouter>
+        <NotificationsProvider>
+          <Profile />
+        </NotificationsProvider>
+      </BrowserRouter>
+    );
+
+    await screen.findByText("User");
+
+    const heading = screen.getByText("User");
+    userEvent.click(heading);
+
+    const nameInput = await screen.findByPlaceholderText("Enter your name");
+    fireEvent.change(nameInput, { target: { value: "Enter Updated Name" } });
+    fireEvent.keyDown(nameInput, { key: "Enter", code: "Enter" });
+
+    await waitFor(() => {
+      expect(axios.put).toHaveBeenCalledWith(
+        "http://localhost:5000/api/profile/updateName/user1",
+        { name: "Enter Updated Name" }
+      );
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText("Enter Updated Name")).toBeInTheDocument();
+    });
+  });
+
   it("should show an error toast if name update fails", async () => {
     axios.get.mockResolvedValueOnce({
       data: {

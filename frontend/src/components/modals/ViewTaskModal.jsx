@@ -124,6 +124,11 @@ const InlineTimeEditable = ({ value, onChange, onEditingChange, readOnly }) => {
                   : parseInt(e.target.value, 10)
               )
             }
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleConfirm();
+              }
+            }}
             style={{ width: "50px" }}
           />
           <span>h</span>
@@ -138,6 +143,11 @@ const InlineTimeEditable = ({ value, onChange, onEditingChange, readOnly }) => {
                 isNaN(val) || val < 0 ? 0 : val > 59 ? 59 : val
               );
             }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleConfirm();
+              }
+            }}
             style={{ width: "50px" }}
           />
           <span>m</span>
@@ -151,6 +161,11 @@ const InlineTimeEditable = ({ value, onChange, onEditingChange, readOnly }) => {
               setLocalSeconds(
                 isNaN(val) || val < 0 ? 0 : val > 59 ? 59 : val
               );
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleConfirm();
+              }
             }}
             style={{ width: "50px" }}
           />
@@ -830,9 +845,7 @@ const ViewTaskModal = ({
                 </div>
               ) : (
                 <div
-                  className={`timer-toggle-container ${
-                    editableTask.isTimerRunning ? "on" : "off"
-                  }`}
+                  className={`timer-toggle-container ${editableTask.isTimerRunning ? "on" : "off"}`}
                   onClick={toggleTimer}
                   role="switch"
                   aria-checked={editableTask.isTimerRunning}
@@ -844,19 +857,13 @@ const ViewTaskModal = ({
                   }}
                 >
                   <span className="toggle-label-left">OFF</span>
-                  <div
-                    className={`toggle-slider ${
-                      editableTask.isTimerRunning ? "active" : ""
-                    }`}
-                  >
+                  <div className={`toggle-slider ${editableTask.isTimerRunning ? "active" : ""}`}>
                     <div className="toggle-knob">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 24 24"
                         fill="none"
-                        stroke={
-                          editableTask.isTimerRunning ? "#fff" : "#666"
-                        }
+                        stroke={editableTask.isTimerRunning ? "#fff" : "#666"}
                         strokeWidth="2"
                         strokeLinecap="round"
                         strokeLinejoin="round"

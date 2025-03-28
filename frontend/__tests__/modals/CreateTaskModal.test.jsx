@@ -125,9 +125,7 @@ describe("CreateTaskModal Integration Tests", () => {
     test("renders board creation UI", () => {
       render(<CreateTaskModal {...defaultProps} columns={{}} />);
       expect(
-        screen.getByText(
-          "You need to create a board before you can create tasks."
-        )
+        screen.getByText("You need to create a board before you can create tasks.")
       ).toBeInTheDocument();
       const boardNameInput = screen.getByPlaceholderText("Enter board name");
       expect(boardNameInput).toBeInTheDocument();
@@ -179,6 +177,13 @@ describe("CreateTaskModal Integration Tests", () => {
         />
       );
       expect(screen.getByPlaceholderText("Enter board name").value).toBe("");
+    });
+
+    test("calls handleCreateBoard when Enter key is pressed in board creation input", () => {
+      render(<CreateTaskModal {...defaultProps} columns={{}} />);
+      const boardNameInput = screen.getByPlaceholderText("Enter board name");
+      fireEvent.keyDown(boardNameInput, { key: "Enter", code: "Enter", charCode: 13 });
+      expect(defaultProps.handleCreateBoard).toHaveBeenCalled();
     });
   });
 

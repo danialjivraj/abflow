@@ -147,6 +147,11 @@ const CreateTaskModal = ({
                   placeholder="Enter board name"
                   value={newBoardCreateName}
                   onChange={(e) => setNewBoardCreateName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleCreateBoard();
+                    }
+                  }}
                   autoFocus
                 />
                 {createBoardError && (
@@ -256,9 +261,10 @@ const CreateTaskModal = ({
               </div>
             </>
           )}
+          </div>
         </div>
       </div>
-    </div></div>
+    </div>
   );
 };
 

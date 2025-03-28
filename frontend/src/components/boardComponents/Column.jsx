@@ -111,6 +111,11 @@ const Column = ({
                       setNewBoardName(e.target.value);
                       setRenameBoardError("");
                     }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        handleRename();
+                      }
+                    }}
                     autoFocus
                   />
                   {renameBoardError && (
@@ -130,7 +135,7 @@ const Column = ({
                         setRenameBoardError("");
                       }}
                     >
-                    <FaTimes className="icon icon-cross" data-testid="cross-icon"/>
+                      <FaTimes className="icon icon-cross" data-testid="cross-icon"/>
                     </button>
                   </div>
                 </div>

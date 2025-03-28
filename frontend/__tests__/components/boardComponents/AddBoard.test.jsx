@@ -83,6 +83,13 @@ describe("AddBoard component - Unit Tests", () => {
     expect(props.setNewBoardCreateName).toHaveBeenCalledWith("");
     expect(props.setCreateBoardError).toHaveBeenCalledWith("");
   });
+
+  test("calls handleCreateBoard when Enter key is pressed in the input field", () => {
+    const props = setup({ isAddingBoard: true });
+    const input = screen.getByPlaceholderText("Enter board name");
+    fireEvent.keyDown(input, { key: "Enter", code: "Enter", charCode: 13 });
+    expect(props.handleCreateBoard).toHaveBeenCalled();
+  });
 });
 
 // =======================
