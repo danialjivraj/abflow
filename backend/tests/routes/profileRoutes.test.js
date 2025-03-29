@@ -13,11 +13,49 @@ process.env.UPLOADS_DIR = tempUploadsDir;
 
 if (!fs.existsSync(tempUploadsDir)) {
     fs.mkdirSync(tempUploadsDir, { recursive: true });
-} e
+}
 
 const Task = require("../../models/Task");
 const User = require("../../models/User");
 const profileRoutes = require("../../routes/profileRoutes");
+
+jest.mock("multer-storage-cloudinary", () => {
+    const path = require("path");
+    return {
+        CloudinaryStorage: class {
+            constructor({ cloudinary, params }) {
+                this.cloudinary = cloudinary;
+                this.params = params;
+            }
+            _handleFile(req, file, cb) {
+                const chunks = [];
+                file.stream.on("data", (chunk) => {
+                    chunks.push(chunk);
+                });
+                file.stream.on("end", () => {
+                    const ext = path.extname(file.originalname);
+                    const filename = `${req.params.userId}-${Date.now()}${ext}`;
+                    cb(null, {
+                        path: `/uploads/${filename}`,
+                        filename: filename,
+                    });
+                });
+                file.stream.on("error", (err) => {
+                    cb(err);
+                });
+            }
+            _removeFile(req, file, cb) {
+                cb(null);
+            }
+        },
+    };
+});
+
+jest.mock("../../cloudinaryConfig", () => ({
+    uploader: {
+        destroy: jest.fn().mockResolvedValue({ result: "ok" }),
+    },
+}));
 
 let app;
 let mongoServer;
@@ -39,7 +77,7 @@ beforeEach(async () => {
 });
 
 afterEach(() => {
-    fs.readdirSync(tempUploadsDir).forEach(file => {
+    fs.readdirSync(tempUploadsDir).forEach((file) => {
         fs.unlinkSync(path.join(tempUploadsDir, file));
     });
 });

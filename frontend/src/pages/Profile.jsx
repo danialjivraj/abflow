@@ -12,7 +12,7 @@ import {
 } from "../services/profileService";
 import "../components/styles.css";
 import { toast } from "react-toastify";
-import { FaCheck, FaTimes } from "react-icons/fa";
+import { FaCheck, FaTimes, FaSpinner } from "react-icons/fa";
 
 const Profile = () => {
   const [profile, setProfile] = useState(null);
@@ -21,6 +21,7 @@ const Profile = () => {
   const [pendingRemove, setPendingRemove] = useState(false);
   const [editName, setEditName] = useState("");
   const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
 
@@ -68,33 +69,33 @@ const Profile = () => {
     if (!currentUser) return;
     const userId = currentUser.uid;
 
-    if (pendingFile) {
-      try {
+    setIsSaving(true);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    try {
+      if (pendingFile) {
         const response = await uploadProfilePicture(userId, pendingFile);
+        // Append a timestamp to bust browser caching if needed.
         setProfile((prev) => ({
           ...prev,
           profilePicture: `${response.data.profilePicture}?t=${Date.now()}`,
         }));
         toast.success("Image saved!");
-      } catch (error) {
-        console.error("Error uploading new picture:", error);
-        toast.error("Failed to save image!");
-      }
-      setPendingFile(null);
-      setPendingPreview(null);
-    }
-    else if (pendingRemove) {
-      try {
+      } else if (pendingRemove) {
         const response = await removeProfilePicture(userId);
         setProfile((prev) => ({
           ...prev,
           profilePicture: response.data.profilePicture,
         }));
         toast.success("Image removed!");
-      } catch (error) {
-        console.error("Error removing profile picture:", error);
-        toast.error("Failed to remove image!");
       }
+    } catch (error) {
+      console.error("Error saving picture:", error);
+      toast.error("Failed to save image!");
+    } finally {
+      setIsSaving(false);
+      setPendingFile(null);
+      setPendingPreview(null);
       setPendingRemove(false);
     }
   };
@@ -142,12 +143,17 @@ const Profile = () => {
   }
 
   const BASE_URL = import.meta.env.VITE_API_BASE_URL_DEPLOY;
+  // Checks if the URL is absolute (i.e., starts with http:// or https://)
+  const isAbsoluteUrl = (url) => /^(?:[a-z]+:)?\/\//i.test(url);
+
   const displayImage = pendingRemove
     ? "/default-profile-image.png"
     : pendingPreview
     ? pendingPreview
     : profile.profilePicture
-    ? `${BASE_URL}${profile.profilePicture}`
+    ? isAbsoluteUrl(profile.profilePicture)
+      ? profile.profilePicture
+      : `${BASE_URL}${profile.profilePicture}`
     : "/default-profile-image.png";
 
   return (
@@ -158,7 +164,6 @@ const Profile = () => {
       <div className="profile-page">
         <div className="profile-card">
           <div className="profile-header">
-            {/* Profile picture */}
             <div className="profile-picture-container">
               <img
                 src={displayImage}
@@ -181,12 +186,27 @@ const Profile = () => {
 
             {(pendingFile || pendingRemove) && (
               <div className="upload-section">
-                <button onClick={handleSavePicture} className="create-task-btn">
+                <button
+                  id="savePictureButton"
+                  onClick={handleSavePicture}
+                  disabled={isSaving}
+                  className="create-task-btn"
+                >
                   Save
                 </button>
-                <button onClick={handleCancelPictureChange} className="cancel-btn">
+                <button
+                  id="cancelPictureButton"
+                  onClick={handleCancelPictureChange}
+                  disabled={isSaving}
+                  className="cancel-btn"
+                >
                   Cancel
                 </button>
+                {isSaving && (
+                  <span id="loadingIndicator" className="loading-indicator">
+                    <FaSpinner className="spinner" />
+                  </span>
+                )}
               </div>
             )}
 
@@ -207,7 +227,7 @@ const Profile = () => {
                   />
                   <div className="button-container">
                     <button className="tick-btn" onClick={handleNameUpdate}>
-                    <FaCheck className="icon icon-check" data-testid="tick-icon"/>
+                      <FaCheck className="icon icon-check" data-testid="tick-icon" />
                     </button>
                     <button
                       className="cross-btn"
@@ -216,7 +236,7 @@ const Profile = () => {
                         setEditName(profile.name);
                       }}
                     >
-                    <FaTimes className="icon icon-cross" data-testid="cross-icon"/>
+                      <FaTimes className="icon icon-cross" data-testid="cross-icon" />
                     </button>
                   </div>
                 </div>
@@ -228,7 +248,6 @@ const Profile = () => {
             </div>
           </div>
 
-          {/* Hidden file input */}
           <input
             type="file"
             ref={fileInputRef}
@@ -237,22 +256,17 @@ const Profile = () => {
             accept="image/*"
           />
 
-          {/* Stats */}
           <div className="profile-stats">
             <div className="stat-card">
               <h2 title={profile.points}>{formatNumber(profile.points)}</h2>
               <p>Points</p>
             </div>
             <div className="stat-card">
-              <h2 title={profile.tasksCompleted}>
-                {formatNumber(profile.tasksCompleted)}
-              </h2>
+              <h2 title={profile.tasksCompleted}>{formatNumber(profile.tasksCompleted)}</h2>
               <p>Tasks Completed</p>
             </div>
             <div className="stat-card">
-              <h2 title={profile.totalHours}>
-                {formatNumber(profile.totalHours)}
-              </h2>
+              <h2 title={profile.totalHours}>{formatNumber(profile.totalHours)}</h2>
               <p>Hours Spent</p>
             </div>
           </div>

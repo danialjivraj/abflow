@@ -897,4 +897,132 @@ describe("Profile Page", () => {
       expect(emailElement).toBeNull();
     });
   });
+
+  // ----------------------------------------------------
+  // Button disabled state and loading indicator
+  // ----------------------------------------------------
+  describe("Profile Picture Upload UI Behavior", () => {
+    it("should disable Save and Cancel buttons and show loading spinner when saving a new picture", async () => {
+      axios.get.mockResolvedValueOnce({
+        data: {
+          points: 0,
+          tasksCompleted: 0,
+          totalHours: "0.00",
+          profilePicture: "/uploads/test.jpg",
+          name: "User",
+        },
+      });
+      let resolveUpload;
+      const uploadPromise = new Promise((resolve) => {
+        resolveUpload = resolve;
+      });
+      const uploadSpy = jest
+        .spyOn(profileService, "uploadProfilePicture")
+        .mockReturnValueOnce(uploadPromise);
+
+      const { container } = render(
+        <BrowserRouter>
+          <NotificationsProvider>
+            <Profile />
+          </NotificationsProvider>
+        </BrowserRouter>
+      );
+      await screen.findByAltText("Profile");
+
+      userEvent.click(screen.getByAltText("Profile"));
+      const fileInput = container.querySelector('input[type="file"]');
+      const file = new File(["dummy image content"], "newtest.jpg", {
+        type: "image/jpeg",
+      });
+      fireEvent.change(fileInput, { target: { files: [file] } });
+
+      const saveButton = await screen.findByRole("button", { name: "Save" });
+      const cancelButton = await screen.findByRole("button", {
+        name: "Cancel",
+      });
+      userEvent.click(saveButton);
+
+      await waitFor(() => {
+        expect(saveButton).toBeDisabled();
+        expect(cancelButton).toBeDisabled();
+        expect(
+          container.querySelector("#loadingIndicator")
+        ).toBeInTheDocument();
+      });
+
+      resolveUpload({
+        data: {
+          message: "Profile picture updated",
+          profilePicture: `/uploads/user1-1234567890.jpg`,
+        },
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByRole("button", { name: "Save" })).toBeNull();
+        expect(screen.queryByRole("button", { name: "Cancel" })).toBeNull();
+        expect(container.querySelector("#loadingIndicator")).toBeNull();
+      });
+
+      uploadSpy.mockRestore();
+    });
+
+    it("should disable Save and Cancel buttons and show loading spinner when saving a picture removal", async () => {
+      axios.get.mockResolvedValueOnce({
+        data: {
+          points: 0,
+          tasksCompleted: 0,
+          totalHours: "0.00",
+          profilePicture: "/uploads/test.jpg",
+          name: "User",
+        },
+      });
+      let resolveRemove;
+      const removePromise = new Promise((resolve) => {
+        resolveRemove = resolve;
+      });
+      const removeSpy = jest
+        .spyOn(profileService, "removeProfilePicture")
+        .mockReturnValueOnce(removePromise);
+
+      const { container } = render(
+        <BrowserRouter>
+          <NotificationsProvider>
+            <Profile />
+          </NotificationsProvider>
+        </BrowserRouter>
+      );
+      await screen.findByAltText("Profile");
+
+      const removeButton = screen.getByRole("button", {
+        name: "Remove profile picture",
+      });
+      userEvent.click(removeButton);
+
+      const saveButton = await screen.findByRole("button", { name: "Save" });
+      const cancelButton = await screen.findByRole("button", {
+        name: "Cancel",
+      });
+      userEvent.click(saveButton);
+
+      await waitFor(() => {
+        expect(saveButton).toBeDisabled();
+        expect(cancelButton).toBeDisabled();
+        expect(
+          container.querySelector("#loadingIndicator")
+        ).toBeInTheDocument();
+      });
+
+      resolveRemove({
+        data: { message: "Profile picture removed", profilePicture: "" },
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByRole("button", { name: "Save" })).toBeNull();
+        expect(screen.queryByRole("button", { name: "Cancel" })).toBeNull();
+        expect(container.querySelector("#loadingIndicator")).toBeNull();
+      });
+
+      removeSpy.mockRestore();
+    });
+  });
 });
