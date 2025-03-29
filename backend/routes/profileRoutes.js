@@ -10,71 +10,49 @@ const Task = require("../models/Task");
 const User = require("../models/User");
 
 const uploadDir = process.env.UPLOADS_DIR || path.join(__dirname, "../uploads");
-
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
 
 const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
+  cloudinary,
   params: async (req, file) => ({
     folder: "uploads",
-    public_id: `${req.params.userId}-${Date.now()}`,
     allowed_formats: ["jpg", "jpeg", "png", "gif"],
     transformation: [{ width: 500, height: 500, crop: "limit" }],
   }),
 });
-
 const upload = multer({ storage });
-
-// Helper function to extract Cloudinary public_id from a URL.
-function extractPublicId(url) {
-  try {
-    const parts = url.split("/upload/");
-    if (parts.length < 2) return null;
-    const rest = parts[1];
-    const restParts = rest.split("/");
-    let publicIdParts = restParts;
-    if (restParts[0].startsWith("v")) {
-      publicIdParts = restParts.slice(1);
-    }
-    const publicIdWithExt = publicIdParts.join("/");
-    const dotIndex = publicIdWithExt.lastIndexOf(".");
-    let publicId = dotIndex !== -1 ? publicIdWithExt.substring(0, dotIndex) : publicIdWithExt;
-    if (publicId.startsWith("uploads/")) {
-      publicId = publicId.substring("uploads/".length);
-    }
-    return publicId;
-  } catch (error) {
-    console.error("Error extracting public_id:", error);
-    return null;
-  }
-}
 
 // User profile data
 router.get("/:userId", async (req, res) => {
   try {
     const { userId } = req.params;
-    if (!userId)
+    if (!userId) {
       return res.status(400).json({ error: "User ID is required" });
+    }
 
     const completedTasks = await Task.find({ userId, status: "completed" });
-    const totalPoints = completedTasks.reduce(
-      (sum, task) => sum + (task.points || 0),
-      0
-    );
+    const totalPoints = completedTasks.reduce((sum, task) => sum + (task.points || 0), 0);
     const tasksCompleted = completedTasks.length;
-    const totalSeconds = completedTasks.reduce(
-      (sum, task) => sum + (task.timeSpent || 0),
-      0
-    );
+    const totalSeconds = completedTasks.reduce((sum, task) => sum + (task.timeSpent || 0), 0);
     const totalHours = (totalSeconds / 3600).toFixed(2);
 
     const user = await User.findOne({ userId });
-    const profilePicture = user?.profilePicture || "";
-    const name = user?.name || "User";
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
 
-    res.json({ points: totalPoints, tasksCompleted, totalHours, profilePicture, name });
+    const profilePicture = user.profilePicture || "";
+    const name = user.name || "User";
+
+    res.json({
+      points: totalPoints,
+      tasksCompleted,
+      totalHours,
+      profilePicture,
+      name,
+    });
   } catch (error) {
     console.error("Error fetching profile data:", error);
     res.status(500).json({ error: "Failed to fetch profile data" });
@@ -86,8 +64,9 @@ router.put("/updateName/:userId", async (req, res) => {
   const { userId } = req.params;
   const { name } = req.body;
 
-  if (!name)
+  if (!name) {
     return res.status(400).json({ error: "Name is required" });
+  }
 
   try {
     const updatedUser = await User.findOneAndUpdate(
@@ -95,8 +74,9 @@ router.put("/updateName/:userId", async (req, res) => {
       { name },
       { new: true }
     );
-    if (!updatedUser)
+    if (!updatedUser) {
       return res.status(404).json({ error: "User not found" });
+    }
 
     res.json({ message: "Name updated successfully", name: updatedUser.name });
   } catch (error) {
@@ -120,29 +100,26 @@ router.post("/uploadProfilePicture/:userId", upload.single("profilePicture"), as
       return res.status(404).json({ error: "User not found" });
     }
 
-    // Remove old picture
-    if (user.profilePicture) {
-      const publicId = extractPublicId(user.profilePicture);
-      console.log("Extracted publicId:", publicId);
-      if (publicId) {
-        await cloudinary.uploader.destroy(publicId, { invalidate: true });
-        console.log("Old image removed from Cloudinary");
-      }
+    // If there's an old image, destroy it by public_id
+    if (user.cloudinaryPublicId) {
+      await cloudinary.uploader.destroy(user.cloudinaryPublicId, { invalidate: true });
+      console.log("Old image removed from Cloudinary");
     }
 
+    // The new Cloudinary image URL is in req.file.path
+    // The new Cloudinary public_id is in req.file.filename
     console.log("New image URL:", req.file.path);
+    console.log("New image public_id:", req.file.filename);
 
-    const updatedUser = await User.findOneAndUpdate(
-      { userId: req.params.userId },
-      { profilePicture: req.file.path },
-      { new: true }
-    );
+    // Update the user record
+    user.profilePicture = req.file.path;      // store the new URL
+    user.cloudinaryPublicId = req.file.filename; // store the new public_id
+    await user.save();
 
     console.log("User updated with new profile picture");
-
     res.json({
       message: "Profile picture updated",
-      profilePicture: updatedUser.profilePicture,
+      profilePicture: user.profilePicture,
     });
   } catch (error) {
     console.error("❌ Error updating profile picture:", error);
@@ -159,23 +136,25 @@ router.put("/removeProfilePicture/:userId", async (req, res) => {
 
   try {
     const user = await User.findOne({ userId });
-    if (!user)
+    if (!user) {
       return res.status(404).json({ error: "User not found" });
-
-    if (user.profilePicture) {
-      const publicId = extractPublicId(user.profilePicture);
-      if (publicId) {
-        await cloudinary.uploader.destroy(publicId, { invalidate: true });
-      }
     }
 
-    const updatedUser = await User.findOneAndUpdate(
-      { userId },
-      { profilePicture: "" },
-      { new: true }
-    );
+    // Destroy old image if public_id exists
+    if (user.cloudinaryPublicId) {
+      await cloudinary.uploader.destroy(user.cloudinaryPublicId, { invalidate: true });
+      console.log("Old image removed from Cloudinary");
+    }
 
-    res.json({ message: "Profile picture removed", profilePicture: updatedUser.profilePicture });
+    // Clear the user’s stored URL and public_id
+    user.profilePicture = "";
+    user.cloudinaryPublicId = "";
+    await user.save();
+
+    res.json({
+      message: "Profile picture removed",
+      profilePicture: user.profilePicture,
+    });
   } catch (error) {
     console.error("Error removing profile picture:", error);
     res.status(500).json({ error: "Failed to remove profile picture" });
