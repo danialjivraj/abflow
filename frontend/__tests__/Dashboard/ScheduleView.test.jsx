@@ -58,16 +58,44 @@ jest.mock("react-router-dom", () => ({
 
 jest.mock("react-big-calendar/lib/addons/dragAndDrop", () => {
   const React = require("react");
+  const moment = require("moment");
   return (Calendar) => {
     return (props) => (
       <div data-testid="dnd-calendar">
         <div data-testid="calendar-events">
           {props.events &&
-            props.events.map((event) => (
-              <div key={event.id} data-testid="calendar-event">
-                {event.title}
-              </div>
-            ))}
+            props.events.map((event) => {
+              const duration = moment(event.end).diff(
+                moment(event.start),
+                "minutes"
+              );
+              return (
+                <div key={event.id} data-testid="calendar-event">
+                  {duration <= 30 ? (
+                    <div className="custom-event-min-height">
+                      <span className="event-title">{event.title}</span>
+                      <span className="event-start">
+                        {moment(event.start).format("h:mm A")}
+                      </span>
+                      <div className="priority-strip">
+                        <span className="priority-label">{event.priority}</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="custom-event">
+                      <span className="event-time">
+                        {moment(event.start).format("h:mm A")} -{" "}
+                        {moment(event.end).format("h:mm A")}
+                      </span>
+                      <span className="event-title">{event.title}</span>
+                      <div className="priority-strip">
+                        <span className="priority-label">{event.priority}</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
         </div>
         <button
           onClick={() =>
@@ -176,9 +204,7 @@ function TestWrapper({ initialTasks }) {
   const [tasks, setTasks] = React.useState(initialTasks);
   const handleUpdateTaskInState = (updatedTask) => {
     setTasks((prev) =>
-      prev.map((task) =>
-        task._id === updatedTask._id ? updatedTask : task
-      )
+      prev.map((task) => (task._id === updatedTask._id ? updatedTask : task))
     );
   };
   return (
@@ -234,7 +260,9 @@ describe("ScheduleView - Unit Tests", () => {
   });
 
   test("Invalid Drop – Multi-day Event: does not update and logs warning", async () => {
-    const consoleWarnSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
+    const consoleWarnSpy = jest
+      .spyOn(console, "warn")
+      .mockImplementation(() => {});
     renderWithRouter(
       <ScheduleView
         tasks={tasks}
@@ -256,7 +284,9 @@ describe("ScheduleView - Unit Tests", () => {
   });
 
   test("Invalid Drop – Same Start and End: does not update and logs warning", async () => {
-    const consoleWarnSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
+    const consoleWarnSpy = jest
+      .spyOn(console, "warn")
+      .mockImplementation(() => {});
     renderWithRouter(
       <ScheduleView
         tasks={tasks}
@@ -305,7 +335,9 @@ describe("ScheduleView - Unit Tests", () => {
   });
 
   test("Invalid Event Resize: does not update and logs warning", async () => {
-    const consoleWarnSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
+    const consoleWarnSpy = jest
+      .spyOn(console, "warn")
+      .mockImplementation(() => {});
     renderWithRouter(
       <ScheduleView
         tasks={tasks}
@@ -358,7 +390,9 @@ describe("ScheduleView - Unit Tests", () => {
   });
 
   test("Invalid Drop from Outside: does not update task schedule and logs warning", async () => {
-    const consoleWarnSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
+    const consoleWarnSpy = jest
+      .spyOn(console, "warn")
+      .mockImplementation(() => {});
     renderWithRouter(
       <ScheduleView
         tasks={tasks}
@@ -411,6 +445,54 @@ describe("ScheduleView - Unit Tests", () => {
     fireEvent.click(screen.getByText("Trigger Slot Selection (Month)"));
     expect(dummyOnCreateTaskShortcut).not.toHaveBeenCalled();
   });
+
+  test("renders a minimal 30-minute event with 'custom-event-min-height', time, and priority", () => {
+    const shortEvent = {
+      _id: "short1",
+      title: "Short Task",
+      priority: "A1",
+      scheduledStart: "2025-03-22T10:00:00.000Z",
+      scheduledEnd: "2025-03-22T10:30:00.000Z",
+    };
+
+    const tasks = [shortEvent];
+
+    renderWithRouter(
+      <ScheduleView
+        tasks={tasks}
+        updateTaskInState={() => {}}
+        onCreateTaskShortcut={() => {}}
+      />
+    );
+
+    const eventElements = screen.queryAllByTestId("calendar-event");
+
+    expect(eventElements[0]).toHaveTextContent("Short Task");
+    expect(eventElements[0]).toHaveTextContent("10:00 AM");
+  });
+
+  test("renders a full event layout for an event longer than 30 minutes", () => {
+    const longEvent = {
+      _id: "long1",
+      title: "Long Task",
+      priority: "B1",
+      scheduledStart: "2025-03-22T10:00:00.000Z",
+      scheduledEnd: "2025-03-22T11:00:00.000Z",
+    };
+
+    const tasks = [longEvent];
+
+    renderWithRouter(
+      <ScheduleView
+        tasks={tasks}
+        updateTaskInState={() => {}}
+        onCreateTaskShortcut={() => {}}
+      />
+    );
+
+    const eventElements = screen.queryAllByTestId("calendar-event");
+    expect(eventElements[0]).toHaveTextContent("Long Task");
+  });
 });
 
 // =======================
@@ -424,7 +506,7 @@ describe("ScheduleView - Integration Tests", () => {
 
   test("Complete interaction: Calendar initially does not show unscheduled task, then after drop shows it", async () => {
     renderWithRouter(<TestWrapper initialTasks={tasks} />);
-    
+
     const calendarEvents = screen.getByTestId("calendar-events");
     expect(calendarEvents).toHaveTextContent("Scheduled Task");
     expect(calendarEvents).not.toHaveTextContent("Unscheduled Task");
@@ -460,13 +542,13 @@ describe("ScheduleView - Integration Tests", () => {
 
   test("does not call onCreateTaskShortcut when disableToCreateTask is true", () => {
     const disableToCreateTask = true;
-  
+
     const onCreateTaskShortcut = jest.fn();
     const conditionalOnCreateTaskShortcut = (start, end) => {
       if (disableToCreateTask) return;
       onCreateTaskShortcut(start, end);
     };
-  
+
     renderWithRouter(
       <ScheduleView
         tasks={tasks}
@@ -474,9 +556,9 @@ describe("ScheduleView - Integration Tests", () => {
         onCreateTaskShortcut={conditionalOnCreateTaskShortcut}
       />
     );
-  
+
     fireEvent.click(screen.getByText("Trigger Slot Selection (Week)"));
-  
+
     expect(onCreateTaskShortcut).not.toHaveBeenCalled();
   });
 });

@@ -49,17 +49,37 @@ const ScheduleView = ({ tasks, updateTaskInState, onCreateTaskShortcut }) => {
   }, [tasks]);
 
   const CustomEvent = ({ event }) => {
+    const duration = moment(event.end).diff(moment(event.start), "minutes");
     const priorityColor = event.priority
       ? `var(--priority-${event.priority})`
       : "#555";
-    const eventTime = `${moment(event.start).format("h:mm A")} - ${moment(
-      event.end
-    ).format("h:mm A")}`;
+
+    if (duration <= 30) {
+      return (
+        <div className="custom-event-min-height">
+          <span className="event-title">{event.title}</span>
+
+          <span className="event-start">
+            {moment(event.start).format("h:mm A")}
+          </span>
+
+          <div
+            className="priority-strip"
+            style={{ backgroundColor: priorityColor }}
+          >
+            <span className="priority-label">{event.priority}</span>
+          </div>
+        </div>
+      );
+    }
 
     return (
       <div className="custom-event">
-        <span className="event-time">{eventTime}</span>
-        <span>{event.title}</span>
+        <span className="event-time">
+          {moment(event.start).format("h:mm A")} -{" "}
+          {moment(event.end).format("h:mm A")}
+        </span>
+        <span className="event-title">{event.title}</span>
         <div
           className="priority-strip"
           style={{ backgroundColor: priorityColor }}
@@ -177,12 +197,12 @@ const ScheduleView = ({ tasks, updateTaskInState, onCreateTaskShortcut }) => {
       return;
     }
 
-    // Prevent events with the same start and end time
-    if (start.getTime() === end.getTime()) {
-      console.warn(
-        "Resize results in an event with the same start and end time; ignoring resize."
-      );
-      return;
+    // If below 30 sets it to 30
+    let duration = moment(end).diff(moment(start), "minutes");
+
+    if (duration < 30) {
+      end = new Date(start.getTime() + 30 * 60 * 1000);
+      duration = 30;
     }
 
     try {
