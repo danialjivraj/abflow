@@ -13,6 +13,7 @@ import {
 import { completeTask, updateTask } from "../../services/tasksService";
 import { toast } from "react-toastify";
 import { FaCheck, FaTimes } from "react-icons/fa";
+import taskCompletedSfx from "../../assets/taskCompleted.mp3";
 
 const allowedPriorities = [
   "A1",
@@ -470,6 +471,10 @@ const ViewTaskModal = ({
         });
       }
       toast.success("Task completed!");
+
+      const audio = new Audio(taskCompletedSfx);
+      audio.play();
+
       closeModal();
     } catch (error) {
       console.error("Error completing task:", error);

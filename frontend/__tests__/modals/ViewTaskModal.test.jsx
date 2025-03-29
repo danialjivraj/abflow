@@ -1,5 +1,11 @@
 import React from "react";
-import { render, screen, fireEvent, waitFor, within } from "@testing-library/react";
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import ViewTaskModal from "../../src/components/modals/ViewTaskModal";
 import { createBaseTask } from "../../_testUtils/createBaseTask";
 import { createBaseColumn } from "../../_testUtils/createBaseColumn";
@@ -41,6 +47,8 @@ jest.mock("react-toastify", () => ({
     error: jest.fn(),
   },
 }));
+
+const { completeTask } = require("../../src/services/tasksService");
 const { toast } = require("react-toastify");
 
 const defaultProps = {
@@ -49,8 +57,12 @@ const defaultProps = {
   task: createBaseTask(),
   handleUpdateTask: jest.fn(),
   columns: {
-    "in-progress": { ...createBaseColumn({ columnId: "in-progress", name: "In Progress" }) },
-    completed: { ...createBaseColumn({ columnId: "completed", name: "Completed" }) },
+    "in-progress": {
+      ...createBaseColumn({ columnId: "in-progress", name: "In Progress" }),
+    },
+    completed: {
+      ...createBaseColumn({ columnId: "completed", name: "Completed" }),
+    },
   },
   startTimer: jest.fn(() =>
     Promise.resolve({ data: { timerStartTime: new Date().toISOString() } })
@@ -68,7 +80,6 @@ describe("ViewTaskModal - Unit Tests", () => {
     jest.clearAllMocks();
   });
 
-  // Common Rendering Tests
   test("does not render when isModalOpen is false", () => {
     const { container } = render(
       <ViewTaskModal {...defaultProps} isModalOpen={false} />
@@ -101,7 +112,6 @@ describe("ViewTaskModal - Unit Tests", () => {
     expect(screen.getByText("A1")).toBeInTheDocument();
   });
 
-  // Close and Overlay Tests
   test("calls closeModal when clicking the close (×) button", () => {
     render(<ViewTaskModal {...defaultProps} />);
     const closeButton = screen.getByText("×");
@@ -171,7 +181,6 @@ describe("ViewTaskModal - Integration Tests", () => {
         expect(defaultProps.handleUpdateTask).toHaveBeenCalled();
       });
     });
-    
 
     test("allows inline editing of description using TiptapEditor and confirms on tick", () => {
       const descriptionField = screen.getByText("This is a test description.");
@@ -408,23 +417,29 @@ describe("ViewTaskModal - Integration Tests", () => {
     fireEvent.click(backToBoardsButton);
     await waitFor(() => {
       expect(updateTask).toHaveBeenCalled();
-      expect(toast.error).toHaveBeenCalledWith("Error moving task back to boards.");
+      expect(toast.error).toHaveBeenCalledWith(
+        "Error moving task back to boards."
+      );
     });
   });
 
-  test("calls completeTask when 'Complete Task' is clicked and shows success toast", async () => {
+  test("calls completeTask when 'Complete Task' is clicked and shows success toast, and plays audio", async () => {
+    const playMock = jest.fn();
+    global.Audio = jest.fn().mockImplementation(() => {
+      return { play: playMock };
+    });
+  
     const task = createBaseTask({ status: "in-progress" });
     const props = { ...defaultProps, readOnly: false, task };
     render(<ViewTaskModal {...props} />);
     const completeTaskButton = screen.getByText("Complete Task");
     fireEvent.click(completeTaskButton);
     await waitFor(() => {
-      expect(
-        require("../../src/services/tasksService").completeTask
-      ).toHaveBeenCalledWith(task._id);
+      expect(completeTask).toHaveBeenCalledWith(task._id);
       expect(props.handleUpdateTask).toHaveBeenCalled();
       expect(toast.success).toHaveBeenCalledWith("Task completed!");
       expect(props.closeModal).toHaveBeenCalled();
+      expect(playMock).toHaveBeenCalled();
     });
   });
 
