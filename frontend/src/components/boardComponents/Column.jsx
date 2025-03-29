@@ -37,6 +37,7 @@ const Column = ({
   confirmBeforeDeleteBoard = true,
   confirmBeforeDeleteTask,
   openCreateTaskModal,
+  duplicateTask
 }) => {
   const columnDropdownRef = useRef(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -47,7 +48,6 @@ const Column = ({
       setRenameBoardError(error);
       return;
     }
-
     try {
       const user = auth.currentUser;
       if (!user) return;
@@ -87,7 +87,6 @@ const Column = ({
         }
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isDropdownOpen, setIsDropdownOpen, columnId]);
@@ -125,10 +124,7 @@ const Column = ({
                   )}
                   <div className="button-container">
                     <button className="tick-btn" onClick={handleRename}>
-                      <FaCheck
-                        className="icon icon-check"
-                        data-testid="tick-icon"
-                      />
+                      <FaCheck className="icon icon-check" data-testid="tick-icon" />
                     </button>
                     <button
                       className="cross-btn"
@@ -138,10 +134,7 @@ const Column = ({
                         setRenameBoardError("");
                       }}
                     >
-                      <FaTimes
-                        className="icon icon-cross"
-                        data-testid="cross-icon"
-                      />
+                      <FaTimes className="icon icon-cross" data-testid="cross-icon" />
                     </button>
                   </div>
                 </div>
@@ -154,9 +147,7 @@ const Column = ({
                     isDropdownOpen === columnId ? "active dropdown-active" : ""
                   }`}
                   onClick={() =>
-                    setIsDropdownOpen(
-                      isDropdownOpen === columnId ? null : columnId
-                    )
+                    setIsDropdownOpen(isDropdownOpen === columnId ? null : columnId)
                   }
                 >
                   &#8942;
@@ -212,6 +203,7 @@ const Column = ({
                       openViewTaskModal={openViewTaskModal}
                       handleCompleteTask={handleCompleteTask}
                       confirmBeforeDeleteTask={confirmBeforeDeleteTask}
+                      duplicateTask={duplicateTask}
                     />
                   ))}
                   {provided.placeholder}

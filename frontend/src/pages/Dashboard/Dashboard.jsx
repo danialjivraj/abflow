@@ -333,6 +333,51 @@ const Dashboard = (props) => {
     });
   };
 
+  const duplicateTask = async (originalTask) => {
+    try {
+      const duplicateData = {
+        title: originalTask.title,
+        priority: originalTask.priority,
+        status: originalTask.status,
+        userId: originalTask.userId,
+        description: originalTask.description,
+        assignedTo: originalTask.assignedTo,
+        dueDate: originalTask.dueDate,
+        storyPoints: originalTask.storyPoints,
+        scheduledStart: null,
+        scheduledEnd: null,
+        order: originalTask.order + 1,
+        timeSpent: 0,
+        isTimerRunning: false,
+        timerStartTime: null,
+      };
+      const response = await createTask(duplicateData);
+      const newTask = response.data;
+  
+      setColumns((prevColumns) => {
+        const column = prevColumns[originalTask.status];
+        if (!column) return prevColumns;
+        const originalIndex = column.items.findIndex(
+          (t) => t._id === originalTask._id
+        );
+        const newItems = [...column.items];
+        newItems.splice(originalIndex + 1, 0, newTask);
+  
+        return {
+          ...prevColumns,
+          [originalTask.status]: {
+            ...column,
+            items: newItems,
+          },
+        };
+      });
+      toast.success("Task duplicated!");
+    } catch (error) {
+      console.error("Error duplicating task:", error);
+      toast.error("Failed to duplicate task");
+    }
+  };
+
   const handleDeleteTask = async (taskId) => {
     try {
       await deleteTaskAPI(taskId);
@@ -658,6 +703,7 @@ const Dashboard = (props) => {
           confirmBeforeDeleteBoard={userSettings.confirmBeforeDeleteBoard}
           confirmBeforeDeleteTask={userSettings.confirmBeforeDeleteTask}
           openCreateTaskModal={openCreateTaskModal}
+          duplicateTask={duplicateTask}
         />
       );
     }

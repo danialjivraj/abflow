@@ -28,16 +28,14 @@ const TaskCard = ({
   handleBackToBoards,
   hideDots,
   confirmBeforeDeleteTask = true,
+  duplicateTask
 }) => {
   const dropdownMenuRef = useRef(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (
-        dropdownMenuRef.current &&
-        !dropdownMenuRef.current.contains(event.target)
-      ) {
+      if (dropdownMenuRef.current && !dropdownMenuRef.current.contains(event.target)) {
         if (isTaskDropdownOpen === task._id) {
           setIsTaskDropdownOpen(null);
         }
@@ -85,9 +83,7 @@ const TaskCard = ({
     <>
       <span>{task.title}</span>
       <div className="task-bottom">
-        {task.dueDate && (
-          <span className={`due-date ${dueDateClass}`}>{dueDateText}</span>
-        )}
+        {task.dueDate && <span className={`due-date ${dueDateClass}`}>{dueDateText}</span>}
         {calendarColor && (
           <svg
             className="calendar-icon"
@@ -128,25 +124,18 @@ const TaskCard = ({
             <path d="M18 19l2 2" />
           </svg>
         )}
-        <b
-          className={`priority-${task.priority.replace(/\s+/g, "")}`}
-          title={priorityTitle}
-        >
+        <b className={`priority-${task.priority.replace(/\s+/g, "")}`} title={priorityTitle}>
           {task.priority}
         </b>
         {!hideDots && (
           <div className="task-actions">
             <button
               className={`dots-button ${
-                isTaskHovered === task._id || isTaskDropdownOpen === task._id
-                  ? "visible"
-                  : ""
+                isTaskHovered === task._id || isTaskDropdownOpen === task._id ? "visible" : ""
               } ${isTaskDropdownOpen === task._id ? "dropdown-active" : ""}`}
               onClick={(e) => {
                 e.stopPropagation();
-                setIsTaskDropdownOpen(
-                  isTaskDropdownOpen === task._id ? null : task._id
-                );
+                setIsTaskDropdownOpen(isTaskDropdownOpen === task._id ? null : task._id);
               }}
             >
               &#8942;
@@ -168,9 +157,7 @@ const TaskCard = ({
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      task.isTimerRunning
-                        ? stopTimer(task._id)
-                        : startTimer(task._id);
+                      task.isTimerRunning ? stopTimer(task._id) : startTimer(task._id);
                       setIsTaskDropdownOpen(null);
                     }}
                   >
@@ -188,6 +175,15 @@ const TaskCard = ({
                     Back to Boards
                   </button>
                 )}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    duplicateTask(task);
+                    setIsTaskDropdownOpen(null);
+                  }}
+                >
+                  Duplicate
+                </button>
                 <button
                   onClick={(e) => {
                     e.stopPropagation();

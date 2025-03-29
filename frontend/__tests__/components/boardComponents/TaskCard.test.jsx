@@ -291,6 +291,35 @@ describe("TaskCard - Integration Tests", () => {
     expect(defaultProps.setIsTaskDropdownOpen).toHaveBeenCalledWith(null);
   });
 
+  // --- Duplicate Task ---
+  test("calls duplicateTask when duplicate button is clicked and passes the original task", () => {
+    const duplicateTaskMock = jest.fn();
+    const taskWithTimer = {
+      ...defaultTask,
+      _id: "task-with-timer",
+      title: "Task with Timer",
+      timeSpent: 120,
+      isTimerRunning: true,
+      timerStartTime: "2022-01-05T09:00:00.000Z",
+      order: 2,
+    };
+  
+    renderWithDnd(
+      <TaskCard
+        {...defaultProps}
+        task={taskWithTimer}
+        isTaskDropdownOpen={taskWithTimer._id}
+        duplicateTask={duplicateTaskMock}
+      />
+    );
+  
+    const duplicateButton = screen.getByText("Duplicate");
+    fireEvent.click(duplicateButton);
+  
+    expect(duplicateTaskMock).toHaveBeenCalledTimes(1);
+    expect(duplicateTaskMock).toHaveBeenCalledWith(taskWithTimer);
+  });
+
   test("calls handleBackToBoards when 'Back to Boards' is clicked for a completed task", () => {
     const completedTask = createBaseTask({
       _id: "task-1",

@@ -38,6 +38,12 @@ jest.mock("../../src/services/columnsService", () => ({
   saveColumnOrder: jest.fn(() => Promise.resolve({})),
 }));
 
+jest.mock("../../src/services/preferencesService", () => ({
+  fetchSettingsPreferences: jest.fn(() =>
+    Promise.resolve({ data: { settingsPreferences: {} } })
+  ),
+}));
+
 jest.mock("../../src/components/navigation/Layout", () => {
   return ({ children, openModal }) => (
     <div data-testid="layout">
@@ -62,7 +68,11 @@ jest.mock("../../src/components/navigation/TopBar", () => {
 jest.mock("../../src/config/topBarConfig", () => ({
   getDashboardTopBarConfig: jest.fn(() => [
     { label: "Boards", route: "/dashboard/boards", active: true },
-    { label: "Completed Tasks", route: "/dashboard/completedtasks", active: false },
+    {
+      label: "Completed Tasks",
+      route: "/dashboard/completedtasks",
+      active: false,
+    },
     { label: "Schedule", route: "/dashboard/schedule", active: false },
   ]),
 }));
@@ -99,6 +109,32 @@ jest.mock("../../src/pages/Dashboard/BoardsView", () => {
           Delete Task
         </button>
       )}
+      {props.duplicateTask && (
+        <button
+          data-testid="duplicate-task-button-task-1"
+          onClick={() =>
+            props.duplicateTask({
+              _id: "task-1",
+              title: "Task with Timer",
+              priority: "A1",
+              status: "in-progress",
+              userId: "user1",
+              description: "Some description",
+              assignedTo: "someone",
+              dueDate: "2022-01-05T10:00:00.000Z",
+              storyPoints: 3,
+              scheduledStart: "2022-01-05T09:00:00.000Z",
+              scheduledEnd: "2022-01-05T11:00:00.000Z",
+              order: 2,
+              timeSpent: 120,
+              isTimerRunning: true,
+              timerStartTime: "2022-01-05T09:00:00.000Z",
+            })
+          }
+        >
+          Duplicate
+        </button>
+      )}
     </div>
   );
 });
@@ -132,6 +168,129 @@ const Wrapper = ({ children }) => (
 );
 
 // --- Tests ---
+describe("Dashboard Duplicate Task Integration Toasts", () => {
+  const tasksService = require("../../src/services/tasksService");
+  const columnsService = require("../../src/services/columnsService");
+
+  const originalTask = {
+    _id: "task-1",
+    title: "Task with Timer",
+    priority: "A1",
+    status: "in-progress",
+    userId: "user1",
+    description: "Some description",
+    assignedTo: "someone",
+    dueDate: "2022-01-05T10:00:00.000Z",
+    storyPoints: 3,
+    scheduledStart: "2022-01-05T09:00:00.000Z",
+    scheduledEnd: "2022-01-05T11:00:00.000Z",
+    order: 2,
+    timeSpent: 120,
+    isTimerRunning: true,
+    timerStartTime: "2022-01-05T09:00:00.000Z",
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test("displays success toast on successful duplicate", async () => {
+    tasksService.fetchTasks.mockImplementationOnce(() =>
+      Promise.resolve({ data: [originalTask] })
+    );
+    columnsService.fetchColumnOrder.mockImplementationOnce(() =>
+      Promise.resolve({
+        data: { columnOrder: ["in-progress"], columnNames: { "in-progress": "In Progress" } },
+      })
+    );
+
+    const duplicateTaskResponse = {
+      _id: "task-dup",
+      title: "Task with Timer",
+      priority: "A1",
+      status: "in-progress",
+      userId: "user1",
+      description: "Some description",
+      assignedTo: "someone",
+      dueDate: "2022-01-05T10:00:00.000Z",
+      storyPoints: 3,
+      scheduledStart: null,
+      scheduledEnd: null,
+      order: originalTask.order + 1, // 3
+      timeSpent: 0,
+      isTimerRunning: false,
+      timerStartTime: null,
+    };
+    tasksService.createTask.mockImplementationOnce(() =>
+      Promise.resolve({ data: duplicateTaskResponse })
+    );
+
+    render(
+      <NotificationsContext.Provider value={{ setNotifications: jest.fn() }}>
+        <MemoryRouter initialEntries={["/dashboard/boards"]}>
+          <Dashboard userSettings={defaultUserSettings} setUserSettings={jest.fn()} />
+        </MemoryRouter>
+      </NotificationsContext.Provider>
+    );
+
+    const duplicateButton = screen.getByTestId("duplicate-task-button-task-1");
+    fireEvent.click(duplicateButton);
+
+    await waitFor(() => {
+      expect(tasksService.createTask).toHaveBeenCalledTimes(1);
+    });
+
+    expect(tasksService.createTask).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: "Task with Timer",
+        order: originalTask.order + 1,
+        timeSpent: 0,
+        isTimerRunning: false,
+        timerStartTime: null,
+        scheduledStart: null,
+        scheduledEnd: null,
+      })
+    );
+
+    await waitFor(() => {
+      expect(toast.success).toHaveBeenCalledWith("Task duplicated!");
+    });
+  });
+
+  test("displays error toast when duplicate fails", async () => {
+    tasksService.fetchTasks.mockImplementationOnce(() =>
+      Promise.resolve({ data: [originalTask] })
+    );
+    columnsService.fetchColumnOrder.mockImplementationOnce(() =>
+      Promise.resolve({
+        data: { columnOrder: ["in-progress"], columnNames: { "in-progress": "In Progress" } },
+      })
+    );
+    tasksService.createTask.mockImplementationOnce(() =>
+      Promise.reject(new Error("Duplicate failed"))
+    );
+
+    render(
+      <NotificationsContext.Provider value={{ setNotifications: jest.fn() }}>
+        <MemoryRouter initialEntries={["/dashboard/boards"]}>
+          <Dashboard userSettings={defaultUserSettings} setUserSettings={jest.fn()} />
+        </MemoryRouter>
+      </NotificationsContext.Provider>
+    );
+
+    const duplicateButton = screen.getByTestId("duplicate-task-button-task-1");
+    fireEvent.click(duplicateButton);
+
+    await waitFor(() => {
+      expect(tasksService.createTask).toHaveBeenCalledTimes(1);
+    });
+
+    await waitFor(() => {
+      expect(toast.error).toHaveBeenCalledWith("Failed to duplicate task");
+    });
+  });
+});
+
 describe("handleDeleteTask toast messages", () => {
   beforeEach(() => {
     toast.success.mockClear();
@@ -184,14 +343,15 @@ describe("handleDeleteTask toast messages", () => {
   });
 });
 
-
-// --- Tests ---
 describe("Dashboard Component", () => {
   test("renders Layout, TopBar, and BoardsView for /dashboard/boards route", async () => {
     render(
       <Wrapper>
         <MemoryRouter initialEntries={["/dashboard/boards"]}>
-          <Dashboard userSettings={defaultUserSettings} setUserSettings={jest.fn()} />
+          <Dashboard
+            userSettings={defaultUserSettings}
+            setUserSettings={jest.fn()}
+          />
         </MemoryRouter>
       </Wrapper>
     );
@@ -202,7 +362,9 @@ describe("Dashboard Component", () => {
 
     expect(screen.getByTestId("create-task-modal")).toHaveTextContent("closed");
     expect(screen.getByTestId("view-task-modal")).toHaveTextContent("closed");
-    expect(screen.getByTestId("schedule-edit-modal")).toHaveTextContent("closed");
+    expect(screen.getByTestId("schedule-edit-modal")).toHaveTextContent(
+      "closed"
+    );
 
     const topbarButtons = screen.getAllByTestId("topbar-button");
     expect(topbarButtons[0]).toHaveTextContent("Boards");
@@ -214,7 +376,10 @@ describe("Dashboard Component", () => {
     render(
       <Wrapper>
         <MemoryRouter initialEntries={["/dashboard/completedtasks"]}>
-          <Dashboard userSettings={defaultUserSettings} setUserSettings={jest.fn()} />
+          <Dashboard
+            userSettings={defaultUserSettings}
+            setUserSettings={jest.fn()}
+          />
         </MemoryRouter>
       </Wrapper>
     );
@@ -225,7 +390,10 @@ describe("Dashboard Component", () => {
     render(
       <Wrapper>
         <MemoryRouter initialEntries={["/dashboard/schedule"]}>
-          <Dashboard userSettings={defaultUserSettings} setUserSettings={jest.fn()} />
+          <Dashboard
+            userSettings={defaultUserSettings}
+            setUserSettings={jest.fn()}
+          />
         </MemoryRouter>
       </Wrapper>
     );
@@ -239,7 +407,10 @@ describe("Dashboard Component", () => {
     render(
       <Wrapper>
         <MemoryRouter initialEntries={[path]}>
-          <Dashboard userSettings={defaultUserSettings} setUserSettings={jest.fn()} />
+          <Dashboard
+            userSettings={defaultUserSettings}
+            setUserSettings={jest.fn()}
+          />
         </MemoryRouter>
       </Wrapper>
     );
@@ -257,7 +428,10 @@ describe("Dashboard Component", () => {
     render(
       <Wrapper>
         <MemoryRouter initialEntries={[path]}>
-          <Dashboard userSettings={defaultUserSettings} setUserSettings={jest.fn()} />
+          <Dashboard
+            userSettings={defaultUserSettings}
+            setUserSettings={jest.fn()}
+          />
         </MemoryRouter>
       </Wrapper>
     );
@@ -275,7 +449,10 @@ describe("Dashboard Component", () => {
     render(
       <Wrapper>
         <MemoryRouter initialEntries={[path]}>
-          <Dashboard userSettings={defaultUserSettings} setUserSettings={jest.fn()} />
+          <Dashboard
+            userSettings={defaultUserSettings}
+            setUserSettings={jest.fn()}
+          />
         </MemoryRouter>
       </Wrapper>
     );
@@ -310,12 +487,17 @@ describe("Dashboard Component", () => {
         <MemoryRouter
           initialEntries={["/dashboard/scheduleqeafihjpwe/createtask"]}
         >
-          <Dashboard userSettings={defaultUserSettings} setUserSettings={jest.fn()} />
+          <Dashboard
+            userSettings={defaultUserSettings}
+            setUserSettings={jest.fn()}
+          />
         </MemoryRouter>
       </Wrapper>
     );
     await waitFor(() =>
-      expect(screen.getByTestId("create-task-modal")).toHaveTextContent("closed")
+      expect(screen.getByTestId("create-task-modal")).toHaveTextContent(
+        "closed"
+      )
     );
   });
 
@@ -343,7 +525,10 @@ describe("Dashboard Component", () => {
     render(
       <Wrapper>
         <MemoryRouter initialEntries={["/dashboard/boards/viewtask/123"]}>
-          <Dashboard userSettings={defaultUserSettings} setUserSettings={jest.fn()} />
+          <Dashboard
+            userSettings={defaultUserSettings}
+            setUserSettings={jest.fn()}
+          />
         </MemoryRouter>
       </Wrapper>
     );
@@ -381,12 +566,17 @@ describe("Dashboard Component", () => {
     render(
       <Wrapper>
         <MemoryRouter initialEntries={["/dashboard/schedule/editevent/123"]}>
-          <Dashboard userSettings={defaultUserSettings} setUserSettings={jest.fn()} />
+          <Dashboard
+            userSettings={defaultUserSettings}
+            setUserSettings={jest.fn()}
+          />
         </MemoryRouter>
       </Wrapper>
     );
     await waitFor(() =>
-      expect(screen.getByTestId("schedule-edit-modal")).toHaveTextContent("open")
+      expect(screen.getByTestId("schedule-edit-modal")).toHaveTextContent(
+        "open"
+      )
     );
   });
 
@@ -400,7 +590,10 @@ describe("Dashboard Component", () => {
     render(
       <Wrapper>
         <MemoryRouter initialEntries={["/dashboard/boards/viewtask/999"]}>
-          <Dashboard userSettings={defaultUserSettings} setUserSettings={jest.fn()} />
+          <Dashboard
+            userSettings={defaultUserSettings}
+            setUserSettings={jest.fn()}
+          />
         </MemoryRouter>
       </Wrapper>
     );
@@ -419,12 +612,17 @@ describe("Dashboard Component", () => {
     render(
       <Wrapper>
         <MemoryRouter initialEntries={["/dashboard/schedule/editevent/999"]}>
-          <Dashboard userSettings={defaultUserSettings} setUserSettings={jest.fn()} />
+          <Dashboard
+            userSettings={defaultUserSettings}
+            setUserSettings={jest.fn()}
+          />
         </MemoryRouter>
       </Wrapper>
     );
     await waitFor(() =>
-      expect(screen.getByTestId("schedule-edit-modal")).toHaveTextContent("closed")
+      expect(screen.getByTestId("schedule-edit-modal")).toHaveTextContent(
+        "closed"
+      )
     );
   });
 });

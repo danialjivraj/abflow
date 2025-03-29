@@ -17,7 +17,7 @@ beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create();
   const uri = mongoServer.getUri();
   await mongoose.connect(uri);
-  
+
   defaultUser = await User.create({ userId: "user1" });
 
   app = express();
@@ -52,7 +52,7 @@ describe("Task Routes", () => {
         .post("/api/tasks")
         .send(taskData)
         .expect(201);
-      
+
       expect(res.body).toHaveProperty("_id");
       expect(res.body.title).toBe("Test Task");
       expect(res.body.points).toBe(5);
@@ -67,7 +67,7 @@ describe("Task Routes", () => {
         .post("/api/tasks")
         .send(taskData)
         .expect(400);
-      
+
       expect(res.body.error).toBe("All fields are required");
     });
   });
@@ -95,7 +95,7 @@ describe("Task Routes", () => {
       const res = await request(app)
         .get(`/api/tasks/${defaultUser.userId}`)
         .expect(200);
-      
+
       expect(res.body.length).toBe(2);
       expect(res.body[0].order).toBe(1);
       expect(res.body[1].order).toBe(2);
@@ -260,6 +260,66 @@ describe("Task Routes", () => {
 
       expect(res.body.status).toBe("archived");
     });
+  });
+
+  // ---------------------------
+  // Duplicate a task
+  // ---------------------------
+  it("should duplicate a task in the middle and shift subsequent tasks", async () => {
+    const createdTasks = [];
+    for (let i = 0; i < 6; i++) {
+      const task = await Task.create({
+        title: `Existing Task ${i + 1}`,
+        priority: "A1",
+        userId: defaultUser.userId,
+        status: "pending",
+        order: i,
+      });
+      createdTasks.push(task);
+    }
+
+    const duplicateData = {
+      title: "Duplicate of Task 3",
+      priority: "A1",
+      userId: defaultUser.userId,
+      status: "pending",
+      order: createdTasks[2].order + 1, // 2 + 1 = 3
+    };
+
+    const res = await request(app)
+      .post("/api/tasks")
+      .send(duplicateData)
+      .expect(201);
+
+    expect(res.body.title).toBe("Duplicate of Task 3");
+    expect(res.body.order).toBe(3);
+
+    const tasksAfter = await Task.find({ userId: defaultUser.userId, status: "pending" })
+      .sort({ order: 1 })
+      .lean();
+
+    expect(tasksAfter).toHaveLength(7);
+
+    expect(tasksAfter[0].title).toBe("Existing Task 1");
+    expect(tasksAfter[0].order).toBe(0);
+
+    expect(tasksAfter[1].title).toBe("Existing Task 2");
+    expect(tasksAfter[1].order).toBe(1);
+
+    expect(tasksAfter[2].title).toBe("Existing Task 3");
+    expect(tasksAfter[2].order).toBe(2);
+
+    expect(tasksAfter[3].title).toBe("Duplicate of Task 3");
+    expect(tasksAfter[3].order).toBe(3);
+
+    expect(tasksAfter[4].title).toBe("Existing Task 4");
+    expect(tasksAfter[4].order).toBe(4);
+
+    expect(tasksAfter[5].title).toBe("Existing Task 5");
+    expect(tasksAfter[5].order).toBe(5);
+
+    expect(tasksAfter[6].title).toBe("Existing Task 6");
+    expect(tasksAfter[6].order).toBe(6);
   });
 
   // ---------------------------

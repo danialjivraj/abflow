@@ -10,13 +10,17 @@ router.post("/", async (req, res) => {
       return res.status(400).json({ error: "All fields are required" });
     }
 
-    const highestOrderTask = await Task.findOne({ userId, status })
-      .sort({ order: -1 })
-      .select("order")
-      .exec();
-
-    const highestOrder = highestOrderTask ? highestOrderTask.order : -1;
-    const newOrder = highestOrder + 1;
+    let newOrder;
+    if (req.body.order !== undefined) {
+      newOrder = req.body.order;
+    } else {
+      const highestOrderTask = await Task.findOne({ userId, status })
+        .sort({ order: -1 })
+        .select("order")
+        .exec();
+      const highestOrder = highestOrderTask ? highestOrderTask.order : -1;
+      newOrder = highestOrder + 1;
+    }
 
     const pointsMap = {
       "A1": 5.0, "A2": 4.5, "A3": 4.0,
@@ -42,6 +46,17 @@ router.post("/", async (req, res) => {
     });
 
     await newTask.save();
+
+    await Task.updateMany(
+      {
+        userId,
+        status,
+        _id: { $ne: newTask._id },
+        order: { $gte: newTask.order },
+      },
+      { $inc: { order: 1 } }
+    );
+
     res.status(201).json(newTask);
   } catch (error) {
     console.error("Error saving task:", error);

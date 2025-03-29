@@ -39,6 +39,7 @@ const BoardsView = (props) => {
     confirmBeforeDeleteBoard,
     confirmBeforeDeleteTask,
     openCreateTaskModal,
+    duplicateTask,
   } = props;
 
   const [filters, setFilters] = useState({
@@ -61,11 +62,12 @@ const BoardsView = (props) => {
       ) {
         return false;
       }
-
-      if (filters.priority.length > 0 && !filters.priority.includes(task.priority)) {
+      if (
+        filters.priority.length > 0 &&
+        !filters.priority.includes(task.priority)
+      ) {
         return false;
       }
-
       if (
         filters.assignedTo &&
         !task.assignedTo
@@ -74,14 +76,12 @@ const BoardsView = (props) => {
       ) {
         return false;
       }
-
       if (
         filters.storyPoints &&
         task.storyPoints !== Number(filters.storyPoints)
       ) {
         return false;
       }
-
       if (
         filters.timerRunning !== undefined &&
         filters.timerRunning !== null &&
@@ -89,7 +89,6 @@ const BoardsView = (props) => {
       ) {
         return false;
       }
-
       if (filters.today !== undefined && filters.today !== null) {
         const today = new Date();
         const taskDate = new Date(task.scheduledStart || task.dueDate);
@@ -97,7 +96,6 @@ const BoardsView = (props) => {
           taskDate.getDate() === today.getDate() &&
           taskDate.getMonth() === today.getMonth() &&
           taskDate.getFullYear() === today.getFullYear();
-
         if (filters.today === true && !isToday) {
           return false;
         }
@@ -105,14 +103,12 @@ const BoardsView = (props) => {
           return false;
         }
       }
-
       if (filters.dueStatus) {
         if (filters.dueStatus === "none") {
           if (task.dueDate) return false;
         } else if (task.dueDate) {
           const now = new Date();
           const dueDate = new Date(task.dueDate);
-
           if (filters.dueStatus === "due" && dueDate < now) {
             return false;
           }
@@ -123,7 +119,6 @@ const BoardsView = (props) => {
           return false;
         }
       }
-
       return true;
     });
   };
@@ -132,7 +127,6 @@ const BoardsView = (props) => {
     <>
       <h1 className="page-title">Boards</h1>
       <FilterBar filters={filters} setFilters={setFilters} />
-
       <div className="kanban-container">
         <DragDropContext onDragEnd={handleDragEnd}>
           <Droppable
@@ -182,6 +176,7 @@ const BoardsView = (props) => {
                       confirmBeforeDeleteBoard={confirmBeforeDeleteBoard}
                       confirmBeforeDeleteTask={confirmBeforeDeleteTask}
                       openCreateTaskModal={openCreateTaskModal}
+                      duplicateTask={duplicateTask}
                     />
                   );
                 })}
