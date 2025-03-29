@@ -178,9 +178,7 @@ const Settings = ({ updateDefaultBoardView }) => {
   const handleChange = (e) => {
     const { name, type, value, checked } = e.target;
     let val = type === "checkbox" ? checked : value;
-    if (type === "number") {
-      val = Math.max(0, Number(val));
-    }
+
     const updated = { ...settings, [name]: val };
     setSettings(updated);
 
@@ -352,9 +350,13 @@ const Settings = ({ updateDefaultBoardView }) => {
               <div className="hide-tasks-right">
                 <input
                   type="number"
+                  min="0"
                   name="hideOldCompletedTasksDays"
                   value={settings.hideOldCompletedTasksDays}
-                  onChange={handleChange}
+                  onChange={(e) => {
+                    e.target.value = Math.abs(e.target.value);
+                    handleChange(e);
+                  }}
                   className="setting-number-input"
                   disabled={settings.hideOldCompletedTasksNever}
                 />
@@ -422,9 +424,13 @@ const Settings = ({ updateDefaultBoardView }) => {
               </span>
               <input
                 type="number"
+                min="0"
                 name="notifyNonPriorityGoesOvertime"
                 value={settings.notifyNonPriorityGoesOvertime}
-                onChange={handleChange}
+                onChange={(e) => {
+                  e.target.value = Math.abs(e.target.value);
+                  handleChange(e);
+                }}
                 className="setting-number-input"
               />
             </label>
@@ -433,9 +439,13 @@ const Settings = ({ updateDefaultBoardView }) => {
               <span>Notify When a Scheduled Task is Due (in minutes)</span>
               <input
                 type="number"
+                min="0"
                 name="notifyScheduledTaskIsDue"
                 value={settings.notifyScheduledTaskIsDue}
-                onChange={handleChange}
+                onChange={(e) => {
+                  e.target.value = Math.abs(e.target.value);
+                  handleChange(e);
+                }}
                 className="setting-number-input"
               />
             </label>
@@ -580,9 +590,13 @@ const Settings = ({ updateDefaultBoardView }) => {
               <div className="hide-tasks-right">
                 <input
                   type="number"
+                  min="0"
                   name="inactivityTimeoutHours"
                   value={settings.inactivityTimeoutHours}
-                  onChange={handleChange}
+                  onChange={(e) => {
+                    e.target.value = Math.abs(e.target.value);
+                    handleChange(e);
+                  }}
                   className="setting-number-input"
                   disabled={settings.inactivityTimeoutNever}
                 />

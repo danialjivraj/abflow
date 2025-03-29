@@ -5,7 +5,19 @@ import "react-datepicker/dist/react-datepicker.css";
 import { toast } from "react-toastify";
 import { FaCheck, FaTimes } from "react-icons/fa";
 
-const allowedPriorities = ["A1", "A2", "A3", "B1", "B2", "B3", "C1", "C2", "C3", "D", "E"];
+const allowedPriorities = [
+  "A1",
+  "A2",
+  "A3",
+  "B1",
+  "B2",
+  "B3",
+  "C1",
+  "C2",
+  "C3",
+  "D",
+  "E",
+];
 
 const CreateTaskModal = ({
   isModalOpen,
@@ -35,7 +47,8 @@ const CreateTaskModal = ({
   handleCreateBoard,
   createBoardError,
 }) => {
-  const [localSelectedStatus, setLocalSelectedStatus] = useState(selectedStatus);
+  const [localSelectedStatus, setLocalSelectedStatus] =
+    useState(selectedStatus);
   const [errorMessage, setErrorMessage] = useState("");
 
   const defaultStatus = Object.keys(columns)[0] || "";
@@ -54,7 +67,13 @@ const CreateTaskModal = ({
         setSelectedStatus(defaultStatus);
       }
     }
-  }, [isModalOpen, columns, localSelectedStatus, setSelectedStatus, defaultStatus]);
+  }, [
+    isModalOpen,
+    columns,
+    localSelectedStatus,
+    setSelectedStatus,
+    defaultStatus,
+  ]);
 
   useEffect(() => {
     if (!isModalOpen) {
@@ -87,7 +106,9 @@ const CreateTaskModal = ({
     if (e.target.className.includes("modal-overlay")) {
       if (!hasBoards) {
         if (newBoardCreateName.trim() !== "") {
-          const confirmClose = window.confirm("You have unsaved changes. Are you sure you want to close?");
+          const confirmClose = window.confirm(
+            "You have unsaved changes. Are you sure you want to close?"
+          );
           if (confirmClose) {
             setNewBoardCreateName("");
             closeModal();
@@ -100,7 +121,9 @@ const CreateTaskModal = ({
       if (isEmpty()) {
         closeModal();
       } else {
-        const confirmClose = window.confirm("You have unsaved changes. Are you sure you want to close?");
+        const confirmClose = window.confirm(
+          "You have unsaved changes. Are you sure you want to close?"
+        );
         if (confirmClose) {
           closeModal();
         }
@@ -138,129 +161,167 @@ const CreateTaskModal = ({
               &times;
             </button>
             <h2>Create New Task</h2>
-          {!hasBoards ? (
-            <div className="no-board-message">
-              <p>You need to create a board before you can create tasks.</p>
-              <div className="add-board-wrapper">
-                <input
-                  type="text"
-                  placeholder="Enter board name"
-                  value={newBoardCreateName}
-                  onChange={(e) => setNewBoardCreateName(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      handleCreateBoard();
-                    }
-                  }}
-                  autoFocus
-                />
-                {createBoardError && (
-                  <div className="add-board-error-message">{createBoardError}</div>
-                )}
-                <div className="button-container">
-                  <button className="tick-btn" onClick={handleCreateBoard}>
-                    <FaCheck className="icon icon-check" data-testid="tick-icon"/>
-                  </button>
-                  <button className="cross-btn" onClick={() => setNewBoardCreateName("")}>
-                    <FaTimes className="icon icon-cross" data-testid="cross-icon"/>
-                  </button>
-                </div>
-              </div>
-              <div className="modal-footer">
-                <button className="cancel-btn" onClick={handleBoardCreationCancel} style={{ marginLeft: "auto" }}>
-                  Cancel
-                </button>
-              </div>
-            </div>
-          ) : (
-            <>
-              <div className="modal-body">
-                <div className="modal-left">
-                  <label>Task Title:</label>
-                  <textarea
-                    className="task-title"
-                    placeholder="Enter Task Title"
-                    value={newTaskTitle}
-                    onChange={(e) => setNewTaskTitle(e.target.value)}
-                  />
-                  {errorMessage && <p role="alert" className="error-message">{errorMessage}</p>}
-                  <label>Priority:</label>
-                  <select value={selectedPriority} onChange={(e) => setSelectedPriority(e.target.value)}>
-                    {allowedPriorities.map((priority) => (
-                      <option key={priority} value={priority}>
-                        {priority}
-                      </option>
-                    ))}
-                  </select>
-                  <label>Status:</label>
-                  <select
-                    value={localSelectedStatus}
-                    onChange={(e) => {
-                      setLocalSelectedStatus(e.target.value);
-                      setSelectedStatus(e.target.value);
-                    }}
-                  >
-                    {Object.keys(columns).map((columnId) => (
-                      <option key={columnId} value={columnId}>
-                        {columns[columnId].name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="modal-right">
-                  <label>Due Date:</label>
-                  <div className="date-picker-container">
-                    <DatePicker
-                      selected={dueDate}
-                      onChange={(date) => {
-                        setDueDate(date);
-                        if (date && date < new Date()) {
-                          setDueDateWarning("Warning: The selected due date is in the past.");
-                        } else {
-                          setDueDateWarning("");
-                        }
-                      }}
-                      showTimeSelect
-                      dateFormat="d MMMM, yyyy h:mm aa"
-                      className="custom-date-picker"
-                      placeholderText="Select due date"
-                      disabledKeyboardNavigation
-                    />
-                    {dueDateWarning && <p role="alert" className="warning-message">{dueDateWarning}</p>}
-                  </div>
-                  <label>Assign To:</label>
+            {!hasBoards ? (
+              <div className="no-board-message">
+                <p>You need to create a board before you can create tasks.</p>
+                <div className="add-board-wrapper">
                   <input
                     type="text"
-                    placeholder="Assign to..."
-                    value={assignedTo}
-                    onChange={(e) => setAssignedTo(e.target.value)}
+                    placeholder="Enter board name"
+                    value={newBoardCreateName}
+                    onChange={(e) => setNewBoardCreateName(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        handleCreateBoard();
+                      }
+                    }}
+                    autoFocus
                   />
-                  <label>Story Points:</label>
-                  <div className="story-points-container">
-                    <input
-                      type="number"
-                      min="0"
-                      placeholder="0"
-                      value={storyPoints}
-                      onChange={(e) => setStoryPoints(Number(e.target.value))}
-                    />
+                  {createBoardError && (
+                    <div className="add-board-error-message">
+                      {createBoardError}
+                    </div>
+                  )}
+                  <div className="button-container">
+                    <button className="tick-btn" onClick={handleCreateBoard}>
+                      <FaCheck
+                        className="icon icon-check"
+                        data-testid="tick-icon"
+                      />
+                    </button>
+                    <button
+                      className="cross-btn"
+                      onClick={() => setNewBoardCreateName("")}
+                    >
+                      <FaTimes
+                        className="icon icon-cross"
+                        data-testid="cross-icon"
+                      />
+                    </button>
                   </div>
                 </div>
+                <div className="modal-footer">
+                  <button
+                    className="cancel-btn"
+                    onClick={handleBoardCreationCancel}
+                    style={{ marginLeft: "auto" }}
+                  >
+                    Cancel
+                  </button>
+                </div>
               </div>
-              <div className="description-section">
-                <label>Description:</label>
-                <TiptapEditor value={taskDescription} onChange={setTaskDescription} />
-              </div>
-              <div className="modal-footer">
-                <button className="create-task-btn" onClick={onSubmit}>
-                  Create
-                </button>
-                <button className="cancel-btn" onClick={closeModal} style={{ marginLeft: "auto" }}>
-                  Cancel
-                </button>
-              </div>
-            </>
-          )}
+            ) : (
+              <>
+                <div className="modal-body">
+                  <div className="modal-left">
+                    <label>Task Title:</label>
+                    <textarea
+                      className="task-title"
+                      placeholder="Enter Task Title"
+                      value={newTaskTitle}
+                      onChange={(e) => setNewTaskTitle(e.target.value)}
+                    />
+                    {errorMessage && (
+                      <p role="alert" className="error-message">
+                        {errorMessage}
+                      </p>
+                    )}
+                    <label>Priority:</label>
+                    <select
+                      value={selectedPriority}
+                      onChange={(e) => setSelectedPriority(e.target.value)}
+                    >
+                      {allowedPriorities.map((priority) => (
+                        <option key={priority} value={priority}>
+                          {priority}
+                        </option>
+                      ))}
+                    </select>
+                    <label>Status:</label>
+                    <select
+                      value={localSelectedStatus}
+                      onChange={(e) => {
+                        setLocalSelectedStatus(e.target.value);
+                        setSelectedStatus(e.target.value);
+                      }}
+                    >
+                      {Object.keys(columns).map((columnId) => (
+                        <option key={columnId} value={columnId}>
+                          {columns[columnId].name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="modal-right">
+                    <label>Due Date:</label>
+                    <div className="date-picker-container">
+                      <DatePicker
+                        selected={dueDate}
+                        onChange={(date) => {
+                          setDueDate(date);
+                          if (date && date < new Date()) {
+                            setDueDateWarning(
+                              "Warning: The selected due date is in the past."
+                            );
+                          } else {
+                            setDueDateWarning("");
+                          }
+                        }}
+                        showTimeSelect
+                        dateFormat="d MMMM, yyyy h:mm aa"
+                        className="custom-date-picker"
+                        placeholderText="Select due date"
+                        disabledKeyboardNavigation
+                      />
+                      {dueDateWarning && (
+                        <p role="alert" className="warning-message">
+                          {dueDateWarning}
+                        </p>
+                      )}
+                    </div>
+                    <label>Assign To:</label>
+                    <input
+                      type="text"
+                      placeholder="Assign to..."
+                      value={assignedTo}
+                      onChange={(e) => setAssignedTo(e.target.value)}
+                    />
+                    <label>Story Points:</label>
+                    <div className="story-points-container">
+                      <input
+                        type="number"
+                        min="0"
+                        placeholder="0"
+                        value={storyPoints}
+                        onChange={(e) => {
+                          e.target.value = Math.abs(e.target.value);
+                          setStoryPoints(Number(e.target.value));
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div className="description-section">
+                  <label>Description:</label>
+                  <TiptapEditor
+                    value={taskDescription}
+                    onChange={setTaskDescription}
+                  />
+                </div>
+                <div className="modal-footer">
+                  <button className="create-task-btn" onClick={onSubmit}>
+                    Create
+                  </button>
+                  <button
+                    className="cancel-btn"
+                    onClick={closeModal}
+                    style={{ marginLeft: "auto" }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>

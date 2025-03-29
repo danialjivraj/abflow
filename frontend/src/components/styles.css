@@ -2027,8 +2027,8 @@ select {
 }
 
 .create-task-modal .story-points-container input {
-  width: 54px;
-  text-align: center;
+  width: 70px;
+  text-align: left;
   font-size: 16.2px;
 }
 

@@ -10,19 +10,31 @@ import {
   formatCompletedDueDate,
   getCalendarIconColor,
 } from "../../utils/dateUtils";
-import { completeTask } from "../../services/tasksService";
-import { updateTask } from "../../services/tasksService";
+import { completeTask, updateTask } from "../../services/tasksService";
 import { toast } from "react-toastify";
 import { FaCheck, FaTimes } from "react-icons/fa";
 
 const allowedPriorities = [
-  "A1", "A2", "A3",
-  "B1", "B2", "B3",
-  "C1", "C2", "C3",
-  "D", "E",
+  "A1",
+  "A2",
+  "A3",
+  "B1",
+  "B2",
+  "B3",
+  "C1",
+  "C2",
+  "C3",
+  "D",
+  "E",
 ];
 
-const DropdownField = ({ value, onChange, type = "priority", columns = {}, readOnly }) => {
+const DropdownField = ({
+  value,
+  onChange,
+  type = "priority",
+  columns = {},
+  readOnly,
+}) => {
   if (readOnly) {
     // Display non-editable text for read-only mode
     if (type === "status") {
@@ -81,8 +93,6 @@ const InlineTimeEditable = ({ value, onChange, onEditingChange, readOnly }) => {
   const [localMinutes, setLocalMinutes] = useState(initialMinutes);
   const [localSeconds, setLocalSeconds] = useState(initialSeconds);
 
-  const createDisplayText = () => formatTimeSpent(totalSeconds);
-
   const startEditing = () => {
     setLocalHours(initialHours);
     setLocalMinutes(initialMinutes);
@@ -117,13 +127,14 @@ const InlineTimeEditable = ({ value, onChange, onEditingChange, readOnly }) => {
             type="number"
             value={localHours}
             min="0"
-            onChange={(e) =>
+            onChange={(e) => {
+              e.target.value = Math.abs(e.target.value);
               setLocalHours(
                 isNaN(parseInt(e.target.value, 10))
                   ? 0
                   : parseInt(e.target.value, 10)
-              )
-            }
+              );
+            }}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 handleConfirm();
@@ -138,10 +149,9 @@ const InlineTimeEditable = ({ value, onChange, onEditingChange, readOnly }) => {
             min="0"
             max="59"
             onChange={(e) => {
+              e.target.value = Math.abs(e.target.value);
               const val = parseInt(e.target.value, 10);
-              setLocalMinutes(
-                isNaN(val) || val < 0 ? 0 : val > 59 ? 59 : val
-              );
+              setLocalMinutes(isNaN(val) || val < 0 ? 0 : val > 59 ? 59 : val);
             }}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
@@ -157,10 +167,9 @@ const InlineTimeEditable = ({ value, onChange, onEditingChange, readOnly }) => {
             min="0"
             max="59"
             onChange={(e) => {
+              e.target.value = Math.abs(e.target.value);
               const val = parseInt(e.target.value, 10);
-              setLocalSeconds(
-                isNaN(val) || val < 0 ? 0 : val > 59 ? 59 : val
-              );
+              setLocalSeconds(isNaN(val) || val < 0 ? 0 : val > 59 ? 59 : val);
             }}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
@@ -171,16 +180,16 @@ const InlineTimeEditable = ({ value, onChange, onEditingChange, readOnly }) => {
           />
           <span>s</span>
           <button className="tick-btn" onClick={handleConfirm}>
-            <FaCheck className="icon icon-check" data-testid="tick-icon"/>
+            <FaCheck className="icon icon-check" data-testid="tick-icon" />
           </button>
           <button className="cross-btn" onClick={handleCancel}>
-            <FaTimes className="icon icon-cross" data-testid="cross-icon"/>
+            <FaTimes className="icon icon-cross" data-testid="cross-icon" />
           </button>
         </div>
       ) : (
         <div className="scroll-wrapper">
           <div className="text-container" onClick={startEditing}>
-            {createDisplayText()}
+            {displayText}
           </div>
         </div>
       )}
@@ -301,7 +310,12 @@ const InlineEditable = ({
             <input
               type={type}
               value={localValue}
-              onChange={(e) => setLocalValue(e.target.value)}
+              onChange={(e) => {
+                if (type === "number") {
+                  e.target.value = Math.abs(e.target.value);
+                }
+                setLocalValue(e.target.value);
+              }}
               onKeyDown={handleKeyDown}
               autoFocus
               min={min}
@@ -311,10 +325,10 @@ const InlineEditable = ({
           {!isDropdown && (
             <div className="button-container">
               <button className="tick-btn" onClick={handleConfirm}>
-                <FaCheck className="icon icon-check" data-testid="tick-icon"/>
+                <FaCheck className="icon icon-check" data-testid="tick-icon" />
               </button>
               <button className="cross-btn" onClick={handleCancel}>
-                <FaTimes className="icon icon-cross" data-testid="cross-icon"/>
+                <FaTimes className="icon icon-cross" data-testid="cross-icon" />
               </button>
             </div>
           )}
@@ -380,10 +394,10 @@ const InlineTiptap = ({ value, onChange, onEditingChange, readOnly }) => {
           <TiptapEditor value={localValue} onChange={setLocalValue} />
           <div className="button-container description-buttons">
             <button className="tick-btn" onClick={handleConfirm}>
-              <FaCheck className="icon icon-check" data-testid="tick-icon"/>
+              <FaCheck className="icon icon-check" data-testid="tick-icon" />
             </button>
             <button className="cross-btn" onClick={handleCancel}>
-              <FaTimes className="icon icon-cross" data-testid="cross-icon"/>
+              <FaTimes className="icon icon-cross" data-testid="cross-icon" />
             </button>
           </div>
         </div>
@@ -551,11 +565,14 @@ const ViewTaskModal = ({
   const handleMoveToBoards = async () => {
     if (readOnly) return;
     const newStatus = Object.keys(columns)[0] || "backlog";
-  
+
     const boardTasks = columns[newStatus]?.items || [];
-    const highestOrder = boardTasks.reduce((max, t) => Math.max(max, t.order || 0), -1);
+    const highestOrder = boardTasks.reduce(
+      (max, t) => Math.max(max, t.order || 0),
+      -1
+    );
     const newOrder = highestOrder + 1;
-  
+
     const updatedTask = {
       ...editableTask,
       status: newStatus,
@@ -563,7 +580,7 @@ const ViewTaskModal = ({
       taskCompleted: false,
       completedAt: null,
     };
-  
+
     try {
       const response = await updateTask(updatedTask);
       const updatedTaskFromBackend = response.data;
@@ -626,24 +643,24 @@ const ViewTaskModal = ({
         <div className="modal-header">
           <h2>
             Task Overview
-              {calendarColor && (
-                <svg
-                  className="calendar-icon"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  style={{ "--calendar-color": calendarColor }}
-                >
-                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                  <line x1="16" y1="2" x2="16" y2="6" />
-                  <line x1="8" y1="2" x2="8" y2="6" />
-                  <line x1="3" y1="10" x2="21" y2="10" />
-                </svg>
-              )}
+            {calendarColor && (
+              <svg
+                className="calendar-icon"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                style={{ "--calendar-color": calendarColor }}
+              >
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                <line x1="16" y1="2" x2="16" y2="6" />
+                <line x1="8" y1="2" x2="8" y2="6" />
+                <line x1="3" y1="10" x2="21" y2="10" />
+              </svg>
+            )}
           </h2>
         </div>
         <div className="view-modal-body">
@@ -814,38 +831,46 @@ const ViewTaskModal = ({
             <div className="field-row">
               <label>Timer:</label>
               {readOnly || editableTask.status === "completed" ? (
-                  <div
-                    className={`timer-toggle-container ${editableTask.isTimerRunning ? "on" : "off"} disabled`}
-                    style={{ cursor: "not-allowed" }}
-                  >
-                    <span className="toggle-label-left">OFF</span>
+                <div
+                  className={`timer-toggle-container ${
+                    editableTask.isTimerRunning ? "on" : "off"
+                  } disabled`}
+                  style={{ cursor: "not-allowed" }}
+                >
+                  <span className="toggle-label-left">OFF</span>
 
-                    <div className={`toggle-slider ${editableTask.isTimerRunning ? "active" : ""}`}>
-                      <div className="toggle-knob">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke={editableTask.isTimerRunning ? "#fff" : "#666"}
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          className="clock-icon"
-                        >
-                          <circle cx="12" cy="13" r="8" />
-                          <path d="M12 9v4l2 2" />
-                          <path d="M5 3L2 6" />
-                          <path d="M22 6l-3-3" />
-                          <path d="M6 19l-2 2" />
-                          <path d="M18 19l2 2" />
-                        </svg>
-                      </div>
+                  <div
+                    className={`toggle-slider ${
+                      editableTask.isTimerRunning ? "active" : ""
+                    }`}
+                  >
+                    <div className="toggle-knob">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke={editableTask.isTimerRunning ? "#fff" : "#666"}
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="clock-icon"
+                      >
+                        <circle cx="12" cy="13" r="8" />
+                        <path d="M12 9v4l2 2" />
+                        <path d="M5 3L2 6" />
+                        <path d="M22 6l-3-3" />
+                        <path d="M6 19l-2 2" />
+                        <path d="M18 19l2 2" />
+                      </svg>
                     </div>
-                    <span className="toggle-label-right">ON</span>
+                  </div>
+                  <span className="toggle-label-right">ON</span>
                 </div>
               ) : (
                 <div
-                  className={`timer-toggle-container ${editableTask.isTimerRunning ? "on" : "off"}`}
+                  className={`timer-toggle-container ${
+                    editableTask.isTimerRunning ? "on" : "off"
+                  }`}
                   onClick={toggleTimer}
                   role="switch"
                   aria-checked={editableTask.isTimerRunning}
@@ -857,7 +882,11 @@ const ViewTaskModal = ({
                   }}
                 >
                   <span className="toggle-label-left">OFF</span>
-                  <div className={`toggle-slider ${editableTask.isTimerRunning ? "active" : ""}`}>
+                  <div
+                    className={`toggle-slider ${
+                      editableTask.isTimerRunning ? "active" : ""
+                    }`}
+                  >
                     <div className="toggle-knob">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
