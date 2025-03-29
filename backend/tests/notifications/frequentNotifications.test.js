@@ -6,6 +6,7 @@ const Task = require("../../models/Task");
 const Notification = require("../../models/Notification");
 const User = require("../../models/User");
 const {
+    formatTime12Hour,
     shouldCreateNotification,
     generateScheduledNotifications,
     generateUpcomingNotifications,
@@ -15,7 +16,7 @@ const {
 } = require("../../scheduler/frequentNotifications");
 
 const RealDate = Date;
-const fixedDate = new Date("2025-03-20T17:40:00.000Z");
+let fixedDate = new Date("2025-03-20T17:40:00.000Z");
 
 describe("Frequent Notifications", () => {
     let mongoServer;
@@ -40,8 +41,11 @@ describe("Frequent Notifications", () => {
     MockDate.prototype = RealDate.prototype;
 
     const originalToLocaleTimeString = RealDate.prototype.toLocaleTimeString;
-    RealDate.prototype.toLocaleTimeString = function (locales, options) {
-        return new Intl.DateTimeFormat("en-GB", { timeZone: "UTC", ...options }).format(this);
+    RealDate.prototype.toLocaleTimeString = function(locales, options) {
+      if (arguments.length === 0) {
+        return formatTime12Hour(this);
+      }
+      return originalToLocaleTimeString.call(this, locales, options);
     };
 
     beforeAll(async () => {
@@ -107,7 +111,7 @@ describe("Frequent Notifications", () => {
         const scheduledNotifs = await generateScheduledNotifications(defaultUser.userId, now);
         expect(scheduledNotifs.length).toBe(1);
         const expectedMessage =
-            'Reminder: Your scheduled task "Test Task Scheduled" will start at 17:44 (in less than 4 minutes).';
+            'Reminder: Your scheduled task "Test Task Scheduled" will start at 5:44 PM (in less than 4 minutes).';
         expect(scheduledNotifs[0].message).toBe(expectedMessage);
     });
 
@@ -122,10 +126,28 @@ describe("Frequent Notifications", () => {
         const scheduledNotifs = await generateScheduledNotifications(defaultUser.userId, now);
         expect(scheduledNotifs.length).toBe(1);
         expect(scheduledNotifs[0].message).toBe(
-            'Reminder: Your scheduled task "Edge Scheduled Task" will start at 17:45 (in less than 5 minutes).'
+            'Reminder: Your scheduled task "Edge Scheduled Task" will start at 5:45 PM (in less than 5 minutes).'
         );
     });
 
+    it("should generate scheduled notification when task is scheduled at 4 minutes 55 seconds away", async () => {
+        const now = new Date();
+        const scheduledStart = new Date(now.getTime() + (4 * 60 + 55) * 1000);
+    
+        await Task.create({
+            ...getBaseTask(),
+            title: "Edge Scheduled Task",
+            scheduledStart,
+        });
+    
+        const scheduledNotifs = await generateScheduledNotifications(defaultUser.userId, now);
+    
+        expect(scheduledNotifs.length).toBe(1);
+        expect(scheduledNotifs[0].message).toBe(
+            'Reminder: Your scheduled task "Edge Scheduled Task" will start at 5:44 PM (in less than 5 minutes).'
+        );
+    });
+    
     it("should generate scheduled notification using a custom threshold from user settings", async () => {
         await User.findOneAndUpdate(
             { userId: defaultUser.userId },
@@ -144,7 +166,7 @@ describe("Frequent Notifications", () => {
         const scheduledNotifs = await generateScheduledNotifications(defaultUser.userId, now);
         expect(scheduledNotifs.length).toBe(1);
 
-        const expectedMessage = `Reminder: Your scheduled task "Custom Threshold Task" will start at 18:09 (in less than 29 minutes).`;
+        const expectedMessage = `Reminder: Your scheduled task "Custom Threshold Task" will start at 6:09 PM (in less than 29 minutes).`;
         expect(scheduledNotifs[0].message).toBe(expectedMessage);
     });
 
@@ -191,6 +213,28 @@ describe("Frequent Notifications", () => {
         expect(scheduledNotifs.length).toBe(0);
     });
 
+    it("should generate a scheduled notification in the morning (AM scenario)", async () => {
+        const oldFixedDate = fixedDate;
+        try {
+            // 5:40 AM instead of 5:40 PM
+            fixedDate = new Date("2025-03-21T05:40:00.000Z");
+            const now = new Date();
+            const scheduledStart = new Date(now.getTime() + 4 * 60 * 1000); // 05:44 AM
+            await Task.create({
+                ...getBaseTask(),
+                title: "Morning Task",
+                scheduledStart,
+            });
+            const scheduledNotifs = await generateScheduledNotifications(defaultUser.userId, now);
+            expect(scheduledNotifs.length).toBe(1);
+            expect(scheduledNotifs[0].message).toBe(
+                'Reminder: Your scheduled task "Morning Task" will start at 5:44 AM (in less than 4 minutes).'
+            );
+        } finally {
+            fixedDate = oldFixedDate;
+        }
+    });
+
     // ---------------------------
     // generateUpcomingNotifications Tests
     // ---------------------------
@@ -205,7 +249,7 @@ describe("Frequent Notifications", () => {
         const upcomingNotifs = await generateUpcomingNotifications(defaultUser.userId, now);
         expect(upcomingNotifs.length).toBe(1);
         expect(upcomingNotifs[0].message).toBe(
-            'Reminder: Your task "Upcoming Task" is due at 19:40 (within 24 hours).'
+            'Reminder: Your task "Upcoming Task" is due at 7:40 PM (within 24 hours).'
         );
     });
 
@@ -220,7 +264,7 @@ describe("Frequent Notifications", () => {
         const upcomingNotifs = await generateUpcomingNotifications(defaultUser.userId, now);
         expect(upcomingNotifs.length).toBe(1);
         expect(upcomingNotifs[0].message).toBe(
-            'Reminder: Your task "Edge Upcoming Task" is due at 17:40 (within 24 hours).'
+            'Reminder: Your task "Edge Upcoming Task" is due at 5:40 PM (within 24 hours).'
         );
     });
 

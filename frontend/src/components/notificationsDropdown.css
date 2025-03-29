@@ -184,6 +184,9 @@
 .notification-message {
   font-size: 14px;
   color: var(--notif-text);
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 /* Remove button for individual notifications */

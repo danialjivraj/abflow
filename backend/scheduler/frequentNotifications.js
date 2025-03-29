@@ -17,7 +17,19 @@ const shouldCreateNotification = async (userId, message, thresholdMs = 1) => {
 };
 
 /**
- * Generates scheduled notifications for tasks whose scheduled start is within 5 minutes.
+ * Helper to consistently format times as 12-hour with AM/PM,
+ * ensuring we never mix 24-hour vs. 12-hour strings.
+ */
+const formatTime12Hour = (date) => {
+  return date.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+};
+
+/**
+ * Generates scheduled notifications for tasks whose scheduled start is within N minutes.
  * Updates the task's lastNotifiedScheduledStart field.
  */
 const generateScheduledNotifications = async (userId, now) => {
@@ -32,33 +44,34 @@ const generateScheduledNotifications = async (userId, now) => {
     if (task.scheduledStart) {
       const scheduledStart = new Date(task.scheduledStart);
       const diffScheduled = scheduledStart - now;
+
+      if (diffScheduled < 60_000) {
+        continue;
+      }
+
       if (diffScheduled > 0 && diffScheduled <= thresholdMs) {
-        const remainingMinutes = Math.floor(diffScheduled / 60000);
+        const remainingMinutes = Math.ceil(diffScheduled / 60000);
+
         if (remainingMinutes > 0) {
           if (
             !task.lastNotifiedScheduledStart ||
-            new Date(task.lastNotifiedScheduledStart).toISOString() !== scheduledStart.toISOString()
+            new Date(task.lastNotifiedScheduledStart).toISOString() !==
+            scheduledStart.toISOString()
           ) {
-            const scheduledTime = scheduledStart.toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-            });
-            const message = `Reminder: Your scheduled task "${task.title}" will start at ${scheduledTime} (in less than ${remainingMinutes} minute${remainingMinutes !== 1 ? "s" : ""}).`;
+            const scheduledTime = formatTime12Hour(scheduledStart);
+            const plural = remainingMinutes !== 1 ? "s" : "";
+            const message = `Reminder: Your scheduled task "${task.title}" will start at ${scheduledTime} (in less than ${remainingMinutes} minute${plural}).`;
             notifications.push({
               userId,
               message,
               createdAt: now,
               taskId: task._id,
             });
+
             await Task.findByIdAndUpdate(task._id, {
               lastNotifiedScheduledStart: scheduledStart,
             });
-            //console.log(`--> Scheduled notification created for task "${task.title}".`);
-          } else {
-            //console.log(`--> Scheduled notification already sent for task "${task.title}".`);
           }
-        } else {
-          //console.log(`--> Skipped notification for task "${task.title}" because remaining minutes is 0.`);
         }
       }
     }
@@ -73,14 +86,17 @@ const generateScheduledNotifications = async (userId, now) => {
 const generateUpcomingNotifications = async (userId, now) => {
   const tasks = await Task.find({ userId, status: { $ne: "completed" } });
   let notifications = [];
+
   for (const task of tasks) {
     if (task.dueDate) {
       const due = new Date(task.dueDate);
       const diff = due - now;
+
       if (diff > 0 && diff <= 24 * 60 * 60 * 1000 && !task.notifiedUpcoming) {
-        const dueTime = due.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+        const dueTime = formatTime12Hour(due);
         const message = `Reminder: Your task "${task.title}" is due at ${dueTime} (within 24 hours).`;
-        if (await shouldCreateNotification(userId, message)) {
+
+        if (await shouldCreateNotification(userId, message, 5 * 60 * 1000)) { // 5 minute threshold
           notifications.push({
             userId,
             message,
@@ -91,13 +107,11 @@ const generateUpcomingNotifications = async (userId, now) => {
             lastNotifiedUpcoming: now,
             notifiedUpcoming: true,
           });
-          //console.log(`--> Upcoming notification created for task "${task.title}".`);
-        } else {
-          //console.log(`--> Upcoming notification already sent recently for task "${task.title}".`);
         }
       }
     }
   }
+
   return notifications;
 };
 
@@ -108,13 +122,16 @@ const generateUpcomingNotifications = async (userId, now) => {
 const generateOverdueNotifications = async (userId, now) => {
   const tasks = await Task.find({ userId, status: { $ne: "completed" } });
   let notifications = [];
+
   for (const task of tasks) {
     if (task.dueDate) {
       const due = new Date(task.dueDate);
       const diff = due - now;
+
       if (diff < 0 && !task.notifiedOverdue) {
         const message = `Alert: Your task "${task.title}" is overdue. Please review it.`;
-        if (await shouldCreateNotification(userId, message)) {
+
+        if (await shouldCreateNotification(userId, message, 5 * 60 * 1000)) { // 5 minute threshold
           notifications.push({
             userId,
             message,
@@ -125,13 +142,11 @@ const generateOverdueNotifications = async (userId, now) => {
             lastNotifiedOverdue: now,
             notifiedOverdue: true,
           });
-          //console.log(`--> Overdue notification created for task "${task.title}".`);
-        } else {
-          //console.log(`--> Overdue notification already sent recently for task "${task.title}".`);
         }
       }
     }
   }
+
   return notifications;
 };
 
@@ -150,42 +165,42 @@ const generateWarningNotifications = async (userId, now) => {
   const thresholdMs = thresholdHours * 60 * 60 * 1000;
 
   const highPriorityTasks = tasks.filter(
-    task => task.priority && (task.priority.startsWith("A") || task.priority.startsWith("B"))
+    (task) => task.priority && (task.priority.startsWith("A") || task.priority.startsWith("B"))
   );
   if (!highPriorityTasks.length) return notifications;
 
   const nonHighPriorityTasks = tasks.filter(
-    task => !(task.priority && (task.priority.startsWith("A") || task.priority.startsWith("B")))
+    (task) =>
+      !(task.priority && (task.priority.startsWith("A") || task.priority.startsWith("B")))
   );
 
-  const highPriorityLetters = [...new Set(highPriorityTasks.map(task => task.priority[0]))].sort();
+  const highPriorityLetters = [...new Set(highPriorityTasks.map((t) => t.priority[0]))].sort();
   const priorityMessage =
     highPriorityLetters.length === 1
       ? highPriorityLetters[0]
       : highPriorityLetters.join(" and ");
 
   for (const task of nonHighPriorityTasks) {
+    // Check if timer is running
     if (task.isTimerRunning && task.timerStartTime) {
-      const elapsedTime =
+      const elapsedTimeMs =
         (task.timeSpent || 0) * 1000 + (now - new Date(task.timerStartTime));
 
-      if (elapsedTime >= thresholdMs) {
-        if (!task.notifiedWarning) {
-          const message = `Warning: You have spent over ${thresholdHours} hour${thresholdHours > 1 ? "s" : ""} on the task "${task.title}" which is non high priority. Consider switching to high priority work (there are ${priorityMessage} tasks to do).`;
+      // If it exceeds threshold and we haven't warned yet
+      if (elapsedTimeMs >= thresholdMs && !task.notifiedWarning) {
+        const hoursWord = thresholdHours > 1 ? "hours" : "hour";
+        const message = `Warning: You have spent over ${thresholdHours} ${hoursWord} on the task "${task.title}" which is non high priority. Consider switching to high priority work (there are ${priorityMessage} tasks to do).`;
+        notifications.push({
+          userId,
+          message,
+          createdAt: now,
+          taskId: task._id,
+        });
 
-          notifications.push({
-            userId,
-            message,
-            createdAt: now,
-            taskId: task._id,
-          });
-
-          await Task.findByIdAndUpdate(task._id, {
-            notifiedWarning: true,
-          });
-
-          //console.log(`--> Warning notification created for task "${task.title}".`);
-        }
+        // Mark this task as warned
+        await Task.findByIdAndUpdate(task._id, {
+          notifiedWarning: true,
+        });
       }
     }
   }
@@ -200,19 +215,15 @@ const generateFrequentNotifications = async () => {
   try {
     const users = await User.find({});
     const now = new Date();
-    //console.log(`[${now.toISOString()}] generateFrequentNotifications is running...`);
 
     for (const user of users) {
       const userId = user.userId;
-      //console.log(`Processing notifications for user ${userId}...`);
 
-      // Generate each type of notification independently
       const scheduledNotifs = await generateScheduledNotifications(userId, now);
       const upcomingNotifs = await generateUpcomingNotifications(userId, now);
       const overdueNotifs = await generateOverdueNotifications(userId, now);
       const warningNotifs = await generateWarningNotifications(userId, now);
 
-      // Combine all notifications
       const notificationsToCreate = [
         ...scheduledNotifs,
         ...upcomingNotifs,
@@ -220,12 +231,8 @@ const generateFrequentNotifications = async () => {
         ...warningNotifs,
       ];
 
-      // Insert all notifications into the database
       if (notificationsToCreate.length) {
         await Notification.insertMany(notificationsToCreate);
-        //console.log(`Frequent notifications generated for user ${userId}:`, notificationsToCreate);
-      } else {
-        //console.log(`No new frequent notifications created for user ${userId}.`);
       }
     }
   } catch (error) {
@@ -234,6 +241,7 @@ const generateFrequentNotifications = async () => {
 };
 
 module.exports = {
+  formatTime12Hour,
   shouldCreateNotification,
   generateScheduledNotifications,
   generateUpcomingNotifications,
