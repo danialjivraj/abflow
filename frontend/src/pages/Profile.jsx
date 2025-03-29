@@ -184,6 +184,52 @@ const Profile = () => {
               )}
             </div>
 
+            <div className="name-container">
+              {isEditing ? (
+                <div className="edit-name-wrapper">
+                  <input
+                    type="text"
+                    placeholder="Enter your name"
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    autoFocus
+                    onKeyDown={(e) => e.key === "Enter" && handleNameUpdate()}
+                  />
+                  <div className="button-container">
+                    <button className="tick-btn" onClick={handleNameUpdate}>
+                      <FaCheck
+                        className="icon icon-check"
+                        data-testid="tick-icon"
+                      />
+                    </button>
+                    <button
+                      className="cross-btn"
+                      onClick={() => {
+                        setIsEditing(false);
+                        setEditName(profile.name);
+                      }}
+                    >
+                      <FaTimes
+                        className="icon icon-cross"
+                        data-testid="cross-icon"
+                      />
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <h2
+                  className="editable-name"
+                  onClick={() => setIsEditing(true)}
+                >
+                  {profile.name}
+                </h2>
+              )}
+            </div>
+
+            {auth.currentUser?.email && (
+              <p className="profile-email-lower">{auth.currentUser.email}</p>
+            )}
+
             {(pendingFile || pendingRemove) && (
               <div className="upload-section">
                 <button
@@ -209,43 +255,6 @@ const Profile = () => {
                 )}
               </div>
             )}
-
-            {auth.currentUser?.email && (
-              <p className="profile-email-lower">{auth.currentUser.email}</p>
-            )}
-
-            <div className="name-container">
-              {isEditing ? (
-                <div className="edit-name-wrapper">
-                  <input
-                    type="text"
-                    placeholder="Enter your name"
-                    value={editName}
-                    onChange={(e) => setEditName(e.target.value)}
-                    autoFocus
-                    onKeyDown={(e) => e.key === "Enter" && handleNameUpdate()}
-                  />
-                  <div className="button-container">
-                    <button className="tick-btn" onClick={handleNameUpdate}>
-                      <FaCheck className="icon icon-check" data-testid="tick-icon" />
-                    </button>
-                    <button
-                      className="cross-btn"
-                      onClick={() => {
-                        setIsEditing(false);
-                        setEditName(profile.name);
-                      }}
-                    >
-                      <FaTimes className="icon icon-cross" data-testid="cross-icon" />
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <h2 className="editable-name" onClick={() => setIsEditing(true)}>
-                  {profile.name}
-                </h2>
-              )}
-            </div>
           </div>
 
           <input
@@ -262,11 +271,15 @@ const Profile = () => {
               <p>Points</p>
             </div>
             <div className="stat-card">
-              <h2 title={profile.tasksCompleted}>{formatNumber(profile.tasksCompleted)}</h2>
+              <h2 title={profile.tasksCompleted}>
+                {formatNumber(profile.tasksCompleted)}
+              </h2>
               <p>Tasks Completed</p>
             </div>
             <div className="stat-card">
-              <h2 title={profile.totalHours}>{formatNumber(profile.totalHours)}</h2>
+              <h2 title={profile.totalHours}>
+                {formatNumber(profile.totalHours)}
+              </h2>
               <p>Hours Spent</p>
             </div>
           </div>
