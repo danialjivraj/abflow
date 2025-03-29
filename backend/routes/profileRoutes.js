@@ -40,11 +40,11 @@ function extractPublicId(url) {
     }
     const publicIdWithExt = publicIdParts.join("/");
     const dotIndex = publicIdWithExt.lastIndexOf(".");
-    if (dotIndex !== -1) {
-      return publicIdWithExt.substring(0, dotIndex);
-    } else {
-      return publicIdWithExt;
+    let publicId = dotIndex !== -1 ? publicIdWithExt.substring(0, dotIndex) : publicIdWithExt;
+    if (publicId.startsWith("uploads/")) {
+      publicId = publicId.substring("uploads/".length);
     }
+    return publicId;
   } catch (error) {
     console.error("Error extracting public_id:", error);
     return null;
