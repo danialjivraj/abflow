@@ -107,38 +107,45 @@ router.put("/updateName/:userId", async (req, res) => {
 
 // Upload profile picture
 router.post("/uploadProfilePicture/:userId", upload.single("profilePicture"), async (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ error: "No file uploaded" });
-  }
-
+  console.log("Upload request received:", req.params.userId);
   try {
+    if (!req.file) {
+      console.error("No file uploaded.");
+      return res.status(400).json({ error: "No file uploaded" });
+    }
+
     const user = await User.findOne({ userId: req.params.userId });
     if (!user) {
+      console.error("User not found:", req.params.userId);
       return res.status(404).json({ error: "User not found" });
     }
 
-    // If an old picture exists, remove it from Cloudinary.
+    // Remove old picture
     if (user.profilePicture) {
       const publicId = extractPublicId(user.profilePicture);
+      console.log("Extracted publicId:", publicId);
       if (publicId) {
         await cloudinary.uploader.destroy(publicId, { invalidate: true });
+        console.log("Old image removed from Cloudinary");
       }
     }
 
-    const imageUrl = req.file.path;
+    console.log("New image URL:", req.file.path);
 
     const updatedUser = await User.findOneAndUpdate(
       { userId: req.params.userId },
-      { profilePicture: imageUrl },
+      { profilePicture: req.file.path },
       { new: true }
     );
+
+    console.log("User updated with new profile picture");
 
     res.json({
       message: "Profile picture updated",
       profilePicture: updatedUser.profilePicture,
     });
   } catch (error) {
-    console.error("Error updating profile picture:", error);
+    console.error("❌ Error updating profile picture:", error);
     res.status(500).json({
       error: "Failed to update profile picture",
       details: error.message,
