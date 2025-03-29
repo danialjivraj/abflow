@@ -36,6 +36,7 @@ const Column = ({
   columns,
   confirmBeforeDeleteBoard = true,
   confirmBeforeDeleteTask,
+  openCreateTaskModal,
 }) => {
   const columnDropdownRef = useRef(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -46,7 +47,7 @@ const Column = ({
       setRenameBoardError(error);
       return;
     }
-  
+
     try {
       const user = auth.currentUser;
       if (!user) return;
@@ -88,8 +89,7 @@ const Column = ({
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-    return () =>
-      document.removeEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isDropdownOpen, setIsDropdownOpen, columnId]);
 
   return (
@@ -125,7 +125,10 @@ const Column = ({
                   )}
                   <div className="button-container">
                     <button className="tick-btn" onClick={handleRename}>
-                      <FaCheck className="icon icon-check" data-testid="tick-icon"/>
+                      <FaCheck
+                        className="icon icon-check"
+                        data-testid="tick-icon"
+                      />
                     </button>
                     <button
                       className="cross-btn"
@@ -135,7 +138,10 @@ const Column = ({
                         setRenameBoardError("");
                       }}
                     >
-                      <FaTimes className="icon icon-cross" data-testid="cross-icon"/>
+                      <FaTimes
+                        className="icon icon-cross"
+                        data-testid="cross-icon"
+                      />
                     </button>
                   </div>
                 </div>
@@ -209,6 +215,15 @@ const Column = ({
                     />
                   ))}
                   {provided.placeholder}
+                  <div className="add-task-button-container">
+                    <button
+                      className="add-task-btn column-add-task-btn"
+                      onClick={() => openCreateTaskModal(columnId)}
+                    >
+                      <span className="column-thick-plus">+</span>
+                      <span className="create-task-text">Create Task</span>
+                    </button>
+                  </div>
                 </div>
               )}
             </Droppable>

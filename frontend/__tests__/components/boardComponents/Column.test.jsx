@@ -546,4 +546,26 @@ describe("Column Component - Integration Tests", () => {
     fireEvent.mouseDown(document.body);
     expect(screen.getByRole("textbox")).toHaveValue("New Name");
   });
+
+  test("clicking the thick-plus button in the column calls openCreateTaskModal with the column id", async () => {
+    const openCreateTaskModalMock = jest.fn();
+    const props = {
+      ...defaultProps,
+      openCreateTaskModal: openCreateTaskModalMock,
+    };
+  
+    render(<Column {...props} />);
+  
+    const columnContainer = screen.getByTestId(`draggable-${props.columnId}`);
+    fireEvent.mouseOver(columnContainer);
+  
+    const createTaskText = screen.getByText("Create Task");
+    const addTaskButton = createTaskText.closest("button");
+    expect(addTaskButton).toBeInTheDocument();
+  
+    fireEvent.click(addTaskButton);
+  
+    expect(openCreateTaskModalMock).toHaveBeenCalledWith(props.columnId);
+  });
+  
 });

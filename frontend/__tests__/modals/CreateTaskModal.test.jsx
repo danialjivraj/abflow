@@ -473,6 +473,25 @@ describe("CreateTaskModal Integration Tests", () => {
         ).toBeInTheDocument();
       });
     });
+
+    test("opens with the correct status selected when provided via props", () => {
+      render(
+        <CreateTaskModal
+          {...defaultProps}
+          columns={{
+            backlog: { ...baseColumn, items: [] },
+            inprogress: { name: "In Progress", items: [] },
+          }}
+          selectedStatus="backlog"
+        />
+      );
+      
+      const statusSelect = screen
+        .getAllByRole("combobox")
+        .find((select) => select.innerHTML.includes("Backlog"));
+      
+      expect(statusSelect.value).toBe("backlog");
+    });
   });
 
   describe("CreateTaskModal Toast Messages", () => {

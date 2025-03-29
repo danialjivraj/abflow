@@ -62,18 +62,10 @@ const CreateTaskModal = ({
   useEffect(() => {
     if (isModalOpen) {
       const hasBoards = Object.keys(columns).length > 0;
-      if (hasBoards && !localSelectedStatus) {
-        setLocalSelectedStatus(defaultStatus);
-        setSelectedStatus(defaultStatus);
-      }
+      setLocalSelectedStatus(selectedStatus || defaultStatus);
     }
-  }, [
-    isModalOpen,
-    columns,
-    localSelectedStatus,
-    setSelectedStatus,
-    defaultStatus,
-  ]);
+  }, [isModalOpen, columns, selectedStatus, defaultStatus]);
+  
 
   useEffect(() => {
     if (!isModalOpen) {
@@ -89,7 +81,6 @@ const CreateTaskModal = ({
   const isEmpty = () => {
     return (
       newTaskTitle.trim() === "" &&
-      localSelectedStatus === defaultStatus &&
       !dueDate &&
       assignedTo.trim() === "" &&
       taskDescription.trim() === "" &&

@@ -38,6 +38,7 @@ const BoardsView = (props) => {
     onBoardDelete,
     confirmBeforeDeleteBoard,
     confirmBeforeDeleteTask,
+    openCreateTaskModal,
   } = props;
 
   const [filters, setFilters] = useState({
@@ -180,6 +181,7 @@ const BoardsView = (props) => {
                       columns={columns}
                       confirmBeforeDeleteBoard={confirmBeforeDeleteBoard}
                       confirmBeforeDeleteTask={confirmBeforeDeleteTask}
+                      openCreateTaskModal={openCreateTaskModal}
                     />
                   );
                 })}

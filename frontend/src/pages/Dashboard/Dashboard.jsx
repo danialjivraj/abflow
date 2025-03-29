@@ -538,6 +538,11 @@ const Dashboard = (props) => {
     }
   };
 
+   const openCreateTaskModal = (status) => {
+     setSelectedStatus(status);
+     navigate(`${getBaseRoute(location.pathname)}/createtask`);
+   };
+
   const handleDragEnd = async (result) => {
     const { source, destination, type } = result;
     if (!destination) return;
@@ -652,6 +657,7 @@ const Dashboard = (props) => {
           onBoardDelete={onBoardDelete}
           confirmBeforeDeleteBoard={userSettings.confirmBeforeDeleteBoard}
           confirmBeforeDeleteTask={userSettings.confirmBeforeDeleteTask}
+          openCreateTaskModal={openCreateTaskModal}
         />
       );
     }
