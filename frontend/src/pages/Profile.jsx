@@ -67,6 +67,7 @@ const Profile = () => {
     const currentUser = auth.currentUser;
     if (!currentUser) return;
     const userId = currentUser.uid;
+
     if (pendingFile) {
       try {
         const response = await uploadProfilePicture(userId, pendingFile);
@@ -74,26 +75,27 @@ const Profile = () => {
           ...prev,
           profilePicture: `${response.data.profilePicture}?t=${Date.now()}`,
         }));
-        setPendingFile(null);
-        setPendingPreview(null);
         toast.success("Image saved!");
       } catch (error) {
         console.error("Error uploading new picture:", error);
         toast.error("Failed to save image!");
       }
-    } else if (pendingRemove) {
+      setPendingFile(null);
+      setPendingPreview(null);
+    }
+    else if (pendingRemove) {
       try {
         const response = await removeProfilePicture(userId);
         setProfile((prev) => ({
           ...prev,
           profilePicture: response.data.profilePicture,
         }));
-        setPendingRemove(false);
-        toast.success("Image saved!");
+        toast.success("Image removed!");
       } catch (error) {
         console.error("Error removing profile picture:", error);
         toast.error("Failed to remove image!");
       }
+      setPendingRemove(false);
     }
   };
 
@@ -108,13 +110,13 @@ const Profile = () => {
     if (!currentUser || !editName.trim()) return;
     const userId = currentUser.uid;
     try {
-      const response = await updateName(userId, editName);
+      const response = await updateName(userId, editName.trim());
       setProfile((prev) => ({
         ...prev,
         name: response.data.name,
       }));
-      setIsEditing(false);
       toast.success("Name saved!");
+      setIsEditing(false);
     } catch (error) {
       console.error("Error updating name:", error);
       toast.error("Failed to update name!");
@@ -152,18 +154,18 @@ const Profile = () => {
     <Layout>
       <TopBar buttons={getProfileTopBarConfig(() => {}, navigate)} />
       <h1 className="page-title">Profile</h1>
+
       <div className="profile-page">
         <div className="profile-card">
           <div className="profile-header">
+            {/* Profile picture */}
             <div className="profile-picture-container">
               <img
                 src={displayImage}
                 alt="Profile"
                 className="profile-picture"
                 onClick={handlePictureClick}
-                onError={(e) => {
-                  e.target.src = "/default-profile-image.png";
-                }}
+                onError={(e) => (e.target.src = "/default-profile-image.png")}
                 style={{ cursor: "pointer" }}
               />
               {profile.profilePicture && !pendingFile && !pendingRemove && (
@@ -182,63 +184,51 @@ const Profile = () => {
                 <button onClick={handleSavePicture} className="create-task-btn">
                   Save
                 </button>
-                <button
-                  onClick={handleCancelPictureChange}
-                  className="cancel-btn"
-                >
+                <button onClick={handleCancelPictureChange} className="cancel-btn">
                   Cancel
                 </button>
               </div>
             )}
 
+            {auth.currentUser?.email && (
+              <p className="profile-email-lower">{auth.currentUser.email}</p>
+            )}
+
             <div className="name-container">
-              <h2
-                className="editable-name"
-                onClick={() => setIsEditing(true)}
-                style={{
-                  opacity: isEditing ? 0 : 1,
-                  pointerEvents: isEditing ? "none" : "auto",
-                }}
-              >
-                {profile.name}
-              </h2>
-              <div
-                className="edit-name-wrapper"
-                style={{
-                  opacity: isEditing ? 1 : 0,
-                  pointerEvents: isEditing ? "auto" : "none",
-                }}
-              >
-                <input
-                  type="text"
-                  placeholder="Enter your name"
-                  value={editName}
-                  onChange={(e) => setEditName(e.target.value)}
-                  autoFocus={isEditing}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      handleNameUpdate();
-                    }
-                  }}
-                />
-                <div className="button-container">
-                  <button className="tick-btn" onClick={handleNameUpdate}>
+              {isEditing ? (
+                <div className="edit-name-wrapper">
+                  <input
+                    type="text"
+                    placeholder="Enter your name"
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    autoFocus
+                    onKeyDown={(e) => e.key === "Enter" && handleNameUpdate()}
+                  />
+                  <div className="button-container">
+                    <button className="tick-btn" onClick={handleNameUpdate}>
                     <FaCheck className="icon icon-check" data-testid="tick-icon"/>
-                  </button>
-                  <button
-                    className="cross-btn"
-                    onClick={() => {
-                      setIsEditing(false);
-                      setEditName(profile.name);
-                    }}
-                  >
+                    </button>
+                    <button
+                      className="cross-btn"
+                      onClick={() => {
+                        setIsEditing(false);
+                        setEditName(profile.name);
+                      }}
+                    >
                     <FaTimes className="icon icon-cross" data-testid="cross-icon"/>
-                  </button>
+                    </button>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <h2 className="editable-name" onClick={() => setIsEditing(true)}>
+                  {profile.name}
+                </h2>
+              )}
             </div>
           </div>
 
+          {/* Hidden file input */}
           <input
             type="file"
             ref={fileInputRef}
@@ -247,6 +237,7 @@ const Profile = () => {
             accept="image/*"
           />
 
+          {/* Stats */}
           <div className="profile-stats">
             <div className="stat-card">
               <h2 title={profile.points}>{formatNumber(profile.points)}</h2>

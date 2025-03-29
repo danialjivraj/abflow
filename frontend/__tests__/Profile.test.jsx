@@ -678,7 +678,10 @@ describe("Profile Page", () => {
       },
     });
     axios.put.mockResolvedValueOnce({
-      data: { message: "Name updated successfully", name: "Enter Updated Name" },
+      data: {
+        message: "Name updated successfully",
+        name: "Enter Updated Name",
+      },
     });
 
     render(
@@ -829,6 +832,69 @@ describe("Profile Page", () => {
     await waitFor(() => {
       const { toast } = require("react-toastify");
       expect(toast.error).toHaveBeenCalledWith("Failed to save image!");
+    });
+  });
+
+  describe("Email Display", () => {
+    it("should render the email below the profile image if user is logged in with an email", async () => {
+      auth.currentUser = { uid: "user1", email: "test@example.com" };
+
+      axios.get.mockResolvedValueOnce({
+        data: {
+          points: 10,
+          tasksCompleted: 2,
+          totalHours: "1.25",
+          profilePicture: "/uploads/test.jpg",
+          name: "User With Email",
+        },
+      });
+
+      render(
+        <BrowserRouter>
+          <NotificationsProvider>
+            <Profile />
+          </NotificationsProvider>
+        </BrowserRouter>
+      );
+
+      const image = await screen.findByAltText("Profile");
+      expect(image).toBeInTheDocument();
+
+      const emailElement = await screen.findByText("test@example.com");
+      expect(emailElement).toBeInTheDocument();
+
+      expect(
+        image.compareDocumentPosition(emailElement) &
+          Node.DOCUMENT_POSITION_FOLLOWING
+      ).toBeTruthy();
+    });
+
+    it("should NOT render the email if user is logged in without an email", async () => {
+      auth.currentUser = { uid: "user1", email: null };
+
+      axios.get.mockResolvedValueOnce({
+        data: {
+          points: 10,
+          tasksCompleted: 2,
+          totalHours: "1.25",
+          profilePicture: "/uploads/test.jpg",
+          name: "User Without Email",
+        },
+      });
+
+      render(
+        <BrowserRouter>
+          <NotificationsProvider>
+            <Profile />
+          </NotificationsProvider>
+        </BrowserRouter>
+      );
+
+      await screen.findByAltText("Profile");
+      expect(screen.queryByText("User Without Email")).toBeInTheDocument();
+
+      const emailElement = screen.queryByTestId("profile-email-lower");
+      expect(emailElement).toBeNull();
     });
   });
 });
