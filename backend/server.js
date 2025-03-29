@@ -11,6 +11,7 @@ require("./scheduler/scheduler");
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
+
 const taskRoutes = require("./routes/taskRoutes");
 const columnsRoute = require("./routes/columnsRoute");
 const chartRoutes = require("./routes/chartRoutes");
@@ -19,9 +20,13 @@ const preferencesRoutes = require("./routes/preferencesRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
 
 const app = express();
-app.use(cors());
-app.use(express.json());
 
+app.use(cors({
+  origin: 'https://abflow.netlify.app',
+  credentials: true
+}));
+
+app.use(express.json());
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 mongoose
@@ -35,6 +40,10 @@ app.use("/api/charts", chartRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/preferences", preferencesRoutes);
 app.use("/api/notifications", notificationRoutes);
+
+app.get("/", (req, res) => {
+  res.send("Server is live ✅");
+});
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
