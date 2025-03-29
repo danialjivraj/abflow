@@ -200,9 +200,9 @@ const ScheduleView = ({ tasks, updateTaskInState, onCreateTaskShortcut }) => {
     // If below 30 sets it to 30
     let duration = moment(end).diff(moment(start), "minutes");
 
-    if (duration < 30) {
-      end = new Date(start.getTime() + 30 * 60 * 1000);
-      duration = 30;
+    if (duration < 15) {
+      end = new Date(start.getTime() + 15 * 60 * 1000);
+      duration = 15;
     }
 
     try {
@@ -352,6 +352,8 @@ const ScheduleView = ({ tasks, updateTaskInState, onCreateTaskShortcut }) => {
           defaultDate={new Date()}
           defaultView="week"
           resizable
+          step={15}
+          timeslots={4}
           onEventDrop={handleEventDrop}
           onEventResize={handleEventResize}
           onSelectEvent={handleSelectEvent}

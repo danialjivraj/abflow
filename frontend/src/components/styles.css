@@ -1591,7 +1591,11 @@ select {
 }
 
 .rbc-day-slot .rbc-time-slot {
-  border-top: 1px solid #333;
+  border-top: none;
+}
+
+.rbc-day-slot .rbc-time-slot:nth-child(4n+1) {
+  border-top: 1px solid var(--border-color);
 }
 
 .rbc-time-slot {
