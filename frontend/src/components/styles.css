@@ -710,6 +710,10 @@ select {
   position: relative;
 }
 
+.task-card:hover {
+  outline: 2px solid var(--panelheading-color);
+}
+
 .task-card span {
   font-weight: bold;
   word-break: break-word;
