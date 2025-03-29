@@ -1,9 +1,19 @@
 jest.setTimeout(10000);
 
+const fs = require("fs");
+const path = require("path");
+const os = require("os");
 const request = require("supertest");
 const express = require("express");
 const mongoose = require("mongoose");
 const { MongoMemoryServer } = require("mongodb-memory-server");
+
+const tempUploadsDir = path.join(os.tmpdir(), "test-uploads");
+process.env.UPLOADS_DIR = tempUploadsDir;
+
+if (!fs.existsSync(tempUploadsDir)) {
+    fs.mkdirSync(tempUploadsDir, { recursive: true });
+} e
 
 const Task = require("../../models/Task");
 const User = require("../../models/User");
@@ -28,9 +38,16 @@ beforeEach(async () => {
     await Task.deleteMany({});
 });
 
+afterEach(() => {
+    fs.readdirSync(tempUploadsDir).forEach(file => {
+        fs.unlinkSync(path.join(tempUploadsDir, file));
+    });
+});
+
 afterAll(async () => {
     await mongoose.disconnect();
     await mongoServer.stop();
+    fs.rmSync(tempUploadsDir, { recursive: true, force: true });
 });
 
 describe("Profile Routes", () => {
@@ -52,7 +69,6 @@ describe("Profile Routes", () => {
 
             await Task.create(completedTasksData);
 
-            // This task should not be counted because it's not completed
             await Task.create({
                 title: "Pending Task",
                 priority: "A1",
@@ -61,7 +77,6 @@ describe("Profile Routes", () => {
                 points: 10
             });
 
-            // Expected total points = 5.0+4.5+4.0+3.5+3.0+2.5+2.0+1.5+1.0+0.5+0.0 = 27.5
             const res = await request(app)
                 .get("/api/profile/user1")
                 .expect(200);
@@ -86,7 +101,6 @@ describe("Profile Routes", () => {
                 .get("/api/profile/user1")
                 .expect(200);
 
-            // Total points = 5+5+4+4+3+3+3 = 27 and 7 completed tasks
             expect(res.body.points).toBe(27);
             expect(res.body.tasksCompleted).toBe(7);
         });
@@ -175,13 +189,6 @@ describe("Profile Routes", () => {
 
             const updatedUser = await User.findOne({ userId: "user1" });
             expect(updatedUser.profilePicture).toEqual("");
-        });
-
-        it("should return 404 if the user is not found", async () => {
-            const res = await request(app)
-                .put("/api/profile/removeProfilePicture/nonexistent")
-                .expect(404);
-            expect(res.body.error).toBe("User not found");
         });
 
         it("should return 404 if the user is not found", async () => {

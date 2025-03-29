@@ -7,16 +7,22 @@ const multer = require("multer");
 const Task = require("../models/Task");
 const User = require("../models/User");
 
+const uploadDir = process.env.UPLOADS_DIR || path.join(__dirname, "../uploads");
+
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "uploads/");
+    cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
     const userId = req.params.userId || "unknown";
-    // Example filename: "7M7kQTuuj4e0wa1DhIfP9YGu5Tn1-1695673440987.jpg"
     cb(null, `${userId}-${Date.now()}${path.extname(file.originalname)}`);
   },
 });
+
 const upload = multer({ storage });
 
 /**
@@ -35,21 +41,21 @@ const deleteFileIfExists = (filePath) => {
   }
 };
 
-// gets user
+// Fetch user profile info
 router.get("/:userId", async (req, res) => {
   try {
     const { userId } = req.params;
-    if (!userId) {
-      return res.status(400).json({ error: "User ID is required" });
-    }
+    if (!userId) return res.status(400).json({ error: "User ID is required" });
+
     const completedTasks = await Task.find({ userId, status: "completed" });
     const totalPoints = completedTasks.reduce((sum, task) => sum + (task.points || 0), 0);
     const tasksCompleted = completedTasks.length;
     const totalSeconds = completedTasks.reduce((sum, task) => sum + (task.timeSpent || 0), 0);
     const totalHours = (totalSeconds / 3600).toFixed(2);
+
     const user = await User.findOne({ userId });
-    const profilePicture = user ? user.profilePicture : "";
-    const name = user && user.name ? user.name : "User";
+    const profilePicture = user?.profilePicture || "";
+    const name = user?.name || "User";
 
     res.json({ points: totalPoints, tasksCompleted, totalHours, profilePicture, name });
   } catch (error) {
@@ -58,18 +64,17 @@ router.get("/:userId", async (req, res) => {
   }
 });
 
-// update the name
+// Update user name
 router.put("/updateName/:userId", async (req, res) => {
   const { userId } = req.params;
   const { name } = req.body;
-  if (!name) {
-    return res.status(400).json({ error: "Name is required" });
-  }
+
+  if (!name) return res.status(400).json({ error: "Name is required" });
+
   try {
     const updatedUser = await User.findOneAndUpdate({ userId }, { name }, { new: true });
-    if (!updatedUser) {
-      return res.status(404).json({ error: "User not found" });
-    }
+    if (!updatedUser) return res.status(404).json({ error: "User not found" });
+
     res.json({ message: "Name updated successfully", name: updatedUser.name });
   } catch (error) {
     console.error("Error updating name:", error);
@@ -77,33 +82,29 @@ router.put("/updateName/:userId", async (req, res) => {
   }
 });
 
-// upload picture, and deletes previous one
+// Upload new profile picture
 router.post("/uploadProfilePicture/:userId", upload.single("profilePicture"), async (req, res) => {
   const { userId } = req.params;
-  if (!req.file) {
-    return res.status(400).json({ error: "No file uploaded" });
-  }
+
+  if (!req.file) return res.status(400).json({ error: "No file uploaded" });
+
   try {
     const user = await User.findOne({ userId });
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
+    if (!user) return res.status(404).json({ error: "User not found" });
 
+    // Delete old profile picture if exists
     if (user.profilePicture) {
       const oldPicPath = path.join(__dirname, "../", user.profilePicture);
       deleteFileIfExists(oldPicPath);
     }
 
     const relativePath = `/uploads/${req.file.filename}`;
-
     const updatedUser = await User.findOneAndUpdate(
       { userId },
       { profilePicture: relativePath },
       { new: true }
     );
-    if (!updatedUser) {
-      return res.status(404).json({ error: "User not found" });
-    }
+
     res.json({ message: "Profile picture updated", profilePicture: updatedUser.profilePicture });
   } catch (error) {
     console.error("Error updating profile picture:", error);
@@ -111,14 +112,13 @@ router.post("/uploadProfilePicture/:userId", upload.single("profilePicture"), as
   }
 });
 
-// remove profile picture
+// Remove profile picture
 router.put("/removeProfilePicture/:userId", async (req, res) => {
   const { userId } = req.params;
+
   try {
     const user = await User.findOne({ userId });
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
+    if (!user) return res.status(404).json({ error: "User not found" });
 
     if (user.profilePicture) {
       const oldPicPath = path.join(__dirname, "../", user.profilePicture);
@@ -130,6 +130,7 @@ router.put("/removeProfilePicture/:userId", async (req, res) => {
       { profilePicture: "" },
       { new: true }
     );
+
     res.json({ message: "Profile picture removed", profilePicture: updatedUser.profilePicture });
   } catch (error) {
     console.error("Error removing profile picture:", error);
