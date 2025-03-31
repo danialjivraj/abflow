@@ -187,12 +187,19 @@ function App() {
                 />
               }
             />
-            <Route path="/charts" element={<Charts />} />
-            <Route path="/charts/grouptasks/:groupKey" element={<Charts />} />
+            <Route
+              path="/charts"
+              element={<Charts userSettings={userSettings} />}
+            />
+            <Route
+              path="/charts/grouptasks/:groupKey"
+              element={<Charts userSettings={userSettings} />}
+            />
             <Route
               path="/charts/grouptasks/:groupKey/viewtask/:taskId"
-              element={<Charts />}
+              element={<Charts userSettings={userSettings} />}
             />
+
             <Route path="/profile" element={<Profile />} />
             <Route
               path="/settings/:section/*"

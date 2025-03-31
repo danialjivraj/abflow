@@ -83,6 +83,12 @@ jest.mock("../../src/components/modals/CreateTaskModal", () => {
   );
 });
 
+jest.mock("../../src/components/modals/LabelsModal", () => {
+  return ({ isOpen, closeModal, labels, setLabels, userId }) => (
+    <div data-testid="labels-modal">{isOpen ? "open" : "closed"}</div>
+  );
+});
+
 jest.mock("../../src/components/modals/ViewTaskModal", () => {
   return ({ isModalOpen, closeModal }) => (
     <div data-testid="view-task-modal">{isModalOpen ? "open" : "closed"}</div>
@@ -129,6 +135,7 @@ jest.mock("../../src/pages/Dashboard/BoardsView", () => {
               timeSpent: 120,
               isTimerRunning: true,
               timerStartTime: "2022-01-05T09:00:00.000Z",
+              labels: [{ title: "Urgent", color: "#ff0000" }],
             })
           }
         >
@@ -138,7 +145,6 @@ jest.mock("../../src/pages/Dashboard/BoardsView", () => {
     </div>
   );
 });
-
 jest.mock("../../src/pages/Dashboard/CompletedTasks", () => {
   return (props) => <div data-testid="completed-tasks">CompletedTasks</div>;
 });
@@ -188,6 +194,7 @@ describe("Dashboard Duplicate Task Integration Toasts", () => {
     timeSpent: 120,
     isTimerRunning: true,
     timerStartTime: "2022-01-05T09:00:00.000Z",
+    labels: [{ title: "Urgent", color: "#ff0000" }],
   };
 
   beforeEach(() => {
@@ -220,6 +227,7 @@ describe("Dashboard Duplicate Task Integration Toasts", () => {
       timeSpent: 0,
       isTimerRunning: false,
       timerStartTime: null,
+      labels: originalTask.labels,
     };
     tasksService.createTask.mockImplementationOnce(() =>
       Promise.resolve({ data: duplicateTaskResponse })
@@ -249,6 +257,7 @@ describe("Dashboard Duplicate Task Integration Toasts", () => {
         timerStartTime: null,
         scheduledStart: null,
         scheduledEnd: null,
+        labels: originalTask.labels,
       })
     );
 
@@ -463,6 +472,51 @@ describe("Dashboard Component", () => {
     expect(screen.getByTestId("layout-openModal")).toHaveTextContent("true");
   });
 
+  test("opens LabelsModal when route is /dashboard/boards/labels", async () => {
+    const path = "/dashboard/boards/labels";
+    render(
+      <Wrapper>
+        <MemoryRouter initialEntries={[path]}>
+          <Dashboard userSettings={defaultUserSettings} setUserSettings={jest.fn()} />
+        </MemoryRouter>
+      </Wrapper>
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("labels-modal")).toHaveTextContent("open")
+    );
+    expect(screen.getByTestId("layout-openModal")).toHaveTextContent("true");
+  });
+
+  test("opens LabelsModal when route is /dashboard/schedule/labels", async () => {
+    const path = "/dashboard/schedule/labels";
+    render(
+      <Wrapper>
+        <MemoryRouter initialEntries={[path]}>
+          <Dashboard userSettings={defaultUserSettings} setUserSettings={jest.fn()} />
+        </MemoryRouter>
+      </Wrapper>
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("labels-modal")).toHaveTextContent("open")
+    );
+    expect(screen.getByTestId("layout-openModal")).toHaveTextContent("true");
+  });
+
+  test("opens LabelsModal when route is /dashboard/completedtasks/labels", async () => {
+    const path = "/dashboard/schedule/labels";
+    render(
+      <Wrapper>
+        <MemoryRouter initialEntries={[path]}>
+          <Dashboard userSettings={defaultUserSettings} setUserSettings={jest.fn()} />
+        </MemoryRouter>
+      </Wrapper>
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("labels-modal")).toHaveTextContent("open")
+    );
+    expect(screen.getByTestId("layout-openModal")).toHaveTextContent("true");
+  });
+
   test("getBaseRoute returns '/dashboard/boards' for an invalid base route", () => {
     expect(getBaseRoute("/dashboard/schedulebadroute/createtask")).toBe(
       "/dashboard/boards"
@@ -498,6 +552,20 @@ describe("Dashboard Component", () => {
       expect(screen.getByTestId("create-task-modal")).toHaveTextContent(
         "closed"
       )
+    );
+  });
+
+  test("does not open LabelsModal when route base is invalid", async () => {
+    const path = "/dashboard/invalid/labels";
+    render(
+      <Wrapper>
+        <MemoryRouter initialEntries={[path]}>
+          <Dashboard userSettings={defaultUserSettings} setUserSettings={jest.fn()} />
+        </MemoryRouter>
+      </Wrapper>
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("labels-modal")).toHaveTextContent("closed")
     );
   });
 

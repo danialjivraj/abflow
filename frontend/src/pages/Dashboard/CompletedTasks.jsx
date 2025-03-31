@@ -88,6 +88,8 @@ const CompletedTasks = ({
   isTaskDropdownOpen,
   setIsTaskDropdownOpen,
   handleBackToBoards,
+  userSettings,
+  availableLabels,
 }) => {
   const [localCompletedTasks, setLocalCompletedTasks] =
     useState(completedTasks);
@@ -103,13 +105,13 @@ const CompletedTasks = ({
     today: null,
     startDate: null,
     endDate: null,
+    labels: [],
   });
 
   useEffect(() => {
     setLocalCompletedTasks(completedTasks);
   }, [completedTasks]);
 
-  // Filter out tasks older than the allowed days unless showing all
   const tasksAfterDateFilter = hideOldCompletedTasksNever
     ? localCompletedTasks
     : localCompletedTasks.filter((task) => {
@@ -130,8 +132,19 @@ const CompletedTasks = ({
       }
 
       // Priority
-      if (filters.priority.length > 0 && !filters.priority.includes(task.priority)) {
+      if (
+        filters.priority.length > 0 &&
+        !filters.priority.includes(task.priority)
+      ) {
         return false;
+      }
+
+      if (filters.labels && filters.labels.length > 0) {
+        const taskLabelTitles = task.labels?.map((label) => label.title) || [];
+        const matchesAll = filters.labels.every((filterLabel) =>
+          taskLabelTitles.includes(filterLabel)
+        );
+        if (!matchesAll) return false;
       }
 
       // Assigned To
@@ -217,6 +230,7 @@ const CompletedTasks = ({
           showTimer={false}
           rangeFilter={true}
           showCalendar={false}
+          availableLabels={availableLabels}
         />
       </div>
 
@@ -225,7 +239,9 @@ const CompletedTasks = ({
         {["day", "week", "month", "year"].map((filter) => (
           <div
             key={filter}
-            className={`filter-option ${activeFilter === filter ? "active" : ""}`}
+            className={`filter-option ${
+              activeFilter === filter ? "active" : ""
+            }`}
             onClick={() => setActiveFilter(filter)}
           >
             {filter.charAt(0).toUpperCase() + filter.slice(1)}
@@ -258,6 +274,8 @@ const CompletedTasks = ({
                   stopTimer={stopTimer}
                   openViewTaskModal={openViewTaskModal}
                   handleBackToBoards={handleBackToBoards}
+                  userSettings={userSettings}
+                  availableLabels={availableLabels}
                 />
               ))}
             </div>

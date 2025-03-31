@@ -4,6 +4,8 @@ import TiptapEditor from "../TiptapEditor";
 import "react-datepicker/dist/react-datepicker.css";
 import { toast } from "react-toastify";
 import { FaCheck, FaTimes } from "react-icons/fa";
+import LabelsDropdown from "../../components/boardComponents/LabelsDropdown";
+import TaskLabels from "../../components/boardComponents/TaskLabels";
 
 const allowedPriorities = [
   "A1",
@@ -46,10 +48,14 @@ const CreateTaskModal = ({
   setNewBoardCreateName,
   handleCreateBoard,
   createBoardError,
+  availableLabels = [],
+  newTaskLabels = [],
+  setNewTaskLabels = () => {},
 }) => {
   const [localSelectedStatus, setLocalSelectedStatus] =
     useState(selectedStatus);
   const [errorMessage, setErrorMessage] = useState("");
+  const [showLabelsDropdown, setShowLabelsDropdown] = useState(false);
 
   const defaultStatus = Object.keys(columns)[0] || "";
 
@@ -61,17 +67,17 @@ const CreateTaskModal = ({
 
   useEffect(() => {
     if (isModalOpen) {
-      const hasBoards = Object.keys(columns).length > 0;
       setLocalSelectedStatus(selectedStatus || defaultStatus);
     }
   }, [isModalOpen, columns, selectedStatus, defaultStatus]);
-  
 
   useEffect(() => {
     if (!isModalOpen) {
       setErrorMessage("");
+      setNewTaskLabels([]);
+      setShowLabelsDropdown(false);
     }
-  }, [isModalOpen]);
+  }, [isModalOpen, setNewTaskLabels]);
 
   if (!isModalOpen) return null;
   if (!columnsLoaded) return <div>Loading...</div>;
@@ -134,6 +140,21 @@ const CreateTaskModal = ({
     } catch (error) {
       console.log(error.message);
       toast.error("An error occurred while creating the task.");
+    }
+  };
+
+  const handleToggleLabel = (label) => {
+    const exists = newTaskLabels.some(
+      (l) => l.title === label.title && l.color === label.color
+    );
+    if (exists) {
+      setNewTaskLabels(
+        newTaskLabels.filter(
+          (l) => !(l.title === label.title && l.color === label.color)
+        )
+      );
+    } else {
+      setNewTaskLabels([...newTaskLabels, label]);
     }
   };
 
@@ -277,6 +298,39 @@ const CreateTaskModal = ({
                       value={assignedTo}
                       onChange={(e) => setAssignedTo(e.target.value)}
                     />
+
+                    <label>Labels:</label>
+                    <div className="create-task-labels-dropdown-container">
+                      <div
+                        className="selected-labels-display"
+                        onClick={() =>
+                          setShowLabelsDropdown(!showLabelsDropdown)
+                        }
+                      >
+                        {newTaskLabels.length > 0 ? (
+                          <TaskLabels
+                            labels={newTaskLabels}
+                            hideLabelText={false}
+                            truncateLength={29}
+                          />
+                        ) : (
+                          "Select Labels"
+                        )}
+                      </div>
+                      {showLabelsDropdown && (
+                        <LabelsDropdown
+                          task={{ labels: newTaskLabels }}
+                          availableLabels={availableLabels}
+                          handleToggleLabel={handleToggleLabel}
+                          setIsLabelsDropdownOpen={() =>
+                            setShowLabelsDropdown(false)
+                          }
+                          setIsTaskDropdownOpen={() => {}}
+                          maxHeight="430px"
+                        />
+                      )}
+                    </div>
+
                     <label>Story Points:</label>
                     <div className="story-points-container">
                       <input

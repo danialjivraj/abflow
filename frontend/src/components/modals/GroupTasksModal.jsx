@@ -9,6 +9,7 @@ const GroupTasksModal = ({
   openReadOnlyViewTaskModal,
   comparisonMode,
   selectedGroup,
+  userSettings,
 }) => {
   if (!modalOpen) return null;
 
@@ -50,6 +51,7 @@ const GroupTasksModal = ({
                       setIsTaskDropdownOpen={() => {}}
                       openViewTaskModal={() => {}}
                       hideDots={true}
+                      userSettings={userSettings}
                     />
                   </div>
                 ))
@@ -78,6 +80,7 @@ const GroupTasksModal = ({
                         setIsTaskHovered={() => {}}
                         setIsTaskDropdownOpen={() => {}}
                         openViewTaskModal={() => {}}
+                        userSettings={userSettings}
                       />
                     </div>
                   ))
@@ -87,7 +90,10 @@ const GroupTasksModal = ({
               </div>
             )}
           </div>
-          <button className="view-cancel-btn" onClick={() => setModalOpen(false)}>
+          <button
+            className="view-cancel-btn"
+            onClick={() => setModalOpen(false)}
+          >
             Close
           </button>
         </div>

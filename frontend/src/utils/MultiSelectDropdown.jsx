@@ -22,12 +22,8 @@ function MultiSelectDropdown({ label, options, selectedOptions, onChange, fallba
     }
   };
 
-  const selectedLabels = options
-    .filter((opt) => selectedOptions.includes(opt.value))
-    .map((opt) => opt.label);
-
+  const selectedObjects = options.filter((opt) => selectedOptions.includes(opt.value));
   const fallback = typeof fallbackText !== "undefined" ? fallbackText : label || "All";
-  const displayedText = selectedLabels.length > 0 ? selectedLabels.join(", ") : fallback;
 
   return (
     <div className="multi-select-dropdown" ref={dropdownRef}>
@@ -37,8 +33,19 @@ function MultiSelectDropdown({ label, options, selectedOptions, onChange, fallba
         className={`dropdown-header${isOpen ? " open" : ""}`}
         onClick={() => setIsOpen(!isOpen)}
       >
-        {displayedText}
+        {selectedObjects.length > 0 ? (
+          <div className="selected-options">
+            {selectedObjects.map((opt, idx) => (
+              <span className="selected-option" key={idx}>
+                {opt.label}
+              </span>
+            ))}
+          </div>
+        ) : (
+          <span className="fallback-label">{fallback}</span>
+        )}
       </div>
+
       {isOpen && (
         <div className="dropdown-options">
           {selectedOptions.length > 0 && (

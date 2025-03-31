@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import {
   BarChart,
   Bar,
@@ -24,6 +24,7 @@ import {
 import DatePicker from "react-datepicker";
 import { fetchTasks } from "../services/tasksService";
 import { fetchColumnOrder } from "../services/columnsService";
+import { fetchLabels } from "../services/labelsService";
 import {
   fetchChartPreferences,
   updateChartPreferences,
@@ -78,10 +79,11 @@ const COLORS = [
   "#FF6699",
 ];
 
-const Charts = () => {
+const Charts = ({ userSettings }) => {
   // -------------------- State --------------------
   const [tasks, setTasks] = useState([]);
   const [columnsMapping, setColumnsMapping] = useState({});
+  const [labels, setLabels] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // Chart and Filter States
@@ -89,7 +91,7 @@ const Charts = () => {
   const [customStartDate, setCustomStartDate] = useState(null);
   const [customEndDate, setCustomEndDate] = useState(null);
   const [taskType, setTaskType] = useState("active");
-  const [chartType, setChartType] = useState("bar"); // initial default (will update if prefs exist)
+  const [chartType, setChartType] = useState("bar");
   const [xAxisField, setXAxisField] = useState("day");
   const [yAxisMetric, setYAxisMetric] = useState("count");
   const [sortOrder, setSortOrder] = useState("none");
@@ -98,6 +100,8 @@ const Charts = () => {
   const [priorityFilters, setPriorityFilters] = useState([]);
   const [dayOfWeekFilters, setDayOfWeekFilters] = useState([]);
   const [statusFilters, setStatusFilters] = useState([]);
+  const [labelFilters, setLabelFilters] = useState([]);
+  const [includeNoneLabel, setIncludeNoneLabel] = useState(false);
   const [assignedToFilter, setAssignedToFilter] = useState("");
   const [minTaskCount, setMinTaskCount] = useState("");
   const [minStoryPoints, setMinStoryPoints] = useState("");
@@ -145,6 +149,8 @@ const Charts = () => {
     priorityFilters: [],
     dayOfWeekFilters: [],
     statusFilters: [],
+    labelFilters: [],
+    includeNoneLabel: false,
     assignedToFilter: "",
     minTaskCount: "",
     minStoryPoints: "",
@@ -170,11 +176,21 @@ const Charts = () => {
     if (params.yAxisMetric) setYAxisMetric(params.yAxisMetric);
     if (params.sortOrder) setSortOrder(params.sortOrder);
     if (params.dueFilter) setDueFilter(params.dueFilter);
-    if (params.priorityFilters)
+    if (params.priorityFilters) {
       setPriorityFilters(params.priorityFilters.split(","));
-    if (params.dayOfWeekFilters)
+    }
+    if (params.dayOfWeekFilters) {
       setDayOfWeekFilters(params.dayOfWeekFilters.split(","));
-    if (params.statusFilters) setStatusFilters(params.statusFilters.split(","));
+    }
+    if (params.statusFilters) {
+      setStatusFilters(params.statusFilters.split(","));
+    }
+    if (params.labelFilters) {
+      setLabelFilters(params.labelFilters.split(","));
+    }
+    if (params.includeNoneLabel) {
+      setIncludeNoneLabel(params.includeNoneLabel === "true");
+    }
     if (params.assignedToFilter) setAssignedToFilter(params.assignedToFilter);
     if (params.minTaskCount) setMinTaskCount(params.minTaskCount);
     if (params.minStoryPoints) setMinStoryPoints(params.minStoryPoints);
@@ -187,8 +203,12 @@ const Charts = () => {
       setIncludeNoDueDate(params.includeNoDueDate === "true");
     if (params.comparisonMode)
       setComparisonMode(params.comparisonMode === "true");
-    if (params.compStartDate) setCompStartDate(new Date(params.compStartDate));
-    if (params.compEndDate) setCompEndDate(new Date(params.compEndDate));
+    if (params.compStartDate) {
+      setCompStartDate(new Date(params.compStartDate));
+    }
+    if (params.compEndDate) {
+      setCompEndDate(new Date(params.compEndDate));
+    }
   }, []); // run on mount
 
   // -------------------- Update URL on Filter Changes --------------------
@@ -204,6 +224,8 @@ const Charts = () => {
       priorityFilters: priorityFilters.join(","),
       dayOfWeekFilters: dayOfWeekFilters.join(","),
       statusFilters: statusFilters.join(","),
+      labelFilters: labelFilters.join(","),
+      includeNoneLabel,
       assignedToFilter,
       minTaskCount,
       minStoryPoints,
@@ -230,6 +252,8 @@ const Charts = () => {
     priorityFilters,
     dayOfWeekFilters,
     statusFilters,
+    labelFilters,
+    includeNoneLabel,
     assignedToFilter,
     minTaskCount,
     minStoryPoints,
@@ -280,6 +304,18 @@ const Charts = () => {
     fetchColumns();
   }, []);
 
+  useEffect(() => {
+    const getLabels = async () => {
+      try {
+        const res = await fetchLabels(auth.currentUser.uid);
+        setLabels(res.data);
+      } catch (error) {
+        console.error("Error fetching labels:", error);
+      }
+    };
+    if (auth.currentUser) getLabels();
+  }, []);
+
   const statusOptions = Object.entries(columnsMapping).map(
     ([colId, colName]) => ({
       value: colId,
@@ -316,6 +352,10 @@ const Charts = () => {
             setDayOfWeekFilters(prefs.dayOfWeekFilters);
           if (!params.statusFilters && prefs.statusFilters)
             setStatusFilters(prefs.statusFilters);
+          if (!params.labelFilters && prefs.labelFilters)
+            setLabelFilters(prefs.labelFilters);
+          if (!params.includeNoneLabel && prefs.includeNoneLabel !== undefined)
+            setIncludeNoneLabel(prefs.includeNoneLabel);
           if (!params.assignedToFilter && prefs.assignedToFilter)
             setAssignedToFilter(prefs.assignedToFilter);
           if (!params.minTaskCount && prefs.minTaskCount)
@@ -458,7 +498,6 @@ const Charts = () => {
         const d = new Date(task.completedAt);
         return d >= startDate && d <= endDate;
       } else {
-        // both
         let d;
         if (task.taskCompleted) {
           if (!task.completedAt) return false;
@@ -501,6 +540,18 @@ const Charts = () => {
       filtered = filtered.filter((task) => statusFilters.includes(task.status));
     }
 
+    // Unified label filter:
+    filtered = filtered.filter((task) => {
+      const hasLabels = task.labels && task.labels.length > 0;
+      if (!hasLabels) {
+        return includeNoneLabel;
+      }
+      if (labelFilters.length === 0) {
+        return true;
+      }
+      return task.labels.some((lbl) => labelFilters.includes(lbl.title));
+    });
+
     if (assignedToFilter.trim() !== "") {
       const term = assignedToFilter.trim().toLowerCase();
       filtered = filtered.filter(
@@ -536,58 +587,84 @@ const Charts = () => {
     const groupMap = {};
 
     tasksList.forEach((task) => {
-      let d = task.taskCompleted
-        ? new Date(task.completedAt)
-        : new Date(task.createdAt);
-      let key;
-      if (xAxisField === "day") {
-        key = format(d, "EEEE");
-      } else if (xAxisField === "priority") {
-        key = task.priority || "None";
-      } else if (xAxisField === "status") {
-        key = task.taskCompleted
-          ? "Completed"
-          : columnsMapping[task.status] || task.status;
-      }
-
-      if (!groupMap[key]) {
-        groupMap[key] = { key, count: 0, timeSpent: 0, storyPoints: 0 };
-      }
-      groupMap[key].count += 1;
-      groupMap[key].timeSpent += task.timeSpent || 0;
-      groupMap[key].storyPoints += task.storyPoints || 0;
-    });
-
-    if (includeZeroMetrics) {
-      let possibleKeys = [];
-      if (xAxisField === "day") {
-        possibleKeys =
-          dayOfWeekFilters.length > 0 ? dayOfWeekFilters : dayOptions;
-      } else if (xAxisField === "priority") {
-        possibleKeys =
-          priorityFilters.length > 0 ? priorityFilters : allowedPriorities;
-      } else if (xAxisField === "status") {
-        possibleKeys =
-          statusFilters.length > 0
-            ? statusFilters.map((val) => columnsMapping[val] || val)
-            : (() => {
-                const keys = columnsMapping
-                  ? Object.values(columnsMapping)
-                  : [];
-                if (!keys.includes("Completed")) {
-                  keys.push("Completed");
-                }
-                return Array.from(new Set(keys));
-              })();
-      }
-      possibleKeys.forEach((key) => {
+      if (xAxisField === "label") {
+        if (task.labels && task.labels.length > 0) {
+          task.labels.forEach((label) => {
+            if (
+              labelFilters.length > 0 &&
+              !labelFilters.includes(label.title)
+            ) {
+              return;
+            }
+            const labelKey = label.title;
+            if (!groupMap[labelKey]) {
+              groupMap[labelKey] = {
+                key: labelKey,
+                count: 0,
+                timeSpent: 0,
+                storyPoints: 0,
+                color: label.color,
+              };
+            }
+            groupMap[labelKey].count += 1;
+            groupMap[labelKey].timeSpent += task.timeSpent || 0;
+            groupMap[labelKey].storyPoints += task.storyPoints || 0;
+          });
+          return;
+        } else {
+          if (includeNoneLabel) {
+            const key = "None";
+            if (!groupMap[key]) {
+              groupMap[key] = { key, count: 0, timeSpent: 0, storyPoints: 0 };
+            }
+            groupMap[key].count += 1;
+            groupMap[key].timeSpent += task.timeSpent || 0;
+            groupMap[key].storyPoints += task.storyPoints || 0;
+          }
+          return;
+        }
+      } else {
+        let key;
+        if (xAxisField === "day") {
+          const d = task.taskCompleted
+            ? new Date(task.completedAt)
+            : new Date(task.createdAt);
+          key = format(d, "EEEE");
+        } else if (xAxisField === "priority") {
+          key = task.priority || "None";
+        } else if (xAxisField === "status") {
+          key = task.taskCompleted
+            ? "Completed"
+            : columnsMapping[task.status] || task.status;
+        }
         if (!groupMap[key]) {
           groupMap[key] = { key, count: 0, timeSpent: 0, storyPoints: 0 };
+        }
+        groupMap[key].count += 1;
+        groupMap[key].timeSpent += task.timeSpent || 0;
+        groupMap[key].storyPoints += task.storyPoints || 0;
+      }
+    });
+
+    if (xAxisField === "label") {
+      labels.forEach((l) => {
+        if (!groupMap[l.title]) {
+          groupMap[l.title] = {
+            key: l.title,
+            count: 0,
+            timeSpent: 0,
+            storyPoints: 0,
+            color: l.color,
+          };
         }
       });
     }
 
     let groupedData = Object.values(groupMap);
+
+    if (!includeNoneLabel) {
+      groupedData = groupedData.filter((item) => item.key !== "None");
+    }
 
     if (xAxisField === "status") {
       if (taskType === "active") {
@@ -698,6 +775,8 @@ const Charts = () => {
     priorityFilters,
     dayOfWeekFilters,
     statusFilters,
+    labelFilters,
+    includeNoneLabel,
     assignedToFilter,
     minTaskCount,
     minStoryPoints,
@@ -762,6 +841,11 @@ const Charts = () => {
             ? "Completed"
             : columnsMapping[task.status] || task.status;
           return statusLabel === groupKey;
+        } else if (xAxisField === "label") {
+          if (task.labels && task.labels.length > 0) {
+            return task.labels.some((lbl) => lbl.title === groupKey);
+          }
+          return groupKey === "None";
         }
         return false;
       })
@@ -783,6 +867,11 @@ const Charts = () => {
               ? "Completed"
               : columnsMapping[task.status] || task.status;
             return statusLabel === groupKey;
+          } else if (xAxisField === "label") {
+            if (task.labels && task.labels.length > 0) {
+              return task.labels.some((lbl) => lbl.title === groupKey);
+            }
+            return groupKey === "None";
           }
           return false;
         })
@@ -826,6 +915,11 @@ const Charts = () => {
             ? "Completed"
             : columnsMapping[task.status] || task.status;
           return statusLabel === clickedKey;
+        } else if (xAxisField === "label") {
+          if (task.labels && task.labels.length > 0) {
+            return task.labels.some((lbl) => lbl.title === clickedKey);
+          }
+          return clickedKey === "None";
         }
         return false;
       })
@@ -847,6 +941,11 @@ const Charts = () => {
               ? "Completed"
               : columnsMapping[task.status] || task.status;
             return statusLabel === clickedKey;
+          } else if (xAxisField === "label") {
+            if (task.labels && task.labels.length > 0) {
+              return task.labels.some((lbl) => lbl.title === clickedKey);
+            }
+            return clickedKey === "None";
           }
           return false;
         })
@@ -880,6 +979,7 @@ const Charts = () => {
       navigate(`/charts${location.search}`);
     }
   };
+
   const handleSavePreferences = async () => {
     setIsSaveDisabled(true);
     await saveUserPreferences();
@@ -895,6 +995,7 @@ const Charts = () => {
       setIsDefaultDisabled(false);
     }, 1000);
   };
+
   // -------------------- Updated Preferences Functions with Toastify --------------------
   const saveUserPreferences = async () => {
     const currentUser = auth.currentUser;
@@ -912,6 +1013,8 @@ const Charts = () => {
       priorityFilters,
       dayOfWeekFilters,
       statusFilters,
+      labelFilters,
+      includeNoneLabel,
       assignedToFilter,
       minTaskCount,
       minStoryPoints,
@@ -946,6 +1049,8 @@ const Charts = () => {
     setPriorityFilters(defaultFilterSettings.priorityFilters);
     setDayOfWeekFilters(defaultFilterSettings.dayOfWeekFilters);
     setStatusFilters(defaultFilterSettings.statusFilters);
+    setLabelFilters(defaultFilterSettings.labelFilters);
+    setIncludeNoneLabel(defaultFilterSettings.includeNoneLabel);
     setAssignedToFilter(defaultFilterSettings.assignedToFilter);
     setMinTaskCount(defaultFilterSettings.minTaskCount);
     setMinStoryPoints(defaultFilterSettings.minStoryPoints);
@@ -980,7 +1085,7 @@ const Charts = () => {
   const axisFormatter = (value) =>
     yAxisMetric === "timeSpent" ? `${value.toFixed(2)}h` : value.toFixed(0);
 
-  const axisWordLimit = (value, index) => {
+  const axisWordLimit = (value) => {
     const limit = 20;
     if (typeof value !== "string") return "";
     return value.length < limit ? value : `${value.substring(0, limit)}...`;
@@ -1180,10 +1285,7 @@ const Charts = () => {
                 />
               ))}
             </Pie>
-
-            <Legend
-              formatter={(value, entry, index) => axisWordLimit(value, index)}
-            />
+            <Legend formatter={(value) => axisWordLimit(value)} />
             <Tooltip
               formatter={tooltipFormatter}
               contentStyle={{
@@ -1343,6 +1445,7 @@ const Charts = () => {
                   <option value="day">Day</option>
                   <option value="priority">Priority</option>
                   <option value="status">Status</option>
+                  <option value="label">Label</option>
                 </select>
               </div>
               <div className="filter-group">
@@ -1422,6 +1525,39 @@ const Charts = () => {
                       options={statusOptions}
                       selectedOptions={statusFilters}
                       onChange={setStatusFilters}
+                    />
+                  </div>
+
+                  <div className="filter-group">
+                    <MultiSelectDropdown
+                      fallbackText="All"
+                      label="Label"
+                      options={labels.map((l) => ({
+                        value: l.title,
+                        label: (
+                          <div className="label-option-wrapper">
+                            <span
+                              className="label-color-box"
+                              style={{ backgroundColor: l.color }}
+                            />
+                            <span>{l.title}</span>
+                          </div>
+                        ),
+                      }))}
+                      selectedOptions={labelFilters}
+                      onChange={setLabelFilters}
+                    />
+                  </div>
+
+                  <div className="filter-group">
+                    <label htmlFor="include-none-label">
+                      Include None Label
+                    </label>
+                    <input
+                      id="include-none-label"
+                      type="checkbox"
+                      checked={includeNoneLabel}
+                      onChange={(e) => setIncludeNoneLabel(e.target.checked)}
                     />
                   </div>
                   <div className="filter-group">
@@ -1612,6 +1748,7 @@ const Charts = () => {
         openReadOnlyViewTaskModal={openReadOnlyViewTaskModal}
         comparisonMode={comparisonMode}
         selectedGroup={groupKey}
+        userSettings={userSettings}
       />
       {isViewTaskModalOpen && (
         <ViewTaskModal

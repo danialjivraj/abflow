@@ -428,7 +428,7 @@ describe("ViewTaskModal - Integration Tests", () => {
     global.Audio = jest.fn().mockImplementation(() => {
       return { play: playMock };
     });
-  
+
     const task = createBaseTask({ status: "in-progress" });
     const props = { ...defaultProps, readOnly: false, task };
     render(<ViewTaskModal {...props} />);
@@ -454,6 +454,121 @@ describe("ViewTaskModal - Integration Tests", () => {
     await waitFor(() => {
       expect(completeTask).toHaveBeenCalledWith(task._id);
       expect(toast.error).toHaveBeenCalledWith("Error completing task.");
+    });
+  });
+
+  test("renders multiple labels above the title in the modal and verifies their colors", () => {
+    const taskWithLabels = createBaseTask({
+      labels: [
+        { title: "Urgent", color: "#ff0000" },
+        { title: "Backend", color: "#00ff00" },
+      ],
+    });
+    const { container } = render(
+      <ViewTaskModal {...defaultProps} task={taskWithLabels} />
+    );
+
+    const titleBlock = container.querySelector(".title-block");
+    expect(titleBlock).toBeInTheDocument();
+
+    const labelsContainer = titleBlock.querySelector(".task-labels");
+    expect(labelsContainer).toBeInTheDocument();
+
+    const urgentLabel = within(labelsContainer).getByText("Urgent");
+    const backendLabel = within(labelsContainer).getByText("Backend");
+    expect(urgentLabel).toBeInTheDocument();
+    expect(backendLabel).toBeInTheDocument();
+
+    expect(urgentLabel).toHaveStyle("background-color: #ff0000");
+    expect(backendLabel).toHaveStyle("background-color: #00ff00");
+
+    const titleHeading = within(titleBlock).getByText("Title");
+    expect(titleHeading).toBeInTheDocument();
+
+    expect(titleBlock.firstChild).toEqual(labelsContainer);
+  });
+
+  describe("ViewTaskModal - Label Field", () => {
+    const availableLabels = [
+      { _id: "label-1", title: "Urgent", color: "#ff0000" },
+    ];
+
+    test("does not render label field in read-only mode", () => {
+      render(
+        <ViewTaskModal
+          {...defaultProps}
+          readOnly={true}
+          newTaskLabels={[]}
+          availableLabels={availableLabels}
+        />
+      );
+      expect(screen.queryByText("Labels:")).toBeNull();
+      expect(screen.queryByText("Click to see labels")).toBeNull();
+    });
+
+    test("renders label field in editable mode", () => {
+      render(
+        <ViewTaskModal
+          {...defaultProps}
+          readOnly={false}
+          newTaskLabels={[]}
+          availableLabels={availableLabels}
+        />
+      );
+      expect(screen.getByText("Labels:")).toBeInTheDocument();
+      expect(screen.getByText("Click to see labels")).toBeInTheDocument();
+    });
+
+    test("opens labels dropdown on clicking label field", () => {
+      render(
+        <ViewTaskModal
+          {...defaultProps}
+          readOnly={false}
+          newTaskLabels={[]}
+          availableLabels={availableLabels}
+        />
+      );
+      const labelDisplay = screen.getByText("Click to see labels");
+      fireEvent.click(labelDisplay);
+      const dropdown = document.querySelector(".nested-dropdown-menu");
+      expect(dropdown).toBeInTheDocument();
+    });
+
+    test("shows label above title after toggling a label", async () => {
+      const setNewTaskLabels = jest.fn((updateFn) => {
+        return updateFn([]);
+      });
+      const taskNoLabels = createBaseTask({ labels: [] });
+      render(
+        <ViewTaskModal
+          {...defaultProps}
+          task={taskNoLabels}
+          readOnly={false}
+          newTaskLabels={[]}
+          availableLabels={[
+            { _id: "label-1", title: "Urgent", color: "#ff0000" },
+          ]}
+          setNewTaskLabels={setNewTaskLabels}
+        />
+      );
+
+      const labelDisplay = screen.getByText("Click to see labels");
+      fireEvent.click(labelDisplay);
+      const dropdown = document.querySelector(".nested-dropdown-menu");
+      expect(dropdown).toBeInTheDocument();
+
+      const urgentLabelButton = within(dropdown).getByText("Urgent");
+      fireEvent.click(urgentLabelButton);
+
+      expect(defaultProps.handleUpdateTask).toHaveBeenCalled();
+
+      // shows above the title since it was pressed
+      const titleBlock = document.querySelector(".title-block");
+      expect(titleBlock).toBeInTheDocument();
+
+      await waitFor(() => {
+        expect(within(titleBlock).getByText("Urgent")).toBeInTheDocument();
+      });
     });
   });
 });

@@ -1,7 +1,16 @@
 import React, { useRef, useEffect, useState } from "react";
 import { Draggable } from "@hello-pangea/dnd";
-import { formatDueDate, formatCompletedDueDate, getCalendarIconColor } from "../../utils/dateUtils";
+import {
+  formatDueDate,
+  formatCompletedDueDate,
+  getCalendarIconColor,
+} from "../../utils/dateUtils";
 import DeleteConfirmationModal from "../modals/DeleteConfirmationModal";
+import { updateTask } from "../../services/tasksService";
+import LabelsDropdown from "./LabelsDropdown";
+import TaskLabels from "./TaskLabels";
+import taskCompletedSfx from "../../assets/taskCompleted.mp3";
+import { toast } from "react-toastify";
 
 const priorityMapping = {
   A: "A: Very Important",
@@ -14,7 +23,7 @@ const priorityMapping = {
 const TaskCard = ({
   task,
   index,
-  draggable = true, // default to true for boards view
+  draggable = true,
   currentTime,
   isTaskHovered,
   setIsTaskHovered,
@@ -28,29 +37,53 @@ const TaskCard = ({
   handleBackToBoards,
   hideDots,
   confirmBeforeDeleteTask = true,
-  duplicateTask
+  duplicateTask,
+  availableLabels = [],
+  userSettings = {},
 }) => {
   const dropdownMenuRef = useRef(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isLabelsDropdownOpen, setIsLabelsDropdownOpen] = useState(false);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (dropdownMenuRef.current && !dropdownMenuRef.current.contains(event.target)) {
+      if (
+        dropdownMenuRef.current &&
+        !dropdownMenuRef.current.contains(event.target)
+      ) {
         if (isTaskDropdownOpen === task._id) {
           setIsTaskDropdownOpen(null);
         }
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isTaskDropdownOpen, setIsTaskDropdownOpen, task._id]);
 
   const handleClick = (e) => {
     if (e.target.closest(".task-actions")) return;
     openViewTaskModal(task);
+  };
+
+  const handleToggleLabel = async (label) => {
+    const isAttached = task.labels.some(
+      (l) => l.title === label.title && l.color === label.color
+    );
+    let newLabels;
+    if (isAttached) {
+      newLabels = task.labels.filter(
+        (l) => !(l.title === label.title && l.color === label.color)
+      );
+    } else {
+      newLabels = [...task.labels, label];
+    }
+    try {
+      const updatedTask = { ...task, labels: newLabels };
+      await updateTask(updatedTask);
+      task.labels = newLabels;
+    } catch (error) {
+      console.error("Error updating task labels:", error);
+    }
   };
 
   const priorityLetter = task.priority.charAt(0);
@@ -63,7 +96,6 @@ const TaskCard = ({
 
   let dueDateText = "";
   let dueDateClass = "";
-
   if (task.dueDate) {
     if (task.status === "completed" && task.completedAt) {
       dueDateText = formatCompletedDueDate(task.dueDate, task.completedAt);
@@ -77,13 +109,24 @@ const TaskCard = ({
     }
   }
 
-  const calendarColor = getCalendarIconColor(task.scheduledStart, task.scheduledEnd, currentTime);
+  const calendarColor = getCalendarIconColor(
+    task.scheduledStart,
+    task.scheduledEnd,
+    currentTime
+  );
 
   const cardContent = (
     <>
+      <TaskLabels
+        labels={task.labels}
+        hideLabelText={userSettings.hideLabelText}
+        truncateLength={29}
+      />
       <span>{task.title}</span>
       <div className="task-bottom">
-        {task.dueDate && <span className={`due-date ${dueDateClass}`}>{dueDateText}</span>}
+        {task.dueDate && (
+          <span className={`due-date ${dueDateClass}`}>{dueDateText}</span>
+        )}
         {calendarColor && (
           <svg
             className="calendar-icon"
@@ -94,10 +137,7 @@ const TaskCard = ({
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
-            style={{
-              "--calendar-color": calendarColor,
-              marginRight: "4px",
-            }}
+            style={{ "--calendar-color": calendarColor }}
           >
             <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
             <line x1="16" y1="2" x2="16" y2="6" />
@@ -124,18 +164,25 @@ const TaskCard = ({
             <path d="M18 19l2 2" />
           </svg>
         )}
-        <b className={`priority-${task.priority.replace(/\s+/g, "")}`} title={priorityTitle}>
+        <b
+          className={`priority-${task.priority.replace(/\s+/g, "")}`}
+          title={priorityTitle}
+        >
           {task.priority}
         </b>
         {!hideDots && (
           <div className="task-actions">
             <button
               className={`dots-button ${
-                isTaskHovered === task._id || isTaskDropdownOpen === task._id ? "visible" : ""
+                isTaskHovered === task._id || isTaskDropdownOpen === task._id
+                  ? "visible"
+                  : ""
               } ${isTaskDropdownOpen === task._id ? "dropdown-active" : ""}`}
               onClick={(e) => {
                 e.stopPropagation();
-                setIsTaskDropdownOpen(isTaskDropdownOpen === task._id ? null : task._id);
+                setIsTaskDropdownOpen(
+                  isTaskDropdownOpen === task._id ? null : task._id
+                );
               }}
             >
               &#8942;
@@ -144,20 +191,30 @@ const TaskCard = ({
               <div className="dropdown-menu open" ref={dropdownMenuRef}>
                 {task.status !== "completed" && handleCompleteTask && (
                   <button
-                    onClick={(e) => {
+                    onClick={async (e) => {
                       e.stopPropagation();
-                      handleCompleteTask(task);
+                      new Audio(taskCompletedSfx).play();
+                      try {
+                        await handleCompleteTask(task);
+                        toast.success("Task completed!");
+                      } catch (error) {
+                        console.error("Error completing task:", error);
+                        toast.error("Error completing task.");
+                      }
                       setIsTaskDropdownOpen(null);
                     }}
                   >
                     Complete Task
                   </button>
                 )}
+
                 {task.status !== "completed" && (
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      task.isTimerRunning ? stopTimer(task._id) : startTimer(task._id);
+                      task.isTimerRunning
+                        ? stopTimer(task._id)
+                        : startTimer(task._id);
                       setIsTaskDropdownOpen(null);
                     }}
                   >
@@ -175,15 +232,64 @@ const TaskCard = ({
                     Back to Boards
                   </button>
                 )}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    duplicateTask(task);
-                    setIsTaskDropdownOpen(null);
-                  }}
+
+                <div
+                  className="labels-dropdown-container"
+                  onMouseEnter={() => setIsLabelsDropdownOpen(true)}
+                  onMouseLeave={() => setIsLabelsDropdownOpen(false)}
                 >
-                  Duplicate
-                </button>
+                  <button
+                    className="dropdown-item"
+                    onClick={(e) => e.stopPropagation()}
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      width: "100%",
+                    }}
+                  >
+                    Labels
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      style={{
+                        marginLeft: "16px",
+                        transform: "rotate(0deg)",
+                      }}
+                    >
+                      <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                  </button>
+                  {isLabelsDropdownOpen && (
+                    <LabelsDropdown
+                      task={task}
+                      availableLabels={availableLabels}
+                      handleToggleLabel={handleToggleLabel}
+                      setIsLabelsDropdownOpen={setIsLabelsDropdownOpen}
+                      setIsTaskDropdownOpen={setIsTaskDropdownOpen}
+                      maxHeight="500px"
+                    />
+                  )}
+                </div>
+
+                {task.status !== "completed" && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      duplicateTask(task);
+                      setIsTaskDropdownOpen(null);
+                    }}
+                  >
+                    Duplicate
+                  </button>
+                )}
+
                 <button
                   onClick={(e) => {
                     e.stopPropagation();

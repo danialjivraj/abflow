@@ -10,6 +10,7 @@ const FilterBar = ({
   showTimer = true,
   rangeFilter = false,
   showCalendar = true,
+  availableLabels = [],
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [timerDropdownOpen, setTimerDropdownOpen] = useState(false);
@@ -42,8 +43,7 @@ const FilterBar = ({
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
-    return () =>
-      document.removeEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const handleInputChange = (e) => {
@@ -64,6 +64,7 @@ const FilterBar = ({
     setFilters({
       taskName: "",
       priority: [],
+      labels: [],
       assignedTo: "",
       storyPoints: "",
       timerRunning: null,
@@ -77,6 +78,7 @@ const FilterBar = ({
   const isDefaultFilters =
     filters.taskName === "" &&
     filters.priority.length === 0 &&
+    filters.labels?.length === 0 &&
     filters.assignedTo === "" &&
     filters.storyPoints === "" &&
     filters.timerRunning === null &&
@@ -142,6 +144,26 @@ const FilterBar = ({
             selectedOptions={filters.priority}
             onChange={(newSelectedArray) =>
               setFilters((prev) => ({ ...prev, priority: newSelectedArray }))
+            }
+          />
+
+          <MultiSelectDropdown
+            label="Labels"
+            options={availableLabels.map((label) => ({
+              value: label.title,
+              label: (
+                <div className="label-option-wrapper">
+                  <span
+                    className="label-color-box"
+                    style={{ backgroundColor: label.color }}
+                  />
+                  <span>{label.title}</span>
+                </div>
+              ),
+            }))}
+            selectedOptions={filters.labels || []}
+            onChange={(newSelectedLabels) =>
+              setFilters((prev) => ({ ...prev, labels: newSelectedLabels }))
             }
           />
 

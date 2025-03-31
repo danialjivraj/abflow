@@ -21,7 +21,6 @@ jest.mock("react-toastify", () => ({
     error: jest.fn(),
   },
 }));
-
 const { toast } = require("react-toastify");
 
 const baseUser = createBaseUser({
@@ -106,7 +105,6 @@ test("opens with the default task priority from user settings and updates when c
       defaultPriority={baseUser.settingsPreferences.defaultPriority}
     />
   );
-
   await waitFor(() => {
     expect(screen.getByDisplayValue("D")).toBeInTheDocument();
   });
@@ -125,7 +123,9 @@ describe("CreateTaskModal Integration Tests", () => {
     test("renders board creation UI", () => {
       render(<CreateTaskModal {...defaultProps} columns={{}} />);
       expect(
-        screen.getByText("You need to create a board before you can create tasks.")
+        screen.getByText(
+          "You need to create a board before you can create tasks."
+        )
       ).toBeInTheDocument();
       const boardNameInput = screen.getByPlaceholderText("Enter board name");
       expect(boardNameInput).toBeInTheDocument();
@@ -182,7 +182,11 @@ describe("CreateTaskModal Integration Tests", () => {
     test("calls handleCreateBoard when Enter key is pressed in board creation input", () => {
       render(<CreateTaskModal {...defaultProps} columns={{}} />);
       const boardNameInput = screen.getByPlaceholderText("Enter board name");
-      fireEvent.keyDown(boardNameInput, { key: "Enter", code: "Enter", charCode: 13 });
+      fireEvent.keyDown(boardNameInput, {
+        key: "Enter",
+        code: "Enter",
+        charCode: 13,
+      });
       expect(defaultProps.handleCreateBoard).toHaveBeenCalled();
     });
   });
@@ -246,7 +250,9 @@ describe("CreateTaskModal Integration Tests", () => {
       const createButton = screen.getByText("Create");
       fireEvent.click(createButton);
       await waitFor(() => {
-        expect(screen.getByText("Task Title is required.")).toBeInTheDocument();
+        expect(screen.getByRole("alert").textContent).toBe(
+          "Task Title is required."
+        );
       });
     });
 
@@ -413,8 +419,9 @@ describe("CreateTaskModal Integration Tests", () => {
       );
       fireEvent.click(screen.getByText("Create"));
       await waitFor(() => {
-        const errorElem = screen.getByRole("alert");
-        expect(errorElem.textContent).toBe("Task Title is required.");
+        expect(screen.getByRole("alert").textContent).toBe(
+          "Task Title is required."
+        );
       });
       rerender(
         <CreateTaskModal
@@ -485,59 +492,132 @@ describe("CreateTaskModal Integration Tests", () => {
           selectedStatus="backlog"
         />
       );
-      
       const statusSelect = screen
         .getAllByRole("combobox")
         .find((select) => select.innerHTML.includes("Backlog"));
-      
       expect(statusSelect.value).toBe("backlog");
     });
   });
 
-  describe("CreateTaskModal Toast Messages", () => {
-    afterEach(() => {
-      jest.clearAllMocks();
-    });
-  
-    test("displays success toast message when task is created", async () => {
-      const mockHandleCreateTask = jest.fn().mockResolvedValue();
-      render(
+  describe("Labels Field", () => {
+    function LabelsWrapper() {
+      const [newTaskLabels, setNewTaskLabels] = React.useState([]);
+      return (
         <CreateTaskModal
           {...defaultProps}
           columns={{ backlog: { ...baseColumn, items: [] } }}
-          newTaskTitle="Test Task"
-          handleCreateTask={mockHandleCreateTask}
+          availableLabels={[
+            { title: "Urgent", color: "red" },
+            { title: "Feature", color: "blue" },
+          ]}
+          newTaskLabels={newTaskLabels}
+          setNewTaskLabels={setNewTaskLabels}
         />
       );
-      const createButton = screen.getByText("Create");
-      fireEvent.click(createButton);
-      await waitFor(() => {
-        expect(mockHandleCreateTask).toHaveBeenCalled();
-        expect(toast.success).toHaveBeenCalledWith("Task created!");
-      });
+    }
+
+    test("renders 'Select Labels' when no labels are selected", () => {
+      render(<LabelsWrapper />);
+      expect(screen.getByText("Select Labels")).toBeInTheDocument();
     });
-  
-    test("displays error toast message when task creation fails", async () => {
-      const errorMsg = "Failed to create task";
-      const mockHandleCreateTask = jest
-        .fn()
-        .mockRejectedValue(new Error(errorMsg));
-      render(
-        <CreateTaskModal
-          {...defaultProps}
-          columns={{ backlog: { ...baseColumn, items: [] } }}
-          newTaskTitle="Test Task"
-          handleCreateTask={mockHandleCreateTask}
-        />
+
+    test("toggles 'Urgent' label selection", () => {
+      render(<LabelsWrapper />);
+      fireEvent.click(screen.getByText("Select Labels"));
+      const urgentButton = screen.getByRole("button", { name: "Urgent" });
+      expect(urgentButton).toBeInTheDocument();
+      fireEvent.click(urgentButton);
+      expect(screen.getByText("Urgent")).toBeInTheDocument();
+      const labelsContainer = document.querySelector(
+        ".selected-labels-display"
       );
-      const createButton = screen.getByText("Create");
-      fireEvent.click(createButton);
-      await waitFor(() => {
-        expect(mockHandleCreateTask).toHaveBeenCalled();
-        expect(toast.error).toHaveBeenCalledWith(
-          "An error occurred while creating the task."
-        );
+      fireEvent.click(labelsContainer);
+      const urgentButtonAttached = screen.getByRole("button", {
+        name: "Urgent x",
       });
+      fireEvent.click(urgentButtonAttached);
+      expect(screen.getByText("Select Labels")).toBeInTheDocument();
+    });
+
+    test("toggles 'Feature' label selection", () => {
+      render(<LabelsWrapper />);
+      fireEvent.click(screen.getByText("Select Labels"));
+      const featureButton = screen.getByRole("button", { name: "Feature" });
+      expect(featureButton).toBeInTheDocument();
+      fireEvent.click(featureButton);
+      expect(screen.getByText("Feature")).toBeInTheDocument();
+      const labelsContainer = document.querySelector(
+        ".selected-labels-display"
+      );
+      fireEvent.click(labelsContainer);
+      const featureButtonAttached = screen.getByRole("button", {
+        name: "Feature x",
+      });
+      fireEvent.click(featureButtonAttached);
+      expect(screen.getByText("Select Labels")).toBeInTheDocument();
+    });
+
+    test("allows selecting both 'Urgent' and 'Feature' labels together", () => {
+      render(<LabelsWrapper />);
+      fireEvent.click(screen.getByText("Select Labels"));
+      fireEvent.click(screen.getByRole("button", { name: "Urgent" }));
+      const labelsContainer = document.querySelector(
+        ".selected-labels-display"
+      );
+      fireEvent.click(labelsContainer);
+      fireEvent.click(screen.getByRole("button", { name: "Feature" }));
+      expect(screen.getByText("Urgent")).toBeInTheDocument();
+      expect(screen.getByText("Feature")).toBeInTheDocument();
+    });
+  });
+});
+
+// =======================
+// CreateTaskModal Toast Messages Tests
+// =======================
+describe("CreateTaskModal Toast Messages", () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test("displays success toast message when task is created", async () => {
+    const mockHandleCreateTask = jest.fn().mockResolvedValue();
+    render(
+      <CreateTaskModal
+        {...defaultProps}
+        columns={{ backlog: { ...baseColumn, items: [] } }}
+        newTaskTitle="Test Task"
+        handleCreateTask={mockHandleCreateTask}
+      />
+    );
+    const createButton = screen.getByText("Create");
+    fireEvent.click(createButton);
+    await waitFor(() => {
+      expect(mockHandleCreateTask).toHaveBeenCalled();
+      expect(toast.success).toHaveBeenCalledWith("Task created!");
+    });
+  });
+
+  test("displays error toast message when task creation fails", async () => {
+    const errorMsg = "Failed to create task";
+    const mockHandleCreateTask = jest
+      .fn()
+      .mockRejectedValue(new Error(errorMsg));
+    render(
+      <CreateTaskModal
+        {...defaultProps}
+        columns={{ backlog: { ...baseColumn, items: [] } }}
+        newTaskTitle="Test Task"
+        handleCreateTask={mockHandleCreateTask}
+      />
+    );
+    const createButton = screen.getByText("Create");
+    fireEvent.click(createButton);
+    await waitFor(() => {
+      expect(mockHandleCreateTask).toHaveBeenCalled();
+      expect(toast.error).toHaveBeenCalledWith(
+        "An error occurred while creating the task."
+      );
     });
   });
 });

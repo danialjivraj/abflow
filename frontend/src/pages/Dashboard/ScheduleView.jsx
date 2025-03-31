@@ -7,11 +7,12 @@ import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
 import { FiList, FiX } from "react-icons/fi";
 import { updateTask, updateTaskSchedule } from "../../services/tasksService";
 import { useNavigate } from "react-router-dom";
+import TaskLabels from "../../components/boardComponents/TaskLabels";
 
 const localizer = momentLocalizer(moment);
 const DnDCalendar = withDragAndDrop(Calendar);
 
-const ScheduleView = ({ tasks, updateTaskInState, onCreateTaskShortcut }) => {
+const ScheduleView = ({ tasks, updateTaskInState, onCreateTaskShortcut, userSettings }) => {
   const navigate = useNavigate();
 
   const mapTaskToEvent = (task) => {
@@ -332,7 +333,14 @@ const ScheduleView = ({ tasks, updateTaskInState, onCreateTaskShortcut }) => {
                     onDragEnd={handleDragEnd}
                     onClick={() => handleUnscheduledTaskClick(task)}
                   >
-                    {truncatedTitle}
+                    <TaskLabels
+                      labels={task.labels}
+                      hideLabelText={userSettings?.hideLabelText}
+                      truncateLength={29}
+                    />
+                    <div className="unscheduled-task-title">
+                      {truncatedTitle}
+                    </div>
                     <div
                       className={`priority-circle priority-${task.priority}`}
                     >

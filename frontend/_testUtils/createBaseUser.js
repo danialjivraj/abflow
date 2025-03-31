@@ -4,6 +4,7 @@ function createBaseUser(overrides = {}) {
     name: "User",
     profilePicture: "",
     welcomeColumnsAndTask: false,
+    labels: [],
     chartPreferences: {
       timeRangeType: "week",
       taskType: "active",
@@ -13,6 +14,8 @@ function createBaseUser(overrides = {}) {
       sortOrder: "none",
       dueFilter: "both",
       priorityFilters: [],
+      labelFilters: [],
+      includeNoneLabel: false,
       dayOfWeekFilters: [],
       statusFilters: [],
       assignedToFilter: "",

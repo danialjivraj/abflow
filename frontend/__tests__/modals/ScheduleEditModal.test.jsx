@@ -90,7 +90,6 @@ describe("ScheduleEditModal - Integration Tests", () => {
     jest.clearAllMocks();
   });
 
-  // ---------- Date Validation Tests ----------
   test("shows error when start or end time is missing", () => {
     render(
       <ScheduleEditModal
@@ -156,7 +155,6 @@ describe("ScheduleEditModal - Integration Tests", () => {
     ).toBeInTheDocument();
   });
 
-  // ---------- Interaction Tests ----------
   test("calls onSave with updated event data when valid dates are provided", async () => {
     render(<ScheduleEditModal {...defaultProps} />);
     const newStart = new Date("2022-01-01T11:00:00.000Z");
@@ -236,5 +234,22 @@ describe("ScheduleEditModal - Integration Tests", () => {
     rerender(<ScheduleEditModal {...defaultProps} eventData={newEventData} />);
     expect(startInput.value).toBe(new Date(newEventData.start).toString());
     expect(endInput.value).toBe(new Date(newEventData.end).toString());
+  });
+
+  test("displays task labels if they exist", () => {
+    const eventDataWithLabels = {
+      ...baseEventData,
+      task: {
+        ...baseEventData.task,
+        labels: [
+          { title: "Urgent", color: "#ff0000" },
+          { title: "Important", color: "#00ff00" },
+        ],
+      },
+    };
+
+    render(<ScheduleEditModal {...defaultProps} eventData={eventDataWithLabels} />);
+    expect(screen.getByText("Urgent")).toBeInTheDocument();
+    expect(screen.getByText("Important")).toBeInTheDocument();
   });
 });

@@ -5,7 +5,19 @@ const Task = require("../models/Task");
 // create a new task
 router.post("/", async (req, res) => {
   try {
-    const { title, priority, userId, description, assignedTo, status, dueDate, storyPoints, scheduledStart, scheduledEnd } = req.body;
+    const { 
+      title, 
+      priority, 
+      userId, 
+      description, 
+      assignedTo, 
+      status, 
+      dueDate, 
+      storyPoints, 
+      scheduledStart, 
+      scheduledEnd,
+      labels
+    } = req.body;
     if (!title || !priority || !userId || !status) {
       return res.status(400).json({ error: "All fields are required" });
     }
@@ -43,6 +55,7 @@ router.post("/", async (req, res) => {
       storyPoints: storyPoints !== undefined ? storyPoints : 0,
       scheduledStart: scheduledStart || null,
       scheduledEnd: scheduledEnd || null,
+      labels: labels || []
     });
 
     await newTask.save();
@@ -63,6 +76,7 @@ router.post("/", async (req, res) => {
     res.status(500).json({ error: "Failed to create task" });
   }
 });
+
 
 // fetch tasks sorted by order for a user
 router.get("/:userId", async (req, res) => {
@@ -96,6 +110,7 @@ router.put("/:id/edit", async (req, res) => {
       scheduledEnd,
       taskCompleted,
       completedAt,
+      labels,
     } = req.body;
 
     const existingTask = await Task.findById(req.params.id);
@@ -113,6 +128,7 @@ router.put("/:id/edit", async (req, res) => {
       timerStartTime,
       scheduledStart,
       scheduledEnd,
+      labels,
     };
 
     if (dueDate !== undefined) {

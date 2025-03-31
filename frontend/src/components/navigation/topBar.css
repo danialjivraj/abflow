@@ -52,6 +52,9 @@
 }
 
 .create-top-bar-task-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   background-color: var(--create-task-btn-bg);
   color: white;
   border: none;

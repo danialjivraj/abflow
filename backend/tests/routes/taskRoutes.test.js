@@ -139,6 +139,37 @@ describe("Task Routes", () => {
       expect(res.body.order).toBe(1);
       expect(res.body.description).toBe("Updated description");
     });
+
+    it("should update a task's labels", async () => {
+      // task with an empty labels array
+      const task = await Task.create({
+        title: "Task with labels",
+        priority: "A1",
+        userId: defaultUser.userId,
+        status: "pending",
+        order: 0,
+        labels: [],
+      });
+
+      const updatedData = {
+        title: "Task with updated labels",
+        labels: [
+          { title: "Urgent", color: "#ff0000" },
+          { title: "Bug", color: "#00ff00" },
+        ],
+      };
+
+      const res = await request(app)
+        .put(`/api/tasks/${task._id}/edit`)
+        .send(updatedData)
+        .expect(200);
+
+      expect(res.body.labels).toHaveLength(2);
+      expect(res.body.labels[0].title).toBe("Urgent");
+      expect(res.body.labels[0].color).toBe("#ff0000");
+      expect(res.body.labels[1].title).toBe("Bug");
+      expect(res.body.labels[1].color).toBe("#00ff00");
+    });
   });
 
   // ---------------------------
@@ -265,25 +296,40 @@ describe("Task Routes", () => {
   // ---------------------------
   // Duplicate a task
   // ---------------------------
-  it("should duplicate a task in the middle and shift subsequent tasks", async () => {
+  it("should duplicate a task in the middle and shift subsequent tasks, verifying all fields", async () => {
     const createdTasks = [];
     for (let i = 0; i < 6; i++) {
-      const task = await Task.create({
+      const taskData = {
         title: `Existing Task ${i + 1}`,
         priority: "A1",
         userId: defaultUser.userId,
         status: "pending",
         order: i,
-      });
+        description: "",
+        storyPoints: 0,
+        scheduledStart: null,
+        scheduledEnd: null,
+        labels: []
+      };
+      if (i === 2) {
+        taskData.labels = [{ title: "Test Label", color: "#123456" }];
+      }
+      const task = await Task.create(taskData);
       createdTasks.push(task);
     }
 
+    // Duplicate task 3 (index 2)
     const duplicateData = {
       title: "Duplicate of Task 3",
       priority: "A1",
       userId: defaultUser.userId,
       status: "pending",
-      order: createdTasks[2].order + 1, // 2 + 1 = 3
+      order: createdTasks[2].order + 1,
+      description: "",
+      storyPoints: 0,
+      scheduledStart: null,
+      scheduledEnd: null,
+      labels: createdTasks[2].labels
     };
 
     const res = await request(app)
@@ -291,8 +337,19 @@ describe("Task Routes", () => {
       .send(duplicateData)
       .expect(201);
 
+    // Check duplicate task fields
     expect(res.body.title).toBe("Duplicate of Task 3");
+    expect(res.body.priority).toBe("A1");
+    expect(res.body.userId).toBe(defaultUser.userId);
+    expect(res.body.status).toBe("pending");
     expect(res.body.order).toBe(3);
+    expect(res.body.description).toBe("");
+    expect(res.body.storyPoints).toBe(0);
+    expect(res.body.scheduledStart).toBeNull();
+    expect(res.body.scheduledEnd).toBeNull();
+    expect(res.body.labels).toHaveLength(1);
+    expect(res.body.labels[0].title).toBe("Test Label");
+    expect(res.body.labels[0].color).toBe("#123456");
 
     const tasksAfter = await Task.find({ userId: defaultUser.userId, status: "pending" })
       .sort({ order: 1 })
@@ -300,26 +357,110 @@ describe("Task Routes", () => {
 
     expect(tasksAfter).toHaveLength(7);
 
-    expect(tasksAfter[0].title).toBe("Existing Task 1");
-    expect(tasksAfter[0].order).toBe(0);
+    const expectedTasks = [
+      {
+        title: "Existing Task 1",
+        priority: "A1",
+        userId: defaultUser.userId,
+        status: "pending",
+        order: 0,
+        description: "",
+        storyPoints: 0,
+        scheduledStart: null,
+        scheduledEnd: null,
+        labels: []
+      },
+      {
+        title: "Existing Task 2",
+        priority: "A1",
+        userId: defaultUser.userId,
+        status: "pending",
+        order: 1,
+        description: "",
+        storyPoints: 0,
+        scheduledStart: null,
+        scheduledEnd: null,
+        labels: []
+      },
+      {
+        title: "Existing Task 3",
+        priority: "A1",
+        userId: defaultUser.userId,
+        status: "pending",
+        order: 2,
+        description: "",
+        storyPoints: 0,
+        scheduledStart: null,
+        scheduledEnd: null,
+        labels: [{ title: "Test Label", color: "#123456" }]
+      },
+      {
+        title: "Duplicate of Task 3",
+        priority: "A1",
+        userId: defaultUser.userId,
+        status: "pending",
+        order: 3,
+        description: "",
+        storyPoints: 0,
+        scheduledStart: null,
+        scheduledEnd: null,
+        labels: [{ title: "Test Label", color: "#123456" }]
+      },
+      {
+        title: "Existing Task 4",
+        priority: "A1",
+        userId: defaultUser.userId,
+        status: "pending",
+        order: 4,
+        description: "",
+        storyPoints: 0,
+        scheduledStart: null,
+        scheduledEnd: null,
+        labels: []
+      },
+      {
+        title: "Existing Task 5",
+        priority: "A1",
+        userId: defaultUser.userId,
+        status: "pending",
+        order: 5,
+        description: "",
+        storyPoints: 0,
+        scheduledStart: null,
+        scheduledEnd: null,
+        labels: []
+      },
+      {
+        title: "Existing Task 6",
+        priority: "A1",
+        userId: defaultUser.userId,
+        status: "pending",
+        order: 6,
+        description: "",
+        storyPoints: 0,
+        scheduledStart: null,
+        scheduledEnd: null,
+        labels: []
+      }
+    ];
 
-    expect(tasksAfter[1].title).toBe("Existing Task 2");
-    expect(tasksAfter[1].order).toBe(1);
-
-    expect(tasksAfter[2].title).toBe("Existing Task 3");
-    expect(tasksAfter[2].order).toBe(2);
-
-    expect(tasksAfter[3].title).toBe("Duplicate of Task 3");
-    expect(tasksAfter[3].order).toBe(3);
-
-    expect(tasksAfter[4].title).toBe("Existing Task 4");
-    expect(tasksAfter[4].order).toBe(4);
-
-    expect(tasksAfter[5].title).toBe("Existing Task 5");
-    expect(tasksAfter[5].order).toBe(5);
-
-    expect(tasksAfter[6].title).toBe("Existing Task 6");
-    expect(tasksAfter[6].order).toBe(6);
+    expectedTasks.forEach((expected, index) => {
+      const actual = tasksAfter[index];
+      expect(actual.title).toBe(expected.title);
+      expect(actual.priority).toBe(expected.priority);
+      expect(actual.userId).toBe(expected.userId);
+      expect(actual.status).toBe(expected.status);
+      expect(actual.order).toBe(expected.order);
+      expect(actual.description).toBe(expected.description);
+      expect(actual.storyPoints).toBe(expected.storyPoints);
+      expect(actual.scheduledStart).toBeNull();
+      expect(actual.scheduledEnd).toBeNull();
+      const actualLabels = actual.labels.map(label => ({
+        title: label.title,
+        color: label.color
+      }));
+      expect(actualLabels).toEqual(expected.labels);
+    });
   });
 
   // ---------------------------
@@ -385,7 +526,7 @@ describe("Task Routes", () => {
         userId: defaultUser.userId,
         status: "pending",
         isTimerRunning: true,
-        timerStartTime: new Date(Date.now() - 60 * 1000), // started 1 minute ago
+        timerStartTime: new Date(Date.now() - 60 * 1000),
         timeSpent: 0,
       });
 

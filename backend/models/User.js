@@ -7,6 +7,16 @@ const UserSchema = new Schema({
   profilePicture: { type: String, default: "" },
   cloudinaryPublicId: { type: String, default: "" },
   welcomeColumnsAndTask: { type: Boolean, default: false },
+  labels: {
+    type: [
+      {
+        title: { type: String },
+        color: { type: String },
+        order: { type: Number, default: 0 },
+      },
+    ],
+    default: [],
+  },
   chartPreferences: {
     type: new Schema(
       {
@@ -28,7 +38,7 @@ const UserSchema = new Schema({
         xAxisField: {
           type: String,
           default: "day",
-          enum: ["day", "priority", "status"],
+          enum: ["day", "priority", "label", "status"],
         },
         yAxisMetric: {
           type: String,
@@ -50,6 +60,11 @@ const UserSchema = new Schema({
           enum: ["A1", "A2", "A3", "B1", "B2", "B3", "C1", "C2", "C3", "D", "E"],
           default: [],
         },
+        labelFilters: {
+          type: [String],
+          default: [],
+        },
+        includeNoneLabel: { type: Boolean, default: false },
         dayOfWeekFilters: {
           type: [String],
           enum: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
@@ -130,6 +145,7 @@ const UserSchema = new Schema({
             E: "#ff9966",
           },
         },
+        hideLabelText: { type: Boolean, default: false },
       },
       { _id: false }
     ),

@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef, useContext } from "react";
 import Layout from "../../components/navigation/Layout";
 import TopBar from "../../components/navigation/TopBar";
+import LabelsModal from "../../components/modals/LabelsModal.jsx";
 import { getDashboardTopBarConfig } from "../../config/topBarConfig.jsx";
 import CreateTaskModal from "../../components/modals/CreateTaskModal.jsx";
 import ViewTaskModal from "../../components/modals/ViewTaskModal.jsx";
@@ -32,20 +33,20 @@ import "../../components/tipTapEditor.css";
 import { NotificationsContext } from "../../contexts/NotificationsContext";
 import { validateBoardName } from "../../utils/boardValidation";
 import { fetchSettingsPreferences } from "../../services/preferencesService";
+import { fetchLabels } from "../../services/labelsService";
+import { toast } from "react-toastify";
 
 export const getBaseRoute = (pathname) => {
   const parts = pathname.split("/");
   const validRoutes = ["boards", "completedtasks", "schedule"];
-  const base = parts[2];
-  if (base === "viewtask" || base === "createtask") {
-    return "/dashboard/boards";
+  if (parts.length > 2 && validRoutes.includes(parts[2])) {
+    return `/dashboard/${parts[2]}`;
   }
-  return validRoutes.includes(base) ? `/dashboard/${base}` : "/dashboard/boards";
+  return "/dashboard/boards";
 };
-import { toast } from "react-toastify";
 
 const Dashboard = (props) => {
-  // ---------------------- state and refs ----------------------
+  // State and refs
   const [columns, setColumns] = useState({});
   const [columnsLoaded, setColumnsLoaded] = useState(false);
   const [userId, setUserId] = useState(null);
@@ -53,7 +54,6 @@ const Dashboard = (props) => {
   const [newBoardName, setNewBoardName] = useState("");
   const [isAddingBoard, setIsAddingBoard] = useState(false);
   const [newBoardCreateName, setNewBoardCreateName] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(null);
   const [isTaskDropdownOpen, setIsTaskDropdownOpen] = useState(null);
   const [isTaskHovered, setIsTaskHovered] = useState(null);
@@ -68,24 +68,32 @@ const Dashboard = (props) => {
   const [taskDescription, setTaskDescription] = useState("");
   const [storyPoints, setStoryPoints] = useState(0);
   const [dueDateWarning, setDueDateWarning] = useState("");
-  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
   const [completedTasks, setCompletedTasks] = useState([]);
   const [scheduledStartShortcut, setScheduledStartShortcut] = useState(null);
   const [scheduledEndShortcut, setScheduledEndShortcut] = useState(null);
-  const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [selectedScheduleEvent, setSelectedScheduleEvent] = useState(null);
   const [createBoardError, setCreateBoardError] = useState("");
   const [renameBoardError, setRenameBoardError] = useState("");
+  const [labels, setLabels] = useState([]); // user's labels
+  const [newTaskLabels, setNewTaskLabels] = useState([]);
 
   const { userSettings, setUserSettings } = props;
-
   const navigate = useNavigate();
   const { taskId } = useParams();
   const location = useLocation();
   const { setNotifications } = useContext(NotificationsContext);
 
-  // ---------------------- side effects ----------------------
+  const baseRoute = getBaseRoute(location.pathname);
+  const isCreateTaskModalOpen = location.pathname === `${baseRoute}/createtask`;
+  const isLabelsModalOpen = location.pathname === `${baseRoute}/labels`;
+  const isViewTaskModalOpen =
+    location.pathname.startsWith(`${baseRoute}/viewtask/`) && selectedTask;
+  const isScheduleModalOpen =
+    /\/dashboard\/schedule\/editevent\/[^/]+$/.test(location.pathname) &&
+    selectedScheduleEvent;
+
+  // Side effects
   useEffect(() => {
     const currentUser = auth.currentUser;
     if (currentUser) {
@@ -100,7 +108,9 @@ const Dashboard = (props) => {
           const prefs = res.data.settingsPreferences || {};
           setUserSettings((prev) => ({ ...prev, ...prefs }));
         })
-        .catch((err) => console.error("Error fetching settings preferences", err));
+        .catch((err) =>
+          console.error("Error fetching settings preferences", err)
+        );
     }
   }, [userId]);
 
@@ -123,7 +133,6 @@ const Dashboard = (props) => {
           };
         });
 
-        // separate out completed tasks
         const completed = [];
         fetchedTasks.forEach((task) => {
           if (task.status === "completed") {
@@ -143,7 +152,6 @@ const Dashboard = (props) => {
 
         setColumns(groupedTasks);
         setCompletedTasks(completed);
-
         if (columnOrder.length > 0 && !selectedStatus) {
           setSelectedStatus(columnOrder[0]);
         }
@@ -162,40 +170,29 @@ const Dashboard = (props) => {
     return () => clearInterval(interval);
   }, []);
 
-  // For view task modal routing
   useEffect(() => {
     const match = location.pathname.match(/\/viewtask\/([^/]+)/);
     if (match) {
-      const taskId = match[1];
+      const tId = match[1];
       let foundTask = null;
       if (location.pathname.includes("/dashboard/completedtasks")) {
-        foundTask = completedTasks.find((t) => t._id === taskId);
+        foundTask = completedTasks.find((t) => t._id === tId);
       } else {
         Object.values(columns).forEach((column) => {
-          const task = column.items.find((t) => t._id === taskId);
+          const task = column.items.find((t) => t._id === tId);
           if (task) foundTask = task;
         });
       }
-      if (foundTask) {
-        setSelectedTask(foundTask);
-        setIsViewModalOpen(true);
-      }
+      setSelectedTask(foundTask);
     } else {
       setSelectedTask(null);
-      setIsViewModalOpen(false);
     }
   }, [location, columns, completedTasks]);
 
   useEffect(() => {
-    if (location.pathname.endsWith("/createtask") && columnsLoaded) {
-      setIsModalOpen(true);
-    } else {
-      setIsModalOpen(false);
-    }
-  }, [location, columnsLoaded]);
-
-  useEffect(() => {
-    const match = location.pathname.match(/\/dashboard\/schedule\/editevent\/([^/]+)/);
+    const match = location.pathname.match(
+      /\/dashboard\/schedule\/editevent\/([^/]+)/
+    );
     if (match) {
       const eventId = match[1];
       const allTasks = Object.values(columns).flatMap((col) => col.items);
@@ -204,7 +201,9 @@ const Dashboard = (props) => {
         const eventData = {
           id: foundTask._id,
           title: foundTask.title,
-          start: foundTask.scheduledStart ? new Date(foundTask.scheduledStart) : new Date(),
+          start: foundTask.scheduledStart
+            ? new Date(foundTask.scheduledStart)
+            : new Date(),
           end: foundTask.scheduledEnd
             ? new Date(foundTask.scheduledEnd)
             : new Date(new Date().getTime() + 60 * 60 * 1000),
@@ -213,18 +212,22 @@ const Dashboard = (props) => {
           isUnscheduled: !foundTask.scheduledStart,
         };
         setSelectedScheduleEvent(eventData);
-        setIsScheduleModalOpen(true);
       } else {
         setSelectedScheduleEvent(null);
-        setIsScheduleModalOpen(false);
       }
     } else {
       setSelectedScheduleEvent(null);
-      setIsScheduleModalOpen(false);
     }
   }, [location, columns]);
 
-  // ---------------------- updater for task changes ----------------------
+  useEffect(() => {
+    if (userId) {
+      fetchLabels(userId)
+        .then((res) => setLabels(res.data))
+        .catch((err) => console.error("Error fetching labels:", err));
+    }
+  }, [userId]);
+
   const updateTaskInState = (updatedTask) => {
     setColumns((prevColumns) => {
       const newColumns = { ...prevColumns };
@@ -237,11 +240,13 @@ const Dashboard = (props) => {
     });
   };
 
-  // ---------------------- handlers ----------------------
-  const baseRoute = getBaseRoute(location.pathname);
-
-  const openModal = () => {
+  // Handlers for modal navigation
+  const openCreateModal = () => {
     navigate(`${baseRoute}/createtask`);
+  };
+
+  const openLabelsModalRoute = () => {
+    navigate(`${baseRoute}/labels`);
   };
 
   const closeModal = () => {
@@ -251,19 +256,16 @@ const Dashboard = (props) => {
 
   const openViewTaskModal = (task) => {
     setSelectedTask(task);
-    setIsViewModalOpen(true);
     navigate(`${baseRoute}/viewtask/${task._id}`);
   };
 
   const closeViewTaskModal = () => {
     setSelectedTask(null);
-    setIsViewModalOpen(false);
     navigate(baseRoute);
   };
 
   const closeScheduleModal = () => {
     setSelectedScheduleEvent(null);
-    setIsScheduleModalOpen(false);
     navigate("/dashboard/schedule");
   };
 
@@ -301,7 +303,6 @@ const Dashboard = (props) => {
       setCreateBoardError(error);
       return;
     }
-  
     try {
       const res = await createBoard(userId, newBoardCreateName);
       const { columnId, columnName } = res.data;
@@ -350,10 +351,10 @@ const Dashboard = (props) => {
         timeSpent: 0,
         isTimerRunning: false,
         timerStartTime: null,
+        labels: originalTask.labels ? [...originalTask.labels] : [],
       };
       const response = await createTask(duplicateData);
       const newTask = response.data;
-  
       setColumns((prevColumns) => {
         const column = prevColumns[originalTask.status];
         if (!column) return prevColumns;
@@ -362,13 +363,9 @@ const Dashboard = (props) => {
         );
         const newItems = [...column.items];
         newItems.splice(originalIndex + 1, 0, newTask);
-  
         return {
           ...prevColumns,
-          [originalTask.status]: {
-            ...column,
-            items: newItems,
-          },
+          [originalTask.status]: { ...column, items: newItems },
         };
       });
       toast.success("Task duplicated!");
@@ -417,9 +414,11 @@ const Dashboard = (props) => {
     try {
       const newStatus = Object.keys(columns)[0] || "backlog";
       const boardTasks = columns[newStatus]?.items || [];
-      const highestOrder = boardTasks.reduce((max, t) => Math.max(max, t.order || 0), -1);
+      const highestOrder = boardTasks.reduce(
+        (max, t) => Math.max(max, t.order || 0),
+        -1
+      );
       const newOrder = highestOrder + 1;
-      
       const updatedTask = {
         ...task,
         status: newStatus,
@@ -427,7 +426,6 @@ const Dashboard = (props) => {
         taskCompleted: false,
         completedAt: null,
       };
-  
       const response = await updateTask(updatedTask);
       const updatedTaskFromBackend = response.data;
       handleUpdateTask(updatedTaskFromBackend);
@@ -435,7 +433,7 @@ const Dashboard = (props) => {
       console.error("Error moving task back to boards:", error);
     }
   };
-  
+
   const updateTaskInColumns = (taskId, updates) => {
     setColumns((prevColumns) => {
       const updatedColumns = { ...prevColumns };
@@ -459,7 +457,11 @@ const Dashboard = (props) => {
       setCompletedTasks((prev) =>
         prev.map((task) =>
           task._id === taskId
-            ? { ...task, isTimerRunning: true, timerStartTime: updatedTask.timerStartTime }
+            ? {
+                ...task,
+                isTimerRunning: true,
+                timerStartTime: updatedTask.timerStartTime,
+              }
             : task
         )
       );
@@ -480,7 +482,12 @@ const Dashboard = (props) => {
       setCompletedTasks((prev) =>
         prev.map((task) =>
           task._id === taskId
-            ? { ...task, isTimerRunning: false, timerStartTime: null, timeSpent: updatedTask.timeSpent }
+            ? {
+                ...task,
+                isTimerRunning: false,
+                timerStartTime: null,
+                timeSpent: updatedTask.timeSpent,
+              }
             : task
         )
       );
@@ -512,16 +519,28 @@ const Dashboard = (props) => {
         assignedTo,
         description: taskDescription,
         storyPoints,
-        scheduledStart: scheduledStartShortcut ? scheduledStartShortcut.toISOString() : null,
-        scheduledEnd: scheduledEndShortcut ? scheduledEndShortcut.toISOString() : null,
+        scheduledStart: scheduledStartShortcut
+          ? scheduledStartShortcut.toISOString()
+          : null,
+        scheduledEnd: scheduledEndShortcut
+          ? scheduledEndShortcut.toISOString()
+          : null,
+        labels: newTaskLabels,
       };
       const response = await createTask(taskData);
       const newTask = response.data;
       setColumns((prev) => {
         const updated = { ...prev };
         if (updated[newTask.status]) {
-          if (!updated[newTask.status].items.find((task) => task._id === newTask._id)) {
-            updated[newTask.status].items = [...updated[newTask.status].items, newTask];
+          if (
+            !updated[newTask.status].items.find(
+              (task) => task._id === newTask._id
+            )
+          ) {
+            updated[newTask.status].items = [
+              ...updated[newTask.status].items,
+              newTask,
+            ];
           }
         }
         return updated;
@@ -545,7 +564,11 @@ const Dashboard = (props) => {
         const updatedColumns = { ...prevColumns };
         let oldCol = null;
         Object.keys(updatedColumns).forEach((colId) => {
-          if (updatedColumns[colId].items.find((t) => t._id === updatedTaskFromBackend._id)) {
+          if (
+            updatedColumns[colId].items.find(
+              (t) => t._id === updatedTaskFromBackend._id
+            )
+          ) {
             oldCol = colId;
           }
         });
@@ -560,16 +583,22 @@ const Dashboard = (props) => {
             );
           });
           if (updatedColumns[updatedTaskFromBackend.status]) {
-            updatedColumns[updatedTaskFromBackend.status].items.push(updatedTaskFromBackend);
+            updatedColumns[updatedTaskFromBackend.status].items.push(
+              updatedTaskFromBackend
+            );
           }
         }
         return updatedColumns;
       });
       setCompletedTasks((prevCompleted) => {
         if (updatedTaskFromBackend.status !== "completed") {
-          return prevCompleted.filter((t) => t._id !== updatedTaskFromBackend._id);
+          return prevCompleted.filter(
+            (t) => t._id !== updatedTaskFromBackend._id
+          );
         }
-        const exists = prevCompleted.some((t) => t._id === updatedTaskFromBackend._id);
+        const exists = prevCompleted.some(
+          (t) => t._id === updatedTaskFromBackend._id
+        );
         if (exists) {
           return prevCompleted.map((t) =>
             t._id === updatedTaskFromBackend._id ? updatedTaskFromBackend : t
@@ -583,10 +612,10 @@ const Dashboard = (props) => {
     }
   };
 
-   const openCreateTaskModal = (status) => {
-     setSelectedStatus(status);
-     navigate(`${getBaseRoute(location.pathname)}/createtask`);
-   };
+  const openCreateTaskModal = (status) => {
+    setSelectedStatus(status);
+    navigate(`${baseRoute}/createtask`);
+  };
 
   const handleDragEnd = async (result) => {
     const { source, destination, type } = result;
@@ -618,7 +647,10 @@ const Dashboard = (props) => {
         ? sourceItems
         : [...destColumn.items];
     destItems.splice(destination.index, 0, movedItem);
-    const updatedTasks = destItems.map((task, idx) => ({ ...task, order: idx }));
+    const updatedTasks = destItems.map((task, idx) => ({
+      ...task,
+      order: idx,
+    }));
     const updatedColumns = {
       ...columns,
       [source.droppableId]: { ...sourceColumn, items: sourceItems },
@@ -650,6 +682,10 @@ const Dashboard = (props) => {
           isTaskDropdownOpen={isTaskDropdownOpen}
           setIsTaskDropdownOpen={setIsTaskDropdownOpen}
           handleBackToBoards={handleBackToBoardsFromDropdown}
+          userSettings={userSettings}
+          newTaskLabels={newTaskLabels}
+          availableLabels={labels}
+          setNewTaskLabels={setNewTaskLabels}
         />
       );
     } else if (location.pathname.startsWith("/dashboard/schedule")) {
@@ -664,6 +700,7 @@ const Dashboard = (props) => {
             setScheduledEndShortcut(end);
             navigate(`${baseRoute}/createtask`);
           }}
+          userSettings={userSettings}
         />
       );
     } else if (location.pathname.startsWith("/dashboard/boards")) {
@@ -704,21 +741,33 @@ const Dashboard = (props) => {
           confirmBeforeDeleteTask={userSettings.confirmBeforeDeleteTask}
           openCreateTaskModal={openCreateTaskModal}
           duplicateTask={duplicateTask}
+          availableLabels={labels}
+          userSettings={userSettings}
         />
       );
     }
   };
 
   return (
-    <Layout openModal={openModal}>
+    <Layout
+      openModal={
+        isCreateTaskModalOpen ||
+        isLabelsModalOpen ||
+        isViewTaskModalOpen ||
+        isScheduleModalOpen
+      }
+    >
       <TopBar
-        buttons={getDashboardTopBarConfig(openModal, navigate)}
-        openModal={openModal}
+        buttons={getDashboardTopBarConfig(
+          openCreateModal,
+          openLabelsModalRoute,
+          navigate
+        )}
         navigate={navigate}
       />
       {renderContent()}
       <CreateTaskModal
-        isModalOpen={isModalOpen}
+        isModalOpen={isCreateTaskModalOpen}
         closeModal={closeModal}
         columns={columns}
         columnsLoaded={columnsLoaded}
@@ -744,9 +793,19 @@ const Dashboard = (props) => {
         setNewBoardCreateName={setNewBoardCreateName}
         handleCreateBoard={handleCreateBoard}
         createBoardError={createBoardError}
+        availableLabels={labels}
+        newTaskLabels={newTaskLabels}
+        setNewTaskLabels={setNewTaskLabels}
+      />
+      <LabelsModal
+        isOpen={isLabelsModalOpen}
+        closeModal={closeModal}
+        labels={labels}
+        setLabels={setLabels}
+        userId={userId}
       />
       <ViewTaskModal
-        isModalOpen={isViewModalOpen}
+        isModalOpen={isViewTaskModalOpen}
         closeModal={closeViewTaskModal}
         task={selectedTask}
         handleUpdateTask={handleUpdateTask}
@@ -754,6 +813,9 @@ const Dashboard = (props) => {
         startTimer={startTimerAPI}
         stopTimer={stopTimerAPI}
         setCompletedTasks={setCompletedTasks}
+        newTaskLabels={newTaskLabels}
+        availableLabels={labels}
+        setNewTaskLabels={setNewTaskLabels}
       />
       <ScheduleEditModal
         isModalOpen={isScheduleModalOpen}

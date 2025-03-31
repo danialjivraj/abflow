@@ -40,6 +40,8 @@ const BoardsView = (props) => {
     confirmBeforeDeleteTask,
     openCreateTaskModal,
     duplicateTask,
+    availableLabels,
+    userSettings,
   } = props;
 
   const [filters, setFilters] = useState({
@@ -52,6 +54,7 @@ const BoardsView = (props) => {
     dueStatus: null,
     startDate: null,
     endDate: null,
+    labels: [],
   });
 
   const filterTasks = (tasks) => {
@@ -67,6 +70,13 @@ const BoardsView = (props) => {
         !filters.priority.includes(task.priority)
       ) {
         return false;
+      }
+      if (filters.labels && filters.labels.length > 0) {
+        const taskLabelTitles = task.labels?.map((label) => label.title) || [];
+        const matchesAll = filters.labels.every((filterLabel) =>
+          taskLabelTitles.includes(filterLabel)
+        );
+        if (!matchesAll) return false;
       }
       if (
         filters.assignedTo &&
@@ -96,12 +106,8 @@ const BoardsView = (props) => {
           taskDate.getDate() === today.getDate() &&
           taskDate.getMonth() === today.getMonth() &&
           taskDate.getFullYear() === today.getFullYear();
-        if (filters.today === true && !isToday) {
-          return false;
-        }
-        if (filters.today === false && isToday) {
-          return false;
-        }
+        if (filters.today === true && !isToday) return false;
+        if (filters.today === false && isToday) return false;
       }
       if (filters.dueStatus) {
         if (filters.dueStatus === "none") {
@@ -109,12 +115,8 @@ const BoardsView = (props) => {
         } else if (task.dueDate) {
           const now = new Date();
           const dueDate = new Date(task.dueDate);
-          if (filters.dueStatus === "due" && dueDate < now) {
-            return false;
-          }
-          if (filters.dueStatus === "overdue" && dueDate >= now) {
-            return false;
-          }
+          if (filters.dueStatus === "due" && dueDate < now) return false;
+          if (filters.dueStatus === "overdue" && dueDate >= now) return false;
         } else {
           return false;
         }
@@ -126,7 +128,11 @@ const BoardsView = (props) => {
   return (
     <>
       <h1 className="page-title">Boards</h1>
-      <FilterBar filters={filters} setFilters={setFilters} />
+      <FilterBar
+        filters={filters}
+        setFilters={setFilters}
+        availableLabels={availableLabels}
+      />
       <div className="kanban-container">
         <DragDropContext onDragEnd={handleDragEnd}>
           <Droppable
@@ -177,6 +183,8 @@ const BoardsView = (props) => {
                       confirmBeforeDeleteTask={confirmBeforeDeleteTask}
                       openCreateTaskModal={openCreateTaskModal}
                       duplicateTask={duplicateTask}
+                      availableLabels={availableLabels}
+                      userSettings={userSettings}
                     />
                   );
                 })}

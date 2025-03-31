@@ -4,13 +4,13 @@ import {
   FiCalendar, 
   FiCheckSquare, 
   FiBarChart2, 
-  FiPieChart, 
+  FiPieChart,
+  FiTag,
 } from "react-icons/fi";
 import { RiPentagonLine } from "react-icons/ri";
-import { FaSun, FaMoon } from "react-icons/fa";
-import { FaChartLine, FaChartArea } from "react-icons/fa";
+import { FaSun, FaMoon, FaChartLine, FaChartArea } from "react-icons/fa";
 
-export const getDashboardTopBarConfig = (openModal, navigate) => [
+export const getDashboardTopBarConfig = (openModal, openLabelsModal, navigate) => [
   {
     label: "Boards",
     path: "/dashboard/boards",
@@ -31,6 +31,12 @@ export const getDashboardTopBarConfig = (openModal, navigate) => [
     onClick: () => navigate("/dashboard/completedtasks"),
     className: "top-bar-button completed-tasks-btn",
     icon: <FiCheckSquare size={18} />,
+  },
+  {
+    label: "Labels",
+    onClick: () => openLabelsModal(),
+    className: "create-top-bar-task-btn",
+    icon: <FiTag size={18} />,
   },
   {
     label: "Create Task",

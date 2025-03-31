@@ -1,5 +1,5 @@
 import React from "react";
-import { render, fireEvent, screen } from "@testing-library/react";
+import { render, fireEvent, screen, within } from "@testing-library/react";
 import MultiSelectDropdown from "../../src/utils/MultiSelectDropdown";
 
 describe("MultiSelectDropdown", () => {
@@ -31,12 +31,14 @@ describe("MultiSelectDropdown", () => {
         onChange={() => {}}
       />
     );
-    const header = screen.getByText((content, node) => {
-      const hasClass = node.className && node.className.includes("dropdown-header");
-      const textMatches = content === "Priority";
-      return hasClass && textMatches;
-    });
-    expect(header).toBeInTheDocument();
+  
+    const allPriorityTextElements = screen.getAllByText("Priority");
+  
+    const fallback = allPriorityTextElements.find(
+      (el) => el.className.includes("fallback-label")
+    );
+  
+    expect(fallback).toBeInTheDocument();
   });
 
   test("renders custom fallback text when provided", () => {
@@ -62,7 +64,12 @@ describe("MultiSelectDropdown", () => {
         fallbackText="All"
       />
     );
-    expect(screen.getByText("A1, A3")).toBeInTheDocument();
+
+    const selectedOption1 = screen.getByText("A1");
+    const selectedOption2 = screen.getByText("A3");
+
+    expect(selectedOption1).toBeInTheDocument();
+    expect(selectedOption2).toBeInTheDocument();
   });
 
   test("toggles an option when clicked", () => {
@@ -76,8 +83,8 @@ describe("MultiSelectDropdown", () => {
         fallbackText="All"
       />
     );
-    // Open dropdown
-    fireEvent.click(screen.getByText("All"));
+
+    fireEvent.click(screen.getByTestId("dropdown-header"));
     const checkbox = screen.getByLabelText("A2");
     fireEvent.click(checkbox);
     expect(onChange).toHaveBeenCalledWith(["A2"]);
@@ -94,11 +101,100 @@ describe("MultiSelectDropdown", () => {
         fallbackText="All"
       />
     );
-    expect(screen.getByText("A1, A2")).toBeInTheDocument();
-    // Open dropdown
-    fireEvent.click(screen.getByText("A1, A2"));
-    const clearBtn = screen.getByText("Clear All");
-    fireEvent.click(clearBtn);
+
+    fireEvent.click(screen.getByTestId("dropdown-header"));
+    fireEvent.click(screen.getByText("Clear All"));
     expect(onChange).toHaveBeenCalledWith([]);
+  });
+
+  describe("MultiSelectDropdown - Label Filter with Colors", () => {
+    const labelOptions = [
+      {
+        value: "Bug",
+        label: (
+          <div className="label-option-wrapper">
+            <span
+              data-testid="color-box"
+              className="label-color-box"
+              style={{ backgroundColor: "#ff0000" }}
+            />
+            <span>Bug</span>
+          </div>
+        ),
+      },
+      {
+        value: "Feature",
+        label: (
+          <div className="label-option-wrapper">
+            <span
+              data-testid="color-box"
+              className="label-color-box"
+              style={{ backgroundColor: "#00ff00" }}
+            />
+            <span>Feature</span>
+          </div>
+        ),
+      },
+    ];
+
+    test("renders fallback text 'Labels' when nothing is selected", () => {
+      render(
+        <MultiSelectDropdown
+          label="Labels"
+          options={labelOptions}
+          selectedOptions={[]}
+          onChange={() => {}}
+        />
+      );
+      const fallbackLabels = screen.getAllByText("Labels");
+      expect(fallbackLabels.length).toBeGreaterThan(0);
+      expect(fallbackLabels.some(el => el.className.includes("fallback-label"))).toBe(true);
+    });
+
+    test("renders selected custom JSX label with color box", () => {
+      render(
+        <MultiSelectDropdown
+          label="Labels"
+          options={labelOptions}
+          selectedOptions={["Bug"]}
+          onChange={() => {}}
+        />
+      );
+      expect(screen.getByText("Bug")).toBeInTheDocument();
+      expect(screen.getByTestId("color-box")).toBeInTheDocument();
+    });
+
+    test("opens dropdown and toggles label selection", () => {
+      const onChange = jest.fn();
+      render(
+        <MultiSelectDropdown
+          label="Labels"
+          options={labelOptions}
+          selectedOptions={[]}
+          onChange={onChange}
+        />
+      );
+
+      fireEvent.click(screen.getByTestId("dropdown-header"));
+      const checkbox = screen.getByLabelText("Bug");
+      fireEvent.click(checkbox);
+      expect(onChange).toHaveBeenCalledWith(["Bug"]);
+    });
+
+    test("clears all selected labels using Clear All button", () => {
+      const onChange = jest.fn();
+      render(
+        <MultiSelectDropdown
+          label="Labels"
+          options={labelOptions}
+          selectedOptions={["Bug", "Feature"]}
+          onChange={onChange}
+        />
+      );
+
+      fireEvent.click(screen.getByTestId("dropdown-header"));
+      fireEvent.click(screen.getByText("Clear All"));
+      expect(onChange).toHaveBeenCalledWith([]);
+    });
   });
 });

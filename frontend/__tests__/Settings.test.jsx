@@ -48,10 +48,6 @@ jest.mock("../src/components/navigation/Layout", () => ({ children }) => (
 ));
 jest.mock("../src/components/navigation/TopBar", () => () => <div>TopBar</div>);
 
-jest.mock("../src/components/navigation/Layout", () => ({ children }) => (
-  <div>{children}</div>
-));
-jest.mock("../src/components/navigation/TopBar", () => () => <div>TopBar</div>);
 jest.mock("react-toastify", () => ({
   toast: {
     success: jest.fn(),
@@ -340,5 +336,32 @@ describe("Settings component", () => {
     await waitFor(() => {
       expect(toast.error).toHaveBeenCalledWith("Failed to save settings.");
     });
+  });
+
+  it("toggles 'Hide Label Text'", async () => {
+    render(
+      <Routes>
+        <Route
+          path="/settings/:section/*"
+          element={<Settings updateDefaultBoardView={jest.fn()} />}
+        />
+      </Routes>,
+      {
+        wrapper: ({ children }) => (
+          <MemoryRouter initialEntries={["/settings/interface-customisation"]}>
+            <NotificationsContext.Provider value={{ notifications: [] }}>
+              {children}
+            </NotificationsContext.Provider>
+          </MemoryRouter>
+        ),
+      }
+    );
+    await waitForElementToBeRemoved(() =>
+      screen.queryByText("Loading settings...")
+    );
+    const hideLabelCheckbox = screen.getByLabelText("Hide Label Text");
+    expect(hideLabelCheckbox).not.toBeChecked();
+    userEvent.click(hideLabelCheckbox);
+    await waitFor(() => expect(hideLabelCheckbox).toBeChecked());
   });
 });

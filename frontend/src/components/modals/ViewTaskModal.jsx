@@ -14,6 +14,8 @@ import { completeTask, updateTask } from "../../services/tasksService";
 import { toast } from "react-toastify";
 import { FaCheck, FaTimes } from "react-icons/fa";
 import taskCompletedSfx from "../../assets/taskCompleted.mp3";
+import LabelsDropdown from "../../components/boardComponents/LabelsDropdown";
+import TaskLabels from "../boardComponents/TaskLabels";
 
 const allowedPriorities = [
   "A1",
@@ -37,7 +39,6 @@ const DropdownField = ({
   readOnly,
 }) => {
   if (readOnly) {
-    // Display non-editable text for read-only mode
     if (type === "status") {
       return (
         <div className="view-task-field non-editable-field">
@@ -440,17 +441,92 @@ const ViewTaskModal = ({
   stopTimer,
   setCompletedTasks,
   readOnly = false,
+  newTaskLabels,
+  availableLabels,
+  setNewTaskLabels,
 }) => {
   if (!isModalOpen || !task) return null;
   const modalContentRef = useRef(null);
   const [editableTask, setEditableTask] = useState({ ...task });
   const [editingCount, setEditingCount] = useState(0);
+  const [isLabelsDropdownOpen, setIsLabelsDropdownOpen] = useState(false);
+
+  const handleToggleLabel = (label) => {
+    setNewTaskLabels((prevLabels) => {
+      const exists = prevLabels.some((l) => l._id === label._id);
+      if (exists) {
+        return prevLabels.filter((l) => l._id !== label._id);
+      } else {
+        return [...prevLabels, label];
+      }
+    });
+
+    setEditableTask((prevTask) => {
+      const exists = prevTask.labels.some((l) => l._id === label._id);
+      const updatedLabels = exists
+        ? prevTask.labels.filter((l) => l._id !== label._id)
+        : [...prevTask.labels, label];
+      const updatedTask = { ...prevTask, labels: updatedLabels };
+      handleUpdateTask(updatedTask);
+      return updatedTask;
+    });
+  };
+
+  const noop = () => {};
 
   const calendarColor = getCalendarIconColor(
     editableTask.scheduledStart,
     editableTask.scheduledEnd,
     new Date()
   );
+
+  const handleOverlayClick = (e) => {
+    if (
+      modalContentRef.current &&
+      !modalContentRef.current.contains(e.target)
+    ) {
+      if (editingCount > 0) {
+        const confirmClose = window.confirm(
+          "You have unsaved edits. Are you sure you want to close?"
+        );
+        if (confirmClose) {
+          closeModal();
+        }
+      } else {
+        closeModal();
+      }
+    }
+  };
+
+  const handleEditingChange = (isEditing) => {
+    setEditingCount((prev) => (isEditing ? prev + 1 : Math.max(prev - 1, 0)));
+  };
+
+  const updateField = (field, value) => {
+    if (readOnly) return;
+
+    if (field === "timeSpent") {
+      const updatedTask = { ...editableTask, timeSpent: value };
+      if (editableTask.isTimerRunning) {
+        updatedTask.timerStartTime = new Date().toISOString();
+      }
+      setEditableTask(updatedTask);
+      handleUpdateTask(updatedTask);
+    } else if (field === "status") {
+      const newColumnItems = columns[value]?.items || [];
+      const newOrder =
+        newColumnItems.reduce((max, t) => Math.max(max, t.order || 0), -1) + 1;
+      const updatedTask = { ...editableTask, status: value, order: newOrder };
+      setEditableTask(updatedTask);
+      handleUpdateTask(updatedTask);
+    } else {
+      setEditableTask((prev) => {
+        const updatedTask = { ...prev, [field]: value };
+        handleUpdateTask(updatedTask);
+        return updatedTask;
+      });
+    }
+  };
 
   const handleCompleteTask = async () => {
     try {
@@ -481,40 +557,6 @@ const ViewTaskModal = ({
       toast.error("Error completing task.");
     }
   };
-
-  const handleEditingChange = (isEditing) => {
-    setEditingCount((prev) => (isEditing ? prev + 1 : Math.max(prev - 1, 0)));
-  };
-
-  const updateField = (field, value) => {
-    if (readOnly) return; // Prevent changes in read-only mode
-    if (field === "timeSpent") {
-      const updatedTask = { ...editableTask, timeSpent: value };
-      if (editableTask.isTimerRunning) {
-        updatedTask.timerStartTime = new Date().toISOString();
-      }
-      setEditableTask(updatedTask);
-      handleUpdateTask(updatedTask);
-    } else if (field === "status") {
-      const newColumnItems = columns[value]?.items || [];
-      const newOrder =
-        newColumnItems.reduce((max, t) => Math.max(max, t.order || 0), -1) + 1;
-      const updatedTask = { ...editableTask, status: value, order: newOrder };
-      setEditableTask(updatedTask);
-      handleUpdateTask(updatedTask);
-    } else {
-      setEditableTask((prev) => {
-        const updatedTask = { ...prev, [field]: value };
-        handleUpdateTask(updatedTask);
-        return updatedTask;
-      });
-    }
-  };
-
-  const referenceDate =
-    editableTask.status === "completed" && editableTask.completedAt
-      ? new Date(editableTask.completedAt)
-      : new Date();
 
   const toggleTimer = async () => {
     if (readOnly) return;
@@ -598,23 +640,10 @@ const ViewTaskModal = ({
     }
   };
 
-  const handleOverlayClick = (e) => {
-    if (
-      modalContentRef.current &&
-      !modalContentRef.current.contains(e.target)
-    ) {
-      if (editingCount > 0) {
-        const confirmClose = window.confirm(
-          "You have unsaved edits. Are you sure you want to close?"
-        );
-        if (confirmClose) {
-          closeModal();
-        }
-      } else {
-        closeModal();
-      }
-    }
-  };
+  const referenceDate =
+    editableTask.status === "completed" && editableTask.completedAt
+      ? new Date(editableTask.completedAt)
+      : new Date();
 
   let dueStatusText = "";
   let dueStatusClass = "";
@@ -671,6 +700,7 @@ const ViewTaskModal = ({
         <div className="view-modal-body">
           <div className="view-modal-left">
             <div className="title-block">
+              <TaskLabels labels={editableTask.labels} hideLabelText={false} />
               <h3 className="panel-heading">Title</h3>
               {readOnly ? (
                 <div className="view-task-field non-editable-field">
@@ -735,7 +765,6 @@ const ViewTaskModal = ({
                 readOnly={readOnly}
               />
             </div>
-
             <div className="field-row">
               <label>Status:</label>
               {editableTask.status === "completed" || readOnly ? (
@@ -762,7 +791,6 @@ const ViewTaskModal = ({
                 </div>
               )}
             </div>
-
             <div className="field-row">
               <label>Due Date:</label>
               {editableTask.status === "completed" || readOnly ? (
@@ -786,7 +814,6 @@ const ViewTaskModal = ({
                 </div>
               )}
             </div>
-
             <div className="field-row due-status-row">
               <label className="empty-label"></label>
               <div className={`due-status-text ${dueStatusClass}`}>
@@ -812,6 +839,33 @@ const ViewTaskModal = ({
               )}
             </div>
 
+            {!readOnly && (
+            <div className="field-row">
+              <label>Labels:</label>
+              <div className="create-task-labels-dropdown-container">
+                <div
+                  className="selected-labels-display"
+                  onClick={() =>
+                    setIsLabelsDropdownOpen(!isLabelsDropdownOpen)
+                  }
+                >
+                  Click to see labels
+                </div>
+                {isLabelsDropdownOpen && (
+                  <LabelsDropdown
+                    task={editableTask}
+                    availableLabels={availableLabels}
+                    handleToggleLabel={handleToggleLabel}
+                    setIsLabelsDropdownOpen={() =>
+                      setIsLabelsDropdownOpen(false)
+                    }
+                    setIsTaskDropdownOpen={noop}
+                  />
+                )}
+              </div>
+            </div>
+            )}
+
             <div className="field-row">
               <label>Story Points:</label>
               {readOnly ? (
@@ -832,7 +886,6 @@ const ViewTaskModal = ({
                 />
               )}
             </div>
-
             <div className="field-row">
               <label>Timer:</label>
               {readOnly || editableTask.status === "completed" ? (
@@ -843,7 +896,6 @@ const ViewTaskModal = ({
                   style={{ cursor: "not-allowed" }}
                 >
                   <span className="toggle-label-left">OFF</span>
-
                   <div
                     className={`toggle-slider ${
                       editableTask.isTimerRunning ? "active" : ""
@@ -916,7 +968,6 @@ const ViewTaskModal = ({
                 </div>
               )}
             </div>
-
             <div className="field-row">
               <label>Time Spent:</label>
               <InlineTimeEditable

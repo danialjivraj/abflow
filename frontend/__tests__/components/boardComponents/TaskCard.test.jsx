@@ -3,6 +3,7 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { DragDropContext } from "@hello-pangea/dnd";
 import TaskCard from "../../../src/components/boardComponents/TaskCard";
 import { createBaseTask } from "../../../_testUtils/createBaseTask";
+import { toast } from "react-toastify";
 
 jest.mock("@hello-pangea/dnd", () => ({
   DragDropContext: ({ children }) => <div>{children}</div>,
@@ -46,6 +47,13 @@ jest.mock(
   }
 );
 
+jest.mock("react-toastify", () => ({
+  toast: {
+    success: jest.fn(),
+    error: jest.fn(),
+  },
+}));
+
 const renderWithDnd = (ui) => {
   return render(<DragDropContext onDragEnd={() => {}}>{ui}</DragDropContext>);
 };
@@ -73,7 +81,7 @@ const defaultProps = {
   startTimer: jest.fn(),
   stopTimer: jest.fn(),
   openViewTaskModal: jest.fn(),
-  handleCompleteTask: jest.fn(),
+  handleCompleteTask: jest.fn(() => Promise.resolve()),
   handleBackToBoards: jest.fn(),
   hideDots: false,
 };
@@ -257,14 +265,66 @@ describe("TaskCard - Integration Tests", () => {
     );
   });
 
-  test("calls handleCompleteTask when 'Complete Task' button is clicked", () => {
+  test("calls handleCompleteTask when 'Complete Task' button is clicked", async () => {
     renderWithDnd(
       <TaskCard {...defaultProps} isTaskDropdownOpen={defaultTask._id} />
     );
     const completeButton = screen.getByText("Complete Task");
     fireEvent.click(completeButton);
-    expect(defaultProps.handleCompleteTask).toHaveBeenCalledWith(defaultTask);
+    await waitFor(() =>
+      expect(defaultProps.handleCompleteTask).toHaveBeenCalledWith(defaultTask)
+    );
     expect(defaultProps.setIsTaskDropdownOpen).toHaveBeenCalledWith(null);
+  });
+
+  test("plays sound and shows toast on successful task completion", async () => {
+    const playMock = jest.fn();
+
+    global.Audio = jest.fn(() => ({
+      play: playMock,
+    }));
+
+    const mockComplete = jest.fn(() => Promise.resolve());
+
+    renderWithDnd(
+      <TaskCard
+        {...defaultProps}
+        isTaskDropdownOpen={defaultTask._id}
+        handleCompleteTask={mockComplete}
+      />
+    );
+
+    const completeButton = screen.getByText("Complete Task");
+    fireEvent.click(completeButton);
+
+    await waitFor(() => {
+      expect(mockComplete).toHaveBeenCalledWith(defaultTask);
+      expect(toast.success).toHaveBeenCalledWith("Task completed!");
+      expect(playMock).toHaveBeenCalled();
+    });
+  });
+
+  test("shows error toast and does not play sound on task completion failure", async () => {
+    const playMock = jest.fn();
+    window.HTMLMediaElement.prototype.play = playMock;
+
+    const mockComplete = jest.fn(() => Promise.reject(new Error("fail")));
+    renderWithDnd(
+      <TaskCard
+        {...defaultProps}
+        isTaskDropdownOpen={defaultTask._id}
+        handleCompleteTask={mockComplete}
+      />
+    );
+
+    const completeButton = screen.getByText("Complete Task");
+    fireEvent.click(completeButton);
+
+    await waitFor(() => {
+      expect(mockComplete).toHaveBeenCalledWith(defaultTask);
+      expect(toast.error).toHaveBeenCalledWith("Error completing task.");
+      expect(playMock).not.toHaveBeenCalled();
+    });
   });
 
   test("calls startTimer when task is not running and timer button is clicked", () => {
@@ -291,6 +351,66 @@ describe("TaskCard - Integration Tests", () => {
     expect(defaultProps.setIsTaskDropdownOpen).toHaveBeenCalledWith(null);
   });
 
+  test("dropdown shows only correct options for non-completed task", () => {
+    const activeTask = createBaseTask({
+      _id: "task-active",
+      title: "Active Task",
+      status: "in-progress",
+      isTimerRunning: false,
+    });
+  
+    renderWithDnd(
+      <TaskCard
+        {...defaultProps}
+        task={activeTask}
+        isTaskDropdownOpen={activeTask._id}
+      />
+    );
+  
+    const dropdownButtons = screen
+      .getByRole("button", { name: "⋮" })
+      .closest(".task-card")
+      .querySelectorAll(".dropdown-menu.open button");
+  
+    const actualOptions = Array.from(dropdownButtons).map((btn) =>
+      btn.textContent.trim()
+    );
+  
+    const expectedOptions = ["Complete Task", "Start Timer", "Labels", "Duplicate", "Delete"];
+  
+    expect(actualOptions).toEqual(expectedOptions);
+  });
+
+  test("dropdown shows only fewer options for completed tasks", () => {
+    const completedTask = createBaseTask({
+      _id: "task-completed",
+      title: "Completed Task",
+      status: "completed",
+      completedAt: "2022-01-05T12:00:00.000Z",
+    });
+
+    renderWithDnd(
+      <TaskCard
+        {...defaultProps}
+        task={completedTask}
+        isTaskDropdownOpen={completedTask._id}
+      />
+    );
+
+    const dropdownButtons = screen
+      .getByRole("button", { name: "⋮" })
+      .closest(".task-card")
+      .querySelectorAll(".dropdown-menu.open button");
+
+    const actualOptions = Array.from(dropdownButtons).map((btn) =>
+      btn.textContent.trim()
+    );
+
+    const expectedOptions = ["Back to Boards", "Labels", "Delete"];
+
+    expect(actualOptions).toEqual(expectedOptions);
+  });
+
   // --- Duplicate Task ---
   test("calls duplicateTask when duplicate button is clicked and passes the original task", () => {
     const duplicateTaskMock = jest.fn();
@@ -303,7 +423,7 @@ describe("TaskCard - Integration Tests", () => {
       timerStartTime: "2022-01-05T09:00:00.000Z",
       order: 2,
     };
-  
+
     renderWithDnd(
       <TaskCard
         {...defaultProps}
@@ -312,10 +432,10 @@ describe("TaskCard - Integration Tests", () => {
         duplicateTask={duplicateTaskMock}
       />
     );
-  
+
     const duplicateButton = screen.getByText("Duplicate");
     fireEvent.click(duplicateButton);
-  
+
     expect(duplicateTaskMock).toHaveBeenCalledTimes(1);
     expect(duplicateTaskMock).toHaveBeenCalledWith(taskWithTimer);
   });
@@ -899,6 +1019,93 @@ describe("TaskCard - Integration Tests", () => {
         />
       );
       expect(screen.getByText("Overdue by 1.1 years")).toBeInTheDocument();
+    });
+  });
+
+  describe("TaskCard - Label Tests", () => {
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
+
+    test("renders multiple labels in the task card", () => {
+      const longTitle =
+        "Third Label With A Very Long Title That Will Be Truncated";
+      const taskWithMultipleLabels = {
+        ...defaultTask,
+        labels: [
+          { title: "Label One", color: "#111111" },
+          { title: "Another Label", color: "#222222" },
+          { title: longTitle, color: "#333333" },
+        ],
+      };
+
+      renderWithDnd(
+        <TaskCard {...defaultProps} task={taskWithMultipleLabels} />
+      );
+
+      const labelOne = screen.getByText("Label One");
+      expect(labelOne).toBeInTheDocument();
+      expect(labelOne).toHaveStyle("background-color: #111111");
+
+      const anotherLabel = screen.getByText("Another Label");
+      expect(anotherLabel).toBeInTheDocument();
+      expect(anotherLabel).toHaveStyle("background-color: #222222");
+
+      const expectedTruncated = longTitle.slice(0, 29) + "...";
+      const truncatedLabel = screen.getByText(expectedTruncated);
+      expect(truncatedLabel).toBeInTheDocument();
+      expect(truncatedLabel).toHaveStyle("background-color: #333333");
+    });
+
+    test("truncates label title if longer than truncateLength", () => {
+      const longTitle =
+        "This label title is definitely longer than twenty-nine characters";
+      const expectedTruncated = longTitle.slice(0, 29) + "...";
+      const taskWithLongLabel = {
+        ...defaultTask,
+        labels: [{ title: longTitle, color: "#123456" }],
+      };
+
+      renderWithDnd(<TaskCard {...defaultProps} task={taskWithLongLabel} />);
+      const labelSpan = screen.getByText(expectedTruncated);
+      expect(labelSpan).toBeInTheDocument();
+      expect(labelSpan).toHaveStyle("background-color: #123456");
+    });
+
+    test("does not truncate label title if shorter than truncateLength", () => {
+      const shortTitle = "Short label";
+      const taskWithShortLabel = {
+        ...defaultTask,
+        labels: [{ title: shortTitle, color: "#123456" }],
+      };
+
+      renderWithDnd(<TaskCard {...defaultProps} task={taskWithShortLabel} />);
+      const labelSpan = screen.getByText(shortTitle);
+      expect(labelSpan).toBeInTheDocument();
+      expect(labelSpan).toHaveStyle("background-color: #123456");
+    });
+
+    test("hides label text when userSettings.hideLabelText is true", () => {
+      const visibleTitle = "Visible Label";
+      const taskWithLabel = {
+        ...defaultTask,
+        labels: [{ title: visibleTitle, color: "#abcdef" }],
+      };
+
+      renderWithDnd(
+        <TaskCard
+          {...defaultProps}
+          task={taskWithLabel}
+          userSettings={{ hideLabelText: true }}
+        />
+      );
+      expect(screen.queryByText(visibleTitle)).toBeNull();
+
+      const labelSpans = screen.getAllByText("", {
+        selector: ".task-labels span",
+      });
+      expect(labelSpans.length).toBeGreaterThan(0);
+      expect(labelSpans[0]).toHaveStyle("background-color: #abcdef");
     });
   });
 });

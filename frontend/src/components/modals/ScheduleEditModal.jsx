@@ -2,10 +2,21 @@ import React, { useState, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { getCalendarIconColor } from "../../utils/dateUtils";
+import TaskLabels from "../boardComponents/TaskLabels";
 
-const ScheduleEditModal = ({ isModalOpen, eventData, onSave, onClose, onUnschedule }) => {
-  const [start, setStart] = useState(eventData?.start ? new Date(eventData.start) : null);
-  const [end, setEnd] = useState(eventData?.end ? new Date(eventData.end) : null);
+const ScheduleEditModal = ({
+  isModalOpen,
+  eventData,
+  onSave,
+  onClose,
+  onUnschedule,
+}) => {
+  const [start, setStart] = useState(
+    eventData?.start ? new Date(eventData.start) : null
+  );
+  const [end, setEnd] = useState(
+    eventData?.end ? new Date(eventData.end) : null
+  );
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
@@ -53,7 +64,11 @@ const ScheduleEditModal = ({ isModalOpen, eventData, onSave, onClose, onUnschedu
     onUnschedule(eventData);
   };
 
-  const calendarColor = getCalendarIconColor(eventData.start, eventData.end, new Date());
+  const calendarColor = getCalendarIconColor(
+    eventData.start,
+    eventData.end,
+    new Date()
+  );
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -85,6 +100,13 @@ const ScheduleEditModal = ({ isModalOpen, eventData, onSave, onClose, onUnschedu
           </h2>
 
           <div className="modal-body">
+            {eventData.task.labels && eventData.task.labels.length > 0 && (
+              <TaskLabels
+                labels={eventData.task.labels}
+                hideLabelText={false}
+                truncateLength={null}
+              />
+            )}
             <div className="title-priority">
               <div className="title-container">
                 <label className="title-label">Title:</label>

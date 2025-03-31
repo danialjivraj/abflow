@@ -37,7 +37,9 @@ const Column = ({
   confirmBeforeDeleteBoard = true,
   confirmBeforeDeleteTask,
   openCreateTaskModal,
-  duplicateTask
+  duplicateTask,
+  availableLabels,
+  userSettings,
 }) => {
   const columnDropdownRef = useRef(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -78,10 +80,7 @@ const Column = ({
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (
-        columnDropdownRef.current &&
-        !columnDropdownRef.current.contains(event.target)
-      ) {
+      if (columnDropdownRef.current && !columnDropdownRef.current.contains(event.target)) {
         if (isDropdownOpen === columnId) {
           setIsDropdownOpen(null);
         }
@@ -95,11 +94,7 @@ const Column = ({
     <>
       <Draggable draggableId={columnId} index={index}>
         {(provided) => (
-          <div
-            ref={provided.innerRef}
-            {...provided.draggableProps}
-            className="kanban-column"
-          >
+          <div ref={provided.innerRef} {...provided.draggableProps} className="kanban-column">
             <div className="column-header" {...provided.dragHandleProps}>
               {renamingColumnId === columnId ? (
                 <div className="rename-board-wrapper">
@@ -143,12 +138,8 @@ const Column = ({
               )}
               <div className="column-actions">
                 <button
-                  className={`dots-button ${
-                    isDropdownOpen === columnId ? "active dropdown-active" : ""
-                  }`}
-                  onClick={() =>
-                    setIsDropdownOpen(isDropdownOpen === columnId ? null : columnId)
-                  }
+                  className={`dots-button ${isDropdownOpen === columnId ? "active dropdown-active" : ""}`}
+                  onClick={() => setIsDropdownOpen(isDropdownOpen === columnId ? null : columnId)}
                 >
                   &#8942;
                 </button>
@@ -181,11 +172,7 @@ const Column = ({
             </div>
             <Droppable droppableId={columnId} type="TASK">
               {(provided) => (
-                <div
-                  ref={provided.innerRef}
-                  {...provided.droppableProps}
-                  className="droppable-area"
-                >
+                <div ref={provided.innerRef} {...provided.droppableProps} className="droppable-area">
                   {columnData.items.map((task, index) => (
                     <TaskCard
                       key={task._id}
@@ -204,14 +191,13 @@ const Column = ({
                       handleCompleteTask={handleCompleteTask}
                       confirmBeforeDeleteTask={confirmBeforeDeleteTask}
                       duplicateTask={duplicateTask}
+                      availableLabels={availableLabels}
+                      userSettings={userSettings}
                     />
                   ))}
                   {provided.placeholder}
                   <div className="add-task-button-container">
-                    <button
-                      className="add-task-btn column-add-task-btn"
-                      onClick={() => openCreateTaskModal(columnId)}
-                    >
+                    <button className="add-task-btn column-add-task-btn" onClick={() => openCreateTaskModal(columnId)}>
                       <span className="column-thick-plus">+</span>
                       <span className="create-task-text">Create Task</span>
                     </button>

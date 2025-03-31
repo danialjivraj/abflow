@@ -63,9 +63,63 @@ jest.mock("../src/services/columnsService", () => {
   };
 });
 
-jest.mock("../src/services/tasksService", () => ({
-  fetchTasks: jest.fn(() => Promise.resolve({ data: [] })),
+jest.mock("../src/services/labelsService", () => ({
+  fetchLabels: jest.fn(() =>
+    Promise.resolve({
+      data: [
+        { title: "Important", color: "#FF0000" },
+        { title: "Optional", color: "#00FF00" },
+        { title: "Something", color: "#F0FF00" },
+      ],
+    })
+  ),
 }));
+
+jest.mock("../src/services/tasksService", () => {
+  const { createBaseTask } = require("../_testUtils/createBaseTask");
+  return {
+    fetchTasks: jest.fn(() => Promise.resolve({ 
+      data: [
+        createBaseTask({
+          _id: "task1",
+          title: "Test Task 1",
+          status: "column-1",
+          priority: "A1",
+          createdAt: new Date().toISOString(),
+          dueDate: new Date(Date.now() + 86400000).toISOString(), // due tomorrow
+          timeSpent: 3600,
+          storyPoints: 3,
+          labels: [{ title: "Important", color: "#FF0000" }],
+          assignedTo: "John Doe"
+        }),
+        createBaseTask({
+          _id: "task2",
+          title: "Test Task 2",
+          status: "column-1",
+          priority: "A2",
+          createdAt: new Date().toISOString(),
+          dueDate: new Date(Date.now() + 86400000).toISOString(), // due tomorrow
+          timeSpent: 7200,
+          storyPoints: 5,
+          labels: [{ title: "Something", color: "#F0FF00" }],
+          assignedTo: "Jane Doe"
+        }),
+        createBaseTask({
+          _id: "task3",
+          title: "Test Task 3",
+          status: "column-1",
+          priority: "B1",
+          createdAt: new Date().toISOString(),
+          dueDate: new Date(Date.now() - 86400000).toISOString(), // overdue
+          timeSpent: 5400,
+          storyPoints: 8,
+          labels: [{ title: "Optional", color: "#00FF00" }],
+          assignedTo: "John Doe"
+        })
+      ] 
+    })),
+  };
+});
 
 jest.mock("../src/services/preferencesService", () => {
   let chartPreferencesState = {};
@@ -80,24 +134,25 @@ jest.mock("../src/services/preferencesService", () => {
   };
 });
 
+// Modified to ensure the chart components render text that can be found in tests
 jest.mock("recharts", () => ({
-  BarChart: () => <div>BarChart</div>,
+  BarChart: ({ children }) => <div data-testid="bar-chart">BarChart{children}</div>,
   Bar: () => <div>Bar</div>,
   XAxis: () => <div>XAxis</div>,
   YAxis: () => <div>YAxis</div>,
   Tooltip: () => <div>Tooltip</div>,
   Legend: () => <div>Legend</div>,
-  LineChart: () => <div>LineChart</div>,
-  Line: () => <div>LineChart</div>,
-  AreaChart: () => <div>AreaChart</div>,
+  LineChart: ({ children }) => <div data-testid="line-chart">LineChart{children}</div>,
+  Line: () => <div>Line</div>,
+  AreaChart: ({ children }) => <div data-testid="area-chart">AreaChart{children}</div>,
   Area: () => <div>Area</div>,
   CartesianGrid: () => <div>CartesianGrid</div>,
-  ResponsiveContainer: ({ children }) => <div>{children}</div>,
-  PieChart: () => <div>PieChart</div>,
-  Pie: () => <div>PieChart</div>,
+  ResponsiveContainer: ({ children }) => <div data-testid="responsive-container">{children}</div>,
+  PieChart: ({ children }) => <div data-testid="pie-chart">PieChart{children}</div>,
+  Pie: () => <div>Pie</div>,
   Cell: () => <div>Cell</div>,
-  RadarChart: () => <div>RadarChart</div>,
-  Radar: () => <div>RadarChart</div>,
+  RadarChart: ({ children }) => <div data-testid="radar-chart">RadarChart{children}</div>,
+  Radar: () => <div>Radar</div>,
   PolarGrid: () => <div>PolarGrid</div>,
   PolarAngleAxis: () => <div>PolarAngleAxis</div>,
   PolarRadiusAxis: () => <div>PolarRadiusAxis</div>,
@@ -145,6 +200,8 @@ const defaultPreferences = {
   priorityFilters: [],
   dayOfWeekFilters: [],
   statusFilters: [],
+  labelFilters: [],
+  includeNoneLabel: false,
   assignedToFilter: "",
   minTaskCount: "",
   minStoryPoints: "",
@@ -182,8 +239,13 @@ describe("Charts Component Unit Tests", () => {
 
   test("renders the correct chart type based on state", async () => {
     renderWithContext(<Charts />);
-    await waitFor(() =>
-      expect(screen.getByText("BarChart")).toBeInTheDocument()
+    
+    await waitFor(() => 
+      expect(screen.queryByText("Loading preferences...")).not.toBeInTheDocument()
+    );
+    
+    await waitFor(() => 
+      expect(screen.queryByTestId("bar-chart")).toBeInTheDocument()
     );
   });
 
@@ -206,7 +268,7 @@ describe("Charts Component Unit Tests", () => {
     const initialParamsObj = setSearchParamsMock.mock.calls[0][0];
     const initialQuery = new URLSearchParams(initialParamsObj).toString();
     const expectedInitialQuery =
-      "timeRangeType=week&taskType=active&chartType=bar&xAxisField=day&yAxisMetric=count&sortOrder=none&dueFilter=both&priorityFilters=&dayOfWeekFilters=&statusFilters=&assignedToFilter=&minTaskCount=&minStoryPoints=&minTimeSpent=&minTimeUnit=seconds&includeZeroMetrics=true&scheduledOnly=false&includeNoDueDate=true&comparisonMode=false";
+      "timeRangeType=week&taskType=active&chartType=bar&xAxisField=day&yAxisMetric=count&sortOrder=none&dueFilter=both&priorityFilters=&dayOfWeekFilters=&statusFilters=&labelFilters=&includeNoneLabel=false&assignedToFilter=&minTaskCount=&minStoryPoints=&minTimeSpent=&minTimeUnit=seconds&includeZeroMetrics=true&scheduledOnly=false&includeNoDueDate=true&comparisonMode=false";
     expect(initialQuery).toBe(expectedInitialQuery);
 
     fireEvent.change(screen.getByLabelText("Time Range"), {
@@ -261,6 +323,18 @@ describe("Charts Component Unit Tests", () => {
     fireEvent.click(statusDropdownHeader);
     fireEvent.click(screen.getByLabelText("Test Board"));
 
+    const labelDropdown = screen.getByText(
+      (content, node) =>
+        node.tagName.toLowerCase() === "label" && content === "Label"
+    );
+    const labelDropdownHeader =
+      labelDropdown.parentElement.querySelector(".dropdown-header");
+    fireEvent.click(labelDropdownHeader);
+    fireEvent.click(screen.getByLabelText("Important"));
+    fireEvent.click(screen.getByLabelText("Something"));
+
+    fireEvent.click(screen.getByLabelText("Include None Label"));
+
     fireEvent.change(screen.getByPlaceholderText("Filter by assignee"), {
       target: { value: "Jane Doe" },
     });
@@ -304,8 +378,7 @@ describe("Charts Component Unit Tests", () => {
     const finalQuery = new URLSearchParams(lastParamsObj).toString();
 
     const expectedFinalQuery =
-      "timeRangeType=month&taskType=completed&chartType=bar&xAxisField=priority&yAxisMetric=timeSpent&sortOrder=asc&dueFilter=overdue&priorityFilters=A1&dayOfWeekFilters=Monday&statusFilters=column-1&assignedToFilter=Jane+Doe&minTaskCount=5&minStoryPoints=3&minTimeSpent=120&minTimeUnit=minutes&includeZeroMetrics=false&scheduledOnly=true&includeNoDueDate=false&comparisonMode=true&compStartDate=2025-03-01T00%3A00%3A00.000Z&compEndDate=2025-03-15T00%3A00%3A00.000Z";
-
+      "timeRangeType=month&taskType=completed&chartType=bar&xAxisField=priority&yAxisMetric=timeSpent&sortOrder=asc&dueFilter=overdue&priorityFilters=A1&dayOfWeekFilters=Monday&statusFilters=column-1&labelFilters=Important%2CSomething&includeNoneLabel=true&assignedToFilter=Jane+Doe&minTaskCount=5&minStoryPoints=3&minTimeSpent=120&minTimeUnit=minutes&includeZeroMetrics=false&scheduledOnly=true&includeNoDueDate=false&comparisonMode=true&compStartDate=2025-03-01T00%3A00%3A00.000Z&compEndDate=2025-03-15T00%3A00%3A00.000Z";
     expect(finalQuery).toBe(expectedFinalQuery);
   });
 
@@ -358,33 +431,38 @@ describe("Charts Component Unit Tests", () => {
 
   test("changes chart type when chart type buttons are clicked via TopBar", async () => {
     renderWithContext(<Charts />);
-    await waitFor(() =>
-      expect(screen.getByText("BarChart")).toBeInTheDocument()
+    
+    await waitFor(() => 
+      expect(screen.queryByText("Loading preferences...")).not.toBeInTheDocument()
+    );
+    
+    await waitFor(() => 
+      expect(screen.queryByTestId("bar-chart")).toBeInTheDocument()
     );
 
     fireEvent.click(screen.getByRole("button", { name: "Line" }));
     await waitFor(() =>
-      expect(screen.getByText("LineChart")).toBeInTheDocument()
+      expect(screen.queryByTestId("line-chart")).toBeInTheDocument()
     );
 
     fireEvent.click(screen.getByRole("button", { name: "Pie" }));
     await waitFor(() =>
-      expect(screen.getByText("PieChart")).toBeInTheDocument()
+      expect(screen.queryByTestId("pie-chart")).toBeInTheDocument()
     );
 
     fireEvent.click(screen.getByRole("button", { name: "Area" }));
     await waitFor(() =>
-      expect(screen.getByText("AreaChart")).toBeInTheDocument()
+      expect(screen.queryByTestId("area-chart")).toBeInTheDocument()
     );
 
     fireEvent.click(screen.getByRole("button", { name: "Radar" }));
     await waitFor(() =>
-      expect(screen.getByText("RadarChart")).toBeInTheDocument()
+      expect(screen.queryByTestId("radar-chart")).toBeInTheDocument()
     );
 
     fireEvent.click(screen.getByRole("button", { name: "Bar" }));
     await waitFor(() =>
-      expect(screen.getByText("BarChart")).toBeInTheDocument()
+      expect(screen.queryByTestId("bar-chart")).toBeInTheDocument()
     );
   });
 
@@ -769,6 +847,18 @@ describe("Charts Component Integration Tests", () => {
     fireEvent.click(statusDropdownHeader);
     fireEvent.click(screen.getByLabelText("Test Board"));
 
+    const labelDropdown = screen.getByText(
+      (content, node) =>
+        node.tagName.toLowerCase() === "label" && content === "Label"
+    );
+    const labelDropdownHeader =
+      labelDropdown.parentElement.querySelector(".dropdown-header");
+    fireEvent.click(labelDropdownHeader);
+    fireEvent.click(screen.getByLabelText("Important"));
+    fireEvent.click(screen.getByLabelText("Optional"));
+
+    fireEvent.click(screen.getByLabelText("Include None Label"));
+
     fireEvent.change(screen.getByRole("textbox", { name: "Assigned To" }), {
       target: { value: "John Doe" },
     });
@@ -835,6 +925,8 @@ describe("Charts Component Integration Tests", () => {
       sortOrder: "asc",
       dueFilter: "overdue",
       priorityFilters: ["A1"],
+      labelFilters: ["Important", "Optional"],
+      includeNoneLabel: true,
       dayOfWeekFilters: ["Monday"],
       statusFilters: ["column-1"],
       assignedToFilter: "John Doe",

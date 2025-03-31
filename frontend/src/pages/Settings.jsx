@@ -70,6 +70,7 @@ const DEFAULT_SETTINGS = {
     D: "#cc66ff",
     E: "#ff9966",
   },
+  hideLabelText: false,
 };
 
 const CATEGORY_DEFAULTS = {
@@ -533,6 +534,16 @@ const Settings = ({ updateDefaultBoardView }) => {
                   ))}
                 </select>
               </div>
+            </label>
+
+            <label className="setting-row">
+              <span>Hide Label Text</span>
+              <input
+                type="checkbox"
+                name="hideLabelText"
+                checked={settings.hideLabelText}
+                onChange={handleChange}
+              />
             </label>
 
             <div
