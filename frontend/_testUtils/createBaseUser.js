@@ -15,7 +15,7 @@ function createBaseUser(overrides = {}) {
       dueFilter: "both",
       priorityFilters: [],
       labelFilters: [],
-      includeNoneLabel: false,
+      includeNoneLabel: true,
       dayOfWeekFilters: [],
       statusFilters: [],
       assignedToFilter: "",

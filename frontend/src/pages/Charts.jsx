@@ -101,7 +101,7 @@ const Charts = ({ userSettings }) => {
   const [dayOfWeekFilters, setDayOfWeekFilters] = useState([]);
   const [statusFilters, setStatusFilters] = useState([]);
   const [labelFilters, setLabelFilters] = useState([]);
-  const [includeNoneLabel, setIncludeNoneLabel] = useState(false);
+  const [includeNoneLabel, setIncludeNoneLabel] = useState(true);
   const [assignedToFilter, setAssignedToFilter] = useState("");
   const [minTaskCount, setMinTaskCount] = useState("");
   const [minStoryPoints, setMinStoryPoints] = useState("");
@@ -150,7 +150,7 @@ const Charts = ({ userSettings }) => {
     dayOfWeekFilters: [],
     statusFilters: [],
     labelFilters: [],
-    includeNoneLabel: false,
+    includeNoneLabel: true,
     assignedToFilter: "",
     minTaskCount: "",
     minStoryPoints: "",

@@ -114,7 +114,7 @@ describe("Preferences Routes", () => {
           minTimeUnit: "hours",
           scheduledOnly: true,
           labelFilters: ["Bugs", "Backend"],
-          includeNoneLabel: true,
+          includeNoneLabel: false,
           includeZeroMetrics: false,
           includeNoDueDate: false,
           comparisonMode: true,

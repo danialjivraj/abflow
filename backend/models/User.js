@@ -64,7 +64,7 @@ const UserSchema = new Schema({
           type: [String],
           default: [],
         },
-        includeNoneLabel: { type: Boolean, default: false },
+        includeNoneLabel: { type: Boolean, default: true },
         dayOfWeekFilters: {
           type: [String],
           enum: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],

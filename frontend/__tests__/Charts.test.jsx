@@ -201,7 +201,7 @@ const defaultPreferences = {
   dayOfWeekFilters: [],
   statusFilters: [],
   labelFilters: [],
-  includeNoneLabel: false,
+  includeNoneLabel: true,
   assignedToFilter: "",
   minTaskCount: "",
   minStoryPoints: "",
@@ -268,7 +268,7 @@ describe("Charts Component Unit Tests", () => {
     const initialParamsObj = setSearchParamsMock.mock.calls[0][0];
     const initialQuery = new URLSearchParams(initialParamsObj).toString();
     const expectedInitialQuery =
-      "timeRangeType=week&taskType=active&chartType=bar&xAxisField=day&yAxisMetric=count&sortOrder=none&dueFilter=both&priorityFilters=&dayOfWeekFilters=&statusFilters=&labelFilters=&includeNoneLabel=false&assignedToFilter=&minTaskCount=&minStoryPoints=&minTimeSpent=&minTimeUnit=seconds&includeZeroMetrics=true&scheduledOnly=false&includeNoDueDate=true&comparisonMode=false";
+      "timeRangeType=week&taskType=active&chartType=bar&xAxisField=day&yAxisMetric=count&sortOrder=none&dueFilter=both&priorityFilters=&dayOfWeekFilters=&statusFilters=&labelFilters=&includeNoneLabel=true&assignedToFilter=&minTaskCount=&minStoryPoints=&minTimeSpent=&minTimeUnit=seconds&includeZeroMetrics=true&scheduledOnly=false&includeNoDueDate=true&comparisonMode=false";
     expect(initialQuery).toBe(expectedInitialQuery);
 
     fireEvent.change(screen.getByLabelText("Time Range"), {
@@ -378,7 +378,7 @@ describe("Charts Component Unit Tests", () => {
     const finalQuery = new URLSearchParams(lastParamsObj).toString();
 
     const expectedFinalQuery =
-      "timeRangeType=month&taskType=completed&chartType=bar&xAxisField=priority&yAxisMetric=timeSpent&sortOrder=asc&dueFilter=overdue&priorityFilters=A1&dayOfWeekFilters=Monday&statusFilters=column-1&labelFilters=Important%2CSomething&includeNoneLabel=true&assignedToFilter=Jane+Doe&minTaskCount=5&minStoryPoints=3&minTimeSpent=120&minTimeUnit=minutes&includeZeroMetrics=false&scheduledOnly=true&includeNoDueDate=false&comparisonMode=true&compStartDate=2025-03-01T00%3A00%3A00.000Z&compEndDate=2025-03-15T00%3A00%3A00.000Z";
+      "timeRangeType=month&taskType=completed&chartType=bar&xAxisField=priority&yAxisMetric=timeSpent&sortOrder=asc&dueFilter=overdue&priorityFilters=A1&dayOfWeekFilters=Monday&statusFilters=column-1&labelFilters=Important%2CSomething&includeNoneLabel=false&assignedToFilter=Jane+Doe&minTaskCount=5&minStoryPoints=3&minTimeSpent=120&minTimeUnit=minutes&includeZeroMetrics=false&scheduledOnly=true&includeNoDueDate=false&comparisonMode=true&compStartDate=2025-03-01T00%3A00%3A00.000Z&compEndDate=2025-03-15T00%3A00%3A00.000Z";
     expect(finalQuery).toBe(expectedFinalQuery);
   });
 
@@ -926,7 +926,7 @@ describe("Charts Component Integration Tests", () => {
       dueFilter: "overdue",
       priorityFilters: ["A1"],
       labelFilters: ["Important", "Optional"],
-      includeNoneLabel: true,
+      includeNoneLabel: false,
       dayOfWeekFilters: ["Monday"],
       statusFilters: ["column-1"],
       assignedToFilter: "John Doe",
