@@ -70,7 +70,7 @@ describe("Settings component", () => {
       <Routes>
         <Route
           path="/settings/:section/*"
-          element={<Settings updateDefaultBoardView={jest.fn()} />}
+          element={<Settings updateDefaultDashboardView={jest.fn()} />}
         />
       </Routes>,
       { wrapper: AllProviders }
@@ -90,7 +90,7 @@ describe("Settings component", () => {
       <Routes>
         <Route
           path="/settings/:section/*"
-          element={<Settings updateDefaultBoardView={jest.fn()} />}
+          element={<Settings updateDefaultDashboardView={jest.fn()} />}
         />
       </Routes>,
       { wrapper: AllProviders }
@@ -119,13 +119,13 @@ describe("Settings component", () => {
   });
 
   it("saves settings when 'Save Settings' is clicked", async () => {
-    const updateDefaultBoardViewMock = jest.fn();
+    const updateDefaultDashboardViewMock = jest.fn();
     render(
       <Routes>
         <Route
           path="/settings/:section/*"
           element={
-            <Settings updateDefaultBoardView={updateDefaultBoardViewMock} />
+            <Settings updateDefaultDashboardView={updateDefaultDashboardViewMock} />
           }
         />
       </Routes>,
@@ -137,7 +137,7 @@ describe("Settings component", () => {
     await screen.findByRole("heading", { name: "Productivity & UX" });
 
     const boardSelect = screen.getByRole("combobox", {
-      name: "Default Board View",
+      name: "Default Dashboard View",
     });
     await userEvent.selectOptions(boardSelect, "schedule");
 
@@ -153,7 +153,7 @@ describe("Settings component", () => {
       expect(toast.success).toHaveBeenCalledWith("Settings saved!");
     });
 
-    expect(updateDefaultBoardViewMock).toHaveBeenCalledWith("schedule");
+    expect(updateDefaultDashboardViewMock).toHaveBeenCalledWith("schedule");
     expect(updateSettingsPreferences).toHaveBeenCalled();
   });
 
@@ -162,11 +162,11 @@ describe("Settings component", () => {
       <Routes>
         <Route
           path="/settings"
-          element={<Settings updateDefaultBoardView={jest.fn()} />}
+          element={<Settings updateDefaultDashboardView={jest.fn()} />}
         />
         <Route
           path="/settings/:section/*"
-          element={<Settings updateDefaultBoardView={jest.fn()} />}
+          element={<Settings updateDefaultDashboardView={jest.fn()} />}
         />
       </Routes>,
       {
@@ -190,7 +190,7 @@ describe("Settings component", () => {
       <Routes>
         <Route
           path="/settings/:section/*"
-          element={<Settings updateDefaultBoardView={jest.fn()} />}
+          element={<Settings updateDefaultDashboardView={jest.fn()} />}
         />
       </Routes>,
       {
@@ -214,7 +214,7 @@ describe("Settings component", () => {
       <Routes>
         <Route
           path="/settings/:section/*"
-          element={<Settings updateDefaultBoardView={jest.fn()} />}
+          element={<Settings updateDefaultDashboardView={jest.fn()} />}
         />
       </Routes>,
       { wrapper: AllProviders }
@@ -231,7 +231,7 @@ describe("Settings component", () => {
       <Routes>
         <Route
           path="/settings/:section/*"
-          element={<Settings updateDefaultBoardView={jest.fn()} />}
+          element={<Settings updateDefaultDashboardView={jest.fn()} />}
         />
       </Routes>,
       { wrapper: AllProviders }
@@ -240,7 +240,7 @@ describe("Settings component", () => {
       screen.queryByText("Loading settings...")
     );
     const boardSelect = screen.getByRole("combobox", {
-      name: "Default Board View",
+      name: "Default Dashboard View",
     });
     boardSelect.value = "schedule";
     boardSelect.dispatchEvent(new Event("change", { bubbles: true }));
@@ -260,7 +260,7 @@ describe("Settings component", () => {
       <Routes>
         <Route
           path="/settings/:section/*"
-          element={<Settings updateDefaultBoardView={jest.fn()} />}
+          element={<Settings updateDefaultDashboardView={jest.fn()} />}
         />
       </Routes>,
       { wrapper: AllProviders }
@@ -269,7 +269,7 @@ describe("Settings component", () => {
       screen.queryByText("Loading settings...")
     );
     const boardSelect = screen.getByRole("combobox", {
-      name: "Default Board View",
+      name: "Default Dashboard View",
     });
     boardSelect.value = "schedule";
     boardSelect.dispatchEvent(new Event("change", { bubbles: true }));
@@ -293,7 +293,7 @@ describe("Settings component", () => {
       <Routes>
         <Route
           path="/settings/:section/*"
-          element={<Settings updateDefaultBoardView={jest.fn()} />}
+          element={<Settings updateDefaultDashboardView={jest.fn()} />}
         />
       </Routes>,
       { wrapper: AllProviders }
@@ -311,7 +311,7 @@ describe("Settings component", () => {
       <Routes>
         <Route
           path="/settings/:section/*"
-          element={<Settings updateDefaultBoardView={jest.fn()} />}
+          element={<Settings updateDefaultDashboardView={jest.fn()} />}
         />
       </Routes>,
       { wrapper: AllProviders }
@@ -321,7 +321,7 @@ describe("Settings component", () => {
     );
 
     const boardSelect = screen.getByRole("combobox", {
-      name: "Default Board View",
+      name: "Default Dashboard View",
     });
     await userEvent.selectOptions(boardSelect, "schedule");
 
@@ -343,7 +343,7 @@ describe("Settings component", () => {
       <Routes>
         <Route
           path="/settings/:section/*"
-          element={<Settings updateDefaultBoardView={jest.fn()} />}
+          element={<Settings updateDefaultDashboardView={jest.fn()} />}
         />
       </Routes>,
       {

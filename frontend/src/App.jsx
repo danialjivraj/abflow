@@ -22,22 +22,22 @@ import {
 import "react-toastify/dist/ReactToastify.css";
 import ToastProvider from "./components/ToastProvider";
 
-const DefaultDashboardRedirect = ({ defaultBoardView, preferencesLoaded }) => {
+const DefaultDashboardRedirect = ({ defaultDashboardView, preferencesLoaded }) => {
   if (!preferencesLoaded) return <p>Loading dashboard settings...</p>;
-  return <Navigate to={`/dashboard/${defaultBoardView}`} replace />;
+  return <Navigate to={`/dashboard/${defaultDashboardView}`} replace />;
 };
 
 function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [defaultBoardView, setDefaultBoardView] = useState("boards");
+  const [defaultDashboardView, setDefaultDashboardView] = useState("boards");
   const [preferencesLoaded, setPreferencesLoaded] = useState(false);
 
   const [userSettings, setUserSettings] = useState({
     darkMode: false,
     defaultPriority: "A1",
     hideOldCompletedTasksDays: 30,
-    defaultBoardView: "boards",
+    defaultDashboardView: "boards",
     disableToCreateTask: false,
     confirmBeforeDelete: true,
     notifyNonPriorityGoesOvertime: 60,
@@ -67,7 +67,7 @@ function App() {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (!user) {
         setUser(null);
-        setDefaultBoardView("boards");
+        setDefaultDashboardView("boards");
         setPreferencesLoaded(false);
         localStorage.setItem("darkMode", "true");
         document.documentElement.setAttribute("data-theme", "dark");
@@ -85,7 +85,7 @@ function App() {
               "data-theme",
               darkMode ? "dark" : "light"
             );
-            setDefaultBoardView(prefs.defaultBoardView || "boards");
+            setDefaultDashboardView(prefs.defaultDashboardView || "boards");
             setUserSettings((prev) => ({ ...prev, ...prefs }));
             setPreferencesLoaded(true);
             if (prefs.themeAccent === "Custom") {
@@ -173,7 +173,7 @@ function App() {
               path="/dashboard"
               element={
                 <DefaultDashboardRedirect
-                  defaultBoardView={defaultBoardView}
+                  defaultDashboardView={defaultDashboardView}
                   preferencesLoaded={preferencesLoaded}
                 />
               }
@@ -204,7 +204,7 @@ function App() {
             <Route
               path="/settings/:section/*"
               element={
-                <Settings updateDefaultBoardView={setDefaultBoardView} />
+                <Settings updateDefaultDashboardView={setDefaultDashboardView} />
               }
             />
           </Route>

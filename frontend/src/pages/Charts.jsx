@@ -117,7 +117,6 @@ const Charts = ({ userSettings }) => {
   const [isSaveDisabled, setIsSaveDisabled] = useState(false);
   const [isDefaultDisabled, setIsDefaultDisabled] = useState(false);
 
-  // New state: wait until preferences are loaded
   const [preferencesLoaded, setPreferencesLoaded] = useState(false);
 
   // Chart Data

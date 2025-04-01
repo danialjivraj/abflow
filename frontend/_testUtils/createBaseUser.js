@@ -40,7 +40,7 @@ function createBaseUser(overrides = {}) {
       defaultPriority: "A1",
       hideOldCompletedTasksDays: 365,
       hideOldCompletedTasksNever: true,
-      defaultBoardView: "boards",
+      defaultDashboardView: "boards",
       disableToCreateTask: false,
       confirmBeforeDeleteTask: true,
       confirmBeforeDeleteBoard: true,

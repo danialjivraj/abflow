@@ -35,11 +35,11 @@ const LabelsDropdown = ({
             <div
               style={{
                 display: "flex",
-                alignItems: "center",
+                alignItems: "flex-start",
                 justifyContent: "space-between",
               }}
             >
-              <div style={{ display: "flex", alignItems: "center" }}>
+              <div style={{ display: "flex", alignItems: "flex-start" }}>
                 <span
                   className="label-color-box"
                   style={{ backgroundColor: label.color }}
@@ -66,7 +66,7 @@ const LabelsDropdown = ({
               setIsTaskDropdownOpen(null);
             }}
           >
-            <div style={{ display: "flex", alignItems: "center" }}>
+            <div style={{ display: "flex" }}>
               <span
                 className="label-color-box"
                 style={{ backgroundColor: label.color }}

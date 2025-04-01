@@ -157,7 +157,7 @@ const defaultUserSettings = {
   darkMode: false,
   defaultPriority: "A1",
   hideOldCompletedTasksDays: 30,
-  defaultBoardView: "boards",
+  defaultDashboardView: "boards",
   disableToCreateTask: false,
   confirmBeforeDelete: true,
   notifyNonPriorityGoesOvertime: 60,

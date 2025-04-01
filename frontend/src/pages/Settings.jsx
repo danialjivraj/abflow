@@ -47,7 +47,7 @@ const DEFAULT_SETTINGS = {
   defaultPriority: "A1",
   hideOldCompletedTasksDays: 365,
   hideOldCompletedTasksNever: true,
-  defaultBoardView: "boards",
+  defaultDashboardView: "boards",
   disableToCreateTask: false,
   confirmBeforeDeleteTask: true,
   confirmBeforeDeleteBoard: true,
@@ -75,7 +75,7 @@ const DEFAULT_SETTINGS = {
 
 const CATEGORY_DEFAULTS = {
   "Productivity & UX": {
-    defaultBoardView: DEFAULT_SETTINGS.defaultBoardView,
+    defaultDashboardView: DEFAULT_SETTINGS.defaultDashboardView,
     defaultPriority: DEFAULT_SETTINGS.defaultPriority,
     confirmBeforeDeleteTask: DEFAULT_SETTINGS.confirmBeforeDeleteTask,
     confirmBeforeDeleteBoard: DEFAULT_SETTINGS.confirmBeforeDeleteBoard,
@@ -112,7 +112,7 @@ const presetColors = {
   Yellow: "#ffeb3b",
 };
 
-const Settings = ({ updateDefaultBoardView }) => {
+const Settings = ({ updateDefaultDashboardView }) => {
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [initialSettings, setInitialSettings] = useState(null);
   const [userId, setUserId] = useState(null);
@@ -241,7 +241,7 @@ const Settings = ({ updateDefaultBoardView }) => {
     updateSettingsPreferences(userId, settings)
       .then(() => {
         setInitialSettings(settings);
-        updateDefaultBoardView(settings.defaultBoardView);
+        updateDefaultDashboardView(settings.defaultDashboardView);
 
         if (settings.themeAccent === "Custom") {
           updateAccentColor(settings.themeAccentCustom);
@@ -287,10 +287,10 @@ const Settings = ({ updateDefaultBoardView }) => {
         return (
           <>
             <label className="setting-row">
-              <span>Default Board View</span>
+              <span>Default Dashboard View</span>
               <select
-                name="defaultBoardView"
-                value={settings.defaultBoardView}
+                name="defaultDashboardView"
+                value={settings.defaultDashboardView}
                 onChange={handleChange}
               >
                 <option value="boards">Boards</option>

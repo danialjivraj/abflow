@@ -158,7 +158,7 @@ describe("Preferences Routes", () => {
       defaultPriority: "B1",
       hideOldCompletedTasksDays: 365,
       hideOldCompletedTasksNever: true,
-      defaultBoardView: "schedule",
+      defaultDashboardView: "schedule",
       disableToCreateTask: false,
       hideLabelText: false,
       confirmBeforeDeleteBoard: true,

@@ -107,7 +107,7 @@ const UserSchema = new Schema({
         },
         hideOldCompletedTasksDays: { type: Number, default: 365 },
         hideOldCompletedTasksNever: { type: Boolean, default: true },
-        defaultBoardView: {
+        defaultDashboardView: {
           type: String,
           enum: ["boards", "schedule", "completedtasks"],
           default: "boards",
