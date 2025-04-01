@@ -1,7 +1,10 @@
 import React, { useContext, useState } from "react";
 import { NotificationsContext } from "../contexts/NotificationsContext";
 import { formatDateWithoutGMT } from "../utils/dateUtils";
-import { updateNotification, deleteNotification } from "../services/notificationService";
+import {
+  updateNotification,
+  deleteNotification,
+} from "../services/notificationService";
 import { FaEnvelopeOpen, FaEnvelope } from "react-icons/fa";
 import "./notificationsDropdown.css";
 
@@ -10,7 +13,7 @@ const renderNotificationMessage = (message) => {
     "Weekly Insight:": "notification-title-insight",
     "Alert:": "notification-title-alert",
     "Reminder:": "notification-title-reminder",
-    "Warning:": "notification-title-warning"
+    "Warning:": "notification-title-warning",
   };
 
   for (const prefix in prefixMap) {
@@ -31,45 +34,30 @@ const renderNotificationMessage = (message) => {
 const NotificationsDropdown = ({ notifications, onClose }) => {
   const { setNotifications } = useContext(NotificationsContext);
   const [expandedIds, setExpandedIds] = useState([]);
+  const [activeTab, setActiveTab] = useState("all");
 
-  const markAsRead = async (index) => {
-    const notif = notifications[index];
+  const filteredNotifications =
+    activeTab === "unread"
+      ? notifications.filter((notif) => !notif.read)
+      : notifications;
+
+  const markAsRead = async (notif) => {
     if (!notif.read) {
       try {
         await updateNotification(notif._id, { read: true });
-        setNotifications((prev) => {
-          const updated = [...prev];
-          updated[index] = { ...updated[index], read: true };
-          return updated;
-        });
+        setNotifications((prev) =>
+          prev.map((n) => (n._id === notif._id ? { ...n, read: true } : n))
+        );
       } catch (error) {
         console.error("Error marking notification as read:", error);
       }
     }
   };
 
-  const markAllAsRead = async () => {
+  const removeNotificationItem = async (notif) => {
     try {
-      const updatedNotifications = await Promise.all(
-        notifications.map(async (notif) => {
-          if (!notif.read) {
-            await updateNotification(notif._id, { read: true });
-            return { ...notif, read: true };
-          }
-          return notif;
-        })
-      );
-      setNotifications(updatedNotifications);
-    } catch (error) {
-      console.error("Error marking all notifications as read:", error);
-    }
-  };
-
-  const removeNotificationItem = async (index) => {
-    const notifToRemove = notifications[index];
-    try {
-      await deleteNotification(notifToRemove._id);
-      setNotifications((prev) => prev.filter((_, i) => i !== index));
+      await deleteNotification(notif._id);
+      setNotifications((prev) => prev.filter((n) => n._id !== notif._id));
     } catch (error) {
       console.error("Error deleting notification:", error);
     }
@@ -99,7 +87,21 @@ const NotificationsDropdown = ({ notifications, onClose }) => {
       <div className="notifications-header">
         <div className="header-content">
           <h4>Notifications</h4>
-          <button className="mark-all-read-header" onClick={markAllAsRead}>
+          <button
+            className="mark-all-read-header"
+            onClick={async () => {
+              const updatedNotifications = await Promise.all(
+                notifications.map(async (notif) => {
+                  if (!notif.read) {
+                    await updateNotification(notif._id, { read: true });
+                    return { ...notif, read: true };
+                  }
+                  return notif;
+                })
+              );
+              setNotifications(updatedNotifications);
+            }}
+          >
             Mark All as Read
           </button>
         </div>
@@ -107,20 +109,38 @@ const NotificationsDropdown = ({ notifications, onClose }) => {
           ×
         </button>
       </div>
-      {notifications.length === 0 ? (
+
+      <div className="notifications-tabs">
+        <button
+          className={`tab-btn ${activeTab === "all" ? "active" : ""}`}
+          onClick={() => setActiveTab("all")}
+        >
+          All
+        </button>
+        <button
+          className={`tab-btn ${activeTab === "unread" ? "active" : ""}`}
+          onClick={() => setActiveTab("unread")}
+        >
+          Unread
+        </button>
+      </div>
+
+      {filteredNotifications.length === 0 ? (
         <p className="no-notifications">No notifications</p>
       ) : (
         <ul>
-          {notifications.map((notif, index) => {
+          {filteredNotifications.map((notif) => {
             const dateStr = formatDateWithoutGMT(new Date(notif.createdAt));
             const isExpanded = expandedIds.includes(notif._id);
             return (
               <li
                 key={notif._id}
-                className={`notification-item ${notif.read ? "read" : "unread"} ${isExpanded ? "expanded" : ""}`}
+                className={`notification-item ${
+                  notif.read ? "read" : "unread"
+                } ${isExpanded ? "expanded" : ""}`}
                 onClick={async () => {
                   if (!notif.read) {
-                    await markAsRead(index);
+                    await markAsRead(notif);
                   }
                   toggleExpand(notif._id);
                 }}
@@ -138,7 +158,7 @@ const NotificationsDropdown = ({ notifications, onClose }) => {
                       e.stopPropagation();
                       (async () => {
                         if (!notif.read) {
-                          await markAsRead(index);
+                          await markAsRead(notif);
                         }
                         toggleExpand(notif._id);
                       })();
@@ -154,7 +174,7 @@ const NotificationsDropdown = ({ notifications, onClose }) => {
                     className="notification-remove-btn"
                     onClick={(e) => {
                       e.stopPropagation();
-                      removeNotificationItem(index);
+                      removeNotificationItem(notif);
                     }}
                   >
                     ×

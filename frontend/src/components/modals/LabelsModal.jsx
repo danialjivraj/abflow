@@ -42,7 +42,6 @@ const LabelsModal = ({ isOpen, closeModal, labels, setLabels, userId }) => {
       setLabelError("");
     }
   }, [isOpen]);
-  
 
   const handleColorChange = (color) => {
     if (editingLabelIndex !== null) {
@@ -168,6 +167,12 @@ const LabelsModal = ({ isOpen, closeModal, labels, setLabels, userId }) => {
 
   const stopPropagation = (e) => e.stopPropagation();
 
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      handleAddLabel();
+    }
+  };
+
   return (
     <div className="modal-overlay" onClick={handleOverlayClick}>
       <div className="modal-container label-modal" onClick={stopPropagation}>
@@ -197,6 +202,7 @@ const LabelsModal = ({ isOpen, closeModal, labels, setLabels, userId }) => {
                         setLabelError("");
                       }
                     }}
+                    onKeyDown={handleKeyDown}
                     className="label-name-input"
                     maxLength={75}
                   />

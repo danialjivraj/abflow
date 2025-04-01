@@ -214,6 +214,30 @@ describe("LabelsModal - Integration Tests", () => {
       expect(screen.getByPlaceholderText("Label name").value).toBe("");
     });
 
+    it("should successfully create a label when Enter is pressed", async () => {
+      createLabel.mockResolvedValueOnce({
+        data: { _id: "label-enter", title: "Enter Label", color: "#d32f2f" },
+      });
+      render(<LabelsModalWrapper />);
+
+      const nameInput = screen.getByPlaceholderText("Label name");
+      fireEvent.change(nameInput, { target: { value: "Enter Label" } });
+      expect(nameInput.value).toBe("Enter Label");
+
+      fireEvent.keyDown(nameInput, { key: "Enter", code: "Enter" });
+
+      await waitFor(() =>
+        expect(createLabel).toHaveBeenCalledWith("user1", {
+          title: "Enter Label",
+          color: "#d32f2f",
+        })
+      );
+      await waitFor(() =>
+        expect(toast.success).toHaveBeenCalledWith("Label created!")
+      );
+      expect(screen.getByPlaceholderText("Label name").value).toBe("");
+    });
+
     it("should fail to create a label and display an error toast", async () => {
       createLabel.mockRejectedValueOnce(new Error("Creation failed"));
       render(<LabelsModalWrapper />);
@@ -232,13 +256,13 @@ describe("LabelsModal - Integration Tests", () => {
 
     it("should display error message when trying to create a label with empty field", async () => {
       render(<LabelsModalWrapper />);
-    
+
       const nameInput = screen.getByPlaceholderText("Label name");
       expect(nameInput.value).toBe("");
-    
+
       const addButton = screen.getByRole("button", { name: "Add Label" });
       userEvent.click(addButton);
-    
+
       const errorMessage = await screen.findByText("Field cannot be empty");
       expect(errorMessage).toBeInTheDocument();
     });
