@@ -8,7 +8,7 @@
     "test": "jest",
     "lint": "eslint .",
     "depcheck": "npx depcheck",
-    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,md}\" && git diff --exit-code"
+    "format": "prettier --write . && git diff --exit-code"
   },
   "dependencies": {
     "cloudinary": "^1.41.3",
