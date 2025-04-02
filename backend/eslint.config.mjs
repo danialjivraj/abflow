@@ -4,6 +4,7 @@ import react from "eslint-plugin-react";
 import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 import unusedImports from "eslint-plugin-unused-imports";
+import spellcheck from "eslint-plugin-spellcheck";
 
 export default [
   { ignores: ["dist"] },
@@ -40,6 +41,7 @@ export default [
       "react-hooks": reactHooks,
       "react-refresh": reactRefresh,
       "unused-imports": unusedImports,
+      spellcheck,
     },
     rules: {
       ...js.configs.recommended.rules,
@@ -60,6 +62,18 @@ export default [
           varsIgnorePattern: "^_",
           args: "after-used",
           argsIgnorePattern: "^_",
+        },
+      ],
+      "spellcheck/spell-checker": [
+        "warn",
+        {
+          comments: true,
+          strings: false,
+          identifiers: false,
+          templates: false,
+          lang: "en_US",
+          skipWords: ["supertest", "mongodb", "uri", "inprogress", "Enum", "Notifs", "user’s", "Cloudinary", "req"],
+          minLength: 3,
         },
       ],
     },

@@ -4,6 +4,7 @@ import react from "eslint-plugin-react";
 import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 import unusedImports from "eslint-plugin-unused-imports";
+import spellcheck from "eslint-plugin-spellcheck";
 
 export default [
   { ignores: ["dist"] },
@@ -13,6 +14,9 @@ export default [
       ecmaVersion: 2020,
       globals: {
         ...globals.browser,
+        process: true,
+        __dirname: true,
+        __filename: true,
         jest: true,
         describe: true,
         test: true,
@@ -37,6 +41,7 @@ export default [
       "react-hooks": reactHooks,
       "react-refresh": reactRefresh,
       "unused-imports": unusedImports,
+      spellcheck,
     },
     rules: {
       ...js.configs.recommended.rules,
@@ -59,16 +64,28 @@ export default [
           argsIgnorePattern: "^_",
         },
       ],
+      "spellcheck/spell-checker": [
+        "warn",
+        {
+          comments: true,
+          strings: false,
+          identifiers: false,
+          templates: false,
+          lang: "en_US",
+          skipWords: ["dict", "eslint", "precommit", "aaa", "4caf50", "jsx", "undef", "user’s", "axios", "grey", "datasets", "Dropdown", "Assignee", "Blockquote", "notif1", "notif3", "resize"],
+          minLength: 3,
+        },
+      ],
     },
   },
   {
     files: ["**/__tests__/**/*.{js,jsx}", "**/*test.{js,jsx}"],
     rules: {
       "no-undef": "off",
+      "no-empty-pattern": "off",
+      "react/display-name": "off",
       "no-unused-vars": "off",
       "unused-imports/no-unused-vars": "off",
-      "react/display-name": "off",
-      "no-empty-pattern": "off",
     },
   },
 ];

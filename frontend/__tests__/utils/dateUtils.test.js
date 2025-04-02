@@ -132,7 +132,7 @@ describe("dateUtils - formatDateWithoutGMT", () => {
   });
 });
 
-// ormatCompletedDueDate
+// formatCompletedDueDate
 describe("dateUtils - formatCompletedDueDate", () => {
   test("returns on time message if completed nearly at dueDate", () => {
     const dueDate = "2022-01-05T10:00:00.000Z";
