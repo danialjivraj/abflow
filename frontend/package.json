@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "test": "jest",
     "depcheck": "npx depcheck",
-    "format": "prettier --write . && git add ."
+    "format": "prettier --write \"**/*.{js,json,css}\" && git diff --exit-code"
   },
   "dependencies": {
     "@emoji-mart/data": "^1.2.1",
