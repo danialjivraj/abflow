@@ -1,8 +1,8 @@
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import ScheduleView from "../../src/pages/Dashboard/ScheduleView";
+import ScheduleView from "../../../src/pages/Dashboard/ScheduleView";
 import { BrowserRouter } from "react-router-dom";
-import { createBaseTask } from "../../_testUtils/createBaseTask";
+import { createBaseTask } from "../../../_testUtils/createBaseTask";
 
 const fixedStart = "2025-03-22T10:00:00.000Z";
 const fixedEnd = "2025-03-22T11:00:00.000Z";
@@ -25,7 +25,7 @@ const unscheduledTask = createBaseTask({
 
 const tasks = [scheduledTask, unscheduledTask];
 
-jest.mock("../../src/services/tasksService", () => ({
+jest.mock("../../../src/services/tasksService", () => ({
   updateTask: jest.fn(() =>
     Promise.resolve({
       data: {
@@ -244,7 +244,7 @@ describe("ScheduleView - Unit Tests", () => {
 
     await waitFor(() => {
       expect(
-        require("../../src/services/tasksService").updateTaskSchedule
+        require("../../../src/services/tasksService").updateTaskSchedule
       ).toHaveBeenCalledWith(scheduledTask._id, {
         scheduledStart: "2025-03-22T12:00:00.000Z",
         scheduledEnd: "2025-03-22T13:00:00.000Z",
@@ -277,7 +277,7 @@ describe("ScheduleView - Unit Tests", () => {
         "Drop results in a multi-day event; ignoring drop."
       );
       expect(
-        require("../../src/services/tasksService").updateTaskSchedule
+        require("../../../src/services/tasksService").updateTaskSchedule
       ).not.toHaveBeenCalled();
     });
     consoleWarnSpy.mockRestore();
@@ -301,7 +301,7 @@ describe("ScheduleView - Unit Tests", () => {
         "Drop results in an event with the same start and end time; ignoring drop."
       );
       expect(
-        require("../../src/services/tasksService").updateTaskSchedule
+        require("../../../src/services/tasksService").updateTaskSchedule
       ).not.toHaveBeenCalled();
     });
     consoleWarnSpy.mockRestore();
@@ -319,7 +319,7 @@ describe("ScheduleView - Unit Tests", () => {
 
     await waitFor(() => {
       expect(
-        require("../../src/services/tasksService").updateTaskSchedule
+        require("../../../src/services/tasksService").updateTaskSchedule
       ).toHaveBeenCalledWith(scheduledTask._id, {
         scheduledStart: "2025-03-22T12:00:00.000Z",
         scheduledEnd: "2025-03-22T13:00:00.000Z",
@@ -352,7 +352,7 @@ describe("ScheduleView - Unit Tests", () => {
         "Resize results in a multi-day event; ignoring resize."
       );
       expect(
-        require("../../src/services/tasksService").updateTaskSchedule
+        require("../../../src/services/tasksService").updateTaskSchedule
       ).not.toHaveBeenCalled();
     });
     consoleWarnSpy.mockRestore();
@@ -375,7 +375,7 @@ describe("ScheduleView - Unit Tests", () => {
 
     await waitFor(() => {
       expect(
-        require("../../src/services/tasksService").updateTask
+        require("../../../src/services/tasksService").updateTask
       ).toHaveBeenCalledWith({
         ...unscheduledTask,
         scheduledStart: "2025-03-22T14:00:00.000Z",
@@ -412,7 +412,7 @@ describe("ScheduleView - Unit Tests", () => {
         "Drop from outside results in a multi-day event; ignoring drop."
       );
       expect(
-        require("../../src/services/tasksService").updateTask
+        require("../../../src/services/tasksService").updateTask
       ).not.toHaveBeenCalled();
     });
     consoleWarnSpy.mockRestore();
@@ -522,7 +522,7 @@ describe("ScheduleView - Integration Tests", () => {
 
     await waitFor(() => {
       expect(
-        require("../../src/services/tasksService").updateTask
+        require("../../../src/services/tasksService").updateTask
       ).toHaveBeenCalledWith({
         ...unscheduledTask,
         scheduledStart: "2025-03-22T14:00:00.000Z",

@@ -17,16 +17,16 @@ import {
 } from "react-router-dom";
 import { toast } from "react-toastify";
 
-import Charts from "../src/pages/Charts";
-import { NotificationsContext } from "../src/contexts/NotificationsContext";
-import { createBaseUser } from "../_testUtils/createBaseUser";
-import { auth } from "../src/firebase";
-import { createBaseColumn } from "../_testUtils/createBaseColumn";
-import { createBaseTask } from "../_testUtils/createBaseTask";
+import Charts from "../../../src/pages/Charts/Charts";
+import { NotificationsContext } from "../../../src/contexts/NotificationsContext";
+import { createBaseUser } from "../../../_testUtils/createBaseUser";
+import { auth } from "../../../src/firebase";
+import { createBaseColumn } from "../../../_testUtils/createBaseColumn";
+import { createBaseTask } from "../../../_testUtils/createBaseTask";
 
-const { fetchChartPreferences } = require("../src/services/preferencesService");
+const { fetchChartPreferences } = require("../../../src/services/preferencesService");
 
-jest.unmock("../src/components/navigation/TopBar");
+jest.unmock("../../../src/components/navigation/TopBar");
 
 jest.mock("react-router-dom", () => ({
   ...jest.requireActual("react-router-dom"),
@@ -36,8 +36,8 @@ jest.mock("react-router-dom", () => ({
   useSearchParams: jest.fn(),
 }));
 
-jest.mock("../src/firebase", () => {
-  const baseUser = require("../_testUtils/createBaseUser").createBaseUser();
+jest.mock("../../../src/firebase", () => {
+  const baseUser = require("../../../_testUtils/createBaseUser").createBaseUser();
   return {
     auth: {
       currentUser: baseUser,
@@ -45,8 +45,8 @@ jest.mock("../src/firebase", () => {
   };
 });
 
-jest.mock("../src/services/columnsService", () => {
-  const { createBaseColumn } = require("../_testUtils/createBaseColumn");
+jest.mock("../../../src/services/columnsService", () => {
+  const { createBaseColumn } = require("../../../_testUtils/createBaseColumn");
   return {
     fetchColumnOrder: jest.fn(() =>
       Promise.resolve({
@@ -63,7 +63,7 @@ jest.mock("../src/services/columnsService", () => {
   };
 });
 
-jest.mock("../src/services/labelsService", () => ({
+jest.mock("../../../src/services/labelsService", () => ({
   fetchLabels: jest.fn(() =>
     Promise.resolve({
       data: [
@@ -75,8 +75,8 @@ jest.mock("../src/services/labelsService", () => ({
   ),
 }));
 
-jest.mock("../src/services/tasksService", () => {
-  const { createBaseTask } = require("../_testUtils/createBaseTask");
+jest.mock("../../../src/services/tasksService", () => {
+  const { createBaseTask } = require("../../../_testUtils/createBaseTask");
   return {
     fetchTasks: jest.fn(() => Promise.resolve({ 
       data: [
@@ -121,7 +121,7 @@ jest.mock("../src/services/tasksService", () => {
   };
 });
 
-jest.mock("../src/services/preferencesService", () => {
+jest.mock("../../../src/services/preferencesService", () => {
   let chartPreferencesState = {};
   return {
     fetchChartPreferences: jest.fn(() =>
@@ -171,13 +171,13 @@ jest.mock("react-datepicker", () => ({
   ),
 }));
 
-jest.mock("../src/components/navigation/Layout", () => ({ children }) => (
+jest.mock("../../../src/components/navigation/Layout", () => ({ children }) => (
   <div>{children}</div>
 ));
-jest.mock("../src/components/modals/ViewTaskModal", () => () => (
+jest.mock("../../../src/components/modals/ViewTaskModal", () => () => (
   <div>ViewTaskModal</div>
 ));
-jest.mock("../src/components/modals/GroupTasksModal", () => () => (
+jest.mock("../../../src/components/modals/GroupTasksModal", () => () => (
   <div>GroupTasksModal</div>
 ));
 
@@ -976,7 +976,7 @@ describe("Charts Component Integration Tests", () => {
   test("calls toast.error when saving preferences fails", async () => {
     const {
       updateChartPreferences,
-    } = require("../src/services/preferencesService");
+    } = require("../../../src/services/preferencesService");
     updateChartPreferences.mockRejectedValueOnce(new Error("Save failed"));
 
     jest.spyOn(toast, "error");
@@ -993,7 +993,7 @@ describe("Charts Component Integration Tests", () => {
   test("calls toast.error when resetting preferences fails", async () => {
     const {
       updateChartPreferences,
-    } = require("../src/services/preferencesService");
+    } = require("../../../src/services/preferencesService");
     updateChartPreferences.mockRejectedValueOnce(new Error("Reset failed"));
 
     jest.spyOn(toast, "error");

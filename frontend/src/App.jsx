@@ -8,7 +8,7 @@ import { useEffect, useState, useRef } from "react";
 import { auth } from "./firebase";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard/Dashboard";
-import Charts from "./pages/Charts";
+import Charts from "./pages/Charts/Charts";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
 import PrivateRoute from "./components/PrivateRoute";

@@ -1,9 +1,9 @@
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
-import CompletedTasks from "../../src/pages/Dashboard/CompletedTasks";
-import { createBaseTask } from "../../_testUtils/createBaseTask";
+import CompletedTasks from "../../../src/pages/Dashboard/CompletedTasks";
+import { createBaseTask } from "../../../_testUtils/createBaseTask";
 
-jest.mock("../../src/components/boardComponents/TaskCard", () => (props) => {
+jest.mock("../../../src/components/boardComponents/TaskCard", () => (props) => {
   return <div data-testid="task-card">{props.task.title}</div>;
 });
 

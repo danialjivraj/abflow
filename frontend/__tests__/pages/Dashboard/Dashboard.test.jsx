@@ -1,12 +1,12 @@
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import Dashboard, { getBaseRoute } from "../../src/pages/Dashboard/Dashboard";
-import { NotificationsContext } from "../../src/contexts/NotificationsContext";
+import Dashboard, { getBaseRoute } from "../../../src/pages/Dashboard/Dashboard";
+import { NotificationsContext } from "../../../src/contexts/NotificationsContext";
 import { toast } from "react-toastify";
 
-jest.mock("../../src/firebase", () => {
-  const { createBaseUser } = require("../../_testUtils/createBaseUser");
+jest.mock("../../../src/firebase", () => {
+  const { createBaseUser } = require("../../../_testUtils/createBaseUser");
   return {
     auth: { currentUser: { uid: createBaseUser().userId } },
   };
@@ -19,7 +19,7 @@ jest.mock("react-toastify", () => ({
   },
 }));
 
-jest.mock("../../src/services/tasksService", () => ({
+jest.mock("../../../src/services/tasksService", () => ({
   fetchTasks: jest.fn(() => Promise.resolve({ data: [] })),
   createTask: jest.fn(() => Promise.resolve({ data: {} })),
   updateTask: jest.fn(() => Promise.resolve({ data: {} })),
@@ -30,7 +30,7 @@ jest.mock("../../src/services/tasksService", () => ({
   reorderTasks: jest.fn(() => Promise.resolve({})),
 }));
 
-jest.mock("../../src/services/columnsService", () => ({
+jest.mock("../../../src/services/columnsService", () => ({
   fetchColumnOrder: jest.fn(() =>
     Promise.resolve({ data: { columnOrder: [], columnNames: {} } })
   ),
@@ -38,13 +38,13 @@ jest.mock("../../src/services/columnsService", () => ({
   saveColumnOrder: jest.fn(() => Promise.resolve({})),
 }));
 
-jest.mock("../../src/services/preferencesService", () => ({
+jest.mock("../../../src/services/preferencesService", () => ({
   fetchSettingsPreferences: jest.fn(() =>
     Promise.resolve({ data: { settingsPreferences: {} } })
   ),
 }));
 
-jest.mock("../../src/components/navigation/Layout", () => {
+jest.mock("../../../src/components/navigation/Layout", () => {
   return ({ children, openModal }) => (
     <div data-testid="layout">
       <div data-testid="layout-openModal">{openModal ? "true" : "false"}</div>
@@ -53,7 +53,7 @@ jest.mock("../../src/components/navigation/Layout", () => {
   );
 });
 
-jest.mock("../../src/components/navigation/TopBar", () => {
+jest.mock("../../../src/components/navigation/TopBar", () => {
   return ({ buttons, openModal, navigate }) => (
     <div data-testid="topbar">
       {buttons.map((btn, index) => (
@@ -65,7 +65,7 @@ jest.mock("../../src/components/navigation/TopBar", () => {
   );
 });
 
-jest.mock("../../src/config/topBarConfig", () => ({
+jest.mock("../../../src/config/topBarConfig", () => ({
   getDashboardTopBarConfig: jest.fn(() => [
     { label: "Boards", route: "/dashboard/boards", active: true },
     {
@@ -77,25 +77,25 @@ jest.mock("../../src/config/topBarConfig", () => ({
   ]),
 }));
 
-jest.mock("../../src/components/modals/CreateTaskModal", () => {
+jest.mock("../../../src/components/modals/CreateTaskModal", () => {
   return ({ isModalOpen, closeModal }) => (
     <div data-testid="create-task-modal">{isModalOpen ? "open" : "closed"}</div>
   );
 });
 
-jest.mock("../../src/components/modals/LabelsModal", () => {
+jest.mock("../../../src/components/modals/LabelsModal", () => {
   return ({ isOpen, closeModal, labels, setLabels, userId }) => (
     <div data-testid="labels-modal">{isOpen ? "open" : "closed"}</div>
   );
 });
 
-jest.mock("../../src/components/modals/ViewTaskModal", () => {
+jest.mock("../../../src/components/modals/ViewTaskModal", () => {
   return ({ isModalOpen, closeModal }) => (
     <div data-testid="view-task-modal">{isModalOpen ? "open" : "closed"}</div>
   );
 });
 
-jest.mock("../../src/components/modals/ScheduleEditModal", () => {
+jest.mock("../../../src/components/modals/ScheduleEditModal", () => {
   return ({ isModalOpen, onSave, onUnschedule, onClose }) => (
     <div data-testid="schedule-edit-modal">
       {isModalOpen ? "open" : "closed"}
@@ -103,7 +103,7 @@ jest.mock("../../src/components/modals/ScheduleEditModal", () => {
   );
 });
 
-jest.mock("../../src/pages/Dashboard/BoardsView", () => {
+jest.mock("../../../src/pages/Dashboard/BoardsView", () => {
   return (props) => (
     <div data-testid="boards-view">
       BoardsView
@@ -145,11 +145,11 @@ jest.mock("../../src/pages/Dashboard/BoardsView", () => {
     </div>
   );
 });
-jest.mock("../../src/pages/Dashboard/CompletedTasks", () => {
+jest.mock("../../../src/pages/Dashboard/CompletedTasks", () => {
   return (props) => <div data-testid="completed-tasks">CompletedTasks</div>;
 });
 
-jest.mock("../../src/pages/Dashboard/ScheduleView", () => {
+jest.mock("../../../src/pages/Dashboard/ScheduleView", () => {
   return (props) => <div data-testid="schedule-view">ScheduleView</div>;
 });
 
@@ -175,8 +175,8 @@ const Wrapper = ({ children }) => (
 
 // --- Tests ---
 describe("Dashboard Duplicate Task Integration Toasts", () => {
-  const tasksService = require("../../src/services/tasksService");
-  const columnsService = require("../../src/services/columnsService");
+  const tasksService = require("../../../src/services/tasksService");
+  const columnsService = require("../../../src/services/columnsService");
 
   const originalTask = {
     _id: "task-1",
@@ -207,7 +207,10 @@ describe("Dashboard Duplicate Task Integration Toasts", () => {
     );
     columnsService.fetchColumnOrder.mockImplementationOnce(() =>
       Promise.resolve({
-        data: { columnOrder: ["in-progress"], columnNames: { "in-progress": "In Progress" } },
+        data: {
+          columnOrder: ["in-progress"],
+          columnNames: { "in-progress": "In Progress" },
+        },
       })
     );
 
@@ -236,7 +239,10 @@ describe("Dashboard Duplicate Task Integration Toasts", () => {
     render(
       <NotificationsContext.Provider value={{ setNotifications: jest.fn() }}>
         <MemoryRouter initialEntries={["/dashboard/boards"]}>
-          <Dashboard userSettings={defaultUserSettings} setUserSettings={jest.fn()} />
+          <Dashboard
+            userSettings={defaultUserSettings}
+            setUserSettings={jest.fn()}
+          />
         </MemoryRouter>
       </NotificationsContext.Provider>
     );
@@ -272,7 +278,10 @@ describe("Dashboard Duplicate Task Integration Toasts", () => {
     );
     columnsService.fetchColumnOrder.mockImplementationOnce(() =>
       Promise.resolve({
-        data: { columnOrder: ["in-progress"], columnNames: { "in-progress": "In Progress" } },
+        data: {
+          columnOrder: ["in-progress"],
+          columnNames: { "in-progress": "In Progress" },
+        },
       })
     );
     tasksService.createTask.mockImplementationOnce(() =>
@@ -282,7 +291,10 @@ describe("Dashboard Duplicate Task Integration Toasts", () => {
     render(
       <NotificationsContext.Provider value={{ setNotifications: jest.fn() }}>
         <MemoryRouter initialEntries={["/dashboard/boards"]}>
-          <Dashboard userSettings={defaultUserSettings} setUserSettings={jest.fn()} />
+          <Dashboard
+            userSettings={defaultUserSettings}
+            setUserSettings={jest.fn()}
+          />
         </MemoryRouter>
       </NotificationsContext.Provider>
     );
@@ -327,7 +339,7 @@ describe("handleDeleteTask toast messages", () => {
   });
 
   test("displays error toast when task deletion fails", async () => {
-    const { deleteTaskAPI } = require("../../src/services/tasksService");
+    const { deleteTaskAPI } = require("../../../src/services/tasksService");
     deleteTaskAPI.mockImplementationOnce(() =>
       Promise.reject(new Error("Delete failed"))
     );
@@ -477,7 +489,10 @@ describe("Dashboard Component", () => {
     render(
       <Wrapper>
         <MemoryRouter initialEntries={[path]}>
-          <Dashboard userSettings={defaultUserSettings} setUserSettings={jest.fn()} />
+          <Dashboard
+            userSettings={defaultUserSettings}
+            setUserSettings={jest.fn()}
+          />
         </MemoryRouter>
       </Wrapper>
     );
@@ -492,7 +507,10 @@ describe("Dashboard Component", () => {
     render(
       <Wrapper>
         <MemoryRouter initialEntries={[path]}>
-          <Dashboard userSettings={defaultUserSettings} setUserSettings={jest.fn()} />
+          <Dashboard
+            userSettings={defaultUserSettings}
+            setUserSettings={jest.fn()}
+          />
         </MemoryRouter>
       </Wrapper>
     );
@@ -507,7 +525,10 @@ describe("Dashboard Component", () => {
     render(
       <Wrapper>
         <MemoryRouter initialEntries={[path]}>
-          <Dashboard userSettings={defaultUserSettings} setUserSettings={jest.fn()} />
+          <Dashboard
+            userSettings={defaultUserSettings}
+            setUserSettings={jest.fn()}
+          />
         </MemoryRouter>
       </Wrapper>
     );
@@ -560,7 +581,10 @@ describe("Dashboard Component", () => {
     render(
       <Wrapper>
         <MemoryRouter initialEntries={[path]}>
-          <Dashboard userSettings={defaultUserSettings} setUserSettings={jest.fn()} />
+          <Dashboard
+            userSettings={defaultUserSettings}
+            setUserSettings={jest.fn()}
+          />
         </MemoryRouter>
       </Wrapper>
     );
@@ -570,9 +594,9 @@ describe("Dashboard Component", () => {
   });
 
   test("opens ViewTaskModal when route is /dashboard/boards/viewtask/123 and matching task exists", async () => {
-    const { fetchTasks } = require("../../src/services/tasksService");
-    const { fetchColumnOrder } = require("../../src/services/columnsService");
-    fetchTasks.mockImplementationOnce(() =>
+    const { fetchTasks } = require("../../../src/services/tasksService");
+    const { fetchColumnOrder } = require("../../../src/services/columnsService");
+    fetchTasks.mockImplementation(() =>
       Promise.resolve({
         data: [
           {
@@ -606,8 +630,8 @@ describe("Dashboard Component", () => {
   });
 
   test("opens ScheduleEditModal when route is /dashboard/schedule/editevent/123 and matching task exists", async () => {
-    const { fetchTasks } = require("../../src/services/tasksService");
-    const { fetchColumnOrder } = require("../../src/services/columnsService");
+    const { fetchTasks } = require("../../../src/services/tasksService");
+    const { fetchColumnOrder } = require("../../../src/services/columnsService");
     fetchTasks.mockImplementationOnce(() =>
       Promise.resolve({
         data: [
@@ -649,8 +673,8 @@ describe("Dashboard Component", () => {
   });
 
   test("does not open ViewTaskModal when no matching task exists", async () => {
-    const { fetchTasks } = require("../../src/services/tasksService");
-    const { fetchColumnOrder } = require("../../src/services/columnsService");
+    const { fetchTasks } = require("../../../src/services/tasksService");
+    const { fetchColumnOrder } = require("../../../src/services/columnsService");
     fetchTasks.mockImplementationOnce(() => Promise.resolve({ data: [] }));
     fetchColumnOrder.mockImplementationOnce(() =>
       Promise.resolve({ data: { columnOrder: [], columnNames: {} } })
@@ -671,8 +695,8 @@ describe("Dashboard Component", () => {
   });
 
   test("does not open ScheduleEditModal when no matching task exists", async () => {
-    const { fetchTasks } = require("../../src/services/tasksService");
-    const { fetchColumnOrder } = require("../../src/services/columnsService");
+    const { fetchTasks } = require("../../../src/services/tasksService");
+    const { fetchColumnOrder } = require("../../../src/services/columnsService");
     fetchTasks.mockImplementationOnce(() => Promise.resolve({ data: [] }));
     fetchColumnOrder.mockImplementationOnce(() =>
       Promise.resolve({ data: { columnOrder: [], columnNames: {} } })
