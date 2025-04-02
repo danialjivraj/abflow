@@ -72,7 +72,9 @@ export default [
           identifiers: false,
           templates: false,
           lang: "en_US",
-          skipWords: ["dict","eslint",
+          skipWords: [
+            "dict",
+            "eslint",
             "precommit",
             "aaa",
             "4caf50",
