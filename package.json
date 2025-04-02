@@ -1,0 +1,17 @@
+{
+  "scripts": {
+    "prepare": "husky install",
+    "precommit": "npm-run-all --parallel test:frontend test:backend",
+    "test:frontend": "cd frontend && npm run test",
+    "test:backend": "cd backend && npm run test",
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "test": "jest"
+  },
+  "devDependencies": {
+    "husky": "^8.0.0",
+    "npm-run-all": "^4.1.5"
+  }
+}
