@@ -9,7 +9,7 @@
     "depcheck:backend": "cd backend && npm run depcheck",
     "format:frontend": "cd frontend && npm run format",
     "format:backend": "cd backend && npm run format",
-    "precommit": "npm-run-all --parallel lint:frontend lint:backend test:frontend test:backend depcheck:frontend depcheck:backend format:frontend format:backend",
+    "precommit": "npm-run-all --parallel lint:frontend lint:backend test:frontend test:backend depcheck:frontend depcheck:backend",
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
