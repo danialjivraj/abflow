@@ -33,9 +33,15 @@ router.get("/:userId", async (req, res) => {
     }
 
     const completedTasks = await Task.find({ userId, status: "completed" });
-    const totalPoints = completedTasks.reduce((sum, task) => sum + (task.points || 0), 0);
+    const totalPoints = completedTasks.reduce(
+      (sum, task) => sum + (task.points || 0),
+      0,
+    );
     const tasksCompleted = completedTasks.length;
-    const totalSeconds = completedTasks.reduce((sum, task) => sum + (task.timeSpent || 0), 0);
+    const totalSeconds = completedTasks.reduce(
+      (sum, task) => sum + (task.timeSpent || 0),
+      0,
+    );
     const totalHours = (totalSeconds / 3600).toFixed(2);
 
     const user = await User.findOne({ userId });
@@ -72,7 +78,7 @@ router.put("/updateName/:userId", async (req, res) => {
     const updatedUser = await User.findOneAndUpdate(
       { userId },
       { name },
-      { new: true }
+      { new: true },
     );
     if (!updatedUser) {
       return res.status(404).json({ error: "User not found" });
@@ -86,49 +92,55 @@ router.put("/updateName/:userId", async (req, res) => {
 });
 
 // Upload profile picture
-router.post("/uploadProfilePicture/:userId", upload.single("profilePicture"), async (req, res) => {
-  console.log("Upload request received:", req.params.userId);
-  try {
-    if (!req.file) {
-      console.error("No file uploaded.");
-      return res.status(400).json({ error: "No file uploaded" });
+router.post(
+  "/uploadProfilePicture/:userId",
+  upload.single("profilePicture"),
+  async (req, res) => {
+    console.log("Upload request received:", req.params.userId);
+    try {
+      if (!req.file) {
+        console.error("No file uploaded.");
+        return res.status(400).json({ error: "No file uploaded" });
+      }
+
+      const user = await User.findOne({ userId: req.params.userId });
+      if (!user) {
+        console.error("User not found:", req.params.userId);
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      // If there's an old image, destroy it by public_id
+      if (user.cloudinaryPublicId) {
+        await cloudinary.uploader.destroy(user.cloudinaryPublicId, {
+          invalidate: true,
+        });
+        console.log("Old image removed from Cloudinary");
+      }
+
+      // The new Cloudinary image URL is in req.file.path
+      // The new Cloudinary public_id is in req.file.filename
+      console.log("New image URL:", req.file.path);
+      console.log("New image public_id:", req.file.filename);
+
+      // Update the user record
+      user.profilePicture = req.file.path; // store the new URL
+      user.cloudinaryPublicId = req.file.filename; // store the new public_id
+      await user.save();
+
+      console.log("User updated with new profile picture");
+      res.json({
+        message: "Profile picture updated",
+        profilePicture: user.profilePicture,
+      });
+    } catch (error) {
+      console.error("❌ Error updating profile picture:", error);
+      res.status(500).json({
+        error: "Failed to update profile picture",
+        details: error.message,
+      });
     }
-
-    const user = await User.findOne({ userId: req.params.userId });
-    if (!user) {
-      console.error("User not found:", req.params.userId);
-      return res.status(404).json({ error: "User not found" });
-    }
-
-    // If there's an old image, destroy it by public_id
-    if (user.cloudinaryPublicId) {
-      await cloudinary.uploader.destroy(user.cloudinaryPublicId, { invalidate: true });
-      console.log("Old image removed from Cloudinary");
-    }
-
-    // The new Cloudinary image URL is in req.file.path
-    // The new Cloudinary public_id is in req.file.filename
-    console.log("New image URL:", req.file.path);
-    console.log("New image public_id:", req.file.filename);
-
-    // Update the user record
-    user.profilePicture = req.file.path;      // store the new URL
-    user.cloudinaryPublicId = req.file.filename; // store the new public_id
-    await user.save();
-
-    console.log("User updated with new profile picture");
-    res.json({
-      message: "Profile picture updated",
-      profilePicture: user.profilePicture,
-    });
-  } catch (error) {
-    console.error("❌ Error updating profile picture:", error);
-    res.status(500).json({
-      error: "Failed to update profile picture",
-      details: error.message,
-    });
-  }
-});
+  },
+);
 
 // Remove profile picture
 router.put("/removeProfilePicture/:userId", async (req, res) => {
@@ -142,7 +154,9 @@ router.put("/removeProfilePicture/:userId", async (req, res) => {
 
     // Destroy old image if public_id exists
     if (user.cloudinaryPublicId) {
-      await cloudinary.uploader.destroy(user.cloudinaryPublicId, { invalidate: true });
+      await cloudinary.uploader.destroy(user.cloudinaryPublicId, {
+        invalidate: true,
+      });
       console.log("Old image removed from Cloudinary");
     }
 

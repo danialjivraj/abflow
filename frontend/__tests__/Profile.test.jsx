@@ -129,7 +129,7 @@ describe("Profile Page", () => {
         points: 3.5,
       }),
     ];
-     
+
     const pendingTask = createBaseTask({
       _id: "14",
       title: "Pending Task",
@@ -143,7 +143,7 @@ describe("Profile Page", () => {
         points: acc.points + task.points,
         tasksCompleted: acc.tasksCompleted + 1,
       }),
-      { points: 0, tasksCompleted: 0 }
+      { points: 0, tasksCompleted: 0 },
     );
 
     axios.get.mockResolvedValueOnce({
@@ -160,7 +160,7 @@ describe("Profile Page", () => {
         <NotificationsProvider>
           <Profile />
         </NotificationsProvider>
-      </BrowserRouter>
+      </BrowserRouter>,
     );
 
     const profileHeading = await screen.findByRole("heading", {
@@ -168,10 +168,10 @@ describe("Profile Page", () => {
     });
     expect(profileHeading).toBeInTheDocument();
     expect(
-      await screen.findByText(String(aggregatedProfile.points))
+      await screen.findByText(String(aggregatedProfile.points)),
     ).toBeInTheDocument();
     expect(
-      await screen.findByText(String(aggregatedProfile.tasksCompleted))
+      await screen.findByText(String(aggregatedProfile.tasksCompleted)),
     ).toBeInTheDocument();
   });
 
@@ -186,13 +186,13 @@ describe("Profile Page", () => {
         <NotificationsProvider>
           <Profile />
         </NotificationsProvider>
-      </BrowserRouter>
+      </BrowserRouter>,
     );
 
     await waitFor(() => {
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         "Error fetching profile data:",
-        expect.any(Error)
+        expect.any(Error),
       );
     });
 
@@ -207,7 +207,7 @@ describe("Profile Page", () => {
         <NotificationsProvider>
           <Profile />
         </NotificationsProvider>
-      </BrowserRouter>
+      </BrowserRouter>,
     );
 
     await waitFor(() => {
@@ -233,12 +233,12 @@ describe("Profile Page", () => {
         <NotificationsProvider>
           <Profile />
         </NotificationsProvider>
-      </BrowserRouter>
+      </BrowserRouter>,
     );
 
     await waitFor(() => {
       expect(axios.get).toHaveBeenCalledWith(
-        "http://localhost:5000/api/profile/user1"
+        "http://localhost:5000/api/profile/user1",
       );
     });
   });
@@ -259,7 +259,7 @@ describe("Profile Page", () => {
         <NotificationsProvider>
           <Profile />
         </NotificationsProvider>
-      </BrowserRouter>
+      </BrowserRouter>,
     );
 
     expect(await screen.findByText("23.5")).toBeInTheDocument();
@@ -288,7 +288,7 @@ describe("Profile Page", () => {
         <NotificationsProvider>
           <Profile />
         </NotificationsProvider>
-      </BrowserRouter>
+      </BrowserRouter>,
     );
 
     await screen.findByText("User");
@@ -306,7 +306,7 @@ describe("Profile Page", () => {
     await waitFor(() => {
       expect(axios.put).toHaveBeenCalledWith(
         "http://localhost:5000/api/profile/updateName/user1",
-        { name: "New Name" }
+        { name: "New Name" },
       );
     });
 
@@ -339,7 +339,7 @@ describe("Profile Page", () => {
         <NotificationsProvider>
           <Profile />
         </NotificationsProvider>
-      </BrowserRouter>
+      </BrowserRouter>,
     );
 
     await screen.findByAltText("Profile");
@@ -356,13 +356,13 @@ describe("Profile Page", () => {
       expect(axios.post).toHaveBeenCalledWith(
         "http://localhost:5000/api/profile/uploadProfilePicture/user1",
         expect.any(FormData),
-        { headers: { "Content-Type": "multipart/form-data" } }
+        { headers: { "Content-Type": "multipart/form-data" } },
       );
     });
 
     await waitFor(() => {
       expect(screen.getByAltText("Profile").src).toContain(
-        `/uploads/user1-${fixedTimestamp}.jpg`
+        `/uploads/user1-${fixedTimestamp}.jpg`,
       );
     });
 
@@ -388,25 +388,25 @@ describe("Profile Page", () => {
         <NotificationsProvider>
           <Profile />
         </NotificationsProvider>
-      </BrowserRouter>
+      </BrowserRouter>,
     );
 
     await screen.findByAltText("Profile");
 
     userEvent.click(
-      screen.getByRole("button", { name: "Remove profile picture" })
+      screen.getByRole("button", { name: "Remove profile picture" }),
     );
     userEvent.click(await screen.findByText("Save"));
 
     await waitFor(() => {
       expect(axios.put).toHaveBeenCalledWith(
-        "http://localhost:5000/api/profile/removeProfilePicture/user1"
+        "http://localhost:5000/api/profile/removeProfilePicture/user1",
       );
     });
 
     await waitFor(() => {
       expect(screen.getByAltText("Profile").src).toContain(
-        "/default-profile-image.png"
+        "/default-profile-image.png",
       );
     });
   });
@@ -427,7 +427,7 @@ describe("Profile Page", () => {
         <NotificationsProvider>
           <Profile />
         </NotificationsProvider>
-      </BrowserRouter>
+      </BrowserRouter>,
     );
 
     await screen.findByAltText("Profile");
@@ -477,7 +477,7 @@ describe("Profile Page", () => {
         <NotificationsProvider>
           <Profile />
         </NotificationsProvider>
-      </BrowserRouter>
+      </BrowserRouter>,
     );
 
     await screen.findByAltText("Profile");
@@ -530,7 +530,7 @@ describe("Profile Page", () => {
         <NotificationsProvider>
           <Profile />
         </NotificationsProvider>
-      </BrowserRouter>
+      </BrowserRouter>,
     );
 
     await screen.findByAltText("Profile");
@@ -571,7 +571,7 @@ describe("Profile Page", () => {
           <NotificationsProvider>
             <Profile />
           </NotificationsProvider>
-        </BrowserRouter>
+        </BrowserRouter>,
       );
     };
 
@@ -637,7 +637,7 @@ describe("Profile Page", () => {
         <NotificationsProvider>
           <Profile />
         </NotificationsProvider>
-      </BrowserRouter>
+      </BrowserRouter>,
     );
 
     await screen.findByText("User");
@@ -655,7 +655,7 @@ describe("Profile Page", () => {
     await waitFor(() => {
       expect(axios.put).toHaveBeenCalledWith(
         "http://localhost:5000/api/profile/updateName/user1",
-        { name: "New Name" }
+        { name: "New Name" },
       );
     });
 
@@ -689,7 +689,7 @@ describe("Profile Page", () => {
         <NotificationsProvider>
           <Profile />
         </NotificationsProvider>
-      </BrowserRouter>
+      </BrowserRouter>,
     );
 
     await screen.findByText("User");
@@ -704,7 +704,7 @@ describe("Profile Page", () => {
     await waitFor(() => {
       expect(axios.put).toHaveBeenCalledWith(
         "http://localhost:5000/api/profile/updateName/user1",
-        { name: "Enter Updated Name" }
+        { name: "Enter Updated Name" },
       );
     });
 
@@ -730,7 +730,7 @@ describe("Profile Page", () => {
         <NotificationsProvider>
           <Profile />
         </NotificationsProvider>
-      </BrowserRouter>
+      </BrowserRouter>,
     );
 
     await screen.findByText("User");
@@ -773,7 +773,7 @@ describe("Profile Page", () => {
         <NotificationsProvider>
           <Profile />
         </NotificationsProvider>
-      </BrowserRouter>
+      </BrowserRouter>,
     );
 
     await screen.findByAltText("Profile");
@@ -816,7 +816,7 @@ describe("Profile Page", () => {
         <NotificationsProvider>
           <Profile />
         </NotificationsProvider>
-      </BrowserRouter>
+      </BrowserRouter>,
     );
 
     await screen.findByAltText("Profile");
@@ -854,7 +854,7 @@ describe("Profile Page", () => {
           <NotificationsProvider>
             <Profile />
           </NotificationsProvider>
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       const image = await screen.findByAltText("Profile");
@@ -865,7 +865,7 @@ describe("Profile Page", () => {
 
       expect(
         image.compareDocumentPosition(emailElement) &
-          Node.DOCUMENT_POSITION_FOLLOWING
+          Node.DOCUMENT_POSITION_FOLLOWING,
       ).toBeTruthy();
     });
 
@@ -887,7 +887,7 @@ describe("Profile Page", () => {
           <NotificationsProvider>
             <Profile />
           </NotificationsProvider>
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       await screen.findByAltText("Profile");
@@ -925,7 +925,7 @@ describe("Profile Page", () => {
           <NotificationsProvider>
             <Profile />
           </NotificationsProvider>
-        </BrowserRouter>
+        </BrowserRouter>,
       );
       await screen.findByAltText("Profile");
 
@@ -946,7 +946,7 @@ describe("Profile Page", () => {
         expect(saveButton).toBeDisabled();
         expect(cancelButton).toBeDisabled();
         expect(
-          container.querySelector("#loadingIndicator")
+          container.querySelector("#loadingIndicator"),
         ).toBeInTheDocument();
       });
 
@@ -989,7 +989,7 @@ describe("Profile Page", () => {
           <NotificationsProvider>
             <Profile />
           </NotificationsProvider>
-        </BrowserRouter>
+        </BrowserRouter>,
       );
       await screen.findByAltText("Profile");
 
@@ -1008,7 +1008,7 @@ describe("Profile Page", () => {
         expect(saveButton).toBeDisabled();
         expect(cancelButton).toBeDisabled();
         expect(
-          container.querySelector("#loadingIndicator")
+          container.querySelector("#loadingIndicator"),
         ).toBeInTheDocument();
       });
 

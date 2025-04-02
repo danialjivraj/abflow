@@ -149,12 +149,12 @@ const Profile = () => {
   const displayImage = pendingRemove
     ? "/default-profile-image.png"
     : pendingPreview
-    ? pendingPreview
-    : profile.profilePicture
-    ? isAbsoluteUrl(profile.profilePicture)
-      ? profile.profilePicture
-      : `${BASE_URL}${profile.profilePicture}`
-    : "/default-profile-image.png";
+      ? pendingPreview
+      : profile.profilePicture
+        ? isAbsoluteUrl(profile.profilePicture)
+          ? profile.profilePicture
+          : `${BASE_URL}${profile.profilePicture}`
+        : "/default-profile-image.png";
 
   return (
     <Layout>

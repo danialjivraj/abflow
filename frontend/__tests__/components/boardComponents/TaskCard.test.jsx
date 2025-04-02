@@ -43,7 +43,7 @@ jest.mock(
         <button onClick={props.onClose}>Cancel Delete</button>
       </div>
     );
-  }
+  },
 );
 
 jest.mock("react-toastify", () => ({
@@ -109,7 +109,7 @@ describe("TaskCard - Unit Tests", () => {
     const calendarIcon = screen.getByText(
       (content, node) =>
         node.tagName.toLowerCase() === "svg" &&
-        node.classList.contains("calendar-icon")
+        node.classList.contains("calendar-icon"),
     );
     expect(calendarIcon).toBeDefined();
   });
@@ -121,8 +121,8 @@ describe("TaskCard - Unit Tests", () => {
       screen.queryByText(
         (content, node) =>
           node.tagName.toLowerCase() === "svg" &&
-          node.classList.contains("calendar-icon")
-      )
+          node.classList.contains("calendar-icon"),
+      ),
     ).toBeNull();
   });
 
@@ -131,12 +131,12 @@ describe("TaskCard - Unit Tests", () => {
       <TaskCard
         {...defaultProps}
         task={{ ...defaultTask, isTimerRunning: true }}
-      />
+      />,
     );
     const timerIcon = screen.getByText(
       (content, node) =>
         node.tagName.toLowerCase() === "svg" &&
-        node.classList.contains("alarm-clock-icon")
+        node.classList.contains("alarm-clock-icon"),
     );
     expect(timerIcon).toBeDefined();
   });
@@ -186,11 +186,11 @@ describe("TaskCard - Unit Tests", () => {
       completedAt: "2022-01-05T09:30:00.000Z", // Completed 30 minutes early
     });
     dateUtils.formatCompletedDueDate.mockImplementationOnce(
-      () => "Completed on 05/01/2022 (Early by 30 minutes)"
+      () => "Completed on 05/01/2022 (Early by 30 minutes)",
     );
     renderWithDnd(<TaskCard {...defaultProps} task={completedTask} />);
     expect(
-      screen.getByText("Completed on 05/01/2022 (Early by 30 minutes)")
+      screen.getByText("Completed on 05/01/2022 (Early by 30 minutes)"),
     ).toBeInTheDocument();
   });
 
@@ -203,11 +203,11 @@ describe("TaskCard - Unit Tests", () => {
       completedAt: "2022-01-05T11:00:00.000Z", // Completed 1 hour late
     });
     dateUtils.formatCompletedDueDate.mockImplementationOnce(
-      () => "Completed on 05/01/2022 (Late by 1 hour)"
+      () => "Completed on 05/01/2022 (Late by 1 hour)",
     );
     renderWithDnd(<TaskCard {...defaultProps} task={completedTask} />);
     expect(
-      screen.getByText("Completed on 05/01/2022 (Late by 1 hour)")
+      screen.getByText("Completed on 05/01/2022 (Late by 1 hour)"),
     ).toBeInTheDocument();
   });
 
@@ -220,11 +220,11 @@ describe("TaskCard - Unit Tests", () => {
       completedAt: "2022-01-05T10:00:00.500Z",
     });
     dateUtils.formatCompletedDueDate.mockImplementationOnce(
-      () => "Completed on 05/01/2022 (On time)"
+      () => "Completed on 05/01/2022 (On time)",
     );
     renderWithDnd(<TaskCard {...defaultProps} task={completedTask} />);
     expect(
-      screen.getByText("Completed on 05/01/2022 (On time)")
+      screen.getByText("Completed on 05/01/2022 (On time)"),
     ).toBeInTheDocument();
   });
 });
@@ -260,18 +260,18 @@ describe("TaskCard - Integration Tests", () => {
     const dotsButton = screen.getByText("⋮");
     fireEvent.click(dotsButton);
     expect(defaultProps.setIsTaskDropdownOpen).toHaveBeenCalledWith(
-      defaultTask._id
+      defaultTask._id,
     );
   });
 
   test("calls handleCompleteTask when 'Complete Task' button is clicked", async () => {
     renderWithDnd(
-      <TaskCard {...defaultProps} isTaskDropdownOpen={defaultTask._id} />
+      <TaskCard {...defaultProps} isTaskDropdownOpen={defaultTask._id} />,
     );
     const completeButton = screen.getByText("Complete Task");
     fireEvent.click(completeButton);
     await waitFor(() =>
-      expect(defaultProps.handleCompleteTask).toHaveBeenCalledWith(defaultTask)
+      expect(defaultProps.handleCompleteTask).toHaveBeenCalledWith(defaultTask),
     );
     expect(defaultProps.setIsTaskDropdownOpen).toHaveBeenCalledWith(null);
   });
@@ -290,7 +290,7 @@ describe("TaskCard - Integration Tests", () => {
         {...defaultProps}
         isTaskDropdownOpen={defaultTask._id}
         handleCompleteTask={mockComplete}
-      />
+      />,
     );
 
     const completeButton = screen.getByText("Complete Task");
@@ -313,7 +313,7 @@ describe("TaskCard - Integration Tests", () => {
         {...defaultProps}
         isTaskDropdownOpen={defaultTask._id}
         handleCompleteTask={mockComplete}
-      />
+      />,
     );
 
     const completeButton = screen.getByText("Complete Task");
@@ -328,7 +328,7 @@ describe("TaskCard - Integration Tests", () => {
 
   test("calls startTimer when task is not running and timer button is clicked", () => {
     renderWithDnd(
-      <TaskCard {...defaultProps} isTaskDropdownOpen={defaultTask._id} />
+      <TaskCard {...defaultProps} isTaskDropdownOpen={defaultTask._id} />,
     );
     const timerButton = screen.getByText("Start Timer");
     fireEvent.click(timerButton);
@@ -342,7 +342,7 @@ describe("TaskCard - Integration Tests", () => {
         {...defaultProps}
         task={{ ...defaultTask, isTimerRunning: true }}
         isTaskDropdownOpen={defaultTask._id}
-      />
+      />,
     );
     const timerButton = screen.getByText("Stop Timer");
     fireEvent.click(timerButton);
@@ -363,7 +363,7 @@ describe("TaskCard - Integration Tests", () => {
         {...defaultProps}
         task={activeTask}
         isTaskDropdownOpen={activeTask._id}
-      />
+      />,
     );
 
     const dropdownButtons = screen
@@ -372,7 +372,7 @@ describe("TaskCard - Integration Tests", () => {
       .querySelectorAll(".dropdown-menu.open button");
 
     const actualOptions = Array.from(dropdownButtons).map((btn) =>
-      btn.textContent.trim()
+      btn.textContent.trim(),
     );
 
     const expectedOptions = [
@@ -399,7 +399,7 @@ describe("TaskCard - Integration Tests", () => {
         {...defaultProps}
         task={completedTask}
         isTaskDropdownOpen={completedTask._id}
-      />
+      />,
     );
 
     const dropdownButtons = screen
@@ -408,7 +408,7 @@ describe("TaskCard - Integration Tests", () => {
       .querySelectorAll(".dropdown-menu.open button");
 
     const actualOptions = Array.from(dropdownButtons).map((btn) =>
-      btn.textContent.trim()
+      btn.textContent.trim(),
     );
 
     const expectedOptions = ["Back to Boards", "Labels", "Delete"];
@@ -435,7 +435,7 @@ describe("TaskCard - Integration Tests", () => {
         task={taskWithTimer}
         isTaskDropdownOpen={taskWithTimer._id}
         duplicateTask={duplicateTaskMock}
-      />
+      />,
     );
 
     const duplicateButton = screen.getByText("Duplicate");
@@ -457,7 +457,7 @@ describe("TaskCard - Integration Tests", () => {
         {...defaultProps}
         task={completedTask}
         isTaskDropdownOpen={completedTask._id}
-      />
+      />,
     );
     const backToBoardsButton = screen.getByText("Back to Boards");
     fireEvent.click(backToBoardsButton);
@@ -472,7 +472,7 @@ describe("TaskCard - Integration Tests", () => {
         {...defaultProps}
         isTaskDropdownOpen={defaultTask._id}
         confirmBeforeDeleteTask={false}
-      />
+      />,
     );
     const deleteButton = screen.getByText("Delete");
     fireEvent.click(deleteButton);
@@ -486,7 +486,7 @@ describe("TaskCard - Integration Tests", () => {
         {...defaultProps}
         isTaskDropdownOpen={defaultTask._id}
         confirmBeforeDeleteTask={true}
-      />
+      />,
     );
     const deleteButton = screen.getByText("Delete");
     fireEvent.click(deleteButton);
@@ -495,7 +495,7 @@ describe("TaskCard - Integration Tests", () => {
 
   test("opens delete confirmation modal when 'Delete' is clicked", () => {
     renderWithDnd(
-      <TaskCard {...defaultProps} isTaskDropdownOpen={defaultTask._id} />
+      <TaskCard {...defaultProps} isTaskDropdownOpen={defaultTask._id} />,
     );
     const deleteButton = screen.getByText("Delete");
     fireEvent.click(deleteButton);
@@ -504,7 +504,7 @@ describe("TaskCard - Integration Tests", () => {
 
   test("confirms deletion and calls deleteTask", async () => {
     renderWithDnd(
-      <TaskCard {...defaultProps} isTaskDropdownOpen={defaultTask._id} />
+      <TaskCard {...defaultProps} isTaskDropdownOpen={defaultTask._id} />,
     );
     const deleteButton = screen.getByText("Delete");
     fireEvent.click(deleteButton);
@@ -528,7 +528,7 @@ describe("TaskCard - Integration Tests", () => {
     test("does not render due date span when task has no due date", () => {
       const taskWithoutDueDate = { ...defaultTask, dueDate: null };
       const { container } = renderWithDnd(
-        <TaskCard {...defaultProps} task={taskWithoutDueDate} />
+        <TaskCard {...defaultProps} task={taskWithoutDueDate} />,
       );
       expect(container.querySelector(".due-date")).toBeNull();
     });
@@ -547,7 +547,7 @@ describe("TaskCard - Integration Tests", () => {
           {...defaultProps}
           task={{ ...defaultTask, dueDate }}
           currentTime={baseCurrentTime}
-        />
+        />,
       );
       expect(screen.getByText("Due in 1 second")).toBeInTheDocument();
     });
@@ -564,7 +564,7 @@ describe("TaskCard - Integration Tests", () => {
           {...defaultProps}
           task={{ ...defaultTask, dueDate }}
           currentTime={baseCurrentTime}
-        />
+        />,
       );
       expect(screen.getByText("Due in 30 seconds")).toBeInTheDocument();
     });
@@ -581,7 +581,7 @@ describe("TaskCard - Integration Tests", () => {
           {...defaultProps}
           task={{ ...defaultTask, dueDate }}
           currentTime={baseCurrentTime}
-        />
+        />,
       );
       expect(screen.getByText("Due in 1 minute")).toBeInTheDocument();
     });
@@ -598,7 +598,7 @@ describe("TaskCard - Integration Tests", () => {
           {...defaultProps}
           task={{ ...defaultTask, dueDate }}
           currentTime={baseCurrentTime}
-        />
+        />,
       );
       expect(screen.getByText("Due in 30 minutes")).toBeInTheDocument();
     });
@@ -615,7 +615,7 @@ describe("TaskCard - Integration Tests", () => {
           {...defaultProps}
           task={{ ...defaultTask, dueDate }}
           currentTime={baseCurrentTime}
-        />
+        />,
       );
       expect(screen.getByText("Due in 1 hour")).toBeInTheDocument();
     });
@@ -632,7 +632,7 @@ describe("TaskCard - Integration Tests", () => {
           {...defaultProps}
           task={{ ...defaultTask, dueDate }}
           currentTime={baseCurrentTime}
-        />
+        />,
       );
       expect(screen.getByText("Due in 1.5 hours")).toBeInTheDocument();
     });
@@ -649,7 +649,7 @@ describe("TaskCard - Integration Tests", () => {
           {...defaultProps}
           task={{ ...defaultTask, dueDate }}
           currentTime={baseCurrentTime}
-        />
+        />,
       );
       expect(screen.getByText("Due in 1 day")).toBeInTheDocument();
     });
@@ -666,7 +666,7 @@ describe("TaskCard - Integration Tests", () => {
           {...defaultProps}
           task={{ ...defaultTask, dueDate }}
           currentTime={baseCurrentTime}
-        />
+        />,
       );
       expect(screen.getByText("Due in 4.7 days")).toBeInTheDocument();
     });
@@ -683,7 +683,7 @@ describe("TaskCard - Integration Tests", () => {
           {...defaultProps}
           task={{ ...defaultTask, dueDate }}
           currentTime={baseCurrentTime}
-        />
+        />,
       );
       expect(screen.getByText("Due in 1 week")).toBeInTheDocument();
     });
@@ -700,7 +700,7 @@ describe("TaskCard - Integration Tests", () => {
           {...defaultProps}
           task={{ ...defaultTask, dueDate }}
           currentTime={baseCurrentTime}
-        />
+        />,
       );
       expect(screen.getByText("Due in 3.7 weeks")).toBeInTheDocument();
     });
@@ -717,7 +717,7 @@ describe("TaskCard - Integration Tests", () => {
           {...defaultProps}
           task={{ ...defaultTask, dueDate }}
           currentTime={baseCurrentTime}
-        />
+        />,
       );
       expect(screen.getByText("Due in 1 month")).toBeInTheDocument();
     });
@@ -734,7 +734,7 @@ describe("TaskCard - Integration Tests", () => {
           {...defaultProps}
           task={{ ...defaultTask, dueDate }}
           currentTime={baseCurrentTime}
-        />
+        />,
       );
       expect(screen.getByText("Due in 7.8 months")).toBeInTheDocument();
     });
@@ -751,7 +751,7 @@ describe("TaskCard - Integration Tests", () => {
           {...defaultProps}
           task={{ ...defaultTask, dueDate }}
           currentTime={baseCurrentTime}
-        />
+        />,
       );
       expect(screen.getByText("Due in 1 year")).toBeInTheDocument();
     });
@@ -768,7 +768,7 @@ describe("TaskCard - Integration Tests", () => {
           {...defaultProps}
           task={{ ...defaultTask, dueDate }}
           currentTime={baseCurrentTime}
-        />
+        />,
       );
       expect(screen.getByText("Due in 1.1 years")).toBeInTheDocument();
     });
@@ -786,7 +786,7 @@ describe("TaskCard - Integration Tests", () => {
           {...defaultProps}
           task={{ ...defaultTask, dueDate }}
           currentTime={currentTime}
-        />
+        />,
       );
       expect(screen.getByText("Overdue by 1 second")).toBeInTheDocument();
     });
@@ -803,7 +803,7 @@ describe("TaskCard - Integration Tests", () => {
           {...defaultProps}
           task={{ ...defaultTask, dueDate }}
           currentTime={currentTime}
-        />
+        />,
       );
       expect(screen.getByText("Overdue by 30 seconds")).toBeInTheDocument();
     });
@@ -820,7 +820,7 @@ describe("TaskCard - Integration Tests", () => {
           {...defaultProps}
           task={{ ...defaultTask, dueDate }}
           currentTime={currentTime}
-        />
+        />,
       );
       expect(screen.getByText("Overdue by 1 minute")).toBeInTheDocument();
     });
@@ -837,7 +837,7 @@ describe("TaskCard - Integration Tests", () => {
           {...defaultProps}
           task={{ ...defaultTask, dueDate }}
           currentTime={currentTime}
-        />
+        />,
       );
       expect(screen.getByText("Overdue by 30 minutes")).toBeInTheDocument();
     });
@@ -854,7 +854,7 @@ describe("TaskCard - Integration Tests", () => {
           {...defaultProps}
           task={{ ...defaultTask, dueDate }}
           currentTime={currentTime}
-        />
+        />,
       );
       expect(screen.getByText("Overdue by 1 hour")).toBeInTheDocument();
     });
@@ -871,7 +871,7 @@ describe("TaskCard - Integration Tests", () => {
           {...defaultProps}
           task={{ ...defaultTask, dueDate }}
           currentTime={currentTime}
-        />
+        />,
       );
       expect(screen.getByText("Overdue by 1.5 hours")).toBeInTheDocument();
     });
@@ -888,7 +888,7 @@ describe("TaskCard - Integration Tests", () => {
           {...defaultProps}
           task={{ ...defaultTask, dueDate }}
           currentTime={currentTime}
-        />
+        />,
       );
       expect(screen.getByText("Overdue by 1 day")).toBeInTheDocument();
     });
@@ -905,7 +905,7 @@ describe("TaskCard - Integration Tests", () => {
           {...defaultProps}
           task={{ ...defaultTask, dueDate }}
           currentTime={currentTime}
-        />
+        />,
       );
       expect(screen.getByText("Overdue by 4.7 days")).toBeInTheDocument();
     });
@@ -922,7 +922,7 @@ describe("TaskCard - Integration Tests", () => {
           {...defaultProps}
           task={{ ...defaultTask, dueDate }}
           currentTime={currentTime}
-        />
+        />,
       );
       expect(screen.getByText("Overdue by 1 week")).toBeInTheDocument();
     });
@@ -939,7 +939,7 @@ describe("TaskCard - Integration Tests", () => {
           {...defaultProps}
           task={{ ...defaultTask, dueDate }}
           currentTime={currentTime}
-        />
+        />,
       );
       expect(screen.getByText("Overdue by 3.7 weeks")).toBeInTheDocument();
     });
@@ -956,7 +956,7 @@ describe("TaskCard - Integration Tests", () => {
           {...defaultProps}
           task={{ ...defaultTask, dueDate }}
           currentTime={currentTime}
-        />
+        />,
       );
       expect(screen.getByText("Overdue by 1 month")).toBeInTheDocument();
     });
@@ -973,7 +973,7 @@ describe("TaskCard - Integration Tests", () => {
           {...defaultProps}
           task={{ ...defaultTask, dueDate }}
           currentTime={currentTime}
-        />
+        />,
       );
       expect(screen.getByText("Overdue by 7.8 months")).toBeInTheDocument();
     });
@@ -990,7 +990,7 @@ describe("TaskCard - Integration Tests", () => {
           {...defaultProps}
           task={{ ...defaultTask, dueDate }}
           currentTime={currentTime}
-        />
+        />,
       );
       expect(screen.getByText("Overdue by 1 year")).toBeInTheDocument();
     });
@@ -1007,7 +1007,7 @@ describe("TaskCard - Integration Tests", () => {
           {...defaultProps}
           task={{ ...defaultTask, dueDate }}
           currentTime={currentTime}
-        />
+        />,
       );
       expect(screen.getByText("Overdue by 1.1 years")).toBeInTheDocument();
     });
@@ -1031,7 +1031,7 @@ describe("TaskCard - Integration Tests", () => {
       };
 
       renderWithDnd(
-        <TaskCard {...defaultProps} task={taskWithMultipleLabels} />
+        <TaskCard {...defaultProps} task={taskWithMultipleLabels} />,
       );
 
       const labelOne = screen.getByText("Label One");
@@ -1088,7 +1088,7 @@ describe("TaskCard - Integration Tests", () => {
           {...defaultProps}
           task={taskWithLabel}
           userSettings={{ hideLabelText: true }}
-        />
+        />,
       );
       expect(screen.queryByText(visibleTitle)).toBeNull();
 

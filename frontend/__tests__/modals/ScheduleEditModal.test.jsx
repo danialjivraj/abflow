@@ -45,14 +45,14 @@ describe("ScheduleEditModal - Unit Tests", () => {
 
   test("does not render when isModalOpen is false", () => {
     const { container } = render(
-      <ScheduleEditModal {...defaultProps} isModalOpen={false} />
+      <ScheduleEditModal {...defaultProps} isModalOpen={false} />,
     );
     expect(container.firstChild).toBeNull();
   });
 
   test("does not render when eventData is not provided", () => {
     const { container } = render(
-      <ScheduleEditModal {...defaultProps} eventData={null} />
+      <ScheduleEditModal {...defaultProps} eventData={null} />,
     );
     expect(container.firstChild).toBeNull();
   });
@@ -69,7 +69,7 @@ describe("ScheduleEditModal - Unit Tests", () => {
       <ScheduleEditModal
         {...defaultProps}
         eventData={{ ...baseEventData, isUnscheduled: true }}
-      />
+      />,
     );
     expect(screen.getByText("Schedule Task")).toBeInTheDocument();
   });
@@ -94,12 +94,12 @@ describe("ScheduleEditModal - Integration Tests", () => {
       <ScheduleEditModal
         {...defaultProps}
         eventData={{ ...baseEventData, start: null }}
-      />
+      />,
     );
     const saveButton = screen.getByText("Save");
     fireEvent.click(saveButton);
     expect(
-      screen.getByText("Please select both Start and End time.")
+      screen.getByText("Please select both Start and End time."),
     ).toBeInTheDocument();
   });
 
@@ -109,12 +109,12 @@ describe("ScheduleEditModal - Integration Tests", () => {
       <ScheduleEditModal
         {...defaultProps}
         eventData={{ ...baseEventData, start: sameTime, end: sameTime }}
-      />
+      />,
     );
     const saveButton = screen.getByText("Save");
     fireEvent.click(saveButton);
     expect(
-      screen.getByText("Start time and End time cannot be the same.")
+      screen.getByText("Start time and End time cannot be the same."),
     ).toBeInTheDocument();
   });
 
@@ -127,12 +127,12 @@ describe("ScheduleEditModal - Integration Tests", () => {
           start: "2022-01-01T12:00:00.000Z",
           end: "2022-01-01T10:00:00.000Z",
         }}
-      />
+      />,
     );
     const saveButton = screen.getByText("Save");
     fireEvent.click(saveButton);
     expect(
-      screen.getByText("End time cannot be earlier than Start time.")
+      screen.getByText("End time cannot be earlier than Start time."),
     ).toBeInTheDocument();
   });
 
@@ -145,12 +145,12 @@ describe("ScheduleEditModal - Integration Tests", () => {
           start: "2022-01-01T23:00:00.000Z",
           end: "2022-01-02T01:00:00.000Z",
         }}
-      />
+      />,
     );
     const saveButton = screen.getByText("Save");
     fireEvent.click(saveButton);
     expect(
-      screen.getByText("Task must start and end on the same day.")
+      screen.getByText("Task must start and end on the same day."),
     ).toBeInTheDocument();
   });
 
@@ -202,7 +202,7 @@ describe("ScheduleEditModal - Integration Tests", () => {
     const unscheduleButton = screen.getByText("Unschedule");
     fireEvent.click(unscheduleButton);
     expect(defaultProps.onUnschedule).toHaveBeenCalledWith(
-      defaultProps.eventData
+      defaultProps.eventData,
     );
   });
 
@@ -211,7 +211,7 @@ describe("ScheduleEditModal - Integration Tests", () => {
       <ScheduleEditModal
         {...defaultProps}
         eventData={{ ...baseEventData, isUnscheduled: true }}
-      />
+      />,
     );
     expect(screen.queryByText("Unschedule")).not.toBeInTheDocument();
     expect(screen.getByText("Schedule")).toBeInTheDocument();
@@ -247,7 +247,9 @@ describe("ScheduleEditModal - Integration Tests", () => {
       },
     };
 
-    render(<ScheduleEditModal {...defaultProps} eventData={eventDataWithLabels} />);
+    render(
+      <ScheduleEditModal {...defaultProps} eventData={eventDataWithLabels} />,
+    );
     expect(screen.getByText("Urgent")).toBeInTheDocument();
     expect(screen.getByText("Important")).toBeInTheDocument();
   });

@@ -48,7 +48,7 @@ export function computeDateRange({
     }
     case "2weeks": {
       startDate = startOfISOWeek(
-        new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000)
+        new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000),
       );
       startDate.setHours(0, 0, 0, 0);
       endDate = new Date(startDate);
@@ -64,7 +64,7 @@ export function computeDateRange({
         0,
         0,
         0,
-        0
+        0,
       );
       endDate = new Date(
         today.getFullYear(),
@@ -73,7 +73,7 @@ export function computeDateRange({
         23,
         59,
         59,
-        999
+        999,
       );
       break;
     }
@@ -84,15 +84,15 @@ export function computeDateRange({
     }
     case "all-time": {
       const validTasks = tasks.filter(
-        (task) => task.createdAt || task.completedAt
+        (task) => task.createdAt || task.completedAt,
       );
       if (validTasks.length > 0) {
         const earliest = new Date(
           Math.min(
             ...validTasks.map(
-              (task) => new Date(task.createdAt || task.completedAt)
-            )
-          )
+              (task) => new Date(task.createdAt || task.completedAt),
+            ),
+          ),
         );
         startDate = earliest;
       } else {
@@ -174,7 +174,7 @@ export function applyAllFilters(tasksList, startDate, endDate, filters) {
   // priority Filter
   if (priorityFilters.length > 0) {
     filtered = filtered.filter((task) =>
-      priorityFilters.includes(task.priority)
+      priorityFilters.includes(task.priority),
     );
   }
 
@@ -209,7 +209,7 @@ export function applyAllFilters(tasksList, startDate, endDate, filters) {
   if (assignedToFilter.trim() !== "") {
     const term = assignedToFilter.trim().toLowerCase();
     filtered = filtered.filter(
-      (task) => task.assignedTo && task.assignedTo.toLowerCase().includes(term)
+      (task) => task.assignedTo && task.assignedTo.toLowerCase().includes(term),
     );
   }
 
@@ -231,7 +231,7 @@ export function applyAllFilters(tasksList, startDate, endDate, filters) {
   // scheduled Only Filter
   if (scheduledOnly) {
     filtered = filtered.filter(
-      (task) => task.scheduledStart != null && task.scheduledStart !== ""
+      (task) => task.scheduledStart != null && task.scheduledStart !== "",
     );
   }
 

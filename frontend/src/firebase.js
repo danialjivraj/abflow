@@ -9,7 +9,7 @@ const firebaseConfig = {
   storageBucket: "prioritymanagerapp.appspot.com",
   messagingSenderId: "97645460657",
   appId: "1:97645460657:web:cb0b51caf73617b0e8f690",
-  measurementId: "G-DWR6BF7X7F"
+  measurementId: "G-DWR6BF7X7F",
 };
 
 const app = initializeApp(firebaseConfig);

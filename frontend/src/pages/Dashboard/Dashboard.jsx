@@ -106,7 +106,7 @@ const Dashboard = (props) => {
           setUserSettings((prev) => ({ ...prev, ...prefs }));
         })
         .catch((err) =>
-          console.error("Error fetching settings preferences", err)
+          console.error("Error fetching settings preferences", err),
         );
     }
   }, [userId]);
@@ -188,7 +188,7 @@ const Dashboard = (props) => {
 
   useEffect(() => {
     const match = location.pathname.match(
-      /\/dashboard\/schedule\/editevent\/([^/]+)/
+      /\/dashboard\/schedule\/editevent\/([^/]+)/,
     );
     if (match) {
       const eventId = match[1];
@@ -230,7 +230,7 @@ const Dashboard = (props) => {
       const newColumns = { ...prevColumns };
       Object.keys(newColumns).forEach((colId) => {
         newColumns[colId].items = newColumns[colId].items.map((task) =>
-          task._id === updatedTask._id ? updatedTask : task
+          task._id === updatedTask._id ? updatedTask : task,
         );
       });
       return newColumns;
@@ -356,7 +356,7 @@ const Dashboard = (props) => {
         const column = prevColumns[originalTask.status];
         if (!column) return prevColumns;
         const originalIndex = column.items.findIndex(
-          (t) => t._id === originalTask._id
+          (t) => t._id === originalTask._id,
         );
         const newItems = [...column.items];
         newItems.splice(originalIndex + 1, 0, newTask);
@@ -379,13 +379,13 @@ const Dashboard = (props) => {
         const updatedColumns = { ...prevColumns };
         Object.keys(updatedColumns).forEach((colId) => {
           updatedColumns[colId].items = updatedColumns[colId].items.filter(
-            (task) => task._id !== taskId
+            (task) => task._id !== taskId,
           );
         });
         return updatedColumns;
       });
       setCompletedTasks((prevCompleted) =>
-        prevCompleted.filter((task) => task._id !== taskId)
+        prevCompleted.filter((task) => task._id !== taskId),
       );
       toast.success("Task deleted!");
     } catch (error) {
@@ -413,7 +413,7 @@ const Dashboard = (props) => {
       const boardTasks = columns[newStatus]?.items || [];
       const highestOrder = boardTasks.reduce(
         (max, t) => Math.max(max, t.order || 0),
-        -1
+        -1,
       );
       const newOrder = highestOrder + 1;
       const updatedTask = {
@@ -436,7 +436,7 @@ const Dashboard = (props) => {
       const updatedColumns = { ...prevColumns };
       Object.keys(updatedColumns).forEach((colId) => {
         updatedColumns[colId].items = updatedColumns[colId].items.map((task) =>
-          task._id === taskId ? { ...task, ...updates } : task
+          task._id === taskId ? { ...task, ...updates } : task,
         );
       });
       return updatedColumns;
@@ -459,8 +459,8 @@ const Dashboard = (props) => {
                 isTimerRunning: true,
                 timerStartTime: updatedTask.timerStartTime,
               }
-            : task
-        )
+            : task,
+        ),
       );
     } catch (error) {
       console.error("Error starting timer:", error);
@@ -485,8 +485,8 @@ const Dashboard = (props) => {
                 timerStartTime: null,
                 timeSpent: updatedTask.timeSpent,
               }
-            : task
-        )
+            : task,
+        ),
       );
     } catch (error) {
       console.error("Error stopping timer:", error);
@@ -531,7 +531,7 @@ const Dashboard = (props) => {
         if (updated[newTask.status]) {
           if (
             !updated[newTask.status].items.find(
-              (task) => task._id === newTask._id
+              (task) => task._id === newTask._id,
             )
           ) {
             updated[newTask.status].items = [
@@ -563,25 +563,26 @@ const Dashboard = (props) => {
         Object.keys(updatedColumns).forEach((colId) => {
           if (
             updatedColumns[colId].items.find(
-              (t) => t._id === updatedTaskFromBackend._id
+              (t) => t._id === updatedTaskFromBackend._id,
             )
           ) {
             oldCol = colId;
           }
         });
         if (oldCol && oldCol === updatedTaskFromBackend.status) {
-          updatedColumns[oldCol].items = updatedColumns[oldCol].items.map((t) =>
-            t._id === updatedTaskFromBackend._id ? updatedTaskFromBackend : t
+          updatedColumns[oldCol].items = updatedColumns[oldCol].items.map(
+            (t) =>
+              t._id === updatedTaskFromBackend._id ? updatedTaskFromBackend : t,
           );
         } else {
           Object.keys(updatedColumns).forEach((colId) => {
             updatedColumns[colId].items = updatedColumns[colId].items.filter(
-              (t) => t._id !== updatedTaskFromBackend._id
+              (t) => t._id !== updatedTaskFromBackend._id,
             );
           });
           if (updatedColumns[updatedTaskFromBackend.status]) {
             updatedColumns[updatedTaskFromBackend.status].items.push(
-              updatedTaskFromBackend
+              updatedTaskFromBackend,
             );
           }
         }
@@ -590,15 +591,15 @@ const Dashboard = (props) => {
       setCompletedTasks((prevCompleted) => {
         if (updatedTaskFromBackend.status !== "completed") {
           return prevCompleted.filter(
-            (t) => t._id !== updatedTaskFromBackend._id
+            (t) => t._id !== updatedTaskFromBackend._id,
           );
         }
         const exists = prevCompleted.some(
-          (t) => t._id === updatedTaskFromBackend._id
+          (t) => t._id === updatedTaskFromBackend._id,
         );
         if (exists) {
           return prevCompleted.map((t) =>
-            t._id === updatedTaskFromBackend._id ? updatedTaskFromBackend : t
+            t._id === updatedTaskFromBackend._id ? updatedTaskFromBackend : t,
           );
         } else {
           return [...prevCompleted, updatedTaskFromBackend];
@@ -758,7 +759,7 @@ const Dashboard = (props) => {
         buttons={getDashboardTopBarConfig(
           openCreateModal,
           openLabelsModalRoute,
-          navigate
+          navigate,
         )}
         navigate={navigate}
       />

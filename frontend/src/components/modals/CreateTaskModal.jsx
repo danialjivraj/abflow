@@ -104,7 +104,7 @@ const CreateTaskModal = ({
       if (!hasBoards) {
         if (newBoardCreateName.trim() !== "") {
           const confirmClose = window.confirm(
-            "You have unsaved changes. Are you sure you want to close?"
+            "You have unsaved changes. Are you sure you want to close?",
           );
           if (confirmClose) {
             setNewBoardCreateName("");
@@ -119,7 +119,7 @@ const CreateTaskModal = ({
         closeModal();
       } else {
         const confirmClose = window.confirm(
-          "You have unsaved changes. Are you sure you want to close?"
+          "You have unsaved changes. Are you sure you want to close?",
         );
         if (confirmClose) {
           closeModal();
@@ -145,13 +145,13 @@ const CreateTaskModal = ({
 
   const handleToggleLabel = (label) => {
     const exists = newTaskLabels.some(
-      (l) => l.title === label.title && l.color === label.color
+      (l) => l.title === label.title && l.color === label.color,
     );
     if (exists) {
       setNewTaskLabels(
         newTaskLabels.filter(
-          (l) => !(l.title === label.title && l.color === label.color)
-        )
+          (l) => !(l.title === label.title && l.color === label.color),
+        ),
       );
     } else {
       setNewTaskLabels([...newTaskLabels, label]);
@@ -273,7 +273,7 @@ const CreateTaskModal = ({
                           setDueDate(date);
                           if (date && date < new Date()) {
                             setDueDateWarning(
-                              "Warning: The selected due date is in the past."
+                              "Warning: The selected due date is in the past.",
                             );
                           } else {
                             setDueDateWarning("");

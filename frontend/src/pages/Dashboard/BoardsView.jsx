@@ -74,7 +74,7 @@ const BoardsView = (props) => {
       if (filters.labels && filters.labels.length > 0) {
         const taskLabelTitles = task.labels?.map((label) => label.title) || [];
         const matchesAll = filters.labels.every((filterLabel) =>
-          taskLabelTitles.includes(filterLabel)
+          taskLabelTitles.includes(filterLabel),
         );
         if (!matchesAll) return false;
       }

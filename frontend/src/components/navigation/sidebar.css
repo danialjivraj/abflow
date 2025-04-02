@@ -3,9 +3,9 @@
   --sidebar-bg: #dbdbdb;
   --sidebar-text: #333333;
   --sidebar-shadow: rgba(0, 0, 0, 0.1);
-  --sidebar-heading-color: #4CAF50;
+  --sidebar-heading-color: #4caf50;
   --sidebar-hover-bg: #e9e9e9;
-  --sidebar-active-bg: #4CAF50;
+  --sidebar-active-bg: #4caf50;
   --logout-bg: #ef4444;
   --logout-hover-bg: #dc2626;
   --settings-bg: #3b65ee;
@@ -19,9 +19,9 @@
   --sidebar-bg: #2a2a2a;
   --sidebar-text: #ffffff;
   --sidebar-shadow: rgba(0, 0, 0, 0.1);
-  --sidebar-heading-color: #4CAF50;
+  --sidebar-heading-color: #4caf50;
   --sidebar-hover-bg: #3a3a3a;
-  --sidebar-active-bg: #4CAF50;
+  --sidebar-active-bg: #4caf50;
   --logout-bg: #ef4444;
   --logout-hover-bg: #dc2626;
   --settings-bg: #3b65ee;
@@ -72,7 +72,9 @@
   padding: 9px;
   border-radius: 3.6px;
   cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
 }
 
 .sidebar nav ul li:hover {

@@ -80,7 +80,7 @@ describe("NotificationsContext", () => {
     const { getByText } = render(
       <NotificationsProvider>
         <div>Test Child</div>
-      </NotificationsProvider>
+      </NotificationsProvider>,
     );
     expect(getByText("Test Child")).toBeInTheDocument();
   });
@@ -122,7 +122,7 @@ describe("NotificationsContext", () => {
       <NotificationsProvider>
         <div>Test Child</div>
         <NotificationsTestConsumer onChange={onChange} />
-      </NotificationsProvider>
+      </NotificationsProvider>,
     );
 
     await act(async () => {
@@ -131,7 +131,7 @@ describe("NotificationsContext", () => {
     });
     await waitFor(() => {
       expect(
-        notificationsHistory[notificationsHistory.length - 1]
+        notificationsHistory[notificationsHistory.length - 1],
       ).toHaveLength(0);
     });
 
@@ -146,7 +146,7 @@ describe("NotificationsContext", () => {
         });
         expect(playMock).toHaveBeenCalled();
       },
-      { timeout: 3000 }
+      { timeout: 3000 },
     );
 
     await act(async () => {
@@ -217,7 +217,7 @@ describe("NotificationsContext", () => {
       <NotificationsProvider>
         <div>Test Child</div>
         <NotificationsTestConsumer onChange={onChange} />
-      </NotificationsProvider>
+      </NotificationsProvider>,
     );
 
     await act(async () => {
@@ -240,7 +240,7 @@ describe("NotificationsContext", () => {
         });
         expect(playMock).toHaveBeenCalled();
       },
-      { timeout: 3000 }
+      { timeout: 3000 },
     );
 
     await act(async () => {
@@ -317,7 +317,7 @@ describe("NotificationsContext", () => {
       <NotificationsProvider>
         <div>Test Child</div>
         <NotificationsTestConsumer onChange={onChange} />
-      </NotificationsProvider>
+      </NotificationsProvider>,
     );
 
     await act(async () => {
@@ -416,7 +416,7 @@ describe("NotificationsContext", () => {
       >
         <div>Test Child</div>
         <NotificationsTestConsumer onChange={() => {}} />
-      </NotificationsProvider>
+      </NotificationsProvider>,
     );
 
     await act(async () => {
@@ -431,7 +431,7 @@ describe("NotificationsContext", () => {
       () => {
         expect(playMock).not.toHaveBeenCalled();
       },
-      { timeout: 3000 }
+      { timeout: 3000 },
     );
 
     jest.useRealTimers();
@@ -455,7 +455,7 @@ describe("NotificationsContext", () => {
     render(
       <NotificationsProvider>
         <div>Test Child</div>
-      </NotificationsProvider>
+      </NotificationsProvider>,
     );
 
     await act(async () => {
@@ -489,7 +489,7 @@ describe("NotificationsContext", () => {
       render(
         <NotificationsProvider>
           <div>Test Child</div>
-        </NotificationsProvider>
+        </NotificationsProvider>,
       );
       await act(async () => {
         jest.advanceTimersByTime(1100);
@@ -499,7 +499,7 @@ describe("NotificationsContext", () => {
         const messageElement = toast.info.mock.calls[0][0];
         const rendered = renderToStaticMarkup(messageElement);
         expect(rendered).toContain(
-          'You got an <span class="notification-title-alert">Alert</span>notification!'
+          'You got an <span class="notification-title-alert">Alert</span>notification!',
         );
       });
       jest.useRealTimers();
@@ -521,7 +521,7 @@ describe("NotificationsContext", () => {
       render(
         <NotificationsProvider>
           <div>Test Child</div>
-        </NotificationsProvider>
+        </NotificationsProvider>,
       );
       await act(async () => {
         jest.advanceTimersByTime(1100);
@@ -531,7 +531,7 @@ describe("NotificationsContext", () => {
         const messageElement = toast.info.mock.calls[0][0];
         const rendered = renderToStaticMarkup(messageElement);
         expect(rendered).toContain(
-          'You got a <span class="notification-title-insight">Weekly Insight</span><br/>notification!'
+          'You got a <span class="notification-title-insight">Weekly Insight</span><br/>notification!',
         );
       });
       jest.useRealTimers();
@@ -553,7 +553,7 @@ describe("NotificationsContext", () => {
       render(
         <NotificationsProvider>
           <div>Test Child</div>
-        </NotificationsProvider>
+        </NotificationsProvider>,
       );
       await act(async () => {
         jest.advanceTimersByTime(1100);
@@ -563,7 +563,7 @@ describe("NotificationsContext", () => {
         const messageElement = toast.info.mock.calls[0][0];
         const rendered = renderToStaticMarkup(messageElement);
         expect(rendered).toContain(
-          'You got a <span class="notification-title-reminder">Reminder</span>notification!'
+          'You got a <span class="notification-title-reminder">Reminder</span>notification!',
         );
       });
       jest.useRealTimers();
@@ -585,7 +585,7 @@ describe("NotificationsContext", () => {
       render(
         <NotificationsProvider>
           <div>Test Child</div>
-        </NotificationsProvider>
+        </NotificationsProvider>,
       );
       await act(async () => {
         jest.advanceTimersByTime(1100);
@@ -595,7 +595,7 @@ describe("NotificationsContext", () => {
         const messageElement = toast.info.mock.calls[0][0];
         const rendered = renderToStaticMarkup(messageElement);
         expect(rendered).toContain(
-          'You got a <span class="notification-title-warning">Warning</span>notification!'
+          'You got a <span class="notification-title-warning">Warning</span>notification!',
         );
       });
       jest.useRealTimers();
@@ -617,7 +617,7 @@ describe("NotificationsContext", () => {
       render(
         <NotificationsProvider>
           <div>Test Child</div>
-        </NotificationsProvider>
+        </NotificationsProvider>,
       );
       await act(async () => {
         jest.advanceTimersByTime(1100);
@@ -648,7 +648,7 @@ describe("NotificationsContext", () => {
       render(
         <NotificationsProvider>
           <div>Test Child</div>
-        </NotificationsProvider>
+        </NotificationsProvider>,
       );
       await act(async () => {
         jest.advanceTimersByTime(1100);

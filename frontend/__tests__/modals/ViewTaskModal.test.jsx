@@ -24,10 +24,10 @@ jest.mock("../../src/services/tasksService", () => ({
   completeTask: jest.fn(() =>
     Promise.resolve({
       data: { _id: "1", title: "Test Task", status: "completed" },
-    })
+    }),
   ),
   updateTask: jest.fn(() =>
-    Promise.resolve({ data: { _id: "1", title: "Moved Task" } })
+    Promise.resolve({ data: { _id: "1", title: "Moved Task" } }),
   ),
 }));
 
@@ -64,7 +64,7 @@ const defaultProps = {
     },
   },
   startTimer: jest.fn(() =>
-    Promise.resolve({ data: { timerStartTime: new Date().toISOString() } })
+    Promise.resolve({ data: { timerStartTime: new Date().toISOString() } }),
   ),
   stopTimer: jest.fn(() => Promise.resolve({ data: { timeSpent: 3600 } })),
   setCompletedTasks: jest.fn(),
@@ -81,14 +81,14 @@ describe("ViewTaskModal - Unit Tests", () => {
 
   test("does not render when isModalOpen is false", () => {
     const { container } = render(
-      <ViewTaskModal {...defaultProps} isModalOpen={false} />
+      <ViewTaskModal {...defaultProps} isModalOpen={false} />,
     );
     expect(container.firstChild).toBeNull();
   });
 
   test("does not render when task is not provided", () => {
     const { container } = render(
-      <ViewTaskModal {...defaultProps} task={null} />
+      <ViewTaskModal {...defaultProps} task={null} />,
     );
     expect(container.firstChild).toBeNull();
   });
@@ -155,7 +155,7 @@ describe("ViewTaskModal - Integration Tests", () => {
     });
     beforeEach(() => {
       render(
-        <ViewTaskModal {...defaultProps} task={normalTask} readOnly={false} />
+        <ViewTaskModal {...defaultProps} task={normalTask} readOnly={false} />,
       );
     });
 
@@ -236,7 +236,7 @@ describe("ViewTaskModal - Integration Tests", () => {
           {...defaultProps}
           task={taskWithStatus}
           readOnly={false}
-        />
+        />,
       );
       const statusDropdown = screen.getAllByDisplayValue("In Progress")[0];
       fireEvent.change(statusDropdown, { target: { value: "completed" } });
@@ -256,7 +256,7 @@ describe("ViewTaskModal - Integration Tests", () => {
           {...defaultProps}
           task={completedTask}
           readOnly={false}
-        />
+        />,
       );
     });
 
@@ -417,7 +417,7 @@ describe("ViewTaskModal - Integration Tests", () => {
     await waitFor(() => {
       expect(updateTask).toHaveBeenCalled();
       expect(toast.error).toHaveBeenCalledWith(
-        "Error moving task back to boards."
+        "Error moving task back to boards.",
       );
     });
   });
@@ -464,7 +464,7 @@ describe("ViewTaskModal - Integration Tests", () => {
       ],
     });
     const { container } = render(
-      <ViewTaskModal {...defaultProps} task={taskWithLabels} />
+      <ViewTaskModal {...defaultProps} task={taskWithLabels} />,
     );
 
     const titleBlock = container.querySelector(".title-block");
@@ -499,7 +499,7 @@ describe("ViewTaskModal - Integration Tests", () => {
           readOnly={true}
           newTaskLabels={[]}
           availableLabels={availableLabels}
-        />
+        />,
       );
       expect(screen.queryByText("Labels:")).toBeNull();
       expect(screen.queryByText("Click to see labels")).toBeNull();
@@ -512,7 +512,7 @@ describe("ViewTaskModal - Integration Tests", () => {
           readOnly={false}
           newTaskLabels={[]}
           availableLabels={availableLabels}
-        />
+        />,
       );
       expect(screen.getByText("Labels:")).toBeInTheDocument();
       expect(screen.getByText("Click to see labels")).toBeInTheDocument();
@@ -525,7 +525,7 @@ describe("ViewTaskModal - Integration Tests", () => {
           readOnly={false}
           newTaskLabels={[]}
           availableLabels={availableLabels}
-        />
+        />,
       );
       const labelDisplay = screen.getByText("Click to see labels");
       fireEvent.click(labelDisplay);
@@ -548,7 +548,7 @@ describe("ViewTaskModal - Integration Tests", () => {
             { _id: "label-1", title: "Urgent", color: "#ff0000" },
           ]}
           setNewTaskLabels={setNewTaskLabels}
-        />
+        />,
       );
 
       const labelDisplay = screen.getByText("Click to see labels");

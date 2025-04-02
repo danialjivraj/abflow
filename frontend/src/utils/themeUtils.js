@@ -1,7 +1,13 @@
 export const updateAccentColor = (themeAccent) => {
   if (themeAccent.startsWith("#") || themeAccent.startsWith("rgb")) {
-    document.documentElement.style.setProperty("--sidebar-active-bg", themeAccent);
-    document.documentElement.style.setProperty("--sidebar-heading-color", themeAccent);
+    document.documentElement.style.setProperty(
+      "--sidebar-active-bg",
+      themeAccent,
+    );
+    document.documentElement.style.setProperty(
+      "--sidebar-heading-color",
+      themeAccent,
+    );
     return;
   }
 
@@ -27,16 +33,34 @@ export const updateAccentColor = (themeAccent) => {
       accentColor = "#4CAF50";
       headingColor = "#4CAF50";
   }
-  document.documentElement.style.setProperty("--sidebar-active-bg", accentColor);
-  document.documentElement.style.setProperty("--sidebar-heading-color", headingColor);
+  document.documentElement.style.setProperty(
+    "--sidebar-active-bg",
+    accentColor,
+  );
+  document.documentElement.style.setProperty(
+    "--sidebar-heading-color",
+    headingColor,
+  );
 };
 
 export const updateTopbarAccentColor = (topbarAccent) => {
   if (topbarAccent.startsWith("#") || topbarAccent.startsWith("rgb")) {
-    document.documentElement.style.setProperty("--topbar-active-button-color", topbarAccent);
-    document.documentElement.style.setProperty("--create-top-bar-btn-bg", topbarAccent);
-    document.documentElement.style.setProperty("--create-task-btn-bg", topbarAccent);
-    document.documentElement.style.setProperty("--create-task-btn-hover", topbarAccent);
+    document.documentElement.style.setProperty(
+      "--topbar-active-button-color",
+      topbarAccent,
+    );
+    document.documentElement.style.setProperty(
+      "--create-top-bar-btn-bg",
+      topbarAccent,
+    );
+    document.documentElement.style.setProperty(
+      "--create-task-btn-bg",
+      topbarAccent,
+    );
+    document.documentElement.style.setProperty(
+      "--create-task-btn-hover",
+      topbarAccent,
+    );
     return;
   }
 
@@ -73,17 +97,29 @@ export const updateTopbarAccentColor = (topbarAccent) => {
       createTaskBtnHover = "#0056b3";
       break;
   }
-  document.documentElement.style.setProperty("--topbar-active-button-color", activeTextColor);
-  document.documentElement.style.setProperty("--create-top-bar-btn-bg", createBtnBg);
-  document.documentElement.style.setProperty("--create-task-btn-bg", createBtnBg);
-  document.documentElement.style.setProperty("--create-task-btn-hover", createTaskBtnHover);
+  document.documentElement.style.setProperty(
+    "--topbar-active-button-color",
+    activeTextColor,
+  );
+  document.documentElement.style.setProperty(
+    "--create-top-bar-btn-bg",
+    createBtnBg,
+  );
+  document.documentElement.style.setProperty(
+    "--create-task-btn-bg",
+    createBtnBg,
+  );
+  document.documentElement.style.setProperty(
+    "--create-task-btn-hover",
+    createTaskBtnHover,
+  );
 };
 
 export const updatePriorityCSSVariables = (priorityColours) => {
   Object.keys(priorityColours).forEach((priority) => {
     document.documentElement.style.setProperty(
       `--priority-${priority}`,
-      priorityColours[priority]
+      priorityColours[priority],
     );
   });
 };

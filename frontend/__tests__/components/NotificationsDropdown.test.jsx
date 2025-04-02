@@ -14,12 +14,12 @@ jest.mock("../../src/utils/dateUtils", () => ({
 
 const renderWithNotificationsContext = (
   ui,
-  { notifications, setNotifications } = {}
+  { notifications, setNotifications } = {},
 ) => {
   return render(
     <NotificationsContext.Provider value={{ notifications, setNotifications }}>
       {ui}
-    </NotificationsContext.Provider>
+    </NotificationsContext.Provider>,
   );
 };
 
@@ -64,7 +64,7 @@ describe("NotificationsDropdown Component - UNIT TESTS", () => {
         notifications={notifications}
         onClose={jest.fn()}
       />,
-      { notifications, setNotifications: setNotificationsMock }
+      { notifications, setNotifications: setNotificationsMock },
     );
     expect(screen.getByText("Notifications")).toBeInTheDocument();
     expect(screen.getByText("Mark All as Read")).toBeInTheDocument();
@@ -75,7 +75,7 @@ describe("NotificationsDropdown Component - UNIT TESTS", () => {
   test("renders 'No notifications' when notifications array is empty", () => {
     renderWithNotificationsContext(
       <NotificationsDropdown notifications={[]} onClose={jest.fn()} />,
-      { notifications: [], setNotifications: setNotificationsMock }
+      { notifications: [], setNotifications: setNotificationsMock },
     );
     expect(screen.getByText("No notifications")).toBeInTheDocument();
   });
@@ -86,30 +86,30 @@ describe("NotificationsDropdown Component - UNIT TESTS", () => {
         notifications={notifications}
         onClose={jest.fn()}
       />,
-      { notifications, setNotifications: setNotificationsMock }
+      { notifications, setNotifications: setNotificationsMock },
     );
     const messageElements = Array.from(
-      document.querySelectorAll(".notification-message")
+      document.querySelectorAll(".notification-message"),
     );
 
     const notif1Found = messageElements.some(
       (node) =>
         node.textContent.trim() ===
-        "Weekly Insight: Great job! You dedicated 100% of your time to high priority tasks last week."
+        "Weekly Insight: Great job! You dedicated 100% of your time to high priority tasks last week.",
     );
     expect(notif1Found).toBe(true);
 
     const notif2Found = messageElements.some(
       (node) =>
         node.textContent.trim() ===
-        'Alert: Your task "Overdue Task" is overdue. Please review it.'
+        'Alert: Your task "Overdue Task" is overdue. Please review it.',
     );
     expect(notif2Found).toBe(true);
 
     const notif3Found = messageElements.some(
       (node) =>
         node.textContent.trim() ===
-        'Reminder: Your scheduled task "Scheduled Task" will start at 17:45 (in 5 minutes).'
+        'Reminder: Your scheduled task "Scheduled Task" will start at 17:45 (in 5 minutes).',
     );
     expect(notif3Found).toBe(true);
   });
@@ -128,14 +128,14 @@ describe("NotificationsDropdown Component - INTEGRATION TESTS", () => {
         notifications={notifications}
         onClose={jest.fn()}
       />,
-      { notifications, setNotifications: setNotificationsMock }
+      { notifications, setNotifications: setNotificationsMock },
     );
     const notifItems = screen.getAllByRole("listitem");
     const firstItem = notifItems[0];
     expect(firstItem).toHaveClass("unread");
     fireEvent.click(firstItem);
     await waitFor(() =>
-      expect(updateNotification).toHaveBeenCalledWith("notif1", { read: true })
+      expect(updateNotification).toHaveBeenCalledWith("notif1", { read: true }),
     );
     expect(setNotificationsMock).toHaveBeenCalled();
     await waitFor(() => expect(firstItem).toHaveClass("expanded"));
@@ -150,7 +150,7 @@ describe("NotificationsDropdown Component - INTEGRATION TESTS", () => {
         notifications={notifications}
         onClose={jest.fn()}
       />,
-      { notifications, setNotifications: setNotificationsMock }
+      { notifications, setNotifications: setNotificationsMock },
     );
     const notifItems = screen.getAllByRole("listitem");
     const thirdItem = notifItems[2];
@@ -158,7 +158,7 @@ describe("NotificationsDropdown Component - INTEGRATION TESTS", () => {
     const envelopeBtn = thirdItem.querySelector(".notification-envelope-btn");
     fireEvent.click(envelopeBtn);
     await waitFor(() =>
-      expect(updateNotification).toHaveBeenCalledWith("notif3", { read: true })
+      expect(updateNotification).toHaveBeenCalledWith("notif3", { read: true }),
     );
     expect(setNotificationsMock).toHaveBeenCalled();
     await waitFor(() => expect(thirdItem).toHaveClass("expanded"));
@@ -173,7 +173,7 @@ describe("NotificationsDropdown Component - INTEGRATION TESTS", () => {
         notifications={notifications}
         onClose={jest.fn()}
       />,
-      { notifications, setNotifications: setNotificationsMock }
+      { notifications, setNotifications: setNotificationsMock },
     );
     const notifItems = screen.getAllByRole("listitem");
     const secondItem = notifItems[1];
@@ -181,7 +181,7 @@ describe("NotificationsDropdown Component - INTEGRATION TESTS", () => {
     const removeBtn = secondItem.querySelector(".notification-remove-btn");
     fireEvent.click(removeBtn);
     await waitFor(() =>
-      expect(deleteNotification).toHaveBeenCalledWith("notif2")
+      expect(deleteNotification).toHaveBeenCalledWith("notif2"),
     );
     expect(setNotificationsMock).toHaveBeenCalled();
   });
@@ -195,7 +195,7 @@ describe("NotificationsDropdown Component - INTEGRATION TESTS", () => {
         notifications={notifications}
         onClose={jest.fn()}
       />,
-      { notifications, setNotifications: setNotificationsMock }
+      { notifications, setNotifications: setNotificationsMock },
     );
     const markAllBtn = screen.getByText("Mark All as Read");
     fireEvent.click(markAllBtn);
@@ -215,7 +215,7 @@ describe("NotificationsDropdown Component - INTEGRATION TESTS", () => {
         notifications={notifications}
         onClose={jest.fn()}
       />,
-      { notifications, setNotifications: setNotificationsMock }
+      { notifications, setNotifications: setNotificationsMock },
     );
     const clearAllBtn = screen.getByText("Clear All");
     fireEvent.click(clearAllBtn);
@@ -233,7 +233,7 @@ describe("NotificationsDropdown Component - INTEGRATION TESTS", () => {
         notifications={notifications}
         onClose={jest.fn()}
       />,
-      { notifications, setNotifications: setNotificationsMock }
+      { notifications, setNotifications: setNotificationsMock },
     );
     expect(screen.getByText("All")).toHaveClass("active");
 
@@ -241,13 +241,13 @@ describe("NotificationsDropdown Component - INTEGRATION TESTS", () => {
     expect(notifItems).toHaveLength(3);
 
     expect(notifItems[0].textContent).toContain(
-      "Weekly Insight: Great job! You dedicated 100% of your time to high priority tasks last week."
+      "Weekly Insight: Great job! You dedicated 100% of your time to high priority tasks last week.",
     );
     expect(notifItems[1].textContent).toContain(
-      'Alert: Your task "Overdue Task" is overdue. Please review it.'
+      'Alert: Your task "Overdue Task" is overdue. Please review it.',
     );
     expect(notifItems[2].textContent).toContain(
-      'Reminder: Your scheduled task "Scheduled Task" will start at 17:45 (in 5 minutes).'
+      'Reminder: Your scheduled task "Scheduled Task" will start at 17:45 (in 5 minutes).',
     );
   });
 
@@ -257,7 +257,7 @@ describe("NotificationsDropdown Component - INTEGRATION TESTS", () => {
         notifications={notifications}
         onClose={jest.fn()}
       />,
-      { notifications, setNotifications: setNotificationsMock }
+      { notifications, setNotifications: setNotificationsMock },
     );
     const unreadTab = screen.getByText("Unread");
     fireEvent.click(unreadTab);
@@ -268,10 +268,10 @@ describe("NotificationsDropdown Component - INTEGRATION TESTS", () => {
     expect(notifItems).toHaveLength(2);
 
     expect(notifItems[0].textContent).toContain(
-      "Weekly Insight: Great job! You dedicated 100% of your time to high priority tasks last week."
+      "Weekly Insight: Great job! You dedicated 100% of your time to high priority tasks last week.",
     );
     expect(notifItems[1].textContent).toContain(
-      'Reminder: Your scheduled task "Scheduled Task" will start at 17:45 (in 5 minutes).'
+      'Reminder: Your scheduled task "Scheduled Task" will start at 17:45 (in 5 minutes).',
     );
   });
 
@@ -281,19 +281,19 @@ describe("NotificationsDropdown Component - INTEGRATION TESTS", () => {
         notifications={notifications}
         onClose={jest.fn()}
       />,
-      { notifications, setNotifications: setNotificationsMock }
+      { notifications, setNotifications: setNotificationsMock },
     );
     expect(screen.getByText("All")).toHaveClass("active");
     let notifItems = screen.getAllByRole("listitem");
     expect(notifItems).toHaveLength(3);
     expect(notifItems[0].textContent).toContain(
-      "Weekly Insight: Great job! You dedicated 100% of your time to high priority tasks last week."
+      "Weekly Insight: Great job! You dedicated 100% of your time to high priority tasks last week.",
     );
     expect(notifItems[1].textContent).toContain(
-      'Alert: Your task "Overdue Task" is overdue. Please review it.'
+      'Alert: Your task "Overdue Task" is overdue. Please review it.',
     );
     expect(notifItems[2].textContent).toContain(
-      'Reminder: Your scheduled task "Scheduled Task" will start at 17:45 (in 5 minutes).'
+      'Reminder: Your scheduled task "Scheduled Task" will start at 17:45 (in 5 minutes).',
     );
 
     const unreadTab = screen.getByText("Unread");
@@ -302,10 +302,10 @@ describe("NotificationsDropdown Component - INTEGRATION TESTS", () => {
     notifItems = screen.getAllByRole("listitem");
     expect(notifItems).toHaveLength(2);
     expect(notifItems[0].textContent).toContain(
-      "Weekly Insight: Great job! You dedicated 100% of your time to high priority tasks last week."
+      "Weekly Insight: Great job! You dedicated 100% of your time to high priority tasks last week.",
     );
     expect(notifItems[1].textContent).toContain(
-      'Reminder: Your scheduled task "Scheduled Task" will start at 17:45 (in 5 minutes).'
+      'Reminder: Your scheduled task "Scheduled Task" will start at 17:45 (in 5 minutes).',
     );
 
     const allTab = screen.getByText("All");
@@ -324,7 +324,7 @@ describe("NotificationsDropdown Component - INTEGRATION TESTS", () => {
         notifications={notifications}
         onClose={jest.fn()}
       />,
-      { notifications, setNotifications: setNotificationsMock }
+      { notifications, setNotifications: setNotificationsMock },
     );
 
     const unreadTab = screen.getByText("Unread");
@@ -334,12 +334,12 @@ describe("NotificationsDropdown Component - INTEGRATION TESTS", () => {
 
     fireEvent.click(notifItems[0]);
     await waitFor(() =>
-      expect(updateNotification).toHaveBeenCalledWith("notif1", { read: true })
+      expect(updateNotification).toHaveBeenCalledWith("notif1", { read: true }),
     );
     expect(setNotificationsMock).toHaveBeenCalled();
 
     const updatedNotifications = notifications.map((n) =>
-      n._id === "notif1" ? { ...n, read: true } : n
+      n._id === "notif1" ? { ...n, read: true } : n,
     );
 
     rerender(
@@ -353,13 +353,13 @@ describe("NotificationsDropdown Component - INTEGRATION TESTS", () => {
           notifications={updatedNotifications}
           onClose={jest.fn()}
         />
-      </NotificationsContext.Provider>
+      </NotificationsContext.Provider>,
     );
     notifItems = screen.getAllByRole("listitem");
     // only one unread notification should remain (notif3)
     expect(notifItems).toHaveLength(1);
     expect(notifItems[0].textContent).toContain(
-      'Reminder: Your scheduled task "Scheduled Task" will start at 17:45 (in 5 minutes).'
+      'Reminder: Your scheduled task "Scheduled Task" will start at 17:45 (in 5 minutes).',
     );
     // notif1 is no longer in the Unread view
     expect(notifItems[0].textContent).not.toContain("Weekly Insight:");

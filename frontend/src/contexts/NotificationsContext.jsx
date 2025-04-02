@@ -136,8 +136,8 @@ export const NotificationsProvider = ({ children, muteNotifications }) => {
           await updateNotification(notif._id, { soundPlayed: true });
           setNotifications((prev) =>
             prev.map((n) =>
-              n._id === notif._id ? { ...n, soundPlayed: true } : n
-            )
+              n._id === notif._id ? { ...n, soundPlayed: true } : n,
+            ),
           );
         } catch (error) {
           console.error("Error updating notification soundPlayed:", error);

@@ -390,8 +390,7 @@ const TiptapEditor = ({ value, onChange }) => {
       onChange(editor.getHTML());
     },
     editorProps: {
-      attributes: {
-      },
+      attributes: {},
     },
   });
 

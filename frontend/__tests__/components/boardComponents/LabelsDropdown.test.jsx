@@ -33,7 +33,7 @@ describe("LabelsDropdown", () => {
         handleToggleLabel={handleToggleLabel}
         setIsLabelsDropdownOpen={setIsLabelsDropdownOpen}
         setIsTaskDropdownOpen={setIsTaskDropdownOpen}
-      />
+      />,
     );
     expect(screen.getByText("No labels available")).toBeInTheDocument();
   });
@@ -46,7 +46,7 @@ describe("LabelsDropdown", () => {
         handleToggleLabel={handleToggleLabel}
         setIsLabelsDropdownOpen={setIsLabelsDropdownOpen}
         setIsTaskDropdownOpen={setIsTaskDropdownOpen}
-      />
+      />,
     );
     expect(screen.getByText("Urgent")).toBeInTheDocument();
     expect(screen.getByText("Feature")).toBeInTheDocument();
@@ -63,7 +63,7 @@ describe("LabelsDropdown", () => {
         handleToggleLabel={handleToggleLabel}
         setIsLabelsDropdownOpen={setIsLabelsDropdownOpen}
         setIsTaskDropdownOpen={setIsTaskDropdownOpen}
-      />
+      />,
     );
     expect(screen.getByText("Urgent")).toBeInTheDocument();
     expect(screen.getByText("Feature")).toBeInTheDocument();
@@ -80,7 +80,7 @@ describe("LabelsDropdown", () => {
         handleToggleLabel={handleToggleLabel}
         setIsLabelsDropdownOpen={setIsLabelsDropdownOpen}
         setIsTaskDropdownOpen={setIsTaskDropdownOpen}
-      />
+      />,
     );
     expect(screen.getByText("Urgent")).toBeInTheDocument();
     expect(screen.getByText("Feature")).toBeInTheDocument();
@@ -96,12 +96,12 @@ describe("LabelsDropdown", () => {
         handleToggleLabel={handleToggleLabel}
         setIsLabelsDropdownOpen={setIsLabelsDropdownOpen}
         setIsTaskDropdownOpen={setIsTaskDropdownOpen}
-      />
+      />,
     );
     const urgentButton = screen.getByText("Urgent").closest("button");
     fireEvent.click(urgentButton);
     expect(handleToggleLabel).toHaveBeenCalledWith(
-      expect.objectContaining({ title: "Urgent", color: "#ff0000" })
+      expect.objectContaining({ title: "Urgent", color: "#ff0000" }),
     );
     expect(setIsLabelsDropdownOpen).toHaveBeenCalledWith(false);
     expect(setIsTaskDropdownOpen).toHaveBeenCalledWith(null);
@@ -115,12 +115,12 @@ describe("LabelsDropdown", () => {
         handleToggleLabel={handleToggleLabel}
         setIsLabelsDropdownOpen={setIsLabelsDropdownOpen}
         setIsTaskDropdownOpen={setIsTaskDropdownOpen}
-      />
+      />,
     );
     const featureButton = screen.getByText("Feature").closest("button");
     fireEvent.click(featureButton);
     expect(handleToggleLabel).toHaveBeenCalledWith(
-      expect.objectContaining({ title: "Feature", color: "#00ff00" })
+      expect.objectContaining({ title: "Feature", color: "#00ff00" }),
     );
     expect(setIsLabelsDropdownOpen).toHaveBeenCalledWith(false);
     expect(setIsTaskDropdownOpen).toHaveBeenCalledWith(null);
@@ -134,7 +134,7 @@ describe("LabelsDropdown", () => {
         handleToggleLabel={handleToggleLabel}
         setIsLabelsDropdownOpen={setIsLabelsDropdownOpen}
         setIsTaskDropdownOpen={setIsTaskDropdownOpen}
-      />
+      />,
     );
     expect(container.querySelector("hr.labels-separator")).toBeInTheDocument();
 
@@ -146,7 +146,7 @@ describe("LabelsDropdown", () => {
         handleToggleLabel={handleToggleLabel}
         setIsLabelsDropdownOpen={setIsLabelsDropdownOpen}
         setIsTaskDropdownOpen={setIsTaskDropdownOpen}
-      />
+      />,
     );
     expect(container.querySelector("hr.labels-separator")).toBeNull();
 
@@ -158,7 +158,7 @@ describe("LabelsDropdown", () => {
         handleToggleLabel={handleToggleLabel}
         setIsLabelsDropdownOpen={setIsLabelsDropdownOpen}
         setIsTaskDropdownOpen={setIsTaskDropdownOpen}
-      />
+      />,
     );
     expect(container.querySelector("hr.labels-separator")).toBeNull();
   });
@@ -171,7 +171,7 @@ describe("LabelsDropdown", () => {
         handleToggleLabel={handleToggleLabel}
         setIsLabelsDropdownOpen={setIsLabelsDropdownOpen}
         setIsTaskDropdownOpen={setIsTaskDropdownOpen}
-      />
+      />,
     );
     expect(screen.getByText("No labels available")).toBeInTheDocument();
   });
@@ -184,7 +184,7 @@ describe("LabelsDropdown", () => {
         handleToggleLabel={handleToggleLabel}
         setIsLabelsDropdownOpen={setIsLabelsDropdownOpen}
         setIsTaskDropdownOpen={setIsTaskDropdownOpen}
-      />
+      />,
     );
     expect(screen.getByText("Urgent")).toBeInTheDocument();
     expect(screen.getByText("Feature")).toBeInTheDocument();
@@ -200,12 +200,12 @@ describe("LabelsDropdown", () => {
         handleToggleLabel={handleToggleLabel}
         setIsLabelsDropdownOpen={setIsLabelsDropdownOpen}
         setIsTaskDropdownOpen={setIsTaskDropdownOpen}
-      />
+      />,
     );
     const attachedButton = screen.getByText("Urgent").closest("button");
     fireEvent.click(attachedButton);
     expect(handleToggleLabel).toHaveBeenCalledWith(
-      expect.objectContaining({ title: "Urgent", color: "#ff0000" })
+      expect.objectContaining({ title: "Urgent", color: "#ff0000" }),
     );
     expect(setIsLabelsDropdownOpen).toHaveBeenCalledWith(false);
     expect(setIsTaskDropdownOpen).toHaveBeenCalledWith(null);
@@ -219,12 +219,12 @@ describe("LabelsDropdown", () => {
         handleToggleLabel={handleToggleLabel}
         setIsLabelsDropdownOpen={setIsLabelsDropdownOpen}
         setIsTaskDropdownOpen={setIsTaskDropdownOpen}
-      />
+      />,
     );
     const unattachedButton = screen.getByText("Feature").closest("button");
     fireEvent.click(unattachedButton);
     expect(handleToggleLabel).toHaveBeenCalledWith(
-      expect.objectContaining({ title: "Feature", color: "#00ff00" })
+      expect.objectContaining({ title: "Feature", color: "#00ff00" }),
     );
     expect(setIsLabelsDropdownOpen).toHaveBeenCalledWith(false);
     expect(setIsTaskDropdownOpen).toHaveBeenCalledWith(null);
@@ -249,7 +249,7 @@ describe("LabelsDropdown", () => {
         setIsLabelsDropdownOpen={setIsLabelsDropdownOpen}
         setIsTaskDropdownOpen={setIsTaskDropdownOpen}
         maxHeight="200px"
-      />
+      />,
     );
     const dropdownContainer = document.querySelector(".nested-dropdown-menu");
     expect(dropdownContainer).toBeInTheDocument();

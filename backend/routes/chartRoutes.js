@@ -13,7 +13,7 @@ router.post("/chart-preferences", async (req, res) => {
     const updatedPrefs = await User.findOneAndUpdate(
       { userId },
       { chartPreferences: preferences },
-      { upsert: true, new: true, runValidators: true }
+      { upsert: true, new: true, runValidators: true },
     );
     res.json(updatedPrefs);
   } catch (error) {

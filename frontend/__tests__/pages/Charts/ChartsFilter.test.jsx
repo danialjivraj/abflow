@@ -110,7 +110,7 @@ describe("computeDateRange", () => {
     });
     expect(startDate).toBeInstanceOf(Date);
     expect(startDate.getTime()).toBe(
-      new Date("2020-01-01T10:00:00.000Z").getTime()
+      new Date("2020-01-01T10:00:00.000Z").getTime(),
     );
     expect(endDate.getTime()).toBeLessThanOrEqual(Date.now());
   });
@@ -165,7 +165,7 @@ describe("applyAllFilters", () => {
       [activeTask, outOfRangeTask],
       startDate,
       endDate,
-      baseFilters
+      baseFilters,
     );
     expect(filtered).toHaveLength(1);
     expect(filtered[0]._id).toBe(activeTask._id);
@@ -185,7 +185,7 @@ describe("applyAllFilters", () => {
       [completedTask, incompleteTask],
       startDate,
       endDate,
-      filters
+      filters,
     );
     expect(filtered).toHaveLength(1);
     expect(filtered[0]._id).toBe(completedTask._id);
@@ -205,7 +205,7 @@ describe("applyAllFilters", () => {
       [activeTask, completedTask],
       startDate,
       endDate,
-      filters
+      filters,
     );
     expect(filtered).toHaveLength(2);
   });
@@ -222,7 +222,7 @@ describe("applyAllFilters", () => {
       [futureTask, pastTask],
       startDate,
       endDate,
-      filters
+      filters,
     );
     if (new Date(futureTask.dueDate) >= new Date()) {
       expect(filtered).toEqual([futureTask]);
@@ -243,7 +243,7 @@ describe("applyAllFilters", () => {
       [pastTask, futureTask],
       startDate,
       endDate,
-      filters
+      filters,
     );
     if (new Date(pastTask.dueDate) < new Date()) {
       expect(filtered).toEqual([pastTask]);
@@ -266,7 +266,7 @@ describe("applyAllFilters", () => {
       [overdueTask, noDueTask],
       startDate,
       endDate,
-      filters
+      filters,
     );
     expect(filtered).toEqual([overdueTask]);
   });
@@ -279,7 +279,7 @@ describe("applyAllFilters", () => {
       [noDueTask, withDueTask],
       startDate,
       endDate,
-      filters
+      filters,
     );
     expect(filtered).toHaveLength(1);
     expect(filtered[0].dueDate).toBeTruthy();
@@ -293,7 +293,7 @@ describe("applyAllFilters", () => {
       [taskA1, taskB2],
       startDate,
       endDate,
-      filters
+      filters,
     );
     expect(filtered).toHaveLength(1);
     expect(filtered[0].priority).toBe("A1");
@@ -307,7 +307,7 @@ describe("applyAllFilters", () => {
       [mondayTask, tuesdayTask],
       startDate,
       endDate,
-      filters
+      filters,
     );
     expect(filtered).toHaveLength(1);
     expect(format(new Date(filtered[0].createdAt), "EEEE")).toBe("Monday");
@@ -321,7 +321,7 @@ describe("applyAllFilters", () => {
       [taskJohn, taskJane],
       startDate,
       endDate,
-      filters
+      filters,
     );
     expect(filtered).toHaveLength(1);
     expect(filtered[0].assignedTo).toBe("John Doe");
@@ -335,7 +335,7 @@ describe("applyAllFilters", () => {
       [taskLow, taskHigh],
       startDate,
       endDate,
-      filters
+      filters,
     );
     expect(filtered).toHaveLength(1);
     expect(filtered[0].storyPoints).toBe(8);
@@ -353,7 +353,7 @@ describe("applyAllFilters", () => {
       [taskLong, taskShort],
       startDate,
       endDate,
-      filtersSeconds
+      filtersSeconds,
     );
     expect(filteredSeconds).toHaveLength(1);
     expect(filteredSeconds[0].timeSpent).toBe(3600);
@@ -367,7 +367,7 @@ describe("applyAllFilters", () => {
       [taskLong, taskShort],
       startDate,
       endDate,
-      filtersMinutes
+      filtersMinutes,
     );
     expect(filteredMinutes).toHaveLength(1);
     expect(filteredMinutes[0].timeSpent).toBe(3600);
@@ -383,7 +383,7 @@ describe("applyAllFilters", () => {
       [scheduledTask, unscheduledTask],
       startDate,
       endDate,
-      filters
+      filters,
     );
     expect(filtered).toHaveLength(1);
     expect(filtered[0].scheduledStart).toBeTruthy();
@@ -419,7 +419,7 @@ describe("applyAllFilters", () => {
         [taskWithNoDue, taskWithDue],
         startDate,
         endDate,
-        filters
+        filters,
       );
       expect(filtered).toHaveLength(1);
       expect(filtered[0].dueDate).toBeTruthy();
@@ -539,7 +539,7 @@ describe("applyAllFilters", () => {
         [boundaryStartTask, boundaryEndTask],
         startDate,
         endDate,
-        baseFilters
+        baseFilters,
       );
       expect(filtered).toHaveLength(2);
     });
@@ -625,7 +625,7 @@ describe("groupTasks", () => {
     const grouped = groupTasks([activeTask, completedTask], filters);
     const statuses = grouped.map((g) => g.key);
     expect(statuses).toEqual(
-      expect.arrayContaining(["In Progress", "Completed"])
+      expect.arrayContaining(["In Progress", "Completed"]),
     );
   });
 
@@ -695,7 +695,7 @@ describe("groupTasks", () => {
         "Friday",
         "Saturday",
         "Sunday",
-      ])
+      ]),
     );
   });
 
@@ -871,11 +871,11 @@ describe("Simulated Minimum Task Count Filtering (Post Grouping)", () => {
     ];
     const minTaskCount = 3;
     const filteredGroups = groupedData.filter(
-      (item) => item.count >= minTaskCount
+      (item) => item.count >= minTaskCount,
     );
     expect(filteredGroups).toHaveLength(2);
     expect(filteredGroups.map((item) => item.key)).toEqual(
-      expect.arrayContaining(["Group1", "Group3"])
+      expect.arrayContaining(["Group1", "Group3"]),
     );
   });
 });

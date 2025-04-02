@@ -46,7 +46,7 @@ const NotificationsDropdown = ({ notifications, onClose }) => {
       try {
         await updateNotification(notif._id, { read: true });
         setNotifications((prev) =>
-          prev.map((n) => (n._id === notif._id ? { ...n, read: true } : n))
+          prev.map((n) => (n._id === notif._id ? { ...n, read: true } : n)),
         );
       } catch (error) {
         console.error("Error marking notification as read:", error);
@@ -67,7 +67,7 @@ const NotificationsDropdown = ({ notifications, onClose }) => {
     setExpandedIds((prev) =>
       prev.includes(notificationId)
         ? prev.filter((id) => id !== notificationId)
-        : [...prev, notificationId]
+        : [...prev, notificationId],
     );
   };
 
@@ -97,7 +97,7 @@ const NotificationsDropdown = ({ notifications, onClose }) => {
                     return { ...notif, read: true };
                   }
                   return notif;
-                })
+                }),
               );
               setNotifications(updatedNotifications);
             }}

@@ -73,11 +73,11 @@ describe("Settings component", () => {
           element={<Settings updateDefaultDashboardView={jest.fn()} />}
         />
       </Routes>,
-      { wrapper: AllProviders }
+      { wrapper: AllProviders },
     );
     expect(screen.getByText("Loading settings...")).toBeInTheDocument();
     await waitForElementToBeRemoved(() =>
-      screen.queryByText("Loading settings...")
+      screen.queryByText("Loading settings..."),
     );
     const heading = await screen.findByRole("heading", {
       name: "Productivity & UX",
@@ -93,10 +93,10 @@ describe("Settings component", () => {
           element={<Settings updateDefaultDashboardView={jest.fn()} />}
         />
       </Routes>,
-      { wrapper: AllProviders }
+      { wrapper: AllProviders },
     );
     await waitForElementToBeRemoved(() =>
-      screen.queryByText("Loading settings...")
+      screen.queryByText("Loading settings..."),
     );
     await screen.findByRole("heading", { name: "Productivity & UX" });
 
@@ -125,14 +125,16 @@ describe("Settings component", () => {
         <Route
           path="/settings/:section/*"
           element={
-            <Settings updateDefaultDashboardView={updateDefaultDashboardViewMock} />
+            <Settings
+              updateDefaultDashboardView={updateDefaultDashboardViewMock}
+            />
           }
         />
       </Routes>,
-      { wrapper: AllProviders }
+      { wrapper: AllProviders },
     );
     await waitForElementToBeRemoved(() =>
-      screen.queryByText("Loading settings...")
+      screen.queryByText("Loading settings..."),
     );
     await screen.findByRole("heading", { name: "Productivity & UX" });
 
@@ -177,7 +179,7 @@ describe("Settings component", () => {
             </NotificationsContext.Provider>
           </MemoryRouter>
         ),
-      }
+      },
     );
     const heading = await screen.findByRole("heading", {
       name: "Productivity & UX",
@@ -201,7 +203,7 @@ describe("Settings component", () => {
             </NotificationsContext.Provider>
           </MemoryRouter>
         ),
-      }
+      },
     );
     const heading = await screen.findByRole("heading", {
       name: "Productivity & UX",
@@ -217,7 +219,7 @@ describe("Settings component", () => {
           element={<Settings updateDefaultDashboardView={jest.fn()} />}
         />
       </Routes>,
-      { wrapper: AllProviders }
+      { wrapper: AllProviders },
     );
     const schedulingTab = await screen.findByText("Scheduling");
     userEvent.click(schedulingTab);
@@ -234,10 +236,10 @@ describe("Settings component", () => {
           element={<Settings updateDefaultDashboardView={jest.fn()} />}
         />
       </Routes>,
-      { wrapper: AllProviders }
+      { wrapper: AllProviders },
     );
     await waitForElementToBeRemoved(() =>
-      screen.queryByText("Loading settings...")
+      screen.queryByText("Loading settings..."),
     );
     const boardSelect = screen.getByRole("combobox", {
       name: "Default Dashboard View",
@@ -263,10 +265,10 @@ describe("Settings component", () => {
           element={<Settings updateDefaultDashboardView={jest.fn()} />}
         />
       </Routes>,
-      { wrapper: AllProviders }
+      { wrapper: AllProviders },
     );
     await waitForElementToBeRemoved(() =>
-      screen.queryByText("Loading settings...")
+      screen.queryByText("Loading settings..."),
     );
     const boardSelect = screen.getByRole("combobox", {
       name: "Default Dashboard View",
@@ -296,10 +298,10 @@ describe("Settings component", () => {
           element={<Settings updateDefaultDashboardView={jest.fn()} />}
         />
       </Routes>,
-      { wrapper: AllProviders }
+      { wrapper: AllProviders },
     );
     await waitForElementToBeRemoved(() =>
-      screen.queryByText("Loading settings...")
+      screen.queryByText("Loading settings..."),
     );
     const saveButton = screen.getByRole("button", { name: "Save Settings" });
     expect(saveButton).toBeDisabled();
@@ -314,10 +316,10 @@ describe("Settings component", () => {
           element={<Settings updateDefaultDashboardView={jest.fn()} />}
         />
       </Routes>,
-      { wrapper: AllProviders }
+      { wrapper: AllProviders },
     );
     await waitForElementToBeRemoved(() =>
-      screen.queryByText("Loading settings...")
+      screen.queryByText("Loading settings..."),
     );
 
     const boardSelect = screen.getByRole("combobox", {
@@ -354,10 +356,10 @@ describe("Settings component", () => {
             </NotificationsContext.Provider>
           </MemoryRouter>
         ),
-      }
+      },
     );
     await waitForElementToBeRemoved(() =>
-      screen.queryByText("Loading settings...")
+      screen.queryByText("Loading settings..."),
     );
     const hideLabelCheckbox = screen.getByLabelText("Hide Label Text");
     expect(hideLabelCheckbox).not.toBeChecked();

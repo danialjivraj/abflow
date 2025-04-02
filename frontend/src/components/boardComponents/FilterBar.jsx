@@ -210,8 +210,8 @@ const FilterBar = ({
                 {filters.timerRunning === true
                   ? "Timer: On"
                   : filters.timerRunning === false
-                  ? "Timer: Off"
-                  : "Timer"}
+                    ? "Timer: Off"
+                    : "Timer"}
               </div>
               {timerDropdownOpen && (
                 <div className="filter-dropdown-options">
@@ -258,8 +258,8 @@ const FilterBar = ({
                 {filters.today === true
                   ? "Calendar: Today"
                   : filters.today === false
-                  ? "Calendar: Not Today"
-                  : "Calendar"}
+                    ? "Calendar: Not Today"
+                    : "Calendar"}
               </div>
               {calendarDropdownOpen && (
                 <div className="filter-dropdown-options">
@@ -305,10 +305,10 @@ const FilterBar = ({
               {filters.dueStatus === "due"
                 ? "Due Status: Due"
                 : filters.dueStatus === "overdue"
-                ? "Due Status: Overdue"
-                : filters.dueStatus === "none"
-                ? "Due Status: No Due Date"
-                : "Due Status"}
+                  ? "Due Status: Overdue"
+                  : filters.dueStatus === "none"
+                    ? "Due Status: No Due Date"
+                    : "Due Status"}
             </div>
             {dueStatusDropdownOpen && (
               <div className="filter-dropdown-options">

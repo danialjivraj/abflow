@@ -135,7 +135,7 @@ const InlineTimeEditable = ({ value, onChange, onEditingChange, readOnly }) => {
               setLocalHours(
                 isNaN(parseInt(e.target.value, 10))
                   ? 0
-                  : parseInt(e.target.value, 10)
+                  : parseInt(e.target.value, 10),
               );
             }}
             onKeyDown={(e) => {
@@ -477,7 +477,7 @@ const ViewTaskModal = ({
   const calendarColor = getCalendarIconColor(
     editableTask.scheduledStart,
     editableTask.scheduledEnd,
-    new Date()
+    new Date(),
   );
 
   const handleOverlayClick = (e) => {
@@ -487,7 +487,7 @@ const ViewTaskModal = ({
     ) {
       if (editingCount > 0) {
         const confirmClose = window.confirm(
-          "You have unsaved edits. Are you sure you want to close?"
+          "You have unsaved edits. Are you sure you want to close?",
         );
         if (confirmClose) {
           closeModal();
@@ -542,7 +542,7 @@ const ViewTaskModal = ({
             return [...prevCompleted, updatedTask];
           }
           return prevCompleted.map((t) =>
-            t._id === updatedTask._id ? updatedTask : t
+            t._id === updatedTask._id ? updatedTask : t,
           );
         });
       }
@@ -605,7 +605,7 @@ const ViewTaskModal = ({
     return calculateTotalTimeSpent(
       editableTask.timeSpent,
       editableTask.isTimerRunning,
-      editableTask.timerStartTime
+      editableTask.timerStartTime,
     );
   };
 
@@ -616,7 +616,7 @@ const ViewTaskModal = ({
     const boardTasks = columns[newStatus]?.items || [];
     const highestOrder = boardTasks.reduce(
       (max, t) => Math.max(max, t.order || 0),
-      -1
+      -1,
     );
     const newOrder = highestOrder + 1;
 
@@ -651,7 +651,7 @@ const ViewTaskModal = ({
     if (editableTask.status === "completed" && editableTask.completedAt) {
       dueStatusText = formatCompletedDueDate(
         editableTask.dueDate,
-        editableTask.completedAt
+        editableTask.completedAt,
       );
       const due = new Date(editableTask.dueDate);
       const completed = new Date(editableTask.completedAt);
@@ -840,30 +840,30 @@ const ViewTaskModal = ({
             </div>
 
             {!readOnly && (
-            <div className="field-row">
-              <label>Labels:</label>
-              <div className="create-task-labels-dropdown-container">
-                <div
-                  className="selected-labels-display"
-                  onClick={() =>
-                    setIsLabelsDropdownOpen(!isLabelsDropdownOpen)
-                  }
-                >
-                  Click to see labels
-                </div>
-                {isLabelsDropdownOpen && (
-                  <LabelsDropdown
-                    task={editableTask}
-                    availableLabels={availableLabels}
-                    handleToggleLabel={handleToggleLabel}
-                    setIsLabelsDropdownOpen={() =>
-                      setIsLabelsDropdownOpen(false)
+              <div className="field-row">
+                <label>Labels:</label>
+                <div className="create-task-labels-dropdown-container">
+                  <div
+                    className="selected-labels-display"
+                    onClick={() =>
+                      setIsLabelsDropdownOpen(!isLabelsDropdownOpen)
                     }
-                    setIsTaskDropdownOpen={noop}
-                  />
-                )}
+                  >
+                    Click to see labels
+                  </div>
+                  {isLabelsDropdownOpen && (
+                    <LabelsDropdown
+                      task={editableTask}
+                      availableLabels={availableLabels}
+                      handleToggleLabel={handleToggleLabel}
+                      setIsLabelsDropdownOpen={() =>
+                        setIsLabelsDropdownOpen(false)
+                      }
+                      setIsTaskDropdownOpen={noop}
+                    />
+                  )}
+                </div>
               </div>
-            </div>
             )}
 
             <div className="field-row">

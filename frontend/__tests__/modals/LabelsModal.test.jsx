@@ -84,14 +84,14 @@ describe("LabelsModal - Unit Tests", () => {
 
     it("should cancel editing and reset edit state when Cancel is clicked", async () => {
       const { container } = render(
-        <LabelsModalWrapper initialLabels={[initialLabel]} />
+        <LabelsModalWrapper initialLabels={[initialLabel]} />,
       );
       const editButton = container.querySelector(".edit-btn");
       userEvent.click(editButton);
 
       const leftColumnHeading = container.querySelector(".add-label-column h3");
       await waitFor(() =>
-        expect(leftColumnHeading.textContent).toBe("Edit Label Color")
+        expect(leftColumnHeading.textContent).toBe("Edit Label Color"),
       );
 
       const cancelEditButton = screen.getByRole("button", { name: "Cancel" });
@@ -122,7 +122,7 @@ describe("LabelsModal - Unit Tests", () => {
         expect(updateLabelOrder).toHaveBeenCalledWith("user1", [
           { _id: "label2", title: "Label 2", color: "#f57c00", order: 0 },
           { _id: "label1", title: "Label 1", color: "#ff4d4d", order: 1 },
-        ])
+        ]),
       );
     });
   });
@@ -136,7 +136,7 @@ describe("LabelsModal - Unit Tests", () => {
     it("should call closeModal when overlay is clicked", async () => {
       const closeModalMock = jest.fn();
       const { container } = render(
-        <LabelsModalWrapper closeModal={closeModalMock} />
+        <LabelsModalWrapper closeModal={closeModalMock} />,
       );
       const overlay = container.querySelector(".modal-overlay");
       userEvent.click(overlay);
@@ -148,7 +148,7 @@ describe("LabelsModal - Unit Tests", () => {
     it("should update active color when a preset is clicked", async () => {
       render(<LabelsModalWrapper />);
       const selectedCircleBefore = document.querySelector(
-        ".color-circle.selected"
+        ".color-circle.selected",
       );
       expect(selectedCircleBefore).toHaveStyle({
         backgroundColor: "rgb(211, 47, 47)",
@@ -158,7 +158,7 @@ describe("LabelsModal - Unit Tests", () => {
       userEvent.click(circles[2]);
       await waitFor(() => {
         const selectedCircleAfter = document.querySelector(
-          ".color-circle.selected"
+          ".color-circle.selected",
         );
         expect(selectedCircleAfter).not.toHaveStyle({
           backgroundColor: "rgb(255, 77, 77)",
@@ -206,10 +206,10 @@ describe("LabelsModal - Integration Tests", () => {
         expect(createLabel).toHaveBeenCalledWith("user1", {
           title: "Test Label",
           color: "#d32f2f",
-        })
+        }),
       );
       await waitFor(() =>
-        expect(toast.success).toHaveBeenCalledWith("Label created!")
+        expect(toast.success).toHaveBeenCalledWith("Label created!"),
       );
       expect(screen.getByPlaceholderText("Label name").value).toBe("");
     });
@@ -230,10 +230,10 @@ describe("LabelsModal - Integration Tests", () => {
         expect(createLabel).toHaveBeenCalledWith("user1", {
           title: "Enter Label",
           color: "#d32f2f",
-        })
+        }),
       );
       await waitFor(() =>
-        expect(toast.success).toHaveBeenCalledWith("Label created!")
+        expect(toast.success).toHaveBeenCalledWith("Label created!"),
       );
       expect(screen.getByPlaceholderText("Label name").value).toBe("");
     });
@@ -250,7 +250,7 @@ describe("LabelsModal - Integration Tests", () => {
       userEvent.click(addButton);
 
       await waitFor(() =>
-        expect(toast.error).toHaveBeenCalledWith("Error creating label!")
+        expect(toast.error).toHaveBeenCalledWith("Error creating label!"),
       );
     });
 
@@ -280,7 +280,7 @@ describe("LabelsModal - Integration Tests", () => {
         data: { _id: "label1", title: "Updated Label", color: "#f57c00" },
       });
       const { container } = render(
-        <LabelsModalWrapper initialLabels={[initialLabel]} />
+        <LabelsModalWrapper initialLabels={[initialLabel]} />,
       );
 
       const editButton = container.querySelector(".edit-btn");
@@ -300,17 +300,17 @@ describe("LabelsModal - Integration Tests", () => {
         expect(updateLabel).toHaveBeenCalledWith("user1", "label1", {
           title: "Updated Label",
           color: "#f57c00",
-        })
+        }),
       );
       await waitFor(() =>
-        expect(toast.success).toHaveBeenCalledWith("Label updated!")
+        expect(toast.success).toHaveBeenCalledWith("Label updated!"),
       );
     });
 
     it("should fail to update a label and display an error toast", async () => {
       updateLabel.mockRejectedValueOnce(new Error("Update failed"));
       const { container } = render(
-        <LabelsModalWrapper initialLabels={[initialLabel]} />
+        <LabelsModalWrapper initialLabels={[initialLabel]} />,
       );
 
       const editButton = container.querySelector(".edit-btn");
@@ -324,7 +324,7 @@ describe("LabelsModal - Integration Tests", () => {
       userEvent.click(saveButton);
 
       await waitFor(() =>
-        expect(toast.error).toHaveBeenCalledWith("Error updating label!")
+        expect(toast.error).toHaveBeenCalledWith("Error updating label!"),
       );
     });
   });
@@ -339,31 +339,31 @@ describe("LabelsModal - Integration Tests", () => {
     it("should successfully delete a label and display a success toast", async () => {
       deleteLabel.mockResolvedValueOnce({});
       const { container } = render(
-        <LabelsModalWrapper initialLabels={[initialLabel]} />
+        <LabelsModalWrapper initialLabels={[initialLabel]} />,
       );
 
       const deleteButton = container.querySelector(".delete-btn");
       userEvent.click(deleteButton);
 
       await waitFor(() =>
-        expect(deleteLabel).toHaveBeenCalledWith("user1", "label1")
+        expect(deleteLabel).toHaveBeenCalledWith("user1", "label1"),
       );
       await waitFor(() =>
-        expect(toast.success).toHaveBeenCalledWith("Label deleted!")
+        expect(toast.success).toHaveBeenCalledWith("Label deleted!"),
       );
     });
 
     it("should fail to delete a label and display an error toast", async () => {
       deleteLabel.mockRejectedValueOnce(new Error("Delete failed"));
       const { container } = render(
-        <LabelsModalWrapper initialLabels={[initialLabel]} />
+        <LabelsModalWrapper initialLabels={[initialLabel]} />,
       );
 
       const deleteButton = container.querySelector(".delete-btn");
       userEvent.click(deleteButton);
 
       await waitFor(() =>
-        expect(toast.error).toHaveBeenCalledWith("Error deleting label!")
+        expect(toast.error).toHaveBeenCalledWith("Error deleting label!"),
       );
     });
   });

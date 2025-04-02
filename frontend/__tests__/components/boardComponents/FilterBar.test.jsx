@@ -4,7 +4,7 @@ import FilterBar from "../../../src/components/boardComponents/FilterBar";
 const renderFilterBar = (
   initialFilters = {},
   setFilters = jest.fn(),
-  extraProps = {}
+  extraProps = {},
 ) => {
   const defaultFilters = {
     taskName: "",
@@ -23,7 +23,7 @@ const renderFilterBar = (
       filters={{ ...defaultFilters, ...initialFilters }}
       setFilters={setFilters}
       {...extraProps}
-    />
+    />,
   );
 };
 
@@ -64,7 +64,7 @@ describe("FilterBar - Integration Tests", () => {
     const taskInput = screen.getByPlaceholderText("Task");
     fireEvent.change(taskInput, { target: { value: "Test Task" } });
     expect(setFilters).toHaveBeenCalledWith(
-      expect.objectContaining({ taskName: "Test Task" })
+      expect.objectContaining({ taskName: "Test Task" }),
     );
   });
 
@@ -169,59 +169,61 @@ describe("FilterBar - Integration Tests", () => {
     const dropdownHeaders = screen.getAllByTestId("dropdown-header");
     expect(dropdownHeaders[1].textContent).toBe("Labels");
   });
-  
+
   test("updates Labels multi-select filter when an option is toggled", async () => {
     let filters = { labels: [] };
     const setFilters = jest.fn((updater) => {
       filters = typeof updater === "function" ? updater(filters) : updater;
     });
-  
+
     renderFilterBar(filters, setFilters, {
       availableLabels: [
         { title: "Bug", color: "#ff0000" },
         { title: "Feature", color: "#00ff00" },
       ],
     });
-  
+
     fireEvent.click(screen.getByTestId("filter-toggle-btn"));
     const dropdownHeaders = screen.getAllByTestId("dropdown-header");
     const labelsHeader = dropdownHeaders[1];
     fireEvent.click(labelsHeader);
-  
+
     const bugCheckbox = screen.getByLabelText(/Bug/i);
     fireEvent.click(bugCheckbox);
-  
+
     await waitFor(() => {
       const lastCall = setFilters.mock.calls.at(-1)[0];
-      const newFilters = typeof lastCall === "function" ? lastCall(filters) : lastCall;
+      const newFilters =
+        typeof lastCall === "function" ? lastCall(filters) : lastCall;
       expect(newFilters).toEqual(expect.objectContaining({ labels: ["Bug"] }));
     });
   });
-  
+
   test("clears Labels multi-select filter with Clear All button", async () => {
     let filters = { labels: ["Bug", "Feature"] };
     const setFilters = jest.fn((updater) => {
       filters = typeof updater === "function" ? updater(filters) : updater;
     });
-  
+
     renderFilterBar(filters, setFilters, {
       availableLabels: [
         { title: "Bug", color: "#ff0000" },
         { title: "Feature", color: "#00ff00" },
       ],
     });
-  
+
     fireEvent.click(screen.getByTestId("filter-toggle-btn"));
     const dropdownHeaders = screen.getAllByTestId("dropdown-header");
     const labelsHeader = dropdownHeaders[1];
     fireEvent.click(labelsHeader);
-  
+
     const clearAllBtn = screen.getByText("Clear All");
     fireEvent.click(clearAllBtn);
-  
+
     await waitFor(() => {
       const lastCall = setFilters.mock.calls.at(-1)[0];
-      const newFilters = typeof lastCall === "function" ? lastCall(filters) : lastCall;
+      const newFilters =
+        typeof lastCall === "function" ? lastCall(filters) : lastCall;
       expect(newFilters).toEqual(expect.objectContaining({ labels: [] }));
     });
   });

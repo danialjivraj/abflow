@@ -79,7 +79,7 @@ describe("CompletedTasks Component", () => {
     fireEvent.click(screen.getByText("Day"));
     expect(screen.getByText("22/03/2025")).toBeInTheDocument();
     expect(
-      screen.queryByText("17/03/2025 - 23/03/2025")
+      screen.queryByText("17/03/2025 - 23/03/2025"),
     ).not.toBeInTheDocument();
   });
 

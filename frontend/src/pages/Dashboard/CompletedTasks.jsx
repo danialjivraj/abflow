@@ -66,7 +66,7 @@ const groupTasksByFilter = (tasks, filter) => {
     key,
     sortDate: groups[key].sortDate,
     tasks: groups[key].tasks.sort(
-      (a, b) => new Date(b.completedAt) - new Date(a.completedAt)
+      (a, b) => new Date(b.completedAt) - new Date(a.completedAt),
     ),
   }));
 
@@ -142,7 +142,7 @@ const CompletedTasks = ({
       if (filters.labels && filters.labels.length > 0) {
         const taskLabelTitles = task.labels?.map((label) => label.title) || [];
         const matchesAll = filters.labels.every((filterLabel) =>
-          taskLabelTitles.includes(filterLabel)
+          taskLabelTitles.includes(filterLabel),
         );
         if (!matchesAll) return false;
       }
@@ -213,7 +213,7 @@ const CompletedTasks = ({
   };
 
   const filteredTasks = filterCompletedTasks(
-    tasksAfterDateFilter.filter((task) => task.completedAt)
+    tasksAfterDateFilter.filter((task) => task.completedAt),
   );
 
   const groupedTasks = groupTasksByFilter(filteredTasks, activeFilter);

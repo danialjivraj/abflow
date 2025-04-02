@@ -97,7 +97,7 @@ const LabelsModal = ({ isOpen, closeModal, labels, setLabels, userId }) => {
       });
 
       const updatedList = labels.map((lbl, i) =>
-        i === index ? response.data : lbl
+        i === index ? response.data : lbl,
       );
       setLabels(updatedList);
 
@@ -150,7 +150,7 @@ const LabelsModal = ({ isOpen, closeModal, labels, setLabels, userId }) => {
   const handleOverlayClick = () => {
     if (editingLabelIndex !== null) {
       const confirmClose = window.confirm(
-        "You have unsaved changes. Are you sure you want to close?"
+        "You have unsaved changes. Are you sure you want to close?",
       );
       if (!confirmClose) {
         return;

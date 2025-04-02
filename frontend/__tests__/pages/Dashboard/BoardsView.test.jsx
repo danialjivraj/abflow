@@ -6,7 +6,7 @@ import { createBaseTask } from "../../../_testUtils/createBaseTask";
 
 jest.mock("../../../src/components/boardComponents/Column", () => (props) => {
   const hasTable = props.columnData.items.some(
-    (task) => task.description && task.description.includes("<table>")
+    (task) => task.description && task.description.includes("<table>"),
   );
   return (
     <div data-testid="column" data-column-name={props.columnData.name}>
@@ -35,7 +35,9 @@ const fakeColumns = {
   },
   "column-2": {
     ...createBaseColumn({ columnId: "column-2", name: "Column Two", order: 1 }),
-    items: [createBaseTask({ _id: "task-3", title: "Task 3", status: "column-2" })],
+    items: [
+      createBaseTask({ _id: "task-3", title: "Task 3", status: "column-2" }),
+    ],
   },
 };
 
@@ -79,14 +81,14 @@ const defaultProps = {
 describe("BoardsView Component", () => {
   test("renders heading, columns and AddBoard component", () => {
     render(<BoardsView {...defaultProps} />);
-    
+
     expect(screen.getByText("Boards")).toBeInTheDocument();
-    
+
     const columns = screen.getAllByTestId("column");
     expect(columns.length).toBe(2);
     expect(columns[0].getAttribute("data-column-name")).toBe("Column One");
     expect(columns[1].getAttribute("data-column-name")).toBe("Column Two");
-    
+
     expect(screen.getByTestId("add-board")).toBeInTheDocument();
   });
 
@@ -100,7 +102,11 @@ describe("BoardsView Component", () => {
   test("renders no task elements when a column has an empty items array", () => {
     const columnsEmptyTasks = {
       "column-1": {
-        ...createBaseColumn({ columnId: "column-1", name: "Column One", order: 0 }),
+        ...createBaseColumn({
+          columnId: "column-1",
+          name: "Column One",
+          order: 0,
+        }),
         items: [],
       },
     };
@@ -113,14 +119,14 @@ describe("BoardsView Component", () => {
   test("calls handleDragEnd correctly when a column drag-drop occurs", () => {
     const handleDragEndMock = defaultProps.handleDragEnd;
     render(<BoardsView {...defaultProps} />);
-    
+
     const fakeDragResult = {
       draggableId: "column-1",
       type: "COLUMN",
       source: { droppableId: "all-columns", index: 0 },
       destination: { droppableId: "all-columns", index: 1 },
     };
-    
+
     handleDragEndMock(fakeDragResult);
     expect(handleDragEndMock).toHaveBeenCalledWith(fakeDragResult);
   });
@@ -128,14 +134,14 @@ describe("BoardsView Component", () => {
   test("calls handleDragEnd correctly when a task drag-drop occurs", () => {
     const handleDragEndMock = defaultProps.handleDragEnd;
     render(<BoardsView {...defaultProps} />);
-    
+
     const fakeTaskDragResult = {
       draggableId: "task-1",
       type: "TASK",
       source: { droppableId: "column-1", index: 0 },
       destination: { droppableId: "column-2", index: 0 },
     };
-    
+
     handleDragEndMock(fakeTaskDragResult);
     expect(handleDragEndMock).toHaveBeenCalledWith(fakeTaskDragResult);
   });
@@ -143,7 +149,11 @@ describe("BoardsView Component", () => {
   test("renders table-related buttons when a table is present", async () => {
     const columnsWithTable = {
       "column-1": {
-        ...createBaseColumn({ columnId: "column-1", name: "Column One", order: 0 }),
+        ...createBaseColumn({
+          columnId: "column-1",
+          name: "Column One",
+          order: 0,
+        }),
         items: [
           createBaseTask({
             _id: "task-1",

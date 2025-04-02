@@ -121,7 +121,7 @@ describe("Preferences Routes", () => {
           compStartDate: "2020-01-01T00:00:00.000Z",
           compEndDate: "2020-12-31T23:59:59.000Z",
           customStartDate: "2021-01-01T00:00:00.000Z",
-          customEndDate: "2021-12-31T23:59:59.000Z"
+          customEndDate: "2021-12-31T23:59:59.000Z",
         };
 
         const res = await request(app)
@@ -181,7 +181,7 @@ describe("Preferences Routes", () => {
       themeAccent: "Green",
       themeAccentCustom: "",
       topbarAccent: "Blue",
-      topbarAccentCustom: ""
+      topbarAccentCustom: "",
     };
 
     // ---------------------------
@@ -225,7 +225,10 @@ describe("Preferences Routes", () => {
       });
 
       it("should return 500 when invalid settingsPreferences data is provided", async () => {
-        const invalidSettings = { ...newSettings, defaultPriority: "invalidPriority" };
+        const invalidSettings = {
+          ...newSettings,
+          defaultPriority: "invalidPriority",
+        };
 
         const res = await request(app)
           .put(`/api/preferences/${defaultUser.userId}`)

@@ -1,4 +1,3 @@
-
 const TaskLabels = ({ labels, hideLabelText, truncateLength }) => {
   if (!labels || labels.length === 0) return null;
 
@@ -18,7 +17,8 @@ const TaskLabels = ({ labels, hideLabelText, truncateLength }) => {
           );
         }
 
-        const shouldTruncate = truncateLength && titleText.length > truncateLength;
+        const shouldTruncate =
+          truncateLength && titleText.length > truncateLength;
         const displayedTitle = shouldTruncate
           ? titleText.slice(0, truncateLength) + "..."
           : titleText;

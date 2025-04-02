@@ -83,7 +83,7 @@ describe("TiptapEditor Component - Additional Tests", () => {
     const handleChange = jest.fn();
     render(<TiptapEditor value="<p>Hello</p>" onChange={handleChange} />);
     await waitFor(() =>
-      expect(document.querySelector(".ProseMirror")).toBeInTheDocument()
+      expect(document.querySelector(".ProseMirror")).toBeInTheDocument(),
     );
 
     const emojiButton = screen.getByTitle("Insert Emoji");
@@ -103,7 +103,7 @@ describe("TiptapEditor Component - Additional Tests", () => {
     const handleChange = jest.fn();
     render(<TiptapEditor value="<p>Hello</p>" onChange={handleChange} />);
     await waitFor(() =>
-      expect(document.querySelector(".ProseMirror")).toBeInTheDocument()
+      expect(document.querySelector(".ProseMirror")).toBeInTheDocument(),
     );
 
     const undoBtn = screen.getByTitle("Undo");

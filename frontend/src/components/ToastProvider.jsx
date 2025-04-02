@@ -5,7 +5,7 @@ import "react-toastify/dist/ReactToastify.css";
 const ToastProvider = ({ darkMode }) => {
   useEffect(() => {
     const containers = document.querySelectorAll(".Toastify");
-    containers.forEach(container => {
+    containers.forEach((container) => {
       container.setAttribute("data-theme", darkMode ? "dark" : "light");
     });
   }, [darkMode]);

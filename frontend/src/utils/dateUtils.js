@@ -8,9 +8,10 @@
 export const formatDueDate = (dueDate, currentTime) => {
   const due = new Date(dueDate);
   const diffInMs = due - currentTime;
-  
+
   const formatValue = (value, singular, plural) => {
-    const formatted = value === Math.floor(value) ? Math.floor(value) : value.toFixed(1);
+    const formatted =
+      value === Math.floor(value) ? Math.floor(value) : value.toFixed(1);
     const num = formatted.toString().replace(/\.0$/, "");
     return `${num} ${num === "1" ? singular : plural}`;
   };
@@ -23,7 +24,15 @@ export const formatDueDate = (dueDate, currentTime) => {
     const diffInWeeks = diffInDays / 7;
     const diffInMonths = diffInDays / 30;
     const diffInYears = diffInDays / 365;
-    return { diffInSeconds, diffInMinutes, diffInHours, diffInDays, diffInWeeks, diffInMonths, diffInYears };
+    return {
+      diffInSeconds,
+      diffInMinutes,
+      diffInHours,
+      diffInDays,
+      diffInWeeks,
+      diffInMonths,
+      diffInYears,
+    };
   };
 
   const generateText = (diffValues, prefix) => {
@@ -46,7 +55,10 @@ export const formatDueDate = (dueDate, currentTime) => {
 
   if (diffInMs < 0) {
     return {
-      text: generateText(calculateTimeDifference(Math.abs(diffInMs)), "Overdue by"),
+      text: generateText(
+        calculateTimeDifference(Math.abs(diffInMs)),
+        "Overdue by",
+      ),
       isOverdue: true,
     };
   }
@@ -92,7 +104,11 @@ export const formatTimeSpent = (totalSeconds) => {
  * @param {string} timerStartTime - The ISO string representing when the timer started.
  * @returns {number} - The total time spent in seconds.
  */
-export const calculateTotalTimeSpent = (timeSpent, isTimerRunning, timerStartTime) => {
+export const calculateTotalTimeSpent = (
+  timeSpent,
+  isTimerRunning,
+  timerStartTime,
+) => {
   const backendTimeSpent = timeSpent || 0;
   const frontendElapsedTime = isTimerRunning
     ? Math.floor((new Date() - new Date(timerStartTime)) / 1000)
@@ -109,14 +125,19 @@ export const calculateTotalTimeSpent = (timeSpent, isTimerRunning, timerStartTim
  */
 export const formatDateWithoutGMT = (dateValue) => {
   if (!dateValue) return "";
-  const dateObj = typeof dateValue === "string" ? new Date(dateValue) : dateValue;
+  const dateObj =
+    typeof dateValue === "string" ? new Date(dateValue) : dateValue;
   if (isNaN(dateObj)) return "";
-  
+
   const day = dateObj.getDate();
   const month = dateObj.toLocaleString("en-GB", { month: "long" });
   const year = dateObj.getFullYear();
-  const time = dateObj.toLocaleString("en-GB", { hour: "numeric", minute: "2-digit", hour12: true });
-  
+  const time = dateObj.toLocaleString("en-GB", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+
   return `${day} ${month}, ${year} at ${time}`;
 };
 
@@ -138,14 +159,15 @@ export const formatCompletedDueDate = (dueDate, completedAt) => {
   const diffInMs = completed - due;
 
   if (Math.abs(diffInMs) < 1000) {
-    return `Completed on ${completed.toLocaleDateString('en-GB')} (On time)`;
+    return `Completed on ${completed.toLocaleDateString("en-GB")} (On time)`;
   }
 
   const absDiffInMs = Math.abs(diffInMs);
   const diffInSeconds = absDiffInMs / 1000;
 
   const formatValue = (value, singular, plural) => {
-    const formatted = value === Math.floor(value) ? Math.floor(value) : value.toFixed(1);
+    const formatted =
+      value === Math.floor(value) ? Math.floor(value) : value.toFixed(1);
     const num = formatted.toString().replace(/\.0$/, "");
     return `${num} ${num === "1" ? singular : plural}`;
   };
@@ -183,7 +205,7 @@ export const formatCompletedDueDate = (dueDate, completedAt) => {
     }
   }
 
-  const formattedCompletedDate = completed.toLocaleDateString('en-GB');
+  const formattedCompletedDate = completed.toLocaleDateString("en-GB");
 
   if (diffInMs > 0) {
     return `Completed on ${formattedCompletedDate} (Late by ${timeText})`;
@@ -220,7 +242,11 @@ function isSameDay(date1, date2) {
  * @param {Date} currentTime - Current date/time
  * @returns {string|null} - A color string if the icon should be displayed, or null if it shouldn't.
  */
-export function getCalendarIconColor(scheduledStart, scheduledEnd, currentTime) {
+export function getCalendarIconColor(
+  scheduledStart,
+  scheduledEnd,
+  currentTime,
+) {
   if (!scheduledStart || !scheduledEnd) return null; // not scheduled => no icon
 
   const start = new Date(scheduledStart);
@@ -262,7 +288,7 @@ export const formatTimeSpentInHours = (totalSeconds) => {
  *
  * @param {number} value - The numeric value (e.g. seconds) to be formatted.
  * @param {string} metric - The metric type (e.g. "timeSpent").
- * @returns {string|number} - Returns a formatted string (e.g. "3.50h") if metric is timeSpent, 
+ * @returns {string|number} - Returns a formatted string (e.g. "3.50h") if metric is timeSpent,
  *                            or the original value for other metrics.
  */
 export const formatToHoursIfTimeSpent = (value, metric) => {

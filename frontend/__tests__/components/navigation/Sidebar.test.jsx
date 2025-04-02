@@ -31,7 +31,7 @@ describe("Sidebar Component", () => {
     render(
       <MemoryRouter>
         <Sidebar />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
     expect(screen.getByText("ABFlow")).toBeInTheDocument();
   });
@@ -40,7 +40,7 @@ describe("Sidebar Component", () => {
     render(
       <MemoryRouter initialEntries={["/dashboard"]}>
         <Sidebar />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
     expect(screen.getByText("Dashboard")).toHaveClass("active");
     expect(screen.getByText("Charts")).not.toHaveClass("active");
@@ -51,7 +51,7 @@ describe("Sidebar Component", () => {
     render(
       <MemoryRouter initialEntries={["/charts/some"]}>
         <Sidebar />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
     expect(screen.getByText("Charts")).toHaveClass("active");
     expect(screen.getByText("Dashboard")).not.toHaveClass("active");
@@ -62,7 +62,7 @@ describe("Sidebar Component", () => {
     render(
       <MemoryRouter initialEntries={["/profile"]}>
         <Sidebar />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
     expect(screen.getByText("Profile")).toHaveClass("active");
     expect(screen.getByText("Dashboard")).not.toHaveClass("active");
@@ -73,7 +73,7 @@ describe("Sidebar Component", () => {
     render(
       <MemoryRouter>
         <Sidebar />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
     fireEvent.click(screen.getByText("Dashboard"));
     expect(mockNavigate).toHaveBeenCalledWith("/dashboard");
@@ -83,7 +83,7 @@ describe("Sidebar Component", () => {
     render(
       <MemoryRouter>
         <Sidebar />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
     fireEvent.click(screen.getByText("Charts"));
     expect(mockNavigate).toHaveBeenCalledWith("/charts");
@@ -93,7 +93,7 @@ describe("Sidebar Component", () => {
     render(
       <MemoryRouter>
         <Sidebar />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
     fireEvent.click(screen.getByText("Profile"));
     expect(mockNavigate).toHaveBeenCalledWith("/profile");
@@ -103,7 +103,7 @@ describe("Sidebar Component", () => {
     render(
       <MemoryRouter>
         <Sidebar />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
     fireEvent.click(screen.getByText("Logout"));
     fireEvent.click(screen.getByText("Yes"));

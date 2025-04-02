@@ -67,12 +67,12 @@ const TaskCard = ({
 
   const handleToggleLabel = async (label) => {
     const isAttached = task.labels.some(
-      (l) => l.title === label.title && l.color === label.color
+      (l) => l.title === label.title && l.color === label.color,
     );
     let newLabels;
     if (isAttached) {
       newLabels = task.labels.filter(
-        (l) => !(l.title === label.title && l.color === label.color)
+        (l) => !(l.title === label.title && l.color === label.color),
       );
     } else {
       newLabels = [...task.labels, label];
@@ -112,7 +112,7 @@ const TaskCard = ({
   const calendarColor = getCalendarIconColor(
     task.scheduledStart,
     task.scheduledEnd,
-    currentTime
+    currentTime,
   );
 
   const cardContent = (
@@ -181,7 +181,7 @@ const TaskCard = ({
               onClick={(e) => {
                 e.stopPropagation();
                 setIsTaskDropdownOpen(
-                  isTaskDropdownOpen === task._id ? null : task._id
+                  isTaskDropdownOpen === task._id ? null : task._id,
                 );
               }}
             >

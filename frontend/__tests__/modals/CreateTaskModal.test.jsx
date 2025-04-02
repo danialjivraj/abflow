@@ -67,7 +67,7 @@ describe("CreateTaskModal Unit Tests", () => {
 
   test("does not render when isModalOpen is false", () => {
     const { container } = render(
-      <CreateTaskModal {...defaultProps} isModalOpen={false} />
+      <CreateTaskModal {...defaultProps} isModalOpen={false} />,
     );
     expect(container.firstChild).toBeNull();
   });
@@ -93,7 +93,7 @@ test("opens with the default task priority from user settings and updates when c
   const { rerender } = render(
     <TestWrapper
       defaultPriority={baseUser.settingsPreferences.defaultPriority}
-    />
+    />,
   );
   await waitFor(() => {
     expect(screen.getByDisplayValue("B2")).toBeInTheDocument();
@@ -103,7 +103,7 @@ test("opens with the default task priority from user settings and updates when c
   rerender(
     <TestWrapper
       defaultPriority={baseUser.settingsPreferences.defaultPriority}
-    />
+    />,
   );
   await waitFor(() => {
     expect(screen.getByDisplayValue("D")).toBeInTheDocument();
@@ -124,8 +124,8 @@ describe("CreateTaskModal Integration Tests", () => {
       render(<CreateTaskModal {...defaultProps} columns={{}} />);
       expect(
         screen.getByText(
-          "You need to create a board before you can create tasks."
-        )
+          "You need to create a board before you can create tasks.",
+        ),
       ).toBeInTheDocument();
       const boardNameInput = screen.getByPlaceholderText("Enter board name");
       expect(boardNameInput).toBeInTheDocument();
@@ -153,10 +153,10 @@ describe("CreateTaskModal Integration Tests", () => {
           isModalOpen={true}
           newBoardCreateName="Some Board"
           columns={{}}
-        />
+        />,
       );
       expect(screen.getByPlaceholderText("Enter board name").value).toBe(
-        "Some Board"
+        "Some Board",
       );
       // Closing the modal
       rerender(
@@ -165,7 +165,7 @@ describe("CreateTaskModal Integration Tests", () => {
           isModalOpen={false}
           newBoardCreateName="Some Board"
           columns={{}}
-        />
+        />,
       );
       // Reopen the modal
       rerender(
@@ -174,7 +174,7 @@ describe("CreateTaskModal Integration Tests", () => {
           isModalOpen={true}
           newBoardCreateName=""
           columns={{}}
-        />
+        />,
       );
       expect(screen.getByPlaceholderText("Enter board name").value).toBe("");
     });
@@ -198,12 +198,12 @@ describe("CreateTaskModal Integration Tests", () => {
         <CreateTaskModal
           {...defaultProps}
           columns={{ backlog: { ...baseColumn, items: [] } }}
-        />
+        />,
       );
       expect(screen.getByText("Create New Task")).toBeInTheDocument();
       expect(screen.getByText("Task Title:")).toBeInTheDocument();
       expect(
-        screen.getByPlaceholderText("Enter Task Title")
+        screen.getByPlaceholderText("Enter Task Title"),
       ).toBeInTheDocument();
       const allowedPriorities = [
         "A1",
@@ -220,7 +220,7 @@ describe("CreateTaskModal Integration Tests", () => {
       ];
       allowedPriorities.forEach((priority) => {
         expect(
-          screen.getByRole("option", { name: priority })
+          screen.getByRole("option", { name: priority }),
         ).toBeInTheDocument();
       });
       expect(screen.getByTestId("tiptap-editor")).toBeInTheDocument();
@@ -232,7 +232,7 @@ describe("CreateTaskModal Integration Tests", () => {
           {...defaultProps}
           columns={{ backlog: { ...baseColumn, items: [] } }}
           newTaskTitle="Test Task"
-        />
+        />,
       );
       const createButton = screen.getByText("Create");
       fireEvent.click(createButton);
@@ -245,13 +245,13 @@ describe("CreateTaskModal Integration Tests", () => {
           {...defaultProps}
           columns={{ backlog: { ...baseColumn, items: [] } }}
           newTaskTitle=""
-        />
+        />,
       );
       const createButton = screen.getByText("Create");
       fireEvent.click(createButton);
       await waitFor(() => {
         expect(screen.getByRole("alert").textContent).toBe(
-          "Task Title is required."
+          "Task Title is required.",
         );
       });
     });
@@ -261,7 +261,7 @@ describe("CreateTaskModal Integration Tests", () => {
         <CreateTaskModal
           {...defaultProps}
           columns={{ backlog: { ...baseColumn, items: [] } }}
-        />
+        />,
       );
       const cancelButton = screen.getByText("Cancel");
       fireEvent.click(cancelButton);
@@ -273,7 +273,7 @@ describe("CreateTaskModal Integration Tests", () => {
         <CreateTaskModal
           {...defaultProps}
           columns={{ backlog: { ...baseColumn, items: [] } }}
-        />
+        />,
       );
       const closeXButton = screen.getByText("×");
       fireEvent.click(closeXButton);
@@ -289,7 +289,7 @@ describe("CreateTaskModal Integration Tests", () => {
           {...defaultProps}
           columns={{ backlog: { ...baseColumn, items: [] } }}
           newTaskTitle="Unsaved Task"
-        />
+        />,
       );
       const heading = screen.getByText("Create New Task");
       const overlay = heading.closest(".modal-overlay");
@@ -308,7 +308,7 @@ describe("CreateTaskModal Integration Tests", () => {
           {...defaultProps}
           columns={{ backlog: { ...baseColumn, items: [] } }}
           newTaskTitle="Unsaved Task"
-        />
+        />,
       );
       const heading = screen.getByText("Create New Task");
       const overlay = heading.closest(".modal-overlay");
@@ -324,7 +324,7 @@ describe("CreateTaskModal Integration Tests", () => {
           {...defaultProps}
           columns={{ backlog: { ...baseColumn, items: [] } }}
           setDueDateWarning={mockSetDueDateWarning}
-        />
+        />,
       );
       const dateInput = screen.getByPlaceholderText("Select due date");
       fireEvent.change(dateInput, {
@@ -342,7 +342,7 @@ describe("CreateTaskModal Integration Tests", () => {
           {...defaultProps}
           columns={{ backlog: { ...baseColumn, items: [] } }}
           setDueDateWarning={mockSetDueDateWarning}
-        />
+        />,
       );
       const dateInput = screen.getByPlaceholderText("Select due date");
       fireEvent.change(dateInput, {
@@ -358,12 +358,12 @@ describe("CreateTaskModal Integration Tests", () => {
         <CreateTaskModal
           {...defaultProps}
           columns={{ backlog: { ...baseColumn, items: [] } }}
-        />
+        />,
       );
       const updateButton = screen.getByText("Update Editor");
       fireEvent.click(updateButton);
       expect(defaultProps.setTaskDescription).toHaveBeenCalledWith(
-        "Updated description"
+        "Updated description",
       );
     });
 
@@ -372,7 +372,7 @@ describe("CreateTaskModal Integration Tests", () => {
         <CreateTaskModal
           {...defaultProps}
           columns={{ backlog: { ...baseColumn, items: [] } }}
-        />
+        />,
       );
       const taskTitleInput = screen.getByPlaceholderText("Enter Task Title");
       fireEvent.change(taskTitleInput, { target: { value: "New Title" } });
@@ -396,7 +396,7 @@ describe("CreateTaskModal Integration Tests", () => {
             inprogress: { name: "In Progress", items: [] },
           }}
           selectedStatus=""
-        />
+        />,
       );
       const statusSelect = screen
         .getAllByRole("combobox")
@@ -415,12 +415,12 @@ describe("CreateTaskModal Integration Tests", () => {
           taskDescription="Some description"
           storyPoints={5}
           dueDate={new Date("2000-01-01")}
-        />
+        />,
       );
       fireEvent.click(screen.getByText("Create"));
       await waitFor(() => {
         expect(screen.getByRole("alert").textContent).toBe(
-          "Task Title is required."
+          "Task Title is required.",
         );
       });
       rerender(
@@ -432,7 +432,7 @@ describe("CreateTaskModal Integration Tests", () => {
           taskDescription="Some description"
           storyPoints={5}
           dueDate={new Date("2000-01-01")}
-        />
+        />,
       );
       rerender(
         <CreateTaskModal
@@ -443,7 +443,7 @@ describe("CreateTaskModal Integration Tests", () => {
           taskDescription=""
           storyPoints={0}
           dueDate={null}
-        />
+        />,
       );
       expect(screen.getByPlaceholderText("Enter Task Title").value).toBe("");
       expect(screen.getByPlaceholderText("Assign to...").value).toBe("");
@@ -476,7 +476,7 @@ describe("CreateTaskModal Integration Tests", () => {
       });
       await waitFor(() => {
         expect(
-          screen.getByText("Warning: The selected due date is in the past.")
+          screen.getByText("Warning: The selected due date is in the past."),
         ).toBeInTheDocument();
       });
     });
@@ -490,7 +490,7 @@ describe("CreateTaskModal Integration Tests", () => {
             inprogress: { name: "In Progress", items: [] },
           }}
           selectedStatus="backlog"
-        />
+        />,
       );
       const statusSelect = screen
         .getAllByRole("combobox")
@@ -529,7 +529,7 @@ describe("CreateTaskModal Integration Tests", () => {
       fireEvent.click(urgentButton);
       expect(screen.getByText("Urgent")).toBeInTheDocument();
       const labelsContainer = document.querySelector(
-        ".selected-labels-display"
+        ".selected-labels-display",
       );
       fireEvent.click(labelsContainer);
       const urgentButtonAttached = screen.getByRole("button", {
@@ -547,7 +547,7 @@ describe("CreateTaskModal Integration Tests", () => {
       fireEvent.click(featureButton);
       expect(screen.getByText("Feature")).toBeInTheDocument();
       const labelsContainer = document.querySelector(
-        ".selected-labels-display"
+        ".selected-labels-display",
       );
       fireEvent.click(labelsContainer);
       const featureButtonAttached = screen.getByRole("button", {
@@ -562,7 +562,7 @@ describe("CreateTaskModal Integration Tests", () => {
       fireEvent.click(screen.getByText("Select Labels"));
       fireEvent.click(screen.getByRole("button", { name: "Urgent" }));
       const labelsContainer = document.querySelector(
-        ".selected-labels-display"
+        ".selected-labels-display",
       );
       fireEvent.click(labelsContainer);
       fireEvent.click(screen.getByRole("button", { name: "Feature" }));
@@ -588,7 +588,7 @@ describe("CreateTaskModal Toast Messages", () => {
         columns={{ backlog: { ...baseColumn, items: [] } }}
         newTaskTitle="Test Task"
         handleCreateTask={mockHandleCreateTask}
-      />
+      />,
     );
     const createButton = screen.getByText("Create");
     fireEvent.click(createButton);
@@ -609,14 +609,14 @@ describe("CreateTaskModal Toast Messages", () => {
         columns={{ backlog: { ...baseColumn, items: [] } }}
         newTaskTitle="Test Task"
         handleCreateTask={mockHandleCreateTask}
-      />
+      />,
     );
     const createButton = screen.getByText("Create");
     fireEvent.click(createButton);
     await waitFor(() => {
       expect(mockHandleCreateTask).toHaveBeenCalled();
       expect(toast.error).toHaveBeenCalledWith(
-        "An error occurred while creating the task."
+        "An error occurred while creating the task.",
       );
     });
   });

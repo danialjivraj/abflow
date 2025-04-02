@@ -21,7 +21,7 @@ describe("LogoutModal", () => {
   // =======================
   test("does not render the modal when isOpen is false", () => {
     const { container } = render(
-      <LogoutModal isOpen={false} onClose={onClose} />
+      <LogoutModal isOpen={false} onClose={onClose} />,
     );
     expect(container.firstChild).toBeNull();
   });
@@ -30,7 +30,7 @@ describe("LogoutModal", () => {
     render(<LogoutModal isOpen={true} onClose={onClose} />);
     expect(screen.getByText("Confirm Logout")).toBeInTheDocument();
     expect(
-      screen.getByText("Are you sure you want to log out?")
+      screen.getByText("Are you sure you want to log out?"),
     ).toBeInTheDocument();
   });
 

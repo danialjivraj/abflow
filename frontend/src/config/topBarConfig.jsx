@@ -1,15 +1,19 @@
-import { 
-  FiGrid, 
-  FiCalendar, 
-  FiCheckSquare, 
-  FiBarChart2, 
+import {
+  FiGrid,
+  FiCalendar,
+  FiCheckSquare,
+  FiBarChart2,
   FiPieChart,
   FiTag,
 } from "react-icons/fi";
 import { RiPentagonLine } from "react-icons/ri";
 import { FaSun, FaMoon, FaChartLine, FaChartArea } from "react-icons/fa";
 
-export const getDashboardTopBarConfig = (openModal, openLabelsModal, navigate) => [
+export const getDashboardTopBarConfig = (
+  openModal,
+  openLabelsModal,
+  navigate,
+) => [
   {
     label: "Boards",
     path: "/dashboard/boards",
@@ -82,8 +86,7 @@ export const getChartsTopBarConfig = (setChartType) => [
   },
 ];
 
-export const getProfileTopBarConfig = () => [
-];
+export const getProfileTopBarConfig = () => [];
 
 export const getSettingsTopBarConfig = (toggleDarkMode, isDarkMode) => [
   {

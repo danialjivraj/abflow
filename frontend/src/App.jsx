@@ -22,7 +22,10 @@ import {
 import "react-toastify/dist/ReactToastify.css";
 import ToastProvider from "./components/ToastProvider";
 
-const DefaultDashboardRedirect = ({ defaultDashboardView, preferencesLoaded }) => {
+const DefaultDashboardRedirect = ({
+  defaultDashboardView,
+  preferencesLoaded,
+}) => {
   if (!preferencesLoaded) return <p>Loading dashboard settings...</p>;
   return <Navigate to={`/dashboard/${defaultDashboardView}`} replace />;
 };
@@ -59,7 +62,7 @@ function App() {
     }
     document.documentElement.setAttribute(
       "data-theme",
-      storedDarkMode === "true" ? "dark" : "light"
+      storedDarkMode === "true" ? "dark" : "light",
     );
   }, []);
 
@@ -83,7 +86,7 @@ function App() {
             localStorage.setItem("darkMode", darkMode);
             document.documentElement.setAttribute(
               "data-theme",
-              darkMode ? "dark" : "light"
+              darkMode ? "dark" : "light",
             );
             setDefaultDashboardView(prefs.defaultDashboardView || "boards");
             setUserSettings((prev) => ({ ...prev, ...prefs }));
@@ -140,7 +143,7 @@ function App() {
     const activityEvents = ["mousemove", "keydown", "click", "scroll"];
 
     activityEvents.forEach((event) =>
-      window.addEventListener(event, resetTimer)
+      window.addEventListener(event, resetTimer),
     );
 
     resetTimer();
@@ -148,7 +151,7 @@ function App() {
     return () => {
       clearLogoutTimer();
       activityEvents.forEach((event) =>
-        window.removeEventListener(event, resetTimer)
+        window.removeEventListener(event, resetTimer),
       );
     };
   }, [
@@ -204,7 +207,9 @@ function App() {
             <Route
               path="/settings/:section/*"
               element={
-                <Settings updateDefaultDashboardView={setDefaultDashboardView} />
+                <Settings
+                  updateDefaultDashboardView={setDefaultDashboardView}
+                />
               }
             />
           </Route>

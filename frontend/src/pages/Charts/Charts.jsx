@@ -47,11 +47,11 @@ import MultiSelectDropdown from "../../utils/MultiSelectDropdown.jsx";
 import { toast } from "react-toastify";
 
 // Import filtering functions from ChartsFilter.jsx
-import { 
-  computeDateRange, 
-  applyAllFilters, 
-  groupTasks, 
-  mergeData 
+import {
+  computeDateRange,
+  applyAllFilters,
+  groupTasks,
+  mergeData,
 } from "./ChartsFilter";
 
 // -------------------- Options for multi-selects --------------------
@@ -327,7 +327,7 @@ const Charts = ({ userSettings }) => {
     ([colId, colName]) => ({
       value: colId,
       label: colName,
-    })
+    }),
   );
 
   // -------------------- Load Preferences from Backend --------------------
@@ -465,7 +465,12 @@ const Charts = ({ userSettings }) => {
 
     let newChartData;
     if (comparisonMode && compStartDate && compEndDate) {
-      const compFiltered = applyAllFilters(tasks, compStartDate, compEndDate, filters);
+      const compFiltered = applyAllFilters(
+        tasks,
+        compStartDate,
+        compEndDate,
+        filters,
+      );
       let compGrouped = groupTasks(compFiltered, {
         xAxisField,
         columnsMapping,
@@ -594,7 +599,7 @@ const Charts = ({ userSettings }) => {
       .filter((task) => {
         if (xAxisField === "day") {
           const d = new Date(
-            task.taskCompleted ? task.completedAt : task.createdAt
+            task.taskCompleted ? task.completedAt : task.createdAt,
           );
           return format(d, "EEEE") === groupKey;
         } else if (xAxisField === "priority") {
@@ -620,7 +625,7 @@ const Charts = ({ userSettings }) => {
         .filter((task) => {
           if (xAxisField === "day") {
             const d = new Date(
-              task.taskCompleted ? task.completedAt : task.createdAt
+              task.taskCompleted ? task.completedAt : task.createdAt,
             );
             return format(d, "EEEE") === groupKey;
           } else if (xAxisField === "priority") {
@@ -705,7 +710,7 @@ const Charts = ({ userSettings }) => {
       .filter((task) => {
         if (xAxisField === "day") {
           const d = new Date(
-            task.taskCompleted ? task.completedAt : task.createdAt
+            task.taskCompleted ? task.completedAt : task.createdAt,
           );
           return format(d, "EEEE") === clickedKey;
         } else if (xAxisField === "priority") {
@@ -731,7 +736,7 @@ const Charts = ({ userSettings }) => {
         .filter((task) => {
           if (xAxisField === "day") {
             const d = new Date(
-              task.taskCompleted ? task.completedAt : task.createdAt
+              task.taskCompleted ? task.completedAt : task.createdAt,
             );
             return format(d, "EEEE") === clickedKey;
           } else if (xAxisField === "priority") {
@@ -763,7 +768,7 @@ const Charts = ({ userSettings }) => {
     setIsViewTaskModalOpen(true);
     if (location.pathname.includes("/grouptasks") && groupKey) {
       navigate(
-        `/charts/grouptasks/${groupKey}/viewtask/${task._id}${location.search}`
+        `/charts/grouptasks/${groupKey}/viewtask/${task._id}${location.search}`,
       );
     } else {
       navigate(`/charts/viewtask/${task._id}${location.search}`);
@@ -1109,7 +1114,7 @@ const Charts = ({ userSettings }) => {
             onClick={(e) => {
               if (e.activeLabel) {
                 const dataPoint = chartData.find(
-                  (d) => d.key === e.activeLabel
+                  (d) => d.key === e.activeLabel,
                 );
                 if (dataPoint) {
                   handleChartClick({ payload: dataPoint });

@@ -1,6 +1,12 @@
 import { useState, useRef, useEffect } from "react";
 
-function MultiSelectDropdown({ label, options, selectedOptions, onChange, fallbackText }) {
+function MultiSelectDropdown({
+  label,
+  options,
+  selectedOptions,
+  onChange,
+  fallbackText,
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -22,8 +28,11 @@ function MultiSelectDropdown({ label, options, selectedOptions, onChange, fallba
     }
   };
 
-  const selectedObjects = options.filter((opt) => selectedOptions.includes(opt.value));
-  const fallback = typeof fallbackText !== "undefined" ? fallbackText : label || "All";
+  const selectedObjects = options.filter((opt) =>
+    selectedOptions.includes(opt.value),
+  );
+  const fallback =
+    typeof fallbackText !== "undefined" ? fallbackText : label || "All";
 
   return (
     <div className="multi-select-dropdown" ref={dropdownRef}>

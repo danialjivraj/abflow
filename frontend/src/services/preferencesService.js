@@ -38,5 +38,7 @@ export const fetchSettingsPreferences = (userId) => {
  * @returns {Promise} Axios PUT request
  */
 export const updateSettingsPreferences = (userId, preferences) => {
-  return axios.put(`${API_URL}/${userId}`, { settingsPreferences: preferences });
+  return axios.put(`${API_URL}/${userId}`, {
+    settingsPreferences: preferences,
+  });
 };

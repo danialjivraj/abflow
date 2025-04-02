@@ -42,24 +42,24 @@ describe("Notification Routes", () => {
     it("should fetch all notifications for a user", async () => {
       const currentDate = new Date();
       await Notification.insertMany([
-        { 
-          userId: defaultUser.userId, 
-          message: "Notification 1", 
-          read: false, 
-          createdAt: new Date(currentDate.getTime() - 1000)
+        {
+          userId: defaultUser.userId,
+          message: "Notification 1",
+          read: false,
+          createdAt: new Date(currentDate.getTime() - 1000),
         },
-        { 
-          userId: defaultUser.userId, 
-          message: "Notification 2", 
-          read: true, 
-          createdAt: currentDate
+        {
+          userId: defaultUser.userId,
+          message: "Notification 2",
+          read: true,
+          createdAt: currentDate,
         },
       ]);
-    
+
       const res = await request(app)
         .get(`/api/notifications/${defaultUser.userId}`)
         .expect(200);
-    
+
       expect(res.body.notifications).toHaveLength(2);
       expect(res.body.notifications[0].message).toBe("Notification 2");
       expect(res.body.notifications[1].message).toBe("Notification 1");
@@ -174,28 +174,28 @@ describe("Notification Routes", () => {
         userId: defaultUser.userId,
         message: "Test Notification",
       };
-  
+
       const res = await request(app)
         .post("/api/notifications")
         .send(notificationData)
         .expect(200);
-  
+
       expect(res.body.notification.soundPlayed).toBe(false);
     });
-  
+
     it("should update the soundPlayed field", async () => {
       // Create a notification with the default soundPlayed (false)
       const notification = await Notification.create({
         userId: defaultUser.userId,
         message: "Test Notification",
       });
-  
+
       // Update the notification's soundPlayed field to true
       const res = await request(app)
         .patch(`/api/notifications/${notification._id}`)
         .send({ soundPlayed: true })
         .expect(200);
-  
+
       expect(res.body.notification.soundPlayed).toBe(true);
     });
   });

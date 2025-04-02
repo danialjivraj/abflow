@@ -35,7 +35,7 @@ jest.mock("../../../src/services/tasksService", () => ({
         scheduledStart: "2025-03-22T14:00:00.000Z",
         scheduledEnd: "2025-03-22T15:00:00.000Z",
       },
-    })
+    }),
   ),
   updateTaskSchedule: jest.fn(() =>
     Promise.resolve({
@@ -46,7 +46,7 @@ jest.mock("../../../src/services/tasksService", () => ({
         scheduledStart: "2025-03-22T12:00:00.000Z",
         scheduledEnd: "2025-03-22T13:00:00.000Z",
       },
-    })
+    }),
   ),
 }));
 
@@ -67,7 +67,7 @@ jest.mock("react-big-calendar/lib/addons/dragAndDrop", () => {
             props.events.map((event) => {
               const duration = moment(event.end).diff(
                 moment(event.start),
-                "minutes"
+                "minutes",
               );
               return (
                 <div key={event.id} data-testid="calendar-event">
@@ -204,7 +204,7 @@ function TestWrapper({ initialTasks }) {
   const [tasks, setTasks] = React.useState(initialTasks);
   const handleUpdateTaskInState = (updatedTask) => {
     setTasks((prev) =>
-      prev.map((task) => (task._id === updatedTask._id ? updatedTask : task))
+      prev.map((task) => (task._id === updatedTask._id ? updatedTask : task)),
     );
   };
   return (
@@ -238,13 +238,13 @@ describe("ScheduleView - Unit Tests", () => {
         tasks={tasks}
         updateTaskInState={dummyUpdateTaskInState}
         onCreateTaskShortcut={dummyOnCreateTaskShortcut}
-      />
+      />,
     );
     fireEvent.click(screen.getByText("Trigger Valid Event Drop"));
 
     await waitFor(() => {
       expect(
-        require("../../../src/services/tasksService").updateTaskSchedule
+        require("../../../src/services/tasksService").updateTaskSchedule,
       ).toHaveBeenCalledWith(scheduledTask._id, {
         scheduledStart: "2025-03-22T12:00:00.000Z",
         scheduledEnd: "2025-03-22T13:00:00.000Z",
@@ -268,16 +268,16 @@ describe("ScheduleView - Unit Tests", () => {
         tasks={tasks}
         updateTaskInState={dummyUpdateTaskInState}
         onCreateTaskShortcut={dummyOnCreateTaskShortcut}
-      />
+      />,
     );
     fireEvent.click(screen.getByText("Trigger Invalid Multi-day Drop"));
 
     await waitFor(() => {
       expect(console.warn).toHaveBeenCalledWith(
-        "Drop results in a multi-day event; ignoring drop."
+        "Drop results in a multi-day event; ignoring drop.",
       );
       expect(
-        require("../../../src/services/tasksService").updateTaskSchedule
+        require("../../../src/services/tasksService").updateTaskSchedule,
       ).not.toHaveBeenCalled();
     });
     consoleWarnSpy.mockRestore();
@@ -292,16 +292,16 @@ describe("ScheduleView - Unit Tests", () => {
         tasks={tasks}
         updateTaskInState={dummyUpdateTaskInState}
         onCreateTaskShortcut={dummyOnCreateTaskShortcut}
-      />
+      />,
     );
     fireEvent.click(screen.getByText("Trigger Invalid Same Time Drop"));
 
     await waitFor(() => {
       expect(console.warn).toHaveBeenCalledWith(
-        "Drop results in an event with the same start and end time; ignoring drop."
+        "Drop results in an event with the same start and end time; ignoring drop.",
       );
       expect(
-        require("../../../src/services/tasksService").updateTaskSchedule
+        require("../../../src/services/tasksService").updateTaskSchedule,
       ).not.toHaveBeenCalled();
     });
     consoleWarnSpy.mockRestore();
@@ -313,13 +313,13 @@ describe("ScheduleView - Unit Tests", () => {
         tasks={tasks}
         updateTaskInState={dummyUpdateTaskInState}
         onCreateTaskShortcut={dummyOnCreateTaskShortcut}
-      />
+      />,
     );
     fireEvent.click(screen.getByText("Trigger Valid Event Resize"));
 
     await waitFor(() => {
       expect(
-        require("../../../src/services/tasksService").updateTaskSchedule
+        require("../../../src/services/tasksService").updateTaskSchedule,
       ).toHaveBeenCalledWith(scheduledTask._id, {
         scheduledStart: "2025-03-22T12:00:00.000Z",
         scheduledEnd: "2025-03-22T13:00:00.000Z",
@@ -343,16 +343,16 @@ describe("ScheduleView - Unit Tests", () => {
         tasks={tasks}
         updateTaskInState={dummyUpdateTaskInState}
         onCreateTaskShortcut={dummyOnCreateTaskShortcut}
-      />
+      />,
     );
     fireEvent.click(screen.getByText("Trigger Invalid Event Resize"));
 
     await waitFor(() => {
       expect(console.warn).toHaveBeenCalledWith(
-        "Resize results in a multi-day event; ignoring resize."
+        "Resize results in a multi-day event; ignoring resize.",
       );
       expect(
-        require("../../../src/services/tasksService").updateTaskSchedule
+        require("../../../src/services/tasksService").updateTaskSchedule,
       ).not.toHaveBeenCalled();
     });
     consoleWarnSpy.mockRestore();
@@ -364,7 +364,7 @@ describe("ScheduleView - Unit Tests", () => {
         tasks={tasks}
         updateTaskInState={dummyUpdateTaskInState}
         onCreateTaskShortcut={dummyOnCreateTaskShortcut}
-      />
+      />,
     );
     fireEvent.click(screen.getByRole("button", { name: "Unscheduled Tasks" }));
     const unscheduledTaskItem = screen.getByText("Unscheduled Task");
@@ -375,7 +375,7 @@ describe("ScheduleView - Unit Tests", () => {
 
     await waitFor(() => {
       expect(
-        require("../../../src/services/tasksService").updateTask
+        require("../../../src/services/tasksService").updateTask,
       ).toHaveBeenCalledWith({
         ...unscheduledTask,
         scheduledStart: "2025-03-22T14:00:00.000Z",
@@ -398,7 +398,7 @@ describe("ScheduleView - Unit Tests", () => {
         tasks={tasks}
         updateTaskInState={dummyUpdateTaskInState}
         onCreateTaskShortcut={dummyOnCreateTaskShortcut}
-      />
+      />,
     );
     fireEvent.click(screen.getByRole("button", { name: "Unscheduled Tasks" }));
     const unscheduledTaskItem = screen.getByText("Unscheduled Task");
@@ -409,10 +409,10 @@ describe("ScheduleView - Unit Tests", () => {
 
     await waitFor(() => {
       expect(console.warn).toHaveBeenCalledWith(
-        "Drop from outside results in a multi-day event; ignoring drop."
+        "Drop from outside results in a multi-day event; ignoring drop.",
       );
       expect(
-        require("../../../src/services/tasksService").updateTask
+        require("../../../src/services/tasksService").updateTask,
       ).not.toHaveBeenCalled();
     });
     consoleWarnSpy.mockRestore();
@@ -424,12 +424,12 @@ describe("ScheduleView - Unit Tests", () => {
         tasks={tasks}
         updateTaskInState={dummyUpdateTaskInState}
         onCreateTaskShortcut={dummyOnCreateTaskShortcut}
-      />
+      />,
     );
     fireEvent.click(screen.getByText("Trigger Slot Selection (Week)"));
     expect(dummyOnCreateTaskShortcut).toHaveBeenCalledWith(
       new Date("2025-03-22T16:00:00.000Z"),
-      new Date("2025-03-22T17:00:00.000Z")
+      new Date("2025-03-22T17:00:00.000Z"),
     );
   });
 
@@ -439,7 +439,7 @@ describe("ScheduleView - Unit Tests", () => {
         tasks={tasks}
         updateTaskInState={dummyUpdateTaskInState}
         onCreateTaskShortcut={dummyOnCreateTaskShortcut}
-      />
+      />,
     );
     fireEvent.click(screen.getByText("Set Month View"));
     fireEvent.click(screen.getByText("Trigger Slot Selection (Month)"));
@@ -462,7 +462,7 @@ describe("ScheduleView - Unit Tests", () => {
         tasks={tasks}
         updateTaskInState={() => {}}
         onCreateTaskShortcut={() => {}}
-      />
+      />,
     );
 
     const eventElements = screen.queryAllByTestId("calendar-event");
@@ -487,7 +487,7 @@ describe("ScheduleView - Unit Tests", () => {
         tasks={tasks}
         updateTaskInState={() => {}}
         onCreateTaskShortcut={() => {}}
-      />
+      />,
     );
 
     const eventElements = screen.queryAllByTestId("calendar-event");
@@ -522,7 +522,7 @@ describe("ScheduleView - Integration Tests", () => {
 
     await waitFor(() => {
       expect(
-        require("../../../src/services/tasksService").updateTask
+        require("../../../src/services/tasksService").updateTask,
       ).toHaveBeenCalledWith({
         ...unscheduledTask,
         scheduledStart: "2025-03-22T14:00:00.000Z",
@@ -554,7 +554,7 @@ describe("ScheduleView - Integration Tests", () => {
         tasks={tasks}
         updateTaskInState={() => {}}
         onCreateTaskShortcut={conditionalOnCreateTaskShortcut}
-      />
+      />,
     );
 
     fireEvent.click(screen.getByText("Trigger Slot Selection (Week)"));

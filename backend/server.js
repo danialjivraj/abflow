@@ -16,7 +16,7 @@ const chartRoutes = require("./routes/chartRoutes");
 const profileRoutes = require("./routes/profileRoutes");
 const preferencesRoutes = require("./routes/preferencesRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
-const labelsRoutes = require('./routes/labelsRoutes');
+const labelsRoutes = require("./routes/labelsRoutes");
 
 const app = express();
 app.use(cors());
@@ -33,7 +33,7 @@ app.use("/api/charts", chartRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/preferences", preferencesRoutes);
 app.use("/api/notifications", notificationRoutes);
-app.use('/api/labels', labelsRoutes);
+app.use("/api/labels", labelsRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));

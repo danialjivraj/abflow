@@ -22,7 +22,7 @@ describe("DeleteConfirmationModal", () => {
     // General Rendering Tests
     test("does not render when isOpen is false", () => {
       const { container } = render(
-        <DeleteConfirmationModal {...defaultProps} isOpen={false} />
+        <DeleteConfirmationModal {...defaultProps} isOpen={false} />,
       );
       expect(container.firstChild).toBeNull();
     });
@@ -41,10 +41,10 @@ describe("DeleteConfirmationModal", () => {
           {...defaultProps}
           entityType="task"
           entityName="Test Task"
-        />
+        />,
       );
       const messageElement = container.querySelector(
-        ".delete-confirmation-text"
+        ".delete-confirmation-text",
       );
       expect(messageElement.innerHTML).toBe(expectedMessage);
     });
@@ -58,10 +58,10 @@ describe("DeleteConfirmationModal", () => {
           entityType="column"
           entityName="Test Board"
           hasTasks={false}
-        />
+        />,
       );
       const messageElement = container.querySelector(
-        ".delete-confirmation-text"
+        ".delete-confirmation-text",
       );
       expect(messageElement.innerHTML).toBe(expectedMessage);
     });
@@ -75,10 +75,10 @@ describe("DeleteConfirmationModal", () => {
           entityType="column"
           entityName="Test Board"
           hasTasks={true}
-        />
+        />,
       );
       const messageElement = container.querySelector(
-        ".delete-confirmation-text"
+        ".delete-confirmation-text",
       );
       expect(messageElement.innerHTML).toBe(expectedMessage);
     });
@@ -91,7 +91,7 @@ describe("DeleteConfirmationModal", () => {
     // Overlay and Close Button Tests
     test("calls onClose when clicking on the overlay", () => {
       const { container } = render(
-        <DeleteConfirmationModal {...defaultProps} />
+        <DeleteConfirmationModal {...defaultProps} />,
       );
       const overlay = container.querySelector(".modal-overlay");
       fireEvent.click(overlay);

@@ -31,7 +31,7 @@ const renderWithContext = (ui, { notifications = [] } = {}) => {
   return render(
     <NotificationsContext.Provider value={{ notifications }}>
       <MemoryRouter>{ui}</MemoryRouter>
-    </NotificationsContext.Provider>
+    </NotificationsContext.Provider>,
   );
 };
 
@@ -48,7 +48,7 @@ describe("TopBar Component", () => {
         openModal={dummyOpenModal}
         navigate={dummyNavigate}
         activeChartType={"chartTwo"}
-      />
+      />,
     );
     expect(screen.getByText("Button One")).toBeInTheDocument();
     expect(screen.getByText("Button Two")).toBeInTheDocument();
@@ -65,7 +65,7 @@ describe("TopBar Component", () => {
             activeChartType={null}
           />
         </MemoryRouter>
-      </NotificationsContext.Provider>
+      </NotificationsContext.Provider>,
     );
     const buttonOne = screen.getByText("Button One");
     expect(buttonOne).toHaveClass("active");
@@ -78,7 +78,7 @@ describe("TopBar Component", () => {
         openModal={dummyOpenModal}
         navigate={dummyNavigate}
         activeChartType={"chartTwo"}
-      />
+      />,
     );
     const buttonTwo = screen.getByText("Button Two");
     expect(buttonTwo).toHaveClass("active");
@@ -91,7 +91,7 @@ describe("TopBar Component", () => {
         openModal={dummyOpenModal}
         navigate={dummyNavigate}
         activeChartType={null}
-      />
+      />,
     );
     const buttonOne = screen.getByText("Button One");
     fireEvent.click(buttonOne);
@@ -112,24 +112,26 @@ describe("TopBar Component", () => {
         navigate={dummyNavigate}
         activeChartType={null}
       />,
-      { notifications }
+      { notifications },
     );
-    const container = screen.getByText((content, node) =>
-      node.classList && node.classList.contains("notifications-container")
+    const container = screen.getByText(
+      (content, node) =>
+        node.classList && node.classList.contains("notifications-container"),
     );
-    const notifBtn = container.querySelector("button.top-bar-button.notification-button");
-  
+    const notifBtn = container.querySelector(
+      "button.top-bar-button.notification-button",
+    );
+
     expect(screen.queryByText("Notification 1")).toBeNull();
     expect(screen.queryByText("Notification 2")).toBeNull();
     expect(screen.queryByText("Notification 3")).toBeNull();
-  
+
     fireEvent.click(notifBtn);
-  
+
     expect(screen.getByText("Notification 1")).toBeInTheDocument();
     expect(screen.getByText("Notification 2")).toBeInTheDocument();
     expect(screen.getByText("Notification 3")).toBeInTheDocument();
   });
-  
 
   test("renders notifications count as 99+ when unread count exceeds 99", () => {
     const notifications = Array.from({ length: 101 }, (_, i) => ({
@@ -144,14 +146,16 @@ describe("TopBar Component", () => {
         navigate={dummyNavigate}
         activeChartType={null}
       />,
-      { notifications }
+      { notifications },
     );
     expect(screen.getByText("99")).toBeInTheDocument();
     expect(screen.getByText("+")).toBeInTheDocument();
   });
 
   test("toggles notifications dropdown when notifications button is clicked", () => {
-    const notifications = [{ id: 1, read: false, message: "Test notification" }];
+    const notifications = [
+      { id: 1, read: false, message: "Test notification" },
+    ];
     renderWithContext(
       <TopBar
         buttons={buttons}
@@ -159,19 +163,25 @@ describe("TopBar Component", () => {
         navigate={dummyNavigate}
         activeChartType={null}
       />,
-      { notifications }
+      { notifications },
     );
     const container = screen.getByText((content, node) => {
-      return node.classList && node.classList.contains("notifications-container");
+      return (
+        node.classList && node.classList.contains("notifications-container")
+      );
     });
-    const notifBtn = container.querySelector("button.top-bar-button.notification-button");
+    const notifBtn = container.querySelector(
+      "button.top-bar-button.notification-button",
+    );
     expect(screen.queryByText("Test notification")).toBeNull();
     fireEvent.click(notifBtn);
     expect(screen.getByText("Test notification")).toBeInTheDocument();
   });
 
   test("closes notifications dropdown when clicking outside", () => {
-    const notifications = [{ id: 1, read: false, message: "Test notification" }];
+    const notifications = [
+      { id: 1, read: false, message: "Test notification" },
+    ];
     renderWithContext(
       <TopBar
         buttons={buttons}
@@ -179,12 +189,16 @@ describe("TopBar Component", () => {
         navigate={dummyNavigate}
         activeChartType={null}
       />,
-      { notifications }
+      { notifications },
     );
     const container = screen.getByText((content, node) => {
-      return node.classList && node.classList.contains("notifications-container");
+      return (
+        node.classList && node.classList.contains("notifications-container")
+      );
     });
-    const notifBtn = container.querySelector("button.top-bar-button.notification-button");
+    const notifBtn = container.querySelector(
+      "button.top-bar-button.notification-button",
+    );
     fireEvent.click(notifBtn);
     expect(screen.getByText("Test notification")).toBeInTheDocument();
     fireEvent.mouseDown(document);

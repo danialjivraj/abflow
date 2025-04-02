@@ -40,8 +40,8 @@ export const deleteBoard = (userId, columnId) => {
  * @returns {Promise} Axios GET request that resolves with the user's column data.
  */
 export const fetchColumnOrder = (userId) => {
-    return axios.get(`${API_URL}/order/${userId}`);
-  };
+  return axios.get(`${API_URL}/order/${userId}`);
+};
 
 /**
  * Save the updated order of columns for a user.

@@ -37,7 +37,8 @@ const generateScheduledNotifications = async (userId, now) => {
   let notifications = [];
 
   const user = await User.findOne({ userId });
-  const notifyMinutes = user?.settingsPreferences?.notifyScheduledTaskIsDue || 5;
+  const notifyMinutes =
+    user?.settingsPreferences?.notifyScheduledTaskIsDue || 5;
   const thresholdMs = notifyMinutes * 60 * 1000;
 
   for (const task of tasks) {
@@ -56,7 +57,7 @@ const generateScheduledNotifications = async (userId, now) => {
           if (
             !task.lastNotifiedScheduledStart ||
             new Date(task.lastNotifiedScheduledStart).toISOString() !==
-            scheduledStart.toISOString()
+              scheduledStart.toISOString()
           ) {
             const scheduledTime = formatTime12Hour(scheduledStart);
             const plural = remainingMinutes !== 1 ? "s" : "";
@@ -96,7 +97,8 @@ const generateUpcomingNotifications = async (userId, now) => {
         const dueTime = formatTime12Hour(due);
         const message = `Reminder: Your task "${task.title}" is due at ${dueTime} (within 24 hours).`;
 
-        if (await shouldCreateNotification(userId, message, 5 * 60 * 1000)) { // 5 minute threshold
+        if (await shouldCreateNotification(userId, message, 5 * 60 * 1000)) {
+          // 5 minute threshold
           notifications.push({
             userId,
             message,
@@ -131,7 +133,8 @@ const generateOverdueNotifications = async (userId, now) => {
       if (diff < 0 && !task.notifiedOverdue) {
         const message = `Alert: Your task "${task.title}" is overdue. Please review it.`;
 
-        if (await shouldCreateNotification(userId, message, 5 * 60 * 1000)) { // 5 minute threshold
+        if (await shouldCreateNotification(userId, message, 5 * 60 * 1000)) {
+          // 5 minute threshold
           notifications.push({
             userId,
             message,
@@ -161,20 +164,28 @@ const generateWarningNotifications = async (userId, now) => {
   let notifications = [];
 
   const user = await User.findOne({ userId });
-  const thresholdHours = user?.settingsPreferences?.notifyNonPriorityGoesOvertime || 1;
+  const thresholdHours =
+    user?.settingsPreferences?.notifyNonPriorityGoesOvertime || 1;
   const thresholdMs = thresholdHours * 60 * 60 * 1000;
 
   const highPriorityTasks = tasks.filter(
-    (task) => task.priority && (task.priority.startsWith("A") || task.priority.startsWith("B"))
+    (task) =>
+      task.priority &&
+      (task.priority.startsWith("A") || task.priority.startsWith("B")),
   );
   if (!highPriorityTasks.length) return notifications;
 
   const nonHighPriorityTasks = tasks.filter(
     (task) =>
-      !(task.priority && (task.priority.startsWith("A") || task.priority.startsWith("B")))
+      !(
+        task.priority &&
+        (task.priority.startsWith("A") || task.priority.startsWith("B"))
+      ),
   );
 
-  const highPriorityLetters = [...new Set(highPriorityTasks.map((t) => t.priority[0]))].sort();
+  const highPriorityLetters = [
+    ...new Set(highPriorityTasks.map((t) => t.priority[0])),
+  ].sort();
   const priorityMessage =
     highPriorityLetters.length === 1
       ? highPriorityLetters[0]
@@ -247,5 +258,5 @@ module.exports = {
   generateUpcomingNotifications,
   generateOverdueNotifications,
   generateWarningNotifications,
-  generateFrequentNotifications
+  generateFrequentNotifications,
 };

@@ -1,6 +1,8 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import Dashboard, { getBaseRoute } from "../../../src/pages/Dashboard/Dashboard";
+import Dashboard, {
+  getBaseRoute,
+} from "../../../src/pages/Dashboard/Dashboard";
 import { NotificationsContext } from "../../../src/contexts/NotificationsContext";
 import { toast } from "react-toastify";
 
@@ -31,7 +33,7 @@ jest.mock("../../../src/services/tasksService", () => ({
 
 jest.mock("../../../src/services/columnsService", () => ({
   fetchColumnOrder: jest.fn(() =>
-    Promise.resolve({ data: { columnOrder: [], columnNames: {} } })
+    Promise.resolve({ data: { columnOrder: [], columnNames: {} } }),
   ),
   createBoard: jest.fn(() => Promise.resolve({ data: {} })),
   saveColumnOrder: jest.fn(() => Promise.resolve({})),
@@ -39,7 +41,7 @@ jest.mock("../../../src/services/columnsService", () => ({
 
 jest.mock("../../../src/services/preferencesService", () => ({
   fetchSettingsPreferences: jest.fn(() =>
-    Promise.resolve({ data: { settingsPreferences: {} } })
+    Promise.resolve({ data: { settingsPreferences: {} } }),
   ),
 }));
 
@@ -202,7 +204,7 @@ describe("Dashboard Duplicate Task Integration Toasts", () => {
 
   test("displays success toast on successful duplicate", async () => {
     tasksService.fetchTasks.mockImplementationOnce(() =>
-      Promise.resolve({ data: [originalTask] })
+      Promise.resolve({ data: [originalTask] }),
     );
     columnsService.fetchColumnOrder.mockImplementationOnce(() =>
       Promise.resolve({
@@ -210,7 +212,7 @@ describe("Dashboard Duplicate Task Integration Toasts", () => {
           columnOrder: ["in-progress"],
           columnNames: { "in-progress": "In Progress" },
         },
-      })
+      }),
     );
 
     const duplicateTaskResponse = {
@@ -232,7 +234,7 @@ describe("Dashboard Duplicate Task Integration Toasts", () => {
       labels: originalTask.labels,
     };
     tasksService.createTask.mockImplementationOnce(() =>
-      Promise.resolve({ data: duplicateTaskResponse })
+      Promise.resolve({ data: duplicateTaskResponse }),
     );
 
     render(
@@ -243,7 +245,7 @@ describe("Dashboard Duplicate Task Integration Toasts", () => {
             setUserSettings={jest.fn()}
           />
         </MemoryRouter>
-      </NotificationsContext.Provider>
+      </NotificationsContext.Provider>,
     );
 
     const duplicateButton = screen.getByTestId("duplicate-task-button-task-1");
@@ -263,7 +265,7 @@ describe("Dashboard Duplicate Task Integration Toasts", () => {
         scheduledStart: null,
         scheduledEnd: null,
         labels: originalTask.labels,
-      })
+      }),
     );
 
     await waitFor(() => {
@@ -273,7 +275,7 @@ describe("Dashboard Duplicate Task Integration Toasts", () => {
 
   test("displays error toast when duplicate fails", async () => {
     tasksService.fetchTasks.mockImplementationOnce(() =>
-      Promise.resolve({ data: [originalTask] })
+      Promise.resolve({ data: [originalTask] }),
     );
     columnsService.fetchColumnOrder.mockImplementationOnce(() =>
       Promise.resolve({
@@ -281,10 +283,10 @@ describe("Dashboard Duplicate Task Integration Toasts", () => {
           columnOrder: ["in-progress"],
           columnNames: { "in-progress": "In Progress" },
         },
-      })
+      }),
     );
     tasksService.createTask.mockImplementationOnce(() =>
-      Promise.reject(new Error("Duplicate failed"))
+      Promise.reject(new Error("Duplicate failed")),
     );
 
     render(
@@ -295,7 +297,7 @@ describe("Dashboard Duplicate Task Integration Toasts", () => {
             setUserSettings={jest.fn()}
           />
         </MemoryRouter>
-      </NotificationsContext.Provider>
+      </NotificationsContext.Provider>,
     );
 
     const duplicateButton = screen.getByTestId("duplicate-task-button-task-1");
@@ -326,7 +328,7 @@ describe("handleDeleteTask toast messages", () => {
             setUserSettings={jest.fn()}
           />
         </MemoryRouter>
-      </Wrapper>
+      </Wrapper>,
     );
 
     const deleteButton = screen.getByTestId("delete-task-button-task-1");
@@ -340,7 +342,7 @@ describe("handleDeleteTask toast messages", () => {
   test("displays error toast when task deletion fails", async () => {
     const { deleteTaskAPI } = require("../../../src/services/tasksService");
     deleteTaskAPI.mockImplementationOnce(() =>
-      Promise.reject(new Error("Delete failed"))
+      Promise.reject(new Error("Delete failed")),
     );
 
     render(
@@ -351,7 +353,7 @@ describe("handleDeleteTask toast messages", () => {
             setUserSettings={jest.fn()}
           />
         </MemoryRouter>
-      </Wrapper>
+      </Wrapper>,
     );
 
     const deleteButton = screen.getByTestId("delete-task-button-task-1");
@@ -373,7 +375,7 @@ describe("Dashboard Component", () => {
             setUserSettings={jest.fn()}
           />
         </MemoryRouter>
-      </Wrapper>
+      </Wrapper>,
     );
 
     expect(screen.getByTestId("layout")).toBeInTheDocument();
@@ -383,7 +385,7 @@ describe("Dashboard Component", () => {
     expect(screen.getByTestId("create-task-modal")).toHaveTextContent("closed");
     expect(screen.getByTestId("view-task-modal")).toHaveTextContent("closed");
     expect(screen.getByTestId("schedule-edit-modal")).toHaveTextContent(
-      "closed"
+      "closed",
     );
 
     const topbarButtons = screen.getAllByTestId("topbar-button");
@@ -401,7 +403,7 @@ describe("Dashboard Component", () => {
             setUserSettings={jest.fn()}
           />
         </MemoryRouter>
-      </Wrapper>
+      </Wrapper>,
     );
     expect(screen.getByTestId("completed-tasks")).toBeInTheDocument();
   });
@@ -415,7 +417,7 @@ describe("Dashboard Component", () => {
             setUserSettings={jest.fn()}
           />
         </MemoryRouter>
-      </Wrapper>
+      </Wrapper>,
     );
     expect(screen.getByTestId("schedule-view")).toBeInTheDocument();
   });
@@ -432,11 +434,11 @@ describe("Dashboard Component", () => {
             setUserSettings={jest.fn()}
           />
         </MemoryRouter>
-      </Wrapper>
+      </Wrapper>,
     );
 
     await waitFor(() =>
-      expect(screen.getByTestId("create-task-modal")).toHaveTextContent("open")
+      expect(screen.getByTestId("create-task-modal")).toHaveTextContent("open"),
     );
     expect(screen.getByTestId("layout-openModal")).toHaveTextContent("true");
   });
@@ -453,11 +455,11 @@ describe("Dashboard Component", () => {
             setUserSettings={jest.fn()}
           />
         </MemoryRouter>
-      </Wrapper>
+      </Wrapper>,
     );
 
     await waitFor(() =>
-      expect(screen.getByTestId("create-task-modal")).toHaveTextContent("open")
+      expect(screen.getByTestId("create-task-modal")).toHaveTextContent("open"),
     );
     expect(screen.getByTestId("layout-openModal")).toHaveTextContent("true");
   });
@@ -474,11 +476,11 @@ describe("Dashboard Component", () => {
             setUserSettings={jest.fn()}
           />
         </MemoryRouter>
-      </Wrapper>
+      </Wrapper>,
     );
 
     await waitFor(() =>
-      expect(screen.getByTestId("create-task-modal")).toHaveTextContent("open")
+      expect(screen.getByTestId("create-task-modal")).toHaveTextContent("open"),
     );
     expect(screen.getByTestId("layout-openModal")).toHaveTextContent("true");
   });
@@ -493,10 +495,10 @@ describe("Dashboard Component", () => {
             setUserSettings={jest.fn()}
           />
         </MemoryRouter>
-      </Wrapper>
+      </Wrapper>,
     );
     await waitFor(() =>
-      expect(screen.getByTestId("labels-modal")).toHaveTextContent("open")
+      expect(screen.getByTestId("labels-modal")).toHaveTextContent("open"),
     );
     expect(screen.getByTestId("layout-openModal")).toHaveTextContent("true");
   });
@@ -511,10 +513,10 @@ describe("Dashboard Component", () => {
             setUserSettings={jest.fn()}
           />
         </MemoryRouter>
-      </Wrapper>
+      </Wrapper>,
     );
     await waitFor(() =>
-      expect(screen.getByTestId("labels-modal")).toHaveTextContent("open")
+      expect(screen.getByTestId("labels-modal")).toHaveTextContent("open"),
     );
     expect(screen.getByTestId("layout-openModal")).toHaveTextContent("true");
   });
@@ -529,17 +531,17 @@ describe("Dashboard Component", () => {
             setUserSettings={jest.fn()}
           />
         </MemoryRouter>
-      </Wrapper>
+      </Wrapper>,
     );
     await waitFor(() =>
-      expect(screen.getByTestId("labels-modal")).toHaveTextContent("open")
+      expect(screen.getByTestId("labels-modal")).toHaveTextContent("open"),
     );
     expect(screen.getByTestId("layout-openModal")).toHaveTextContent("true");
   });
 
   test("getBaseRoute returns '/dashboard/boards' for an invalid base route", () => {
     expect(getBaseRoute("/dashboard/schedulebadroute/createtask")).toBe(
-      "/dashboard/boards"
+      "/dashboard/boards",
     );
   });
 
@@ -566,12 +568,12 @@ describe("Dashboard Component", () => {
             setUserSettings={jest.fn()}
           />
         </MemoryRouter>
-      </Wrapper>
+      </Wrapper>,
     );
     await waitFor(() =>
       expect(screen.getByTestId("create-task-modal")).toHaveTextContent(
-        "closed"
-      )
+        "closed",
+      ),
     );
   });
 
@@ -585,16 +587,18 @@ describe("Dashboard Component", () => {
             setUserSettings={jest.fn()}
           />
         </MemoryRouter>
-      </Wrapper>
+      </Wrapper>,
     );
     await waitFor(() =>
-      expect(screen.getByTestId("labels-modal")).toHaveTextContent("closed")
+      expect(screen.getByTestId("labels-modal")).toHaveTextContent("closed"),
     );
   });
 
   test("opens ViewTaskModal when route is /dashboard/boards/viewtask/123 and matching task exists", async () => {
     const { fetchTasks } = require("../../../src/services/tasksService");
-    const { fetchColumnOrder } = require("../../../src/services/columnsService");
+    const {
+      fetchColumnOrder,
+    } = require("../../../src/services/columnsService");
     fetchTasks.mockImplementation(() =>
       Promise.resolve({
         data: [
@@ -606,12 +610,12 @@ describe("Dashboard Component", () => {
             timerStartTime: null,
           },
         ],
-      })
+      }),
     );
     fetchColumnOrder.mockImplementationOnce(() =>
       Promise.resolve({
         data: { columnOrder: ["inbox"], columnNames: { inbox: "Inbox" } },
-      })
+      }),
     );
     render(
       <Wrapper>
@@ -621,16 +625,18 @@ describe("Dashboard Component", () => {
             setUserSettings={jest.fn()}
           />
         </MemoryRouter>
-      </Wrapper>
+      </Wrapper>,
     );
     await waitFor(() =>
-      expect(screen.getByTestId("view-task-modal")).toHaveTextContent("open")
+      expect(screen.getByTestId("view-task-modal")).toHaveTextContent("open"),
     );
   });
 
   test("opens ScheduleEditModal when route is /dashboard/schedule/editevent/123 and matching task exists", async () => {
     const { fetchTasks } = require("../../../src/services/tasksService");
-    const { fetchColumnOrder } = require("../../../src/services/columnsService");
+    const {
+      fetchColumnOrder,
+    } = require("../../../src/services/columnsService");
     fetchTasks.mockImplementationOnce(() =>
       Promise.resolve({
         data: [
@@ -644,7 +650,7 @@ describe("Dashboard Component", () => {
             timerStartTime: null,
           },
         ],
-      })
+      }),
     );
     fetchColumnOrder.mockImplementationOnce(() =>
       Promise.resolve({
@@ -652,7 +658,7 @@ describe("Dashboard Component", () => {
           columnOrder: ["someStatus"],
           columnNames: { someStatus: "Column 1" },
         },
-      })
+      }),
     );
     render(
       <Wrapper>
@@ -662,21 +668,23 @@ describe("Dashboard Component", () => {
             setUserSettings={jest.fn()}
           />
         </MemoryRouter>
-      </Wrapper>
+      </Wrapper>,
     );
     await waitFor(() =>
       expect(screen.getByTestId("schedule-edit-modal")).toHaveTextContent(
-        "open"
-      )
+        "open",
+      ),
     );
   });
 
   test("does not open ViewTaskModal when no matching task exists", async () => {
     const { fetchTasks } = require("../../../src/services/tasksService");
-    const { fetchColumnOrder } = require("../../../src/services/columnsService");
+    const {
+      fetchColumnOrder,
+    } = require("../../../src/services/columnsService");
     fetchTasks.mockImplementationOnce(() => Promise.resolve({ data: [] }));
     fetchColumnOrder.mockImplementationOnce(() =>
-      Promise.resolve({ data: { columnOrder: [], columnNames: {} } })
+      Promise.resolve({ data: { columnOrder: [], columnNames: {} } }),
     );
     render(
       <Wrapper>
@@ -686,19 +694,21 @@ describe("Dashboard Component", () => {
             setUserSettings={jest.fn()}
           />
         </MemoryRouter>
-      </Wrapper>
+      </Wrapper>,
     );
     await waitFor(() =>
-      expect(screen.getByTestId("view-task-modal")).toHaveTextContent("closed")
+      expect(screen.getByTestId("view-task-modal")).toHaveTextContent("closed"),
     );
   });
 
   test("does not open ScheduleEditModal when no matching task exists", async () => {
     const { fetchTasks } = require("../../../src/services/tasksService");
-    const { fetchColumnOrder } = require("../../../src/services/columnsService");
+    const {
+      fetchColumnOrder,
+    } = require("../../../src/services/columnsService");
     fetchTasks.mockImplementationOnce(() => Promise.resolve({ data: [] }));
     fetchColumnOrder.mockImplementationOnce(() =>
-      Promise.resolve({ data: { columnOrder: [], columnNames: {} } })
+      Promise.resolve({ data: { columnOrder: [], columnNames: {} } }),
     );
     render(
       <Wrapper>
@@ -708,12 +718,12 @@ describe("Dashboard Component", () => {
             setUserSettings={jest.fn()}
           />
         </MemoryRouter>
-      </Wrapper>
+      </Wrapper>,
     );
     await waitFor(() =>
       expect(screen.getByTestId("schedule-edit-modal")).toHaveTextContent(
-        "closed"
-      )
+        "closed",
+      ),
     );
   });
 });

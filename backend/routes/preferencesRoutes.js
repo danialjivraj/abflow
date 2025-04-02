@@ -33,11 +33,11 @@ router.put("/:userId", async (req, res) => {
       return res.status(400).json({ error: "No preferences provided" });
     }
 
-    const user = await User.findOneAndUpdate(
-      { userId },
-      update,
-      { new: true, upsert: true, runValidators: true }
-    );
+    const user = await User.findOneAndUpdate({ userId }, update, {
+      new: true,
+      upsert: true,
+      runValidators: true,
+    });
 
     res.json({
       chartPreferences: user.chartPreferences,

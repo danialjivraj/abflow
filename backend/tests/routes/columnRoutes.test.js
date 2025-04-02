@@ -18,8 +18,11 @@ beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create();
   const uri = mongoServer.getUri();
   await mongoose.connect(uri);
-  
-  defaultUser = await User.create({ userId: "user1", welcomeColumnsAndTask: false });
+
+  defaultUser = await User.create({
+    userId: "user1",
+    welcomeColumnsAndTask: false,
+  });
 
   app = express();
   app.use(express.json());
@@ -29,7 +32,10 @@ beforeAll(async () => {
 beforeEach(async () => {
   await Column.deleteMany({});
   await Task.deleteMany({});
-  await User.findOneAndUpdate({ userId: defaultUser.userId }, { welcomeColumnsAndTask: false });
+  await User.findOneAndUpdate(
+    { userId: defaultUser.userId },
+    { welcomeColumnsAndTask: false },
+  );
 });
 
 afterAll(async () => {
@@ -46,7 +52,7 @@ describe("Column Routes", () => {
       const res = await request(app)
         .get(`/api/columns/order/${defaultUser.userId}`)
         .expect(200);
-      
+
       // default columns to be created.
       expect(res.body).toHaveProperty("columnOrder");
       expect(res.body).toHaveProperty("columnNames");
@@ -59,7 +65,10 @@ describe("Column Routes", () => {
       });
 
       // default task was created in the backlog.
-      const defaultTask = await Task.findOne({ userId: defaultUser.userId, status: "backlog" });
+      const defaultTask = await Task.findOne({
+        userId: defaultUser.userId,
+        status: "backlog",
+      });
       expect(defaultTask).not.toBeNull();
       expect(defaultTask.title).toBe("Click me!");
       expect(defaultTask.priority).toBe("A1");
@@ -70,15 +79,28 @@ describe("Column Routes", () => {
 
     it("should return existing columns if they already exist", async () => {
       await Column.insertMany([
-        { columnId: "col1", name: "Column 1", order: 0, userId: defaultUser.userId },
-        { columnId: "col2", name: "Column 2", order: 1, userId: defaultUser.userId },
+        {
+          columnId: "col1",
+          name: "Column 1",
+          order: 0,
+          userId: defaultUser.userId,
+        },
+        {
+          columnId: "col2",
+          name: "Column 2",
+          order: 1,
+          userId: defaultUser.userId,
+        },
       ]);
-      await User.findOneAndUpdate({ userId: defaultUser.userId }, { welcomeColumnsAndTask: true });
-      
+      await User.findOneAndUpdate(
+        { userId: defaultUser.userId },
+        { welcomeColumnsAndTask: true },
+      );
+
       const res = await request(app)
         .get(`/api/columns/order/${defaultUser.userId}`)
         .expect(200);
-      
+
       expect(res.body.columnOrder).toEqual(["col1", "col2"]);
       expect(res.body.columnNames).toEqual({
         col1: "Column 1",
@@ -96,7 +118,7 @@ describe("Column Routes", () => {
         .post("/api/columns/create")
         .send({ userId: defaultUser.userId, columnName: "New Column" })
         .expect(200);
-      
+
       expect(res.body.message).toBe("Board created successfully");
       expect(res.body).toHaveProperty("columnId");
       expect(res.body.columnName).toBe("New Column");
@@ -122,15 +144,22 @@ describe("Column Routes", () => {
         order: 0,
         userId: defaultUser.userId,
       });
-      
+
       const res = await request(app)
         .put("/api/columns/rename")
-        .send({ userId: defaultUser.userId, columnId: "colToRename", newName: "Renamed Column" })
+        .send({
+          userId: defaultUser.userId,
+          columnId: "colToRename",
+          newName: "Renamed Column",
+        })
         .expect(200);
-      
+
       expect(res.body.message).toBe("Board renamed successfully");
-      
-      const updatedColumn = await Column.findOne({ userId: defaultUser.userId, columnId: "colToRename" });
+
+      const updatedColumn = await Column.findOne({
+        userId: defaultUser.userId,
+        columnId: "colToRename",
+      });
       expect(updatedColumn.name).toBe("Renamed Column");
     });
 
@@ -139,7 +168,9 @@ describe("Column Routes", () => {
         .put("/api/columns/rename")
         .send({ userId: defaultUser.userId, newName: "Renamed Column" })
         .expect(400);
-      expect(res.body.error).toBe("User ID, column ID, and new name are required");
+      expect(res.body.error).toBe(
+        "User ID, column ID, and new name are required",
+      );
     });
   });
 
@@ -161,18 +192,26 @@ describe("Column Routes", () => {
         status: "colToDelete",
         order: 0,
       });
-      
+
       const res = await request(app)
         .delete("/api/columns/delete")
         .send({ userId: defaultUser.userId, columnId: "colToDelete" })
         .expect(200);
-      
-      expect(res.body.message).toBe("Board and associated tasks deleted successfully");
-      
-      const remainingColumn = await Column.findOne({ userId: defaultUser.userId, columnId: "colToDelete" });
+
+      expect(res.body.message).toBe(
+        "Board and associated tasks deleted successfully",
+      );
+
+      const remainingColumn = await Column.findOne({
+        userId: defaultUser.userId,
+        columnId: "colToDelete",
+      });
       expect(remainingColumn).toBeNull();
-      
-      const remainingTasks = await Task.find({ userId: defaultUser.userId, status: "colToDelete" });
+
+      const remainingTasks = await Task.find({
+        userId: defaultUser.userId,
+        status: "colToDelete",
+      });
       expect(remainingTasks.length).toBe(0);
     });
 
@@ -191,20 +230,32 @@ describe("Column Routes", () => {
   describe("PUT /api/columns/order", () => {
     it("should update the column order for a user", async () => {
       await Column.insertMany([
-        { columnId: "col1", name: "Column 1", order: 0, userId: defaultUser.userId },
-        { columnId: "col2", name: "Column 2", order: 1, userId: defaultUser.userId },
+        {
+          columnId: "col1",
+          name: "Column 1",
+          order: 0,
+          userId: defaultUser.userId,
+        },
+        {
+          columnId: "col2",
+          name: "Column 2",
+          order: 1,
+          userId: defaultUser.userId,
+        },
       ]);
-      
+
       const newOrder = ["col2", "col1"];
       const res = await request(app)
         .put("/api/columns/order")
         .send({ userId: defaultUser.userId, columnOrder: newOrder })
         .expect(200);
-      
+
       expect(res.body.message).toBe("Column order saved successfully");
       expect(res.body.columnOrder).toEqual(newOrder);
-      
-      const columns = await Column.find({ userId: defaultUser.userId }).sort({ order: 1 });
+
+      const columns = await Column.find({ userId: defaultUser.userId }).sort({
+        order: 1,
+      });
       expect(columns[0].columnId).toBe("col2");
       expect(columns[1].columnId).toBe("col1");
     });

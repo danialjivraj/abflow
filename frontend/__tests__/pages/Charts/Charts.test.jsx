@@ -21,7 +21,9 @@ import { NotificationsContext } from "../../../src/contexts/NotificationsContext
 import { auth } from "../../../src/firebase";
 import { createBaseTask } from "../../../_testUtils/createBaseTask";
 
-const { fetchChartPreferences } = require("../../../src/services/preferencesService");
+const {
+  fetchChartPreferences,
+} = require("../../../src/services/preferencesService");
 
 jest.unmock("../../../src/components/navigation/TopBar");
 
@@ -34,7 +36,8 @@ jest.mock("react-router-dom", () => ({
 }));
 
 jest.mock("../../../src/firebase", () => {
-  const baseUser = require("../../../_testUtils/createBaseUser").createBaseUser();
+  const baseUser =
+    require("../../../_testUtils/createBaseUser").createBaseUser();
   return {
     auth: {
       currentUser: baseUser,
@@ -55,7 +58,7 @@ jest.mock("../../../src/services/columnsService", () => {
             }).name,
           },
         },
-      })
+      }),
     ),
   };
 });
@@ -68,53 +71,55 @@ jest.mock("../../../src/services/labelsService", () => ({
         { title: "Optional", color: "#00FF00" },
         { title: "Something", color: "#F0FF00" },
       ],
-    })
+    }),
   ),
 }));
 
 jest.mock("../../../src/services/tasksService", () => {
   const { createBaseTask } = require("../../../_testUtils/createBaseTask");
   return {
-    fetchTasks: jest.fn(() => Promise.resolve({ 
-      data: [
-        createBaseTask({
-          _id: "task1",
-          title: "Test Task 1",
-          status: "column-1",
-          priority: "A1",
-          createdAt: new Date().toISOString(),
-          dueDate: new Date(Date.now() + 86400000).toISOString(), // due tomorrow
-          timeSpent: 3600,
-          storyPoints: 3,
-          labels: [{ title: "Important", color: "#FF0000" }],
-          assignedTo: "John Doe"
-        }),
-        createBaseTask({
-          _id: "task2",
-          title: "Test Task 2",
-          status: "column-1",
-          priority: "A2",
-          createdAt: new Date().toISOString(),
-          dueDate: new Date(Date.now() + 86400000).toISOString(), // due tomorrow
-          timeSpent: 7200,
-          storyPoints: 5,
-          labels: [{ title: "Something", color: "#F0FF00" }],
-          assignedTo: "Jane Doe"
-        }),
-        createBaseTask({
-          _id: "task3",
-          title: "Test Task 3",
-          status: "column-1",
-          priority: "B1",
-          createdAt: new Date().toISOString(),
-          dueDate: new Date(Date.now() - 86400000).toISOString(), // overdue
-          timeSpent: 5400,
-          storyPoints: 8,
-          labels: [{ title: "Optional", color: "#00FF00" }],
-          assignedTo: "John Doe"
-        })
-      ] 
-    })),
+    fetchTasks: jest.fn(() =>
+      Promise.resolve({
+        data: [
+          createBaseTask({
+            _id: "task1",
+            title: "Test Task 1",
+            status: "column-1",
+            priority: "A1",
+            createdAt: new Date().toISOString(),
+            dueDate: new Date(Date.now() + 86400000).toISOString(), // due tomorrow
+            timeSpent: 3600,
+            storyPoints: 3,
+            labels: [{ title: "Important", color: "#FF0000" }],
+            assignedTo: "John Doe",
+          }),
+          createBaseTask({
+            _id: "task2",
+            title: "Test Task 2",
+            status: "column-1",
+            priority: "A2",
+            createdAt: new Date().toISOString(),
+            dueDate: new Date(Date.now() + 86400000).toISOString(), // due tomorrow
+            timeSpent: 7200,
+            storyPoints: 5,
+            labels: [{ title: "Something", color: "#F0FF00" }],
+            assignedTo: "Jane Doe",
+          }),
+          createBaseTask({
+            _id: "task3",
+            title: "Test Task 3",
+            status: "column-1",
+            priority: "B1",
+            createdAt: new Date().toISOString(),
+            dueDate: new Date(Date.now() - 86400000).toISOString(), // overdue
+            timeSpent: 5400,
+            storyPoints: 8,
+            labels: [{ title: "Optional", color: "#00FF00" }],
+            assignedTo: "John Doe",
+          }),
+        ],
+      }),
+    ),
   };
 });
 
@@ -122,7 +127,7 @@ jest.mock("../../../src/services/preferencesService", () => {
   let chartPreferencesState = {};
   return {
     fetchChartPreferences: jest.fn(() =>
-      Promise.resolve({ data: { chartPreferences: chartPreferencesState } })
+      Promise.resolve({ data: { chartPreferences: chartPreferencesState } }),
     ),
     updateChartPreferences: jest.fn((uid, prefs) => {
       chartPreferencesState = prefs;
@@ -133,22 +138,34 @@ jest.mock("../../../src/services/preferencesService", () => {
 
 // Modified to ensure the chart components render text that can be found in tests
 jest.mock("recharts", () => ({
-  BarChart: ({ children }) => <div data-testid="bar-chart">BarChart{children}</div>,
+  BarChart: ({ children }) => (
+    <div data-testid="bar-chart">BarChart{children}</div>
+  ),
   Bar: () => <div>Bar</div>,
   XAxis: () => <div>XAxis</div>,
   YAxis: () => <div>YAxis</div>,
   Tooltip: () => <div>Tooltip</div>,
   Legend: () => <div>Legend</div>,
-  LineChart: ({ children }) => <div data-testid="line-chart">LineChart{children}</div>,
+  LineChart: ({ children }) => (
+    <div data-testid="line-chart">LineChart{children}</div>
+  ),
   Line: () => <div>Line</div>,
-  AreaChart: ({ children }) => <div data-testid="area-chart">AreaChart{children}</div>,
+  AreaChart: ({ children }) => (
+    <div data-testid="area-chart">AreaChart{children}</div>
+  ),
   Area: () => <div>Area</div>,
   CartesianGrid: () => <div>CartesianGrid</div>,
-  ResponsiveContainer: ({ children }) => <div data-testid="responsive-container">{children}</div>,
-  PieChart: ({ children }) => <div data-testid="pie-chart">PieChart{children}</div>,
+  ResponsiveContainer: ({ children }) => (
+    <div data-testid="responsive-container">{children}</div>
+  ),
+  PieChart: ({ children }) => (
+    <div data-testid="pie-chart">PieChart{children}</div>
+  ),
   Pie: () => <div>Pie</div>,
   Cell: () => <div>Cell</div>,
-  RadarChart: ({ children }) => <div data-testid="radar-chart">RadarChart{children}</div>,
+  RadarChart: ({ children }) => (
+    <div data-testid="radar-chart">RadarChart{children}</div>
+  ),
   Radar: () => <div>Radar</div>,
   PolarGrid: () => <div>PolarGrid</div>,
   PolarAngleAxis: () => <div>PolarAngleAxis</div>,
@@ -182,7 +199,7 @@ const renderWithContext = (ui, { notifications = [] } = {}) => {
   return render(
     <NotificationsContext.Provider value={{ notifications }}>
       <MemoryRouter>{ui}</MemoryRouter>
-    </NotificationsContext.Provider>
+    </NotificationsContext.Provider>,
   );
 };
 
@@ -236,13 +253,15 @@ describe("Charts Component Unit Tests", () => {
 
   test("renders the correct chart type based on state", async () => {
     renderWithContext(<Charts />);
-    
-    await waitFor(() => 
-      expect(screen.queryByText("Loading preferences...")).not.toBeInTheDocument()
+
+    await waitFor(() =>
+      expect(
+        screen.queryByText("Loading preferences..."),
+      ).not.toBeInTheDocument(),
     );
-    
-    await waitFor(() => 
-      expect(screen.queryByTestId("bar-chart")).toBeInTheDocument()
+
+    await waitFor(() =>
+      expect(screen.queryByTestId("bar-chart")).toBeInTheDocument(),
     );
   });
 
@@ -259,7 +278,7 @@ describe("Charts Component Unit Tests", () => {
     renderWithContext(<Charts />);
 
     await waitFor(() =>
-      expect(screen.queryByText("Loading preferences...")).toBeNull()
+      expect(screen.queryByText("Loading preferences...")).toBeNull(),
     );
 
     const initialParamsObj = setSearchParamsMock.mock.calls[0][0];
@@ -295,7 +314,7 @@ describe("Charts Component Unit Tests", () => {
 
     const priorityLabel = screen.getByText(
       (content, node) =>
-        node.tagName.toLowerCase() === "label" && content === "Priority"
+        node.tagName.toLowerCase() === "label" && content === "Priority",
     );
     const priorityDropdownHeader =
       priorityLabel.parentElement.querySelector(".dropdown-header");
@@ -304,7 +323,7 @@ describe("Charts Component Unit Tests", () => {
 
     const dayLabel = screen.getByText(
       (content, node) =>
-        node.tagName.toLowerCase() === "label" && content === "Day of the Week"
+        node.tagName.toLowerCase() === "label" && content === "Day of the Week",
     );
     const dayDropdownHeader =
       dayLabel.parentElement.querySelector(".dropdown-header");
@@ -313,7 +332,7 @@ describe("Charts Component Unit Tests", () => {
 
     const statusLabel = screen.getByText(
       (content, node) =>
-        node.tagName.toLowerCase() === "label" && content === "Status"
+        node.tagName.toLowerCase() === "label" && content === "Status",
     );
     const statusDropdownHeader =
       statusLabel.parentElement.querySelector(".dropdown-header");
@@ -322,7 +341,7 @@ describe("Charts Component Unit Tests", () => {
 
     const labelDropdown = screen.getByText(
       (content, node) =>
-        node.tagName.toLowerCase() === "label" && content === "Label"
+        node.tagName.toLowerCase() === "label" && content === "Label",
     );
     const labelDropdownHeader =
       labelDropdown.parentElement.querySelector(".dropdown-header");
@@ -390,14 +409,14 @@ describe("Charts Component Unit Tests", () => {
 
     renderWithContext(<Charts />);
     await waitFor(() =>
-      expect(screen.queryByText("Loading preferences...")).toBeNull()
+      expect(screen.queryByText("Loading preferences...")).toBeNull(),
     );
 
     const groupKey = "Friday";
     navigateMock(`/charts/grouptasks/${groupKey}${useLocation().search}`);
 
     expect(navigateMock).toHaveBeenCalledWith(
-      "/charts/grouptasks/Friday?timeRangeType=week&taskType=active&chartType=bar&xAxisField=day&yAxisMetric=count&sortOrder=none&dueFilter=both&priorityFilters=&dayOfWeekFilters=&statusFilters=&assignedToFilter=&minTaskCount=&minStoryPoints=&minTimeSpent=&minTimeUnit=seconds&includeZeroMetrics=true&scheduledOnly=false&includeNoDueDate=true&comparisonMode=false"
+      "/charts/grouptasks/Friday?timeRangeType=week&taskType=active&chartType=bar&xAxisField=day&yAxisMetric=count&sortOrder=none&dueFilter=both&priorityFilters=&dayOfWeekFilters=&statusFilters=&assignedToFilter=&minTaskCount=&minStoryPoints=&minTimeSpent=&minTimeUnit=seconds&includeZeroMetrics=true&scheduledOnly=false&includeNoDueDate=true&comparisonMode=false",
     );
   });
 
@@ -412,54 +431,56 @@ describe("Charts Component Unit Tests", () => {
 
     renderWithContext(<Charts />);
     await waitFor(() =>
-      expect(screen.queryByText("Loading preferences...")).toBeNull()
+      expect(screen.queryByText("Loading preferences...")).toBeNull(),
     );
 
     const task = createBaseTask();
 
     navigateMock(
-      `/charts/grouptasks/Friday/viewtask/${task._id}${useLocation().search}`
+      `/charts/grouptasks/Friday/viewtask/${task._id}${useLocation().search}`,
     );
 
     expect(navigateMock).toHaveBeenCalledWith(
-      "/charts/grouptasks/Friday/viewtask/1?timeRangeType=week&taskType=active&chartType=bar&xAxisField=day&yAxisMetric=count&sortOrder=none&dueFilter=both&priorityFilters=&dayOfWeekFilters=&statusFilters=&assignedToFilter=&minTaskCount=&minStoryPoints=&minTimeSpent=&minTimeUnit=seconds&includeZeroMetrics=true&scheduledOnly=false&includeNoDueDate=true&comparisonMode=false"
+      "/charts/grouptasks/Friday/viewtask/1?timeRangeType=week&taskType=active&chartType=bar&xAxisField=day&yAxisMetric=count&sortOrder=none&dueFilter=both&priorityFilters=&dayOfWeekFilters=&statusFilters=&assignedToFilter=&minTaskCount=&minStoryPoints=&minTimeSpent=&minTimeUnit=seconds&includeZeroMetrics=true&scheduledOnly=false&includeNoDueDate=true&comparisonMode=false",
     );
   });
 
   test("changes chart type when chart type buttons are clicked via TopBar", async () => {
     renderWithContext(<Charts />);
-    
-    await waitFor(() => 
-      expect(screen.queryByText("Loading preferences...")).not.toBeInTheDocument()
+
+    await waitFor(() =>
+      expect(
+        screen.queryByText("Loading preferences..."),
+      ).not.toBeInTheDocument(),
     );
-    
-    await waitFor(() => 
-      expect(screen.queryByTestId("bar-chart")).toBeInTheDocument()
+
+    await waitFor(() =>
+      expect(screen.queryByTestId("bar-chart")).toBeInTheDocument(),
     );
 
     fireEvent.click(screen.getByRole("button", { name: "Line" }));
     await waitFor(() =>
-      expect(screen.queryByTestId("line-chart")).toBeInTheDocument()
+      expect(screen.queryByTestId("line-chart")).toBeInTheDocument(),
     );
 
     fireEvent.click(screen.getByRole("button", { name: "Pie" }));
     await waitFor(() =>
-      expect(screen.queryByTestId("pie-chart")).toBeInTheDocument()
+      expect(screen.queryByTestId("pie-chart")).toBeInTheDocument(),
     );
 
     fireEvent.click(screen.getByRole("button", { name: "Area" }));
     await waitFor(() =>
-      expect(screen.queryByTestId("area-chart")).toBeInTheDocument()
+      expect(screen.queryByTestId("area-chart")).toBeInTheDocument(),
     );
 
     fireEvent.click(screen.getByRole("button", { name: "Radar" }));
     await waitFor(() =>
-      expect(screen.queryByTestId("radar-chart")).toBeInTheDocument()
+      expect(screen.queryByTestId("radar-chart")).toBeInTheDocument(),
     );
 
     fireEvent.click(screen.getByRole("button", { name: "Bar" }));
     await waitFor(() =>
-      expect(screen.queryByTestId("bar-chart")).toBeInTheDocument()
+      expect(screen.queryByTestId("bar-chart")).toBeInTheDocument(),
     );
   });
 
@@ -469,7 +490,7 @@ describe("Charts Component Unit Tests", () => {
   test("Time Range filter options", async () => {
     renderWithContext(<Charts />);
     await waitFor(() =>
-      expect(screen.queryByText("Loading preferences...")).toBeNull()
+      expect(screen.queryByText("Loading preferences...")).toBeNull(),
     );
     const timeRangeSelect = screen.getByLabelText("Time Range");
     expect(timeRangeSelect.value).toBe("week");
@@ -498,7 +519,7 @@ describe("Charts Component Unit Tests", () => {
   test("Task Type filter options", async () => {
     renderWithContext(<Charts />);
     await waitFor(() =>
-      expect(screen.queryByText("Loading preferences...")).toBeNull()
+      expect(screen.queryByText("Loading preferences...")).toBeNull(),
     );
     const taskTypeSelect = screen.getByLabelText("Task Type");
     expect(taskTypeSelect.value).toBe("active");
@@ -518,7 +539,7 @@ describe("Charts Component Unit Tests", () => {
   test("X-Axis Field filter options", async () => {
     renderWithContext(<Charts />);
     await waitFor(() =>
-      expect(screen.queryByText("Loading preferences...")).toBeNull()
+      expect(screen.queryByText("Loading preferences...")).toBeNull(),
     );
     const xAxisSelect = screen.getByLabelText("X-Axis Field");
     expect(xAxisSelect.value).toBe("day");
@@ -533,7 +554,7 @@ describe("Charts Component Unit Tests", () => {
   test("Y-Axis Metric filter options", async () => {
     renderWithContext(<Charts />);
     await waitFor(() =>
-      expect(screen.queryByText("Loading preferences...")).toBeNull()
+      expect(screen.queryByText("Loading preferences...")).toBeNull(),
     );
     const yAxisSelect = screen.getByLabelText("Y-Axis Metric");
     expect(yAxisSelect.value).toBe("count");
@@ -548,7 +569,7 @@ describe("Charts Component Unit Tests", () => {
   test("Sort Order filter options", async () => {
     renderWithContext(<Charts />);
     await waitFor(() =>
-      expect(screen.queryByText("Loading preferences...")).toBeNull()
+      expect(screen.queryByText("Loading preferences...")).toBeNull(),
     );
     const sortOrderSelect = screen.getByLabelText("Sort By");
     expect(sortOrderSelect.value).toBe("none");
@@ -563,7 +584,7 @@ describe("Charts Component Unit Tests", () => {
   test("Due Filter options", async () => {
     renderWithContext(<Charts />);
     await waitFor(() =>
-      expect(screen.queryByText("Loading preferences...")).toBeNull()
+      expect(screen.queryByText("Loading preferences...")).toBeNull(),
     );
     fireEvent.click(screen.getByRole("button", { name: "Show Advanced ▼" }));
     const dueFilterSelect = await screen.findByLabelText("Due Date");
@@ -579,12 +600,12 @@ describe("Charts Component Unit Tests", () => {
   test("Priority MultiSelect filter", async () => {
     renderWithContext(<Charts />);
     await waitFor(() =>
-      expect(screen.queryByText("Loading preferences...")).toBeNull()
+      expect(screen.queryByText("Loading preferences...")).toBeNull(),
     );
     fireEvent.click(screen.getByRole("button", { name: "Show Advanced ▼" }));
     const priorityLabel = screen.getByText(
       (content, node) =>
-        node.tagName.toLowerCase() === "label" && content === "Priority"
+        node.tagName.toLowerCase() === "label" && content === "Priority",
     );
     const priorityDropdownHeader =
       priorityLabel.parentElement.querySelector(".dropdown-header");
@@ -601,12 +622,12 @@ describe("Charts Component Unit Tests", () => {
   test("Day of the Week MultiSelect filter", async () => {
     renderWithContext(<Charts />);
     await waitFor(() =>
-      expect(screen.queryByText("Loading preferences...")).toBeNull()
+      expect(screen.queryByText("Loading preferences...")).toBeNull(),
     );
     fireEvent.click(screen.getByRole("button", { name: "Show Advanced ▼" }));
     const dayLabel = screen.getByText(
       (content, node) =>
-        node.tagName.toLowerCase() === "label" && content === "Day of the Week"
+        node.tagName.toLowerCase() === "label" && content === "Day of the Week",
     );
     const dayDropdownHeader =
       dayLabel.parentElement.querySelector(".dropdown-header");
@@ -623,12 +644,12 @@ describe("Charts Component Unit Tests", () => {
   test("Status MultiSelect filter", async () => {
     renderWithContext(<Charts />);
     await waitFor(() =>
-      expect(screen.queryByText("Loading preferences...")).toBeNull()
+      expect(screen.queryByText("Loading preferences...")).toBeNull(),
     );
     fireEvent.click(screen.getByRole("button", { name: "Show Advanced ▼" }));
     const statusLabel = screen.getByText(
       (content, node) =>
-        node.tagName.toLowerCase() === "label" && content === "Status"
+        node.tagName.toLowerCase() === "label" && content === "Status",
     );
     const statusDropdownHeader =
       statusLabel.parentElement.querySelector(".dropdown-header");
@@ -646,7 +667,7 @@ describe("Charts Component Unit Tests", () => {
   test("Assigned To filter input", async () => {
     renderWithContext(<Charts />);
     await waitFor(() =>
-      expect(screen.queryByText("Loading preferences...")).toBeNull()
+      expect(screen.queryByText("Loading preferences...")).toBeNull(),
     );
     fireEvent.click(screen.getByRole("button", { name: "Show Advanced ▼" }));
     const assignedToInput = screen.getByPlaceholderText("Filter by assignee");
@@ -658,7 +679,7 @@ describe("Charts Component Unit Tests", () => {
   test("Minimum Task Count input", async () => {
     renderWithContext(<Charts />);
     await waitFor(() =>
-      expect(screen.queryByText("Loading preferences...")).toBeNull()
+      expect(screen.queryByText("Loading preferences...")).toBeNull(),
     );
     fireEvent.click(screen.getByRole("button", { name: "Show Advanced ▼" }));
     const minTaskCountField = screen.getByLabelText("Minimum Task Count");
@@ -669,7 +690,7 @@ describe("Charts Component Unit Tests", () => {
   test("Minimum Story Points input", async () => {
     renderWithContext(<Charts />);
     await waitFor(() =>
-      expect(screen.queryByText("Loading preferences...")).toBeNull()
+      expect(screen.queryByText("Loading preferences...")).toBeNull(),
     );
     fireEvent.click(screen.getByRole("button", { name: "Show Advanced ▼" }));
     const minStoryPointsField = screen.getByLabelText("Minimum Story Points");
@@ -680,7 +701,7 @@ describe("Charts Component Unit Tests", () => {
   test("Minimum Time Spent input and unit radio buttons", async () => {
     renderWithContext(<Charts />);
     await waitFor(() =>
-      expect(screen.queryByText("Loading preferences...")).toBeNull()
+      expect(screen.queryByText("Loading preferences...")).toBeNull(),
     );
     fireEvent.click(screen.getByRole("button", { name: "Show Advanced ▼" }));
     const minTimeSpentField = screen.getByLabelText("Minimum Time Spent");
@@ -704,7 +725,7 @@ describe("Charts Component Unit Tests", () => {
   test("Scheduled Only checkbox", async () => {
     renderWithContext(<Charts />);
     await waitFor(() =>
-      expect(screen.queryByText("Loading preferences...")).toBeNull()
+      expect(screen.queryByText("Loading preferences...")).toBeNull(),
     );
     fireEvent.click(screen.getByRole("button", { name: "Show Advanced ▼" }));
     const scheduledOnlyCheckbox = screen.getByLabelText("Scheduled Only");
@@ -716,7 +737,7 @@ describe("Charts Component Unit Tests", () => {
   test("Include Zero Metrics checkbox", async () => {
     renderWithContext(<Charts />);
     await waitFor(() =>
-      expect(screen.queryByText("Loading preferences...")).toBeNull()
+      expect(screen.queryByText("Loading preferences...")).toBeNull(),
     );
     fireEvent.click(screen.getByRole("button", { name: "Show Advanced ▼" }));
     const includeZeroCheckbox = screen.getByLabelText("Include Zero Metrics");
@@ -728,11 +749,11 @@ describe("Charts Component Unit Tests", () => {
   test("Include Tasks Without Due Date checkbox", async () => {
     renderWithContext(<Charts />);
     await waitFor(() =>
-      expect(screen.queryByText("Loading preferences...")).toBeNull()
+      expect(screen.queryByText("Loading preferences...")).toBeNull(),
     );
     fireEvent.click(screen.getByRole("button", { name: "Show Advanced ▼" }));
     const includeNoDueDateCheckbox = screen.getByLabelText(
-      "Include Tasks Without Due Date"
+      "Include Tasks Without Due Date",
     );
     expect(includeNoDueDateCheckbox.checked).toBe(true);
     fireEvent.click(includeNoDueDateCheckbox);
@@ -742,7 +763,7 @@ describe("Charts Component Unit Tests", () => {
   test("Comparison Mode toggle and date pickers", async () => {
     renderWithContext(<Charts />);
     await waitFor(() =>
-      expect(screen.queryByText("Loading preferences...")).toBeNull()
+      expect(screen.queryByText("Loading preferences...")).toBeNull(),
     );
 
     fireEvent.click(screen.getByRole("button", { name: "Show Advanced ▼" }));
@@ -819,7 +840,7 @@ describe("Charts Component Integration Tests", () => {
 
     const priorityLabel = screen.getByText(
       (content, node) =>
-        node.tagName.toLowerCase() === "label" && content === "Priority"
+        node.tagName.toLowerCase() === "label" && content === "Priority",
     );
     const priorityDropdownHeader =
       priorityLabel.parentElement.querySelector(".dropdown-header");
@@ -828,7 +849,7 @@ describe("Charts Component Integration Tests", () => {
 
     const dayLabel = screen.getByText(
       (content, node) =>
-        node.tagName.toLowerCase() === "label" && content === "Day of the Week"
+        node.tagName.toLowerCase() === "label" && content === "Day of the Week",
     );
     const dayDropdownHeader =
       dayLabel.parentElement.querySelector(".dropdown-header");
@@ -837,7 +858,7 @@ describe("Charts Component Integration Tests", () => {
 
     const statusLabel = screen.getByText(
       (content, node) =>
-        node.tagName.toLowerCase() === "label" && content === "Status"
+        node.tagName.toLowerCase() === "label" && content === "Status",
     );
     const statusDropdownHeader =
       statusLabel.parentElement.querySelector(".dropdown-header");
@@ -846,7 +867,7 @@ describe("Charts Component Integration Tests", () => {
 
     const labelDropdown = screen.getByText(
       (content, node) =>
-        node.tagName.toLowerCase() === "label" && content === "Label"
+        node.tagName.toLowerCase() === "label" && content === "Label",
     );
     const labelDropdownHeader =
       labelDropdown.parentElement.querySelector(".dropdown-header");
@@ -864,30 +885,30 @@ describe("Charts Component Integration Tests", () => {
       screen.getByRole("spinbutton", { name: "Minimum Task Count" }),
       {
         target: { value: "5" },
-      }
+      },
     );
 
     fireEvent.change(
       screen.getByRole("spinbutton", { name: "Minimum Story Points" }),
       {
         target: { value: "3" },
-      }
+      },
     );
 
     fireEvent.change(
       screen.getByRole("spinbutton", { name: "Minimum Time Spent" }),
       {
         target: { value: "120" },
-      }
+      },
     );
     fireEvent.click(screen.getByRole("radio", { name: "Minutes" }));
 
     fireEvent.click(screen.getByRole("checkbox", { name: "Scheduled Only" }));
     fireEvent.click(
-      screen.getByRole("checkbox", { name: "Include Zero Metrics" })
+      screen.getByRole("checkbox", { name: "Include Zero Metrics" }),
     );
     fireEvent.click(
-      screen.getByRole("checkbox", { name: "Include Tasks Without Due Date" })
+      screen.getByRole("checkbox", { name: "Include Tasks Without Due Date" }),
     );
 
     fireEvent.click(screen.getByRole("checkbox", { name: "Comparison Mode" }));
@@ -909,8 +930,8 @@ describe("Charts Component Integration Tests", () => {
     fireEvent.click(screen.getByText("Save Preferences"));
     await waitFor(() =>
       expect(toast.success).toHaveBeenCalledWith(
-        "Preferences saved successfully!"
-      )
+        "Preferences saved successfully!",
+      ),
     );
 
     const expectedPreferences = {
@@ -944,7 +965,7 @@ describe("Charts Component Integration Tests", () => {
     cleanup();
     renderWithContext(<Charts />);
     await waitFor(() =>
-      expect(screen.queryByText("Loading preferences...")).toBeNull()
+      expect(screen.queryByText("Loading preferences...")).toBeNull(),
     );
 
     const result = await fetchChartPreferences(auth.currentUser.userId);
@@ -954,8 +975,8 @@ describe("Charts Component Integration Tests", () => {
     fireEvent.click(screen.getByText("Default Preferences"));
     await waitFor(() =>
       expect(toast.success).toHaveBeenCalledWith(
-        "Preferences reset to default!"
-      )
+        "Preferences reset to default!",
+      ),
     );
     const defaultResult = await fetchChartPreferences(auth.currentUser.userId);
 
@@ -964,7 +985,7 @@ describe("Charts Component Integration Tests", () => {
     cleanup();
     renderWithContext(<Charts />);
     await waitFor(() =>
-      expect(screen.queryByText("Loading preferences...")).toBeNull()
+      expect(screen.queryByText("Loading preferences...")).toBeNull(),
     );
 
     expect(defaultResult.data.chartPreferences).toEqual(defaultPreferences);
@@ -983,7 +1004,7 @@ describe("Charts Component Integration Tests", () => {
 
     fireEvent.click(screen.getByText("Save Preferences"));
     await waitFor(() =>
-      expect(toast.error).toHaveBeenCalledWith("Error saving preferences!")
+      expect(toast.error).toHaveBeenCalledWith("Error saving preferences!"),
     );
   });
 
@@ -1000,7 +1021,7 @@ describe("Charts Component Integration Tests", () => {
 
     fireEvent.click(screen.getByText("Default Preferences"));
     await waitFor(() =>
-      expect(toast.error).toHaveBeenCalledWith("Error resetting preferences!")
+      expect(toast.error).toHaveBeenCalledWith("Error resetting preferences!"),
     );
   });
 });

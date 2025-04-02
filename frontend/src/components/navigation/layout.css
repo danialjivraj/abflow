@@ -1,12 +1,12 @@
 .content-container {
-    margin-left: 240px;
-    position: relative;
-    min-height: 100vh;
-    box-sizing: border-box;
-  }
-  
-  .main-content {
-    padding-top: 50px;
-    box-sizing: border-box;
-    min-height: 100vh;
-  }
+  margin-left: 240px;
+  position: relative;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+.main-content {
+  padding-top: 50px;
+  box-sizing: border-box;
+  min-height: 100vh;
+}

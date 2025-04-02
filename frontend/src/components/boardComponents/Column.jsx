@@ -80,7 +80,10 @@ const Column = ({
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (columnDropdownRef.current && !columnDropdownRef.current.contains(event.target)) {
+      if (
+        columnDropdownRef.current &&
+        !columnDropdownRef.current.contains(event.target)
+      ) {
         if (isDropdownOpen === columnId) {
           setIsDropdownOpen(null);
         }
@@ -94,7 +97,11 @@ const Column = ({
     <>
       <Draggable draggableId={columnId} index={index}>
         {(provided) => (
-          <div ref={provided.innerRef} {...provided.draggableProps} className="kanban-column">
+          <div
+            ref={provided.innerRef}
+            {...provided.draggableProps}
+            className="kanban-column"
+          >
             <div className="column-header" {...provided.dragHandleProps}>
               {renamingColumnId === columnId ? (
                 <div className="rename-board-wrapper">
@@ -119,7 +126,10 @@ const Column = ({
                   )}
                   <div className="button-container">
                     <button className="tick-btn" onClick={handleRename}>
-                      <FaCheck className="icon icon-check" data-testid="tick-icon" />
+                      <FaCheck
+                        className="icon icon-check"
+                        data-testid="tick-icon"
+                      />
                     </button>
                     <button
                       className="cross-btn"
@@ -129,7 +139,10 @@ const Column = ({
                         setRenameBoardError("");
                       }}
                     >
-                      <FaTimes className="icon icon-cross" data-testid="cross-icon" />
+                      <FaTimes
+                        className="icon icon-cross"
+                        data-testid="cross-icon"
+                      />
                     </button>
                   </div>
                 </div>
@@ -139,7 +152,11 @@ const Column = ({
               <div className="column-actions">
                 <button
                   className={`dots-button ${isDropdownOpen === columnId ? "active dropdown-active" : ""}`}
-                  onClick={() => setIsDropdownOpen(isDropdownOpen === columnId ? null : columnId)}
+                  onClick={() =>
+                    setIsDropdownOpen(
+                      isDropdownOpen === columnId ? null : columnId,
+                    )
+                  }
                 >
                   &#8942;
                 </button>
@@ -172,7 +189,11 @@ const Column = ({
             </div>
             <Droppable droppableId={columnId} type="TASK">
               {(provided) => (
-                <div ref={provided.innerRef} {...provided.droppableProps} className="droppable-area">
+                <div
+                  ref={provided.innerRef}
+                  {...provided.droppableProps}
+                  className="droppable-area"
+                >
                   {columnData.items.map((task, index) => (
                     <TaskCard
                       key={task._id}
@@ -197,7 +218,10 @@ const Column = ({
                   ))}
                   {provided.placeholder}
                   <div className="add-task-button-container">
-                    <button className="add-task-btn column-add-task-btn" onClick={() => openCreateTaskModal(columnId)}>
+                    <button
+                      className="add-task-btn column-add-task-btn"
+                      onClick={() => openCreateTaskModal(columnId)}
+                    >
                       <span className="column-thick-plus">+</span>
                       <span className="create-task-text">Create Task</span>
                     </button>

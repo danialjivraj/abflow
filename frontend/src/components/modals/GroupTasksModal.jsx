@@ -16,8 +16,8 @@ const GroupTasksModal = ({
     mainGroupTasks.length > 0
       ? mainGroupTasks[0].groupKey
       : compGroupTasks.length > 0
-      ? compGroupTasks[0].groupKey
-      : selectedGroup;
+        ? compGroupTasks[0].groupKey
+        : selectedGroup;
 
   return (
     <div className="modal-overlay" onClick={() => setModalOpen(false)}>

@@ -66,7 +66,7 @@ describe("AddBoard component - Unit Tests", () => {
       createBoardError: "Board name 'Completed' is reserved.",
     });
     expect(
-      screen.getByText("Board name 'Completed' is reserved.")
+      screen.getByText("Board name 'Completed' is reserved."),
     ).toBeInTheDocument();
   });
 
@@ -140,7 +140,7 @@ describe("AddBoard component - Integration Tests with Validation", () => {
     fireEvent.change(input, { target: { value: "Completed" } });
     fireEvent.click(screen.getByTestId("tick-icon"));
     expect(
-      screen.getByText("Board name 'Completed' is reserved.")
+      screen.getByText("Board name 'Completed' is reserved."),
     ).toBeInTheDocument();
   });
 
@@ -148,9 +148,7 @@ describe("AddBoard component - Integration Tests with Validation", () => {
     const input = screen.getByPlaceholderText("Enter board name");
     fireEvent.change(input, { target: { value: "" } });
     fireEvent.click(screen.getByTestId("tick-icon"));
-    expect(
-      screen.getByText("Board name cannot be empty.")
-    ).toBeInTheDocument();
+    expect(screen.getByText("Board name cannot be empty.")).toBeInTheDocument();
   });
 
   test("does not show error when a valid board name is entered", () => {
@@ -159,7 +157,7 @@ describe("AddBoard component - Integration Tests with Validation", () => {
     fireEvent.click(screen.getByTestId("tick-icon"));
     expect(screen.queryByText("Board name cannot be empty.")).toBeNull();
     expect(
-      screen.queryByText("Board name 'Completed' is reserved.")
+      screen.queryByText("Board name 'Completed' is reserved."),
     ).toBeNull();
     expect(screen.queryByText("Board name already taken.")).toBeNull();
     expect(screen.queryByText("Board name cannot be empty.")).toBeNull();

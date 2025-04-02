@@ -16,7 +16,7 @@ describe("MultiSelectDropdown", () => {
         selectedOptions={[]}
         onChange={() => {}}
         fallbackText="All"
-      />
+      />,
     );
     expect(screen.getByText("All")).toBeInTheDocument();
   });
@@ -28,15 +28,15 @@ describe("MultiSelectDropdown", () => {
         options={options}
         selectedOptions={[]}
         onChange={() => {}}
-      />
+      />,
     );
-  
+
     const allPriorityTextElements = screen.getAllByText("Priority");
-  
-    const fallback = allPriorityTextElements.find(
-      (el) => el.className.includes("fallback-label")
+
+    const fallback = allPriorityTextElements.find((el) =>
+      el.className.includes("fallback-label"),
     );
-  
+
     expect(fallback).toBeInTheDocument();
   });
 
@@ -48,7 +48,7 @@ describe("MultiSelectDropdown", () => {
         selectedOptions={[]}
         onChange={() => {}}
         fallbackText="No Options"
-      />
+      />,
     );
     expect(screen.getByText("No Options")).toBeInTheDocument();
   });
@@ -61,7 +61,7 @@ describe("MultiSelectDropdown", () => {
         selectedOptions={["A1", "A3"]}
         onChange={() => {}}
         fallbackText="All"
-      />
+      />,
     );
 
     const selectedOption1 = screen.getByText("A1");
@@ -80,7 +80,7 @@ describe("MultiSelectDropdown", () => {
         selectedOptions={[]}
         onChange={onChange}
         fallbackText="All"
-      />
+      />,
     );
 
     fireEvent.click(screen.getByTestId("dropdown-header"));
@@ -98,7 +98,7 @@ describe("MultiSelectDropdown", () => {
         selectedOptions={["A1", "A2"]}
         onChange={onChange}
         fallbackText="All"
-      />
+      />,
     );
 
     fireEvent.click(screen.getByTestId("dropdown-header"));
@@ -143,11 +143,13 @@ describe("MultiSelectDropdown", () => {
           options={labelOptions}
           selectedOptions={[]}
           onChange={() => {}}
-        />
+        />,
       );
       const fallbackLabels = screen.getAllByText("Labels");
       expect(fallbackLabels.length).toBeGreaterThan(0);
-      expect(fallbackLabels.some(el => el.className.includes("fallback-label"))).toBe(true);
+      expect(
+        fallbackLabels.some((el) => el.className.includes("fallback-label")),
+      ).toBe(true);
     });
 
     test("renders selected custom JSX label with color box", () => {
@@ -157,7 +159,7 @@ describe("MultiSelectDropdown", () => {
           options={labelOptions}
           selectedOptions={["Bug"]}
           onChange={() => {}}
-        />
+        />,
       );
       expect(screen.getByText("Bug")).toBeInTheDocument();
       expect(screen.getByTestId("color-box")).toBeInTheDocument();
@@ -171,7 +173,7 @@ describe("MultiSelectDropdown", () => {
           options={labelOptions}
           selectedOptions={[]}
           onChange={onChange}
-        />
+        />,
       );
 
       fireEvent.click(screen.getByTestId("dropdown-header"));
@@ -188,7 +190,7 @@ describe("MultiSelectDropdown", () => {
           options={labelOptions}
           selectedOptions={["Bug", "Feature"]}
           onChange={onChange}
-        />
+        />,
       );
 
       fireEvent.click(screen.getByTestId("dropdown-header"));

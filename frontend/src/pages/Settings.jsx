@@ -34,7 +34,7 @@ const sectionToSlug = {
 };
 
 const slugToSection = Object.fromEntries(
-  Object.entries(sectionToSlug).map(([key, value]) => [value, key])
+  Object.entries(sectionToSlug).map(([key, value]) => [value, key]),
 );
 
 const DEFAULT_SECTION = "Productivity & UX";
@@ -138,7 +138,7 @@ const Settings = ({ updateDefaultDashboardView }) => {
   const applyTheme = (isDarkMode) => {
     document.documentElement.setAttribute(
       "data-theme",
-      isDarkMode ? "dark" : "light"
+      isDarkMode ? "dark" : "light",
     );
   };
 
@@ -188,7 +188,7 @@ const Settings = ({ updateDefaultDashboardView }) => {
       localStorage.setItem("darkMode", val);
       if (userId) {
         updateSettingsPreferences(userId, updated).catch((err) =>
-          console.error("Failed to update dark mode:", err)
+          console.error("Failed to update dark mode:", err),
         );
       }
     }
@@ -656,7 +656,7 @@ const Settings = ({ updateDefaultDashboardView }) => {
               ...settings,
               darkMode: newDarkMode,
             }).catch((err) =>
-              console.error("Failed to update dark mode:", err)
+              console.error("Failed to update dark mode:", err),
             );
           }
         }, settings.darkMode)}

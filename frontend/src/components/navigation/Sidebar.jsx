@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { MdDashboard, MdBarChart, MdPerson, MdSettings, MdLogout } from "react-icons/md";
+import {
+  MdDashboard,
+  MdBarChart,
+  MdPerson,
+  MdSettings,
+  MdLogout,
+} from "react-icons/md";
 import LogoutModal from "../modals/LogoutModal";
 import "./sidebar.css";
 
@@ -18,14 +24,18 @@ const Sidebar = () => {
             <br />
             <ul>
               <li
-                className={location.pathname.startsWith("/dashboard") ? "active" : ""}
+                className={
+                  location.pathname.startsWith("/dashboard") ? "active" : ""
+                }
                 onClick={() => navigate("/dashboard")}
               >
                 <MdDashboard size={20} style={{ marginRight: "8px" }} />
                 Dashboard
               </li>
               <li
-                className={location.pathname.startsWith("/charts") ? "active" : ""}
+                className={
+                  location.pathname.startsWith("/charts") ? "active" : ""
+                }
                 onClick={() => navigate("/charts")}
               >
                 <MdBarChart size={20} style={{ marginRight: "8px" }} />

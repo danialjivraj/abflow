@@ -39,7 +39,7 @@ describe("GroupTasksModal - Unit Tests", () => {
   // --- General Rendering Tests ---
   test("does not render when modalOpen is false", () => {
     const { container } = render(
-      <GroupTasksModal {...defaultProps} modalOpen={false} />
+      <GroupTasksModal {...defaultProps} modalOpen={false} />,
     );
     expect(container.firstChild).toBeNull();
   });
@@ -49,7 +49,7 @@ describe("GroupTasksModal - Unit Tests", () => {
       <GroupTasksModal
         {...defaultProps}
         mainGroupTasks={[mainTask1, mainTask2]}
-      />
+      />,
     );
     const header = screen.getByRole("heading", { level: 2 });
     expect(header.textContent).toBe("Tasks for Group: Monday");
@@ -107,7 +107,7 @@ describe("GroupTasksModal - Integration Tests", () => {
       <GroupTasksModal
         {...defaultProps}
         mainGroupTasks={[mainTask1, mainTask2]}
-      />
+      />,
     );
     expect(screen.getByText("Main Range")).toBeInTheDocument();
     expect(screen.getByText("Main Task 1")).toBeInTheDocument();
@@ -117,7 +117,7 @@ describe("GroupTasksModal - Integration Tests", () => {
   test("renders fallback message when no main tasks are provided", () => {
     render(<GroupTasksModal {...defaultProps} mainGroupTasks={[]} />);
     expect(
-      screen.getByText("No tasks for this group in Main Range.")
+      screen.getByText("No tasks for this group in Main Range."),
     ).toBeInTheDocument();
   });
 
@@ -128,7 +128,7 @@ describe("GroupTasksModal - Integration Tests", () => {
         mainGroupTasks={[mainTask1]}
         compGroupTasks={[compTask1]}
         comparisonMode={true}
-      />
+      />,
     );
     expect(screen.getByText("Comparison Range")).toBeInTheDocument();
     expect(screen.getByText("Comp Task 1")).toBeInTheDocument();
@@ -141,10 +141,10 @@ describe("GroupTasksModal - Integration Tests", () => {
         mainGroupTasks={[mainTask1]}
         compGroupTasks={[]}
         comparisonMode={true}
-      />
+      />,
     );
     expect(
-      screen.getByText("No tasks for this group in Comparison Range.")
+      screen.getByText("No tasks for this group in Comparison Range."),
     ).toBeInTheDocument();
   });
 
@@ -154,7 +154,7 @@ describe("GroupTasksModal - Integration Tests", () => {
         {...defaultProps}
         comparisonMode={false}
         compGroupTasks={[compTask1]}
-      />
+      />,
     );
     expect(screen.queryByText("Comparison Range")).toBeNull();
   });
@@ -164,7 +164,7 @@ describe("GroupTasksModal - Integration Tests", () => {
     const taskWrapper = screen.getByText("Main Task 1").parentElement;
     fireEvent.click(taskWrapper);
     expect(defaultProps.openReadOnlyViewTaskModal).toHaveBeenCalledWith(
-      mainTask1
+      mainTask1,
     );
   });
 
@@ -175,12 +175,12 @@ describe("GroupTasksModal - Integration Tests", () => {
         mainGroupTasks={[]}
         compGroupTasks={[compTask1]}
         comparisonMode={true}
-      />
+      />,
     );
     const taskWrapper = screen.getByText("Comp Task 1").parentElement;
     fireEvent.click(taskWrapper);
     expect(defaultProps.openReadOnlyViewTaskModal).toHaveBeenCalledWith(
-      compTask1
+      compTask1,
     );
   });
 });

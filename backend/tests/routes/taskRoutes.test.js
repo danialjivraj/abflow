@@ -145,9 +145,7 @@ describe("Task Routes", () => {
     });
 
     it("should return 400 if userId is missing", async () => {
-      await request(app)
-        .get(`/api/tasks/`)
-        .expect(404);
+      await request(app).get(`/api/tasks/`).expect(404);
     });
   });
 
@@ -268,8 +266,12 @@ describe("Task Routes", () => {
         .send(scheduleData)
         .expect(200);
 
-      expect(new Date(res.body.scheduledStart).toISOString()).toBe(scheduleData.scheduledStart);
-      expect(new Date(res.body.scheduledEnd).toISOString()).toBe(scheduleData.scheduledEnd);
+      expect(new Date(res.body.scheduledStart).toISOString()).toBe(
+        scheduleData.scheduledStart,
+      );
+      expect(new Date(res.body.scheduledEnd).toISOString()).toBe(
+        scheduleData.scheduledEnd,
+      );
       // other fields
       expect(res.body.title).toBe("Scheduled Task");
       expect(res.body.priority).toBe("A1");
@@ -366,7 +368,9 @@ describe("Task Routes", () => {
 
       expect(res.body.message).toBe("Tasks reordered successfully");
 
-      const tasks = await Task.find({ userId: defaultUser.userId }).sort({ order: 1 });
+      const tasks = await Task.find({ userId: defaultUser.userId }).sort({
+        order: 1,
+      });
       expect(tasks[0].order).toBe(0);
       expect(tasks[1].order).toBe(1);
     });
@@ -432,7 +436,7 @@ describe("Task Routes", () => {
         storyPoints: 0,
         scheduledStart: null,
         scheduledEnd: null,
-        labels: []
+        labels: [],
       };
       if (i === 2) {
         taskData.labels = [{ title: "Test Label", color: "#123456" }];
@@ -452,7 +456,7 @@ describe("Task Routes", () => {
       storyPoints: 0,
       scheduledStart: null,
       scheduledEnd: null,
-      labels: createdTasks[2].labels
+      labels: createdTasks[2].labels,
     };
 
     const res = await request(app)
@@ -474,7 +478,10 @@ describe("Task Routes", () => {
     expect(res.body.labels[0].title).toBe("Test Label");
     expect(res.body.labels[0].color).toBe("#123456");
 
-    const tasksAfter = await Task.find({ userId: defaultUser.userId, status: "pending" })
+    const tasksAfter = await Task.find({
+      userId: defaultUser.userId,
+      status: "pending",
+    })
       .sort({ order: 1 })
       .lean();
 
@@ -491,7 +498,7 @@ describe("Task Routes", () => {
         storyPoints: 0,
         scheduledStart: null,
         scheduledEnd: null,
-        labels: []
+        labels: [],
       },
       {
         title: "Existing Task 2",
@@ -503,7 +510,7 @@ describe("Task Routes", () => {
         storyPoints: 0,
         scheduledStart: null,
         scheduledEnd: null,
-        labels: []
+        labels: [],
       },
       {
         title: "Existing Task 3",
@@ -515,7 +522,7 @@ describe("Task Routes", () => {
         storyPoints: 0,
         scheduledStart: null,
         scheduledEnd: null,
-        labels: [{ title: "Test Label", color: "#123456" }]
+        labels: [{ title: "Test Label", color: "#123456" }],
       },
       {
         title: "Duplicate of Task 3",
@@ -527,7 +534,7 @@ describe("Task Routes", () => {
         storyPoints: 0,
         scheduledStart: null,
         scheduledEnd: null,
-        labels: [{ title: "Test Label", color: "#123456" }]
+        labels: [{ title: "Test Label", color: "#123456" }],
       },
       {
         title: "Existing Task 4",
@@ -539,7 +546,7 @@ describe("Task Routes", () => {
         storyPoints: 0,
         scheduledStart: null,
         scheduledEnd: null,
-        labels: []
+        labels: [],
       },
       {
         title: "Existing Task 5",
@@ -551,7 +558,7 @@ describe("Task Routes", () => {
         storyPoints: 0,
         scheduledStart: null,
         scheduledEnd: null,
-        labels: []
+        labels: [],
       },
       {
         title: "Existing Task 6",
@@ -563,8 +570,8 @@ describe("Task Routes", () => {
         storyPoints: 0,
         scheduledStart: null,
         scheduledEnd: null,
-        labels: []
-      }
+        labels: [],
+      },
     ];
 
     expectedTasks.forEach((expected, index) => {
@@ -578,9 +585,9 @@ describe("Task Routes", () => {
       expect(actual.storyPoints).toBe(expected.storyPoints);
       expect(actual.scheduledStart).toBeNull();
       expect(actual.scheduledEnd).toBeNull();
-      const actualLabels = actual.labels.map(label => ({
+      const actualLabels = actual.labels.map((label) => ({
         title: label.title,
-        color: label.color
+        color: label.color,
       }));
       expect(actualLabels).toEqual(expected.labels);
     });

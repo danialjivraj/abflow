@@ -7,7 +7,9 @@ router.get("/:userId", async (req, res) => {
   try {
     const { userId } = req.params;
     // Fetch notifications sorted by creation date (most recent first)
-    const notifications = await Notification.find({ userId }).sort({ createdAt: -1 });
+    const notifications = await Notification.find({ userId }).sort({
+      createdAt: -1,
+    });
     res.json({ notifications });
   } catch (error) {
     console.error("Error fetching notifications:", error);
@@ -47,7 +49,7 @@ router.patch("/:notificationId", async (req, res) => {
     const notification = await Notification.findByIdAndUpdate(
       notificationId,
       updateData,
-      { new: true }
+      { new: true },
     );
     if (!notification) {
       return res.status(404).json({ error: "Notification not found" });

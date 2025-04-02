@@ -5,18 +5,18 @@ const Task = require("../models/Task");
 // create a new task
 router.post("/", async (req, res) => {
   try {
-    const { 
-      title, 
-      priority, 
-      userId, 
-      description, 
-      assignedTo, 
-      status, 
-      dueDate, 
-      storyPoints, 
-      scheduledStart, 
+    const {
+      title,
+      priority,
+      userId,
+      description,
+      assignedTo,
+      status,
+      dueDate,
+      storyPoints,
+      scheduledStart,
       scheduledEnd,
-      labels
+      labels,
     } = req.body;
     if (!title || !priority || !userId || !status) {
       return res.status(400).json({ error: "All fields are required" });
@@ -35,11 +35,17 @@ router.post("/", async (req, res) => {
     }
 
     const pointsMap = {
-      "A1": 5.0, "A2": 4.5, "A3": 4.0,
-      "B1": 3.5, "B2": 3.0, "B3": 2.5,
-      "C1": 2.0, "C2": 1.5, "C3": 1.0,
-      "D": 0.5,
-      "E": 0.0
+      A1: 5.0,
+      A2: 4.5,
+      A3: 4.0,
+      B1: 3.5,
+      B2: 3.0,
+      B3: 2.5,
+      C1: 2.0,
+      C2: 1.5,
+      C3: 1.0,
+      D: 0.5,
+      E: 0.0,
     };
 
     const newTask = new Task({
@@ -55,7 +61,7 @@ router.post("/", async (req, res) => {
       storyPoints: storyPoints !== undefined ? storyPoints : 0,
       scheduledStart: scheduledStart || null,
       scheduledEnd: scheduledEnd || null,
-      labels: labels || []
+      labels: labels || [],
     });
 
     await newTask.save();
@@ -132,7 +138,9 @@ router.put("/:id/edit", async (req, res) => {
 
     if (dueDate !== undefined) {
       const newDueDate = dueDate ? new Date(dueDate).toISOString() : null;
-      const oldDueDate = existingTask.dueDate ? new Date(existingTask.dueDate).toISOString() : null;
+      const oldDueDate = existingTask.dueDate
+        ? new Date(existingTask.dueDate).toISOString()
+        : null;
       if (newDueDate !== oldDueDate) {
         updatedFields.notifiedUpcoming = false;
         updatedFields.notifiedOverdue = false;
@@ -151,7 +159,9 @@ router.put("/:id/edit", async (req, res) => {
       updatedFields.completedAt = completedAt;
     }
 
-    const task = await Task.findByIdAndUpdate(req.params.id, updatedFields, { new: true });
+    const task = await Task.findByIdAndUpdate(req.params.id, updatedFields, {
+      new: true,
+    });
     res.json(task);
   } catch (error) {
     console.error("Error editing task:", error);
@@ -203,7 +213,11 @@ router.put("/reorder", async (req, res) => {
     }
 
     const updatePromises = tasks.map((task) =>
-      Task.findByIdAndUpdate(task._id, { order: task.order, status: task.status }, { new: true })
+      Task.findByIdAndUpdate(
+        task._id,
+        { order: task.order, status: task.status },
+        { new: true }
+      )
     );
 
     await Promise.all(updatePromises);
@@ -218,7 +232,11 @@ router.put("/reorder", async (req, res) => {
 // archive a completed task
 router.put("/:id/archive", async (req, res) => {
   try {
-    const task = await Task.findByIdAndUpdate(req.params.id, { status: "archived" }, { new: true });
+    const task = await Task.findByIdAndUpdate(
+      req.params.id,
+      { status: "archived" },
+      { new: true }
+    );
     res.json(task);
   } catch (error) {
     console.error("Error archiving task:", error);
@@ -231,7 +249,10 @@ router.delete("/:id", async (req, res) => {
   try {
     await Task.findByIdAndDelete(req.params.id);
     res.json({ message: "Task deleted" });
-  } catch (error) { // eslint-disable-line no-unused-vars, unused-imports/no-unused-vars
+  } catch (
+    // eslint-disable-next-line no-unused-vars, unused-imports/no-unused-vars
+    _
+  ) {
     res.status(500).json({ error: "Failed to delete task" });
   }
 });
@@ -284,7 +305,7 @@ router.put("/:id/complete", async (req, res) => {
         taskCompleted: true,
         completedAt: new Date(),
         scheduledStart: null,
-        scheduledEnd: null
+        scheduledEnd: null,
       },
       { new: true }
     );

@@ -12,7 +12,12 @@ import TaskLabels from "../../components/boardComponents/TaskLabels";
 const localizer = momentLocalizer(moment);
 const DnDCalendar = withDragAndDrop(Calendar);
 
-const ScheduleView = ({ tasks, updateTaskInState, onCreateTaskShortcut, userSettings }) => {
+const ScheduleView = ({
+  tasks,
+  updateTaskInState,
+  onCreateTaskShortcut,
+  userSettings,
+}) => {
   const navigate = useNavigate();
 
   const mapTaskToEvent = (task) => {
@@ -96,7 +101,7 @@ const ScheduleView = ({ tasks, updateTaskInState, onCreateTaskShortcut, userSett
       ? `var(--priority-${event.priority})`
       : "#555";
     const eventTime = `${moment(event.start).format("h:mm A")} - ${moment(
-      event.end
+      event.end,
     ).format("h:mm A")}`;
 
     return (
@@ -118,7 +123,7 @@ const ScheduleView = ({ tasks, updateTaskInState, onCreateTaskShortcut, userSett
       ? `var(--priority-${event.priority})`
       : "#555";
     const eventTime = `${moment(event.start).format("h:mm A")} - ${moment(
-      event.end
+      event.end,
     ).format("h:mm A")}`;
 
     return (
@@ -137,7 +142,7 @@ const ScheduleView = ({ tasks, updateTaskInState, onCreateTaskShortcut, userSett
 
   const filteredUnscheduledTasks = unscheduledTasks
     .filter((task) =>
-      task.title.toLowerCase().includes(searchQuery.toLowerCase())
+      task.title.toLowerCase().includes(searchQuery.toLowerCase()),
     )
     .sort((a, b) => a.title.localeCompare(b.title));
 
@@ -164,14 +169,14 @@ const ScheduleView = ({ tasks, updateTaskInState, onCreateTaskShortcut, userSett
     // Prevent events with the same start and end time
     if (start.getTime() === end.getTime()) {
       console.warn(
-        "Drop results in an event with the same start and end time; ignoring drop."
+        "Drop results in an event with the same start and end time; ignoring drop.",
       );
       return;
     }
 
     try {
       const nextEvents = events.map((evt) =>
-        evt.id === event.id ? { ...evt, start, end } : evt
+        evt.id === event.id ? { ...evt, start, end } : evt,
       );
       setEvents(nextEvents);
 
@@ -208,7 +213,7 @@ const ScheduleView = ({ tasks, updateTaskInState, onCreateTaskShortcut, userSett
 
     try {
       const nextEvents = events.map((evt) =>
-        evt.id === event.id ? { ...evt, start, end } : evt
+        evt.id === event.id ? { ...evt, start, end } : evt,
       );
       setEvents(nextEvents);
 
@@ -232,7 +237,7 @@ const ScheduleView = ({ tasks, updateTaskInState, onCreateTaskShortcut, userSett
     const endDay = end.toISOString().slice(0, 10);
     if (startDay !== endDay) {
       console.warn(
-        "Drop from outside results in a multi-day event; ignoring drop."
+        "Drop from outside results in a multi-day event; ignoring drop.",
       );
       return;
     }
@@ -245,7 +250,7 @@ const ScheduleView = ({ tasks, updateTaskInState, onCreateTaskShortcut, userSett
 
     setEvents((prevEvents) => [...prevEvents, newEvent]);
     setUnscheduledTasks((prev) =>
-      prev.filter((t) => t._id !== draggedTask._id)
+      prev.filter((t) => t._id !== draggedTask._id),
     );
 
     const updatedTask = {

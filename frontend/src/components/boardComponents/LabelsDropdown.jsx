@@ -7,12 +7,12 @@ const LabelsDropdown = ({
   maxHeight = "200px",
 }) => {
   const attachedLabels = availableLabels.filter((lbl) =>
-    task.labels.some((l) => l.title === lbl.title && l.color === lbl.color)
+    task.labels.some((l) => l.title === lbl.title && l.color === lbl.color),
   );
 
   const unattachedLabels = availableLabels.filter(
     (lbl) =>
-      !task.labels.some((l) => l.title === lbl.title && l.color === lbl.color)
+      !task.labels.some((l) => l.title === lbl.title && l.color === lbl.color),
   );
 
   const containerStyle = { maxHeight, overflowY: "auto" };

@@ -10,7 +10,7 @@ describe("Layout Component", () => {
         <Layout>
           <div>Test Content</div>
         </Layout>
-      </MemoryRouter>
+      </MemoryRouter>,
     );
     expect(screen.getByText("ABFlow")).toBeInTheDocument();
     expect(screen.getByText("Test Content")).toBeInTheDocument();
@@ -31,7 +31,7 @@ describe("Layout Component", () => {
             <div>Test Content</div>
           </Layout>
         </MemoryRouter>
-      </NotificationsContext.Provider>
+      </NotificationsContext.Provider>,
     );
     expect(screen.getByText("Button A")).toBeInTheDocument();
   });
@@ -42,7 +42,7 @@ describe("Layout Component", () => {
         <Layout topBarButtons={[]} openModal={jest.fn()}>
           <div>Test Content</div>
         </Layout>
-      </MemoryRouter>
+      </MemoryRouter>,
     );
     const topBarElement = document.querySelector(".top-bar");
     expect(topBarElement).toBeNull();

@@ -8,10 +8,10 @@ const User = require("../models/User");
  */
 const shouldCreateNotification = async (userId, message, thresholdMs = 100) => {
   const threshold = new Date(Date.now() - thresholdMs);
-  const exists = await Notification.findOne({ 
-    userId, 
-    message, 
-    createdAt: { $gte: threshold } 
+  const exists = await Notification.findOne({
+    userId,
+    message,
+    createdAt: { $gte: threshold },
   });
   return !exists;
 };
@@ -20,13 +20,26 @@ const shouldCreateNotification = async (userId, message, thresholdMs = 100) => {
  * Generates a weekly insight notification based on high priority tasks.
  * Returns an array with one notification (or empty if none qualifies).
  */
-const generateWeeklyInsightNotification = async (userId, now, tasksLastWeek, twoDaysAgo) => {
+const generateWeeklyInsightNotification = async (
+  userId,
+  now,
+  tasksLastWeek,
+  twoDaysAgo,
+) => {
   let notifications = [];
-  const totalTime = tasksLastWeek.reduce((sum, task) => sum + (task.timeSpent || 0), 0);
-  const highPriorityTasks = tasksLastWeek.filter(
-    (task) => task.priority && (task.priority.startsWith("A") || task.priority.startsWith("B"))
+  const totalTime = tasksLastWeek.reduce(
+    (sum, task) => sum + (task.timeSpent || 0),
+    0,
   );
-  const highTime = highPriorityTasks.reduce((sum, task) => sum + (task.timeSpent || 0), 0);
+  const highPriorityTasks = tasksLastWeek.filter(
+    (task) =>
+      task.priority &&
+      (task.priority.startsWith("A") || task.priority.startsWith("B")),
+  );
+  const highTime = highPriorityTasks.reduce(
+    (sum, task) => sum + (task.timeSpent || 0),
+    0,
+  );
 
   // Only generate if there's total time and some high-priority tasks
   if (highPriorityTasks.length > 0 && totalTime > 0) {
@@ -34,7 +47,7 @@ const generateWeeklyInsightNotification = async (userId, now, tasksLastWeek, two
     let message;
     if (highPercentage < 50) {
       const newHighCount = highPriorityTasks.filter(
-        (task) => task.createdAt && new Date(task.createdAt) >= twoDaysAgo
+        (task) => task.createdAt && new Date(task.createdAt) >= twoDaysAgo,
       ).length;
       if (newHighCount > 0) {
         message = `Weekly Insight: Your high priority tasks accounted for only ${Math.round(highPercentage)}% of your total time last week, with some new tasks added recently. Consider reviewing them for improved focus.`;
@@ -59,7 +72,11 @@ const generateWeeklyInsightNotification = async (userId, now, tasksLastWeek, two
  * Generates a weekly task count notification if the user completed any tasks last week.
  * Returns an array with one notification (or empty if no tasks were completed).
  */
-const generateWeeklyTaskCountNotification = async (userId, now, tasksLastWeek) => {
+const generateWeeklyTaskCountNotification = async (
+  userId,
+  now,
+  tasksLastWeek,
+) => {
   let notifications = [];
   if (tasksLastWeek.length > 0) {
     const taskCount = tasksLastWeek.length;
@@ -86,8 +103,8 @@ const generateWeeklyInsights = async () => {
     // 1) Calculate Monday 00:00 of the current week
     // (Assumes Monday is the first day, day=1, Sunday=0)
     const startOfThisWeek = new Date(now);
-    const day = startOfThisWeek.getDay();           // 0=Sun, 1=Mon, etc.
-    const diffToMonday = (day === 0 ? 6 : day - 1); // how many days back from today to Monday
+    const day = startOfThisWeek.getDay(); // 0=Sun, 1=Mon, etc.
+    const diffToMonday = day === 0 ? 6 : day - 1; // how many days back from today to Monday
     startOfThisWeek.setDate(startOfThisWeek.getDate() - diffToMonday);
     startOfThisWeek.setHours(0, 0, 0, 0); // set to Monday 00:00 of this week
 
@@ -106,8 +123,13 @@ const generateWeeklyInsights = async () => {
       const userId = user.userId;
 
       // If a weekly notification was already sent this week, skip
-      if (user.lastWeeklyNotification && new Date(user.lastWeeklyNotification) >= startOfThisWeek) {
-        console.log(`Weekly insight already sent for user ${userId} this week.`);
+      if (
+        user.lastWeeklyNotification &&
+        new Date(user.lastWeeklyNotification) >= startOfThisWeek
+      ) {
+        console.log(
+          `Weekly insight already sent for user ${userId} this week.`,
+        );
         continue;
       }
 
@@ -120,11 +142,20 @@ const generateWeeklyInsights = async () => {
       let notificationsToCreate = [];
 
       // 1. High Priority Time-based Insight
-      const insightNotifs = await generateWeeklyInsightNotification(userId, now, tasksLastWeek, twoDaysAgo);
+      const insightNotifs = await generateWeeklyInsightNotification(
+        userId,
+        now,
+        tasksLastWeek,
+        twoDaysAgo,
+      );
       notificationsToCreate = notificationsToCreate.concat(insightNotifs);
 
       // 2. Task Count Notification
-      const taskCountNotifs = await generateWeeklyTaskCountNotification(userId, now, tasksLastWeek);
+      const taskCountNotifs = await generateWeeklyTaskCountNotification(
+        userId,
+        now,
+        tasksLastWeek,
+      );
       notificationsToCreate = notificationsToCreate.concat(taskCountNotifs);
 
       // If we have new notifications, insert them and update lastWeeklyNotification
@@ -135,13 +166,18 @@ const generateWeeklyInsights = async () => {
         // if (insightNotifs.length) { ...
         // but presumably any weekly notification means we've done "this week's" notifications
         await User.findOneAndUpdate(
-          { userId }, 
-          { lastWeeklyNotification: startOfThisWeek } // or 'now', your call
+          { userId },
+          { lastWeeklyNotification: startOfThisWeek }, // or 'now', your call
         );
 
-        console.log(`Weekly notifications generated for user ${userId}:`, notificationsToCreate);
+        console.log(
+          `Weekly notifications generated for user ${userId}:`,
+          notificationsToCreate,
+        );
       } else {
-        console.log(`No new weekly notifications generated for user ${userId}.`);
+        console.log(
+          `No new weekly notifications generated for user ${userId}.`,
+        );
       }
     }
   } catch (error) {

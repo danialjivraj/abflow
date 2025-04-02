@@ -12,10 +12,10 @@ const ScheduleEditModal = ({
   onUnschedule,
 }) => {
   const [start, setStart] = useState(
-    eventData?.start ? new Date(eventData.start) : null
+    eventData?.start ? new Date(eventData.start) : null,
   );
   const [end, setEnd] = useState(
-    eventData?.end ? new Date(eventData.end) : null
+    eventData?.end ? new Date(eventData.end) : null,
   );
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -67,7 +67,7 @@ const ScheduleEditModal = ({
   const calendarColor = getCalendarIconColor(
     eventData.start,
     eventData.end,
-    new Date()
+    new Date(),
   );
 
   return (
@@ -115,7 +115,7 @@ const ScheduleEditModal = ({
               <div
                 className={`priority-circle priority-${eventData.task.priority?.replace(
                   /\s+/g,
-                  ""
+                  "",
                 )}`}
               >
                 {eventData.task.priority}
