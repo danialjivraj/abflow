@@ -100,7 +100,7 @@ describe("Frequent Notifications", () => {
     // ---------------------------
     // generateScheduledNotifications Tests
     // ---------------------------
-    it("should generate scheduled notification for a task starting within 5 minutes", async () => {
+    it("should generate scheduled notification for a task starting within 4 minutes", async () => {
         const now = new Date();
         const scheduledStart = new Date(now.getTime() + 4 * 60 * 1000); // 4 minutes later: 17:44 UTC
         await Task.create({

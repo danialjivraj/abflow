@@ -55,7 +55,16 @@ describe("Task Routes", () => {
 
       expect(res.body).toHaveProperty("_id");
       expect(res.body.title).toBe("Test Task");
+      expect(res.body.priority).toBe("A1");
+      expect(res.body.userId).toBe("user1");
+      expect(res.body.status).toBe("pending");
+      expect(res.body.description).toBe("Test description");
       expect(res.body.points).toBe(5);
+      // other fields
+      expect(res.body.order).toBeDefined();
+      expect(res.body.labels).toEqual([]);
+      expect(res.body.scheduledStart).toBeNull();
+      expect(res.body.scheduledEnd).toBeNull();
     });
 
     it("should return 400 if required fields are missing", async () => {
@@ -77,19 +86,30 @@ describe("Task Routes", () => {
   // ---------------------------
   describe("GET /api/tasks/:userId", () => {
     it("should return tasks sorted by order", async () => {
-      await Task.create({
+      const task1 = await Task.create({
         title: "Task 1",
         priority: "A1",
         userId: defaultUser.userId,
         status: "pending",
+        description: "First task",
         order: 2,
+        points: 3,
+        labels: [],
+        scheduledStart: null,
+        scheduledEnd: null,
       });
-      await Task.create({
+
+      const task2 = await Task.create({
         title: "Task 2",
         priority: "B1",
         userId: defaultUser.userId,
-        status: "pending",
+        status: "in-progress",
+        description: "Second task",
         order: 1,
+        points: 5,
+        labels: [],
+        scheduledStart: null,
+        scheduledEnd: null,
       });
 
       const res = await request(app)
@@ -97,8 +117,31 @@ describe("Task Routes", () => {
         .expect(200);
 
       expect(res.body.length).toBe(2);
+
       expect(res.body[0].order).toBe(1);
       expect(res.body[1].order).toBe(2);
+
+      // first task (task2)
+      expect(res.body[0].title).toBe("Task 2");
+      expect(res.body[0].priority).toBe("B1");
+      expect(res.body[0].userId).toBe(defaultUser.userId);
+      expect(res.body[0].status).toBe("in-progress");
+      expect(res.body[0].description).toBe("Second task");
+      expect(res.body[0].points).toBe(5);
+      expect(res.body[0].labels).toEqual([]);
+      expect(res.body[0].scheduledStart).toBeNull();
+      expect(res.body[0].scheduledEnd).toBeNull();
+
+      // second task (task1)
+      expect(res.body[1].title).toBe("Task 1");
+      expect(res.body[1].priority).toBe("A1");
+      expect(res.body[1].userId).toBe(defaultUser.userId);
+      expect(res.body[1].status).toBe("pending");
+      expect(res.body[1].description).toBe("First task");
+      expect(res.body[1].points).toBe(3);
+      expect(res.body[1].labels).toEqual([]);
+      expect(res.body[1].scheduledStart).toBeNull();
+      expect(res.body[1].scheduledEnd).toBeNull();
     });
 
     it("should return 400 if userId is missing", async () => {
@@ -113,12 +156,17 @@ describe("Task Routes", () => {
   // ---------------------------
   describe("PUT /api/tasks/:id/edit", () => {
     it("should update a task and return the updated task", async () => {
-      const task = await Task.create({
+      const originalTask = await Task.create({
         title: "Original Task",
         priority: "A1",
         userId: defaultUser.userId,
         status: "pending",
         order: 0,
+        description: "Original description",
+        points: 5,
+        labels: [],
+        scheduledStart: null,
+        scheduledEnd: null,
       });
 
       const updatedData = {
@@ -130,25 +178,35 @@ describe("Task Routes", () => {
       };
 
       const res = await request(app)
-        .put(`/api/tasks/${task._id}/edit`)
+        .put(`/api/tasks/${originalTask._id}/edit`)
         .send(updatedData)
         .expect(200);
 
       expect(res.body.title).toBe("Updated Task");
       expect(res.body.priority).toBe("B1");
+      expect(res.body.status).toBe("completed");
       expect(res.body.order).toBe(1);
       expect(res.body.description).toBe("Updated description");
+      // other fields
+      expect(res.body.userId).toBe(defaultUser.userId);
+      expect(res.body.points).toBe(5);
+      expect(res.body.labels).toEqual([]);
+      expect(res.body.scheduledStart).toBeNull();
+      expect(res.body.scheduledEnd).toBeNull();
     });
 
     it("should update a task's labels", async () => {
-      // task with an empty labels array
-      const task = await Task.create({
+      const originalTask = await Task.create({
         title: "Task with labels",
         priority: "A1",
         userId: defaultUser.userId,
         status: "pending",
         order: 0,
+        description: "Label test",
+        points: 5,
         labels: [],
+        scheduledStart: null,
+        scheduledEnd: null,
       });
 
       const updatedData = {
@@ -160,7 +218,7 @@ describe("Task Routes", () => {
       };
 
       const res = await request(app)
-        .put(`/api/tasks/${task._id}/edit`)
+        .put(`/api/tasks/${originalTask._id}/edit`)
         .send(updatedData)
         .expect(200);
 
@@ -169,6 +227,16 @@ describe("Task Routes", () => {
       expect(res.body.labels[0].color).toBe("#ff0000");
       expect(res.body.labels[1].title).toBe("Bug");
       expect(res.body.labels[1].color).toBe("#00ff00");
+      // other fields
+      expect(res.body.title).toBe("Task with updated labels");
+      expect(res.body.priority).toBe("A1");
+      expect(res.body.userId).toBe(defaultUser.userId);
+      expect(res.body.status).toBe("pending");
+      expect(res.body.order).toBe(0);
+      expect(res.body.description).toBe("Label test");
+      expect(res.body.points).toBe(5);
+      expect(res.body.scheduledStart).toBeNull();
+      expect(res.body.scheduledEnd).toBeNull();
     });
   });
 
@@ -177,11 +245,17 @@ describe("Task Routes", () => {
   // ---------------------------
   describe("PATCH /api/tasks/:id/schedule", () => {
     it("should update scheduledStart and scheduledEnd for a task", async () => {
-      const task = await Task.create({
+      const originalTask = await Task.create({
         title: "Scheduled Task",
         priority: "A1",
         userId: defaultUser.userId,
         status: "pending",
+        description: "Schedule test",
+        order: 0,
+        points: 5,
+        labels: [],
+        scheduledStart: null,
+        scheduledEnd: null,
       });
 
       const scheduleData = {
@@ -190,12 +264,21 @@ describe("Task Routes", () => {
       };
 
       const res = await request(app)
-        .patch(`/api/tasks/${task._id}/schedule`)
+        .patch(`/api/tasks/${originalTask._id}/schedule`)
         .send(scheduleData)
         .expect(200);
 
       expect(new Date(res.body.scheduledStart).toISOString()).toBe(scheduleData.scheduledStart);
       expect(new Date(res.body.scheduledEnd).toISOString()).toBe(scheduleData.scheduledEnd);
+      // other fields
+      expect(res.body.title).toBe("Scheduled Task");
+      expect(res.body.priority).toBe("A1");
+      expect(res.body.userId).toBe(defaultUser.userId);
+      expect(res.body.status).toBe("pending");
+      expect(res.body.description).toBe("Schedule test");
+      expect(res.body.order).toBe(0);
+      expect(res.body.points).toBe(5);
+      expect(res.body.labels).toEqual([]);
     });
   });
 
@@ -204,12 +287,17 @@ describe("Task Routes", () => {
   // ---------------------------
   describe("PUT /api/tasks/:id/move", () => {
     it("should update a task's status and order", async () => {
-      const task = await Task.create({
+      const originalTask = await Task.create({
         title: "Movable Task",
         priority: "A1",
         userId: defaultUser.userId,
         status: "pending",
         order: 0,
+        description: "Move test",
+        points: 5,
+        labels: [],
+        scheduledStart: null,
+        scheduledEnd: null,
       });
 
       const moveData = {
@@ -218,12 +306,21 @@ describe("Task Routes", () => {
       };
 
       const res = await request(app)
-        .put(`/api/tasks/${task._id}/move`)
+        .put(`/api/tasks/${originalTask._id}/move`)
         .send(moveData)
         .expect(200);
 
       expect(res.body.status).toBe("inprogress");
       expect(res.body.order).toBe(2);
+      // other fields
+      expect(res.body.title).toBe("Movable Task");
+      expect(res.body.priority).toBe("A1");
+      expect(res.body.userId).toBe(defaultUser.userId);
+      expect(res.body.description).toBe("Move test");
+      expect(res.body.points).toBe(5);
+      expect(res.body.labels).toEqual([]);
+      expect(res.body.scheduledStart).toBeNull();
+      expect(res.body.scheduledEnd).toBeNull();
     });
   });
 
@@ -238,6 +335,11 @@ describe("Task Routes", () => {
         userId: defaultUser.userId,
         status: "pending",
         order: 0,
+        description: "Reorder test 1",
+        points: 5,
+        labels: [],
+        scheduledStart: null,
+        scheduledEnd: null,
       });
       const task2 = await Task.create({
         title: "Task 2",
@@ -245,6 +347,11 @@ describe("Task Routes", () => {
         userId: defaultUser.userId,
         status: "pending",
         order: 1,
+        description: "Reorder test 2",
+        points: 5,
+        labels: [],
+        scheduledStart: null,
+        scheduledEnd: null,
       });
 
       const newOrders = [
@@ -278,25 +385,41 @@ describe("Task Routes", () => {
   // ---------------------------
   describe("PUT /api/tasks/:id/archive", () => {
     it("should archive a task", async () => {
-      const task = await Task.create({
+      const originalTask = await Task.create({
         title: "Task to Archive",
         priority: "A1",
         userId: defaultUser.userId,
         status: "completed",
+        order: 0,
+        description: "Archive test",
+        points: 5,
+        labels: [],
+        scheduledStart: null,
+        scheduledEnd: null,
       });
 
       const res = await request(app)
-        .put(`/api/tasks/${task._id}/archive`)
+        .put(`/api/tasks/${originalTask._id}/archive`)
         .expect(200);
 
       expect(res.body.status).toBe("archived");
+      // other fields
+      expect(res.body.title).toBe("Task to Archive");
+      expect(res.body.priority).toBe("A1");
+      expect(res.body.userId).toBe(defaultUser.userId);
+      expect(res.body.order).toBe(0);
+      expect(res.body.description).toBe("Archive test");
+      expect(res.body.points).toBe(5);
+      expect(res.body.labels).toEqual([]);
+      expect(res.body.scheduledStart).toBeNull();
+      expect(res.body.scheduledEnd).toBeNull();
     });
   });
 
   // ---------------------------
   // Duplicate a task
   // ---------------------------
-  it("should duplicate a task in the middle and shift subsequent tasks, verifying all fields", async () => {
+  it("should duplicate a task in the middle and shift subsequent tasks", async () => {
     const createdTasks = [];
     for (let i = 0; i < 6; i++) {
       const taskData = {
@@ -337,7 +460,7 @@ describe("Task Routes", () => {
       .send(duplicateData)
       .expect(201);
 
-    // Check duplicate task fields
+    // duplicate task fields
     expect(res.body.title).toBe("Duplicate of Task 3");
     expect(res.body.priority).toBe("A1");
     expect(res.body.userId).toBe(defaultUser.userId);
@@ -473,6 +596,12 @@ describe("Task Routes", () => {
         priority: "A1",
         userId: defaultUser.userId,
         status: "pending",
+        order: 0,
+        description: "Delete test",
+        points: 5,
+        labels: [],
+        scheduledStart: null,
+        scheduledEnd: null,
       });
 
       const res = await request(app)
@@ -491,19 +620,36 @@ describe("Task Routes", () => {
   // ---------------------------
   describe("PUT /api/tasks/:id/start-timer", () => {
     it("should start the timer for a task", async () => {
-      const task = await Task.create({
+      const originalTask = await Task.create({
         title: "Timer Task",
         priority: "A1",
         userId: defaultUser.userId,
         status: "pending",
+        order: 0,
+        description: "Timer start test",
+        points: 5,
+        labels: [],
+        scheduledStart: null,
+        scheduledEnd: null,
       });
 
       const res = await request(app)
-        .put(`/api/tasks/${task._id}/start-timer`)
+        .put(`/api/tasks/${originalTask._id}/start-timer`)
         .expect(200);
 
       expect(res.body.isTimerRunning).toBe(true);
       expect(res.body.timerStartTime).toBeTruthy();
+      // other fields
+      expect(res.body.title).toBe("Timer Task");
+      expect(res.body.priority).toBe("A1");
+      expect(res.body.userId).toBe(defaultUser.userId);
+      expect(res.body.status).toBe("pending");
+      expect(res.body.order).toBe(0);
+      expect(res.body.description).toBe("Timer start test");
+      expect(res.body.points).toBe(5);
+      expect(res.body.labels).toEqual([]);
+      expect(res.body.scheduledStart).toBeNull();
+      expect(res.body.scheduledEnd).toBeNull();
     });
 
     it("should return 404 if task not found", async () => {
@@ -520,23 +666,40 @@ describe("Task Routes", () => {
   // ---------------------------
   describe("PUT /api/tasks/:id/stop-timer", () => {
     it("should stop the timer for a running task", async () => {
-      const task = await Task.create({
+      const originalTask = await Task.create({
         title: "Timer Task",
         priority: "A1",
         userId: defaultUser.userId,
         status: "pending",
+        order: 0,
+        description: "Timer stop test",
+        points: 5,
+        labels: [],
+        scheduledStart: null,
+        scheduledEnd: null,
         isTimerRunning: true,
         timerStartTime: new Date(Date.now() - 60 * 1000),
         timeSpent: 0,
       });
 
       const res = await request(app)
-        .put(`/api/tasks/${task._id}/stop-timer`)
+        .put(`/api/tasks/${originalTask._id}/stop-timer`)
         .expect(200);
 
       expect(res.body.isTimerRunning).toBe(false);
       expect(res.body.timerStartTime).toBeNull();
       expect(res.body.timeSpent).toBeGreaterThanOrEqual(60);
+      // other fields
+      expect(res.body.title).toBe("Timer Task");
+      expect(res.body.priority).toBe("A1");
+      expect(res.body.userId).toBe(defaultUser.userId);
+      expect(res.body.status).toBe("pending");
+      expect(res.body.order).toBe(0);
+      expect(res.body.description).toBe("Timer stop test");
+      expect(res.body.points).toBe(5);
+      expect(res.body.labels).toEqual([]);
+      expect(res.body.scheduledStart).toBeNull();
+      expect(res.body.scheduledEnd).toBeNull();
     });
 
     it("should return 404 if task not found", async () => {
@@ -553,15 +716,21 @@ describe("Task Routes", () => {
   // ---------------------------
   describe("PUT /api/tasks/:id/complete", () => {
     it("should mark a task as completed", async () => {
-      const task = await Task.create({
+      const originalTask = await Task.create({
         title: "Task to Complete",
         priority: "A1",
         userId: defaultUser.userId,
         status: "pending",
+        order: 0,
+        description: "Complete test",
+        points: 5,
+        labels: [],
+        scheduledStart: null,
+        scheduledEnd: null,
       });
 
       const res = await request(app)
-        .put(`/api/tasks/${task._id}/complete`)
+        .put(`/api/tasks/${originalTask._id}/complete`)
         .expect(200);
 
       expect(res.body.status).toBe("completed");
@@ -569,6 +738,14 @@ describe("Task Routes", () => {
       expect(res.body.completedAt).toBeTruthy();
       expect(res.body.scheduledStart).toBeNull();
       expect(res.body.scheduledEnd).toBeNull();
+      // other fields
+      expect(res.body.title).toBe("Task to Complete");
+      expect(res.body.priority).toBe("A1");
+      expect(res.body.userId).toBe(defaultUser.userId);
+      expect(res.body.order).toBe(0);
+      expect(res.body.description).toBe("Complete test");
+      expect(res.body.points).toBe(5);
+      expect(res.body.labels).toEqual([]);
     });
   });
 
@@ -577,22 +754,39 @@ describe("Task Routes", () => {
   // ---------------------------
   describe("PUT /api/tasks/:id/reset-notification-flags", () => {
     it("should update notification flags for a task", async () => {
-      const task = await Task.create({
+      const originalTask = await Task.create({
         title: "Task for Flags",
         priority: "A1",
         userId: defaultUser.userId,
         status: "pending",
+        order: 0,
+        description: "Notification test",
+        points: 5,
+        labels: [],
+        scheduledStart: null,
+        scheduledEnd: null,
         notifiedUpcoming: true,
         notifiedOverdue: true,
       });
 
       const res = await request(app)
-        .put(`/api/tasks/${task._id}/reset-notification-flags`)
+        .put(`/api/tasks/${originalTask._id}/reset-notification-flags`)
         .send({ notifiedUpcoming: false, notifiedOverdue: false })
         .expect(200);
 
       expect(res.body.notifiedUpcoming).toBe(false);
       expect(res.body.notifiedOverdue).toBe(false);
+      // other fields
+      expect(res.body.title).toBe("Task for Flags");
+      expect(res.body.priority).toBe("A1");
+      expect(res.body.userId).toBe(defaultUser.userId);
+      expect(res.body.status).toBe("pending");
+      expect(res.body.order).toBe(0);
+      expect(res.body.description).toBe("Notification test");
+      expect(res.body.points).toBe(5);
+      expect(res.body.labels).toEqual([]);
+      expect(res.body.scheduledStart).toBeNull();
+      expect(res.body.scheduledEnd).toBeNull();
     });
   });
 });
