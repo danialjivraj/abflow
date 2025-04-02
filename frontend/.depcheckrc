@@ -1,0 +1,6 @@
+{
+  "ignores": [
+    "identity-obj-proxy",
+    "jest-environment-jsdom"
+  ]
+}
