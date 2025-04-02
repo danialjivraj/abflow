@@ -73,7 +73,7 @@ router.post("/", async (req, res) => {
         _id: { $ne: newTask._id },
         order: { $gte: newTask.order },
       },
-      { $inc: { order: 1 } }
+      { $inc: { order: 1 } },
     );
 
     res.status(201).json(newTask);
@@ -176,7 +176,7 @@ router.patch("/:id/schedule", async (req, res) => {
     const task = await Task.findByIdAndUpdate(
       req.params.id,
       { scheduledStart, scheduledEnd },
-      { new: true }
+      { new: true },
     );
     res.json(task);
   } catch (error) {
@@ -216,8 +216,8 @@ router.put("/reorder", async (req, res) => {
       Task.findByIdAndUpdate(
         task._id,
         { order: task.order, status: task.status },
-        { new: true }
-      )
+        { new: true },
+      ),
     );
 
     await Promise.all(updatePromises);
@@ -235,7 +235,7 @@ router.put("/:id/archive", async (req, res) => {
     const task = await Task.findByIdAndUpdate(
       req.params.id,
       { status: "archived" },
-      { new: true }
+      { new: true },
     );
     res.json(task);
   } catch (error) {
@@ -307,7 +307,7 @@ router.put("/:id/complete", async (req, res) => {
         scheduledStart: null,
         scheduledEnd: null,
       },
-      { new: true }
+      { new: true },
     );
     res.json(task);
   } catch (error) {
@@ -323,7 +323,7 @@ router.put("/:id/reset-notification-flags", async (req, res) => {
     const task = await Task.findByIdAndUpdate(
       req.params.id,
       { notifiedUpcoming, notifiedOverdue },
-      { new: true }
+      { new: true },
     );
     res.json(task);
   } catch (error) {

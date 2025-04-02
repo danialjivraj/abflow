@@ -8,7 +8,7 @@ router.get("/:userId", async (req, res) => {
   try {
     const user = await User.findOne({ userId: req.params.userId });
     if (!user) return res.status(404).json({ error: "User not found" });
-    
+
     // Sort labels based on the order field before returning them
     const sortedLabels = user.labels.sort((a, b) => a.order - b.order);
     res.json(sortedLabels);
@@ -29,7 +29,7 @@ router.post("/:userId", async (req, res) => {
     }
     const user = await User.findOne({ userId: req.params.userId });
     if (!user) return res.status(404).json({ error: "User not found" });
-    
+
     const newLabel = { title, color, order: user.labels.length };
     user.labels.push(newLabel);
     await user.save();
@@ -69,14 +69,14 @@ router.put("/:userId/:labelId", async (req, res) => {
     const { userId, labelId } = req.params;
     const user = await User.findOne({ userId });
     if (!user) return res.status(404).json({ error: "User not found" });
-    
+
     const label = user.labels.id(labelId);
     if (!label) return res.status(404).json({ error: "Label not found" });
-    
+
     if (title) label.title = title;
     if (color) label.color = color;
     if (order !== undefined) label.order = order;
-    
+
     await user.save();
 
     await Task.updateMany(
@@ -87,7 +87,7 @@ router.put("/:userId/:labelId", async (req, res) => {
           "labels.$[elem].color": label.color,
         },
       },
-      { arrayFilters: [{ "elem._id": labelId }] }
+      { arrayFilters: [{ "elem._id": labelId }] },
     );
     res.json(label);
   } catch (
@@ -105,15 +105,12 @@ router.delete("/:userId/:labelId", async (req, res) => {
     const { userId, labelId } = req.params;
     const user = await User.findOne({ userId });
     if (!user) return res.status(404).json({ error: "User not found" });
-    
+
     user.labels.pull(labelId);
     await user.save();
-    
-    await Task.updateMany(
-      { userId },
-      { $pull: { labels: { _id: labelId } } }
-    );
-    
+
+    await Task.updateMany({ userId }, { $pull: { labels: { _id: labelId } } });
+
     res.json({ message: "Label deleted" });
   } catch (
     // eslint-disable-next-line no-unused-vars, unused-imports/no-unused-vars
