@@ -9,6 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "jest",
+    "depcheck": "npx depcheck",
     "format": "prettier --write ."
   },
   "dependencies": {
@@ -56,6 +57,7 @@
     "@vitejs/plugin-react": "^4.3.4",
     "babel-plugin-transform-import-meta": "^2.3.2",
     "babel-preset-vite": "^1.1.3",
+    "depcheck": "^1.4.7",
     "eslint": "^9.19.0",
     "eslint-plugin-react": "^7.37.4",
     "eslint-plugin-react-hooks": "^5.2.0",
