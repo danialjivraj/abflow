@@ -1,4 +1,3 @@
-import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import LogoutModal from "../../src/components/modals/LogoutModal";
 import { auth } from "../../src/firebase";

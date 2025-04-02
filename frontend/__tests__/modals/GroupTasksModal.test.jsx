@@ -1,4 +1,3 @@
-import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import GroupTasksModal from "../../src/components/modals/GroupTasksModal";
 const { createBaseTask } = require("../../_testUtils/createBaseTask");

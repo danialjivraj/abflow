@@ -16,14 +16,13 @@ if (typeof window.matchMedia !== "function") {
 
 if (typeof window.IntersectionObserver !== "function") {
   window.IntersectionObserver = class {
-    constructor(callback, options) {}
+    constructor() {}
     observe() {}
     unobserve() {}
     disconnect() {}
   };
 }
 
-import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import TiptapEditor from "../../src/components/TiptapEditor";
 

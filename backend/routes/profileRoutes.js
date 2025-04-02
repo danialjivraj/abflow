@@ -16,7 +16,7 @@ if (!fs.existsSync(uploadDir)) {
 
 const storage = new CloudinaryStorage({
   cloudinary,
-  params: async (req, file) => ({
+  params: async () => ({
     folder: "uploads",
     allowed_formats: ["jpg", "jpeg", "png", "gif"],
     transformation: [{ width: 500, height: 500, crop: "limit" }],

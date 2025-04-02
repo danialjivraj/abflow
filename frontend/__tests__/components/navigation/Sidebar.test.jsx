@@ -1,4 +1,3 @@
-import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import Sidebar from "../../../src/components/navigation/Sidebar";
 import { MemoryRouter } from "react-router-dom";

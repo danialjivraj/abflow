@@ -77,7 +77,6 @@ router.post("/", async (req, res) => {
   }
 });
 
-
 // fetch tasks sorted by order for a user
 router.get("/:userId", async (req, res) => {
   try {
@@ -147,7 +146,8 @@ router.put("/:id/edit", async (req, res) => {
     if (typeof taskCompleted !== "undefined") {
       updatedFields.taskCompleted = taskCompleted;
     }
-    if (req.body.hasOwnProperty("completedAt")) {
+
+    if (Object.prototype.hasOwnProperty.call(req.body, "completedAt")) {
       updatedFields.completedAt = completedAt;
     }
 
@@ -231,7 +231,7 @@ router.delete("/:id", async (req, res) => {
   try {
     await Task.findByIdAndDelete(req.params.id);
     res.json({ message: "Task deleted" });
-  } catch (error) {
+  } catch (error) { // eslint-disable-line no-unused-vars, unused-imports/no-unused-vars
     res.status(500).json({ error: "Failed to delete task" });
   }
 });

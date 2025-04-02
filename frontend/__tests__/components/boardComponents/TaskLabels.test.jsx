@@ -1,4 +1,3 @@
-import React from "react";
 import { render, screen } from "@testing-library/react";
 import TaskLabels from "../../../src/components/boardComponents/TaskLabels";
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import Layout from "../components/navigation/Layout";
 import TopBar from "../components/navigation/TopBar";
 import { auth } from "../firebase";

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   BarChart,
   Bar,
@@ -32,7 +32,7 @@ import {
 import { auth } from "../../firebase.js";
 import Layout from "../../components/navigation/Layout.jsx";
 import TopBar from "../../components/navigation/TopBar.jsx";
-import { startOfISOWeek, format } from "date-fns";
+import { format } from "date-fns";
 import "react-datepicker/dist/react-datepicker.css";
 import ViewTaskModal from "../../components/modals/ViewTaskModal.jsx";
 import GroupTasksModal from "../../components/modals/GroupTasksModal.jsx";

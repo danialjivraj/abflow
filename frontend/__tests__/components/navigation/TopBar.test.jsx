@@ -1,4 +1,3 @@
-import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import TopBar from "../../../src/components/navigation/TopBar";
 import { MemoryRouter } from "react-router-dom";

@@ -1,6 +1,5 @@
 jest.setTimeout(10000);
 
-import React from "react";
 import {
   render,
   screen,
@@ -19,9 +18,7 @@ import { toast } from "react-toastify";
 
 import Charts from "../../../src/pages/Charts/Charts";
 import { NotificationsContext } from "../../../src/contexts/NotificationsContext";
-import { createBaseUser } from "../../../_testUtils/createBaseUser";
 import { auth } from "../../../src/firebase";
-import { createBaseColumn } from "../../../_testUtils/createBaseColumn";
 import { createBaseTask } from "../../../_testUtils/createBaseTask";
 
 const { fetchChartPreferences } = require("../../../src/services/preferencesService");

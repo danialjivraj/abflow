@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { FiEdit, FiTrash } from "react-icons/fi";
 import { toast } from "react-toastify";
 import {
@@ -147,7 +147,7 @@ const LabelsModal = ({ isOpen, closeModal, labels, setLabels, userId }) => {
 
   if (!isOpen) return null;
 
-  const handleOverlayClick = (e) => {
+  const handleOverlayClick = () => {
     if (editingLabelIndex !== null) {
       const confirmClose = window.confirm(
         "You have unsaved changes. Are you sure you want to close?"

@@ -1,4 +1,3 @@
-import React from "react";
 
 const TaskLabels = ({ labels, hideLabelText, truncateLength }) => {
   if (!labels || labels.length === 0) return null;

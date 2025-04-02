@@ -1,4 +1,3 @@
-import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import NotificationsDropdown from "../../src/components/NotificationsDropdown";
 import { NotificationsContext } from "../../src/contexts/NotificationsContext";
@@ -229,7 +228,7 @@ describe("NotificationsDropdown Component - INTEGRATION TESTS", () => {
   });
 
   test("default tab is All and shows all notifications with correct text", () => {
-    const { container } = renderWithNotificationsContext(
+    const {} = renderWithNotificationsContext(
       <NotificationsDropdown
         notifications={notifications}
         onClose={jest.fn()}
@@ -253,7 +252,7 @@ describe("NotificationsDropdown Component - INTEGRATION TESTS", () => {
   });
 
   test("clicking the Unread tab filters notifications to show only unread items with correct text", () => {
-    const { container } = renderWithNotificationsContext(
+    const {} = renderWithNotificationsContext(
       <NotificationsDropdown
         notifications={notifications}
         onClose={jest.fn()}
@@ -277,7 +276,7 @@ describe("NotificationsDropdown Component - INTEGRATION TESTS", () => {
   });
 
   test("switching between tabs updates the displayed notifications correctly with text assertions", () => {
-    const { container } = renderWithNotificationsContext(
+    const {} = renderWithNotificationsContext(
       <NotificationsDropdown
         notifications={notifications}
         onClose={jest.fn()}

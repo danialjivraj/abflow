@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { render, fireEvent, screen } from "@testing-library/react";
 import AddBoard from "../../../src/components/boardComponents/AddBoard";
 import { validateBoardName } from "../../../src/utils/boardValidation";

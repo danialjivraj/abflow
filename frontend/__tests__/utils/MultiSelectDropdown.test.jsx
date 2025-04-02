@@ -1,5 +1,4 @@
-import React from "react";
-import { render, fireEvent, screen, within } from "@testing-library/react";
+import { render, fireEvent, screen } from "@testing-library/react";
 import MultiSelectDropdown from "../../src/utils/MultiSelectDropdown";
 
 describe("MultiSelectDropdown", () => {

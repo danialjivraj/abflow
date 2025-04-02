@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useContext } from "react";
+import { useEffect, useState, useRef } from "react";
 import Layout from "../../components/navigation/Layout";
 import TopBar from "../../components/navigation/TopBar";
 import LabelsModal from "../../components/modals/LabelsModal.jsx";
@@ -7,7 +7,7 @@ import CreateTaskModal from "../../components/modals/CreateTaskModal.jsx";
 import ViewTaskModal from "../../components/modals/ViewTaskModal.jsx";
 import ScheduleEditModal from "../../components/modals/ScheduleEditModal.jsx";
 import { auth } from "../../firebase";
-import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   fetchTasks,
   createTask,
@@ -30,7 +30,6 @@ import ScheduleView from "./ScheduleView";
 import "../../components/styles.css";
 import "../../components/navigation/topBar.css";
 import "../../components/tipTapEditor.css";
-import { NotificationsContext } from "../../contexts/NotificationsContext";
 import { validateBoardName } from "../../utils/boardValidation";
 import { fetchSettingsPreferences } from "../../services/preferencesService";
 import { fetchLabels } from "../../services/labelsService";
@@ -80,9 +79,7 @@ const Dashboard = (props) => {
 
   const { userSettings, setUserSettings } = props;
   const navigate = useNavigate();
-  const { taskId } = useParams();
   const location = useLocation();
-  const { setNotifications } = useContext(NotificationsContext);
 
   const baseRoute = getBaseRoute(location.pathname);
   const isCreateTaskModalOpen = location.pathname === `${baseRoute}/createtask`;

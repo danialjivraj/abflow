@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { DragDropContext, Droppable } from "@hello-pangea/dnd";
 import Column from "../../components/boardComponents/Column";
 import AddBoard from "../../components/boardComponents/AddBoard";

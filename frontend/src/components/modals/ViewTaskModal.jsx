@@ -1,4 +1,5 @@
-import React, { useState, useRef } from "react";
+/* eslint-disable react-hooks/rules-of-hooks */
+import { useState, useRef } from "react";
 import TiptapEditor from "../TiptapEditor";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -441,7 +442,6 @@ const ViewTaskModal = ({
   stopTimer,
   setCompletedTasks,
   readOnly = false,
-  newTaskLabels,
   availableLabels,
   setNewTaskLabels,
 }) => {

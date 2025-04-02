@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import { TextEncoder, TextDecoder } from "util";
 
 global.TextEncoder = TextEncoder;

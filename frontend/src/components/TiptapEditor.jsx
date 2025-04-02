@@ -14,7 +14,7 @@ import { Color } from "@tiptap/extension-color";
 import Picker from "@emoji-mart/react";
 import data from "@emoji-mart/data";
 import TextAlign from "@tiptap/extension-text-align";
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   FaBold,
   FaItalic,
@@ -25,8 +25,6 @@ import {
   FaUndo,
   FaRedo,
   FaHeading,
-  FaLink,
-  FaImage,
   FaCode,
   FaMinus,
   FaAlignLeft,

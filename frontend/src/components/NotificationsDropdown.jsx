@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import { useContext, useState } from "react";
 import { NotificationsContext } from "../contexts/NotificationsContext";
 import { formatDateWithoutGMT } from "../utils/dateUtils";
 import {

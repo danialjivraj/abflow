@@ -1,4 +1,3 @@
-import React from "react";
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import Profile from "../src/pages/Profile";
@@ -130,6 +129,7 @@ describe("Profile Page", () => {
         points: 3.5,
       }),
     ];
+     
     const pendingTask = createBaseTask({
       _id: "14",
       title: "Pending Task",

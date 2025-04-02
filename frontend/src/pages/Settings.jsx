@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Layout from "../components/navigation/Layout";
 import TopBar from "../components/navigation/TopBar";
@@ -264,9 +264,11 @@ const Settings = ({ updateDefaultDashboardView }) => {
 
   const isChanged = (() => {
     if (!initialSettings) return false;
+    /* eslint-disable no-unused-vars */
     const { darkMode, ...currentWithoutDarkMode } = settings;
     const { darkMode: initialDarkMode, ...initialWithoutDarkMode } =
       initialSettings;
+    /* eslint-enable no-unused-vars */
     return (
       JSON.stringify(currentWithoutDarkMode) !==
       JSON.stringify(initialWithoutDarkMode)

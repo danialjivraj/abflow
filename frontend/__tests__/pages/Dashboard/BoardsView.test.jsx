@@ -1,5 +1,5 @@
 import React from "react";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import BoardsView from "../../../src/pages/Dashboard/BoardsView";
 import { createBaseColumn } from "../../../_testUtils/createBaseColumn";
 import { createBaseTask } from "../../../_testUtils/createBaseTask";
@@ -21,7 +21,7 @@ jest.mock("../../../src/components/boardComponents/Column", () => (props) => {
   );
 });
 
-jest.mock("../../../src/components/boardComponents/AddBoard", () => (props) => {
+jest.mock("../../../src/components/boardComponents/AddBoard", () => () => {
   return <button data-testid="add-board">+</button>;
 });
 

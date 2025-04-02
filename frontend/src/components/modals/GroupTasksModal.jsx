@@ -1,4 +1,3 @@
-import React from "react";
 import TaskCard from "../boardComponents/TaskCard";
 
 const GroupTasksModal = ({

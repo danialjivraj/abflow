@@ -1,4 +1,3 @@
-import React from "react";
 import { auth } from "../../firebase";
 
 const LogoutModal = ({ isOpen, onClose }) => {

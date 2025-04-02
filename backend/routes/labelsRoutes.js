@@ -9,10 +9,9 @@ router.get('/:userId', async (req, res) => {
     const user = await User.findOne({ userId: req.params.userId });
     if (!user) return res.status(404).json({ error: 'User not found' });
     
-    // Sort labels based on the order field before returning them
     const sortedLabels = user.labels.sort((a, b) => a.order - b.order);
     res.json(sortedLabels);
-  } catch (error) {
+  } catch (_error) { // eslint-disable-line no-unused-vars, unused-imports/no-unused-vars
     res.status(500).json({ error: 'Failed to fetch labels' });
   }
 });
@@ -31,7 +30,7 @@ router.post('/:userId', async (req, res) => {
     user.labels.push(newLabel);
     await user.save();
     res.status(201).json(user.labels[user.labels.length - 1]);
-  } catch (error) {
+  } catch (_error) { // eslint-disable-line no-unused-vars, unused-imports/no-unused-vars
     res.status(500).json({ error: 'Failed to create label' });
   }
 });
@@ -47,8 +46,8 @@ router.put('/:userId/reorder', async (req, res) => {
     user.labels = labels;
     await user.save();
     res.json(user.labels);
-  } catch (error) {
-    console.error("Error reordering labels:", error);
+  } catch (_error) {
+    console.error("Error reordering labels:", _error);
     res.status(500).json({ error: 'Failed to update label order' });
   }
 });
@@ -76,8 +75,8 @@ router.put('/:userId/:labelId', async (req, res) => {
       { arrayFilters: [{ "elem._id": labelId }] }
     );
     res.json(label);
-  } catch (error) {
-    console.error("Error updating label:", error);
+  } catch (_error) {
+    console.error("Error updating label:", _error);
     res.status(500).json({ error: 'Failed to update label' });
   }
 });
@@ -98,8 +97,8 @@ router.delete('/:userId/:labelId', async (req, res) => {
     );
     
     res.json({ message: 'Label deleted' });
-  } catch (error) {
-    console.error("Error deleting label:", error);
+  } catch (_error) {
+    console.error("Error deleting label:", _error);
     res.status(500).json({ error: 'Failed to delete label' });
   }
 });

@@ -1,4 +1,3 @@
-import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import Dashboard, { getBaseRoute } from "../../../src/pages/Dashboard/Dashboard";
@@ -54,7 +53,7 @@ jest.mock("../../../src/components/navigation/Layout", () => {
 });
 
 jest.mock("../../../src/components/navigation/TopBar", () => {
-  return ({ buttons, openModal, navigate }) => (
+  return ({ buttons }) => (
     <div data-testid="topbar">
       {buttons.map((btn, index) => (
         <button key={index} data-testid="topbar-button">
@@ -78,25 +77,25 @@ jest.mock("../../../src/config/topBarConfig", () => ({
 }));
 
 jest.mock("../../../src/components/modals/CreateTaskModal", () => {
-  return ({ isModalOpen, closeModal }) => (
+  return ({ isModalOpen }) => (
     <div data-testid="create-task-modal">{isModalOpen ? "open" : "closed"}</div>
   );
 });
 
 jest.mock("../../../src/components/modals/LabelsModal", () => {
-  return ({ isOpen, closeModal, labels, setLabels, userId }) => (
+  return ({ isOpen }) => (
     <div data-testid="labels-modal">{isOpen ? "open" : "closed"}</div>
   );
 });
 
 jest.mock("../../../src/components/modals/ViewTaskModal", () => {
-  return ({ isModalOpen, closeModal }) => (
+  return ({ isModalOpen }) => (
     <div data-testid="view-task-modal">{isModalOpen ? "open" : "closed"}</div>
   );
 });
 
 jest.mock("../../../src/components/modals/ScheduleEditModal", () => {
-  return ({ isModalOpen, onSave, onUnschedule, onClose }) => (
+  return ({ isModalOpen }) => (
     <div data-testid="schedule-edit-modal">
       {isModalOpen ? "open" : "closed"}
     </div>
@@ -146,11 +145,11 @@ jest.mock("../../../src/pages/Dashboard/BoardsView", () => {
   );
 });
 jest.mock("../../../src/pages/Dashboard/CompletedTasks", () => {
-  return (props) => <div data-testid="completed-tasks">CompletedTasks</div>;
+  return () => <div data-testid="completed-tasks">CompletedTasks</div>;
 });
 
 jest.mock("../../../src/pages/Dashboard/ScheduleView", () => {
-  return (props) => <div data-testid="schedule-view">ScheduleView</div>;
+  return () => <div data-testid="schedule-view">ScheduleView</div>;
 });
 
 const defaultUserSettings = {

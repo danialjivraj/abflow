@@ -1,4 +1,3 @@
-import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { DragDropContext } from "@hello-pangea/dnd";
 import TaskCard from "../../../src/components/boardComponents/TaskCard";
@@ -358,7 +357,7 @@ describe("TaskCard - Integration Tests", () => {
       status: "in-progress",
       isTimerRunning: false,
     });
-  
+
     renderWithDnd(
       <TaskCard
         {...defaultProps}
@@ -366,18 +365,24 @@ describe("TaskCard - Integration Tests", () => {
         isTaskDropdownOpen={activeTask._id}
       />
     );
-  
+
     const dropdownButtons = screen
       .getByRole("button", { name: "⋮" })
       .closest(".task-card")
       .querySelectorAll(".dropdown-menu.open button");
-  
+
     const actualOptions = Array.from(dropdownButtons).map((btn) =>
       btn.textContent.trim()
     );
-  
-    const expectedOptions = ["Complete Task", "Start Timer", "Labels", "Duplicate", "Delete"];
-  
+
+    const expectedOptions = [
+      "Complete Task",
+      "Start Timer",
+      "Labels",
+      "Duplicate",
+      "Delete",
+    ];
+
     expect(actualOptions).toEqual(expectedOptions);
   });
 
@@ -770,7 +775,6 @@ describe("TaskCard - Integration Tests", () => {
 
     // --- Overdue Tests ---
     test("Overdue by 1 second", () => {
-      const diff = 1000;
       const currentTime = new Date("2022-01-01T00:00:01.000Z");
       const dueDate = new Date("2022-01-01T00:00:00.000Z").toISOString();
       dateUtils.formatDueDate.mockImplementationOnce(() => ({
@@ -788,7 +792,6 @@ describe("TaskCard - Integration Tests", () => {
     });
 
     test("Overdue by 30 seconds", () => {
-      const diff = 30000;
       const currentTime = new Date("2022-01-01T00:00:30.000Z");
       const dueDate = new Date("2022-01-01T00:00:00.000Z").toISOString();
       dateUtils.formatDueDate.mockImplementationOnce(() => ({
@@ -806,7 +809,6 @@ describe("TaskCard - Integration Tests", () => {
     });
 
     test("Overdue by 1 minute", () => {
-      const diff = 60000;
       const currentTime = new Date("2022-01-01T00:01:00.000Z");
       const dueDate = new Date("2022-01-01T00:00:00.000Z").toISOString();
       dateUtils.formatDueDate.mockImplementationOnce(() => ({
@@ -824,7 +826,6 @@ describe("TaskCard - Integration Tests", () => {
     });
 
     test("Overdue by 30 minutes", () => {
-      const diff = 30 * 60000;
       const currentTime = new Date("2022-01-01T00:30:00.000Z");
       const dueDate = new Date("2022-01-01T00:00:00.000Z").toISOString();
       dateUtils.formatDueDate.mockImplementationOnce(() => ({
@@ -842,7 +843,6 @@ describe("TaskCard - Integration Tests", () => {
     });
 
     test("Overdue by 1 hour", () => {
-      const diff = 3600000;
       const currentTime = new Date("2022-01-01T01:00:00.000Z");
       const dueDate = new Date("2022-01-01T00:00:00.000Z").toISOString();
       dateUtils.formatDueDate.mockImplementationOnce(() => ({
@@ -860,7 +860,6 @@ describe("TaskCard - Integration Tests", () => {
     });
 
     test("Overdue by 1.5 hours", () => {
-      const diff = 1.5 * 3600000;
       const currentTime = new Date("2022-01-01T01:30:00.000Z");
       const dueDate = new Date("2022-01-01T00:00:00.000Z").toISOString();
       dateUtils.formatDueDate.mockImplementationOnce(() => ({
@@ -878,7 +877,6 @@ describe("TaskCard - Integration Tests", () => {
     });
 
     test("Overdue by 1 day", () => {
-      const diff = 86400000;
       const currentTime = new Date("2022-01-02T00:00:00.000Z");
       const dueDate = new Date("2022-01-01T00:00:00.000Z").toISOString();
       dateUtils.formatDueDate.mockImplementationOnce(() => ({
@@ -896,7 +894,6 @@ describe("TaskCard - Integration Tests", () => {
     });
 
     test("Overdue by 4.7 days", () => {
-      const diff = 4.7 * 86400000;
       const currentTime = new Date("2022-01-06T00:00:00.000Z");
       const dueDate = new Date("2022-01-01T00:00:00.000Z").toISOString();
       dateUtils.formatDueDate.mockImplementationOnce(() => ({
@@ -914,7 +911,6 @@ describe("TaskCard - Integration Tests", () => {
     });
 
     test("Overdue by 1 week", () => {
-      const diff = 7 * 86400000;
       const currentTime = new Date("2022-01-08T00:00:00.000Z");
       const dueDate = new Date("2022-01-01T00:00:00.000Z").toISOString();
       dateUtils.formatDueDate.mockImplementationOnce(() => ({
@@ -932,7 +928,6 @@ describe("TaskCard - Integration Tests", () => {
     });
 
     test("Overdue by 3.7 weeks", () => {
-      const diff = 3.7 * 7 * 86400000;
       const currentTime = new Date("2022-02-01T00:00:00.000Z");
       const dueDate = new Date("2022-01-01T00:00:00.000Z").toISOString();
       dateUtils.formatDueDate.mockImplementationOnce(() => ({
@@ -950,7 +945,6 @@ describe("TaskCard - Integration Tests", () => {
     });
 
     test("Overdue by 1 month", () => {
-      const diff = 30 * 86400000;
       const currentTime = new Date("2022-02-01T00:00:00.000Z");
       const dueDate = new Date("2022-01-02T00:00:00.000Z").toISOString();
       dateUtils.formatDueDate.mockImplementationOnce(() => ({
@@ -968,7 +962,6 @@ describe("TaskCard - Integration Tests", () => {
     });
 
     test("Overdue by 7.8 months", () => {
-      const diff = 7.8 * 30 * 86400000;
       const currentTime = new Date("2023-08-01T00:00:00.000Z");
       const dueDate = new Date("2022-12-01T00:00:00.000Z").toISOString();
       dateUtils.formatDueDate.mockImplementationOnce(() => ({
@@ -986,7 +979,6 @@ describe("TaskCard - Integration Tests", () => {
     });
 
     test("Overdue by 1 year", () => {
-      const diff = 365 * 86400000;
       const currentTime = new Date("2023-01-01T00:00:00.000Z");
       const dueDate = new Date("2022-01-01T00:00:00.000Z").toISOString();
       dateUtils.formatDueDate.mockImplementationOnce(() => ({
@@ -1004,7 +996,6 @@ describe("TaskCard - Integration Tests", () => {
     });
 
     test("Overdue by 1.1 years", () => {
-      const diff = 1.1 * 365 * 86400000;
       const currentTime = new Date("2023-02-01T00:00:00.000Z");
       const dueDate = new Date("2022-01-01T00:00:00.000Z").toISOString();
       dateUtils.formatDueDate.mockImplementationOnce(() => ({
