@@ -8,7 +8,7 @@
     "test": "jest",
     "lint": "eslint .",
     "depcheck": "npx depcheck",
-    "format": "prettier --write ."
+    "format": "prettier --write . && git add ."
   },
   "dependencies": {
     "cloudinary": "^1.41.3",
