@@ -61,7 +61,7 @@ describe("Task Routes", () => {
       expect(res.body.description).toBe("Test description");
       expect(res.body.points).toBe(5);
       // other fields
-      expect(res.body.order).toBeDefined();
+      expect(res.body.order).toBe(0);
       expect(res.body.labels).toEqual([]);
       expect(res.body.scheduledStart).toBeNull();
       expect(res.body.scheduledEnd).toBeNull();
