@@ -16,6 +16,13 @@ import {
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "../components/styles.css";
+import {
+  FaTasks,
+  FaCalendarAlt,
+  FaBell,
+  FaPaintBrush,
+  FaUserCog,
+} from "react-icons/fa";
 
 const SECTIONS = [
   "Productivity & UX",
@@ -110,6 +117,14 @@ const presetColors = {
   Orange: "#ff9800",
   Purple: "#9c27b0",
   Yellow: "#ffeb3b",
+};
+
+const sectionIcons = {
+  "Productivity & UX": <FaTasks />,
+  Scheduling: <FaCalendarAlt />,
+  Notifications: <FaBell />,
+  "Interface Customisation": <FaPaintBrush />,
+  "Account & Behavior": <FaUserCog />,
 };
 
 const Settings = ({ updateDefaultDashboardView }) => {
@@ -668,12 +683,10 @@ const Settings = ({ updateDefaultDashboardView }) => {
           {SECTIONS.map((sec) => (
             <div
               key={sec}
-              className={`sidebar-item ${
-                activeSection === sec ? "active" : ""
-              }`}
+              className={`sidebar-item ${activeSection === sec ? "active" : ""}`}
               onClick={() => handleSectionClick(sec)}
             >
-              {sec}
+              {sectionIcons[sec]} <span className="sidebar-text">{sec}</span>
             </div>
           ))}
         </aside>
