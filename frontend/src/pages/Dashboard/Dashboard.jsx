@@ -426,8 +426,10 @@ const Dashboard = (props) => {
       const response = await updateTask(updatedTask);
       const updatedTaskFromBackend = response.data;
       handleUpdateTask(updatedTaskFromBackend);
+      toast.success("Task moved back to boards!");
     } catch (error) {
       console.error("Error moving task back to boards:", error);
+      toast.error("Error moving task back to boards.");
     }
   };
 
