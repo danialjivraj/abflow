@@ -178,6 +178,7 @@ const UserSchema = new Schema({
           },
         },
         hideLabelText: { type: Boolean, default: false },
+        labelColorblindMode: { type: Boolean, default: false },
       },
       { _id: false },
     ),

@@ -773,7 +773,6 @@ const Dashboard = (props) => {
         setNewTaskTitle={setNewTaskTitle}
         selectedPriority={selectedPriority}
         setSelectedPriority={setSelectedPriority}
-        defaultPriority={userSettings.defaultPriority}
         selectedStatus={selectedStatus}
         setSelectedStatus={setSelectedStatus}
         dueDate={dueDate}
@@ -794,6 +793,7 @@ const Dashboard = (props) => {
         availableLabels={labels}
         newTaskLabels={newTaskLabels}
         setNewTaskLabels={setNewTaskLabels}
+        userSettings={userSettings}
       />
       <LabelsModal
         isOpen={isLabelsModalOpen}
@@ -814,6 +814,7 @@ const Dashboard = (props) => {
         newTaskLabels={newTaskLabels}
         availableLabels={labels}
         setNewTaskLabels={setNewTaskLabels}
+        userSettings={userSettings}
       />
       <ScheduleEditModal
         isModalOpen={isScheduleModalOpen}
@@ -821,6 +822,7 @@ const Dashboard = (props) => {
         onSave={handleScheduleModalSave}
         onUnschedule={handleScheduleModalUnschedule}
         onClose={closeScheduleModal}
+        userSettings={userSettings}
       />
     </Layout>
   );

@@ -1009,6 +1009,27 @@ select {
   margin-bottom: 3px;
 }
 
+.task-labels span.colorblind-label {
+  position: relative;
+  overflow: hidden;
+  padding-left: 20px;
+}
+
+.task-labels span.colorblind-label::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 20px;
+  height: 100%;
+  background-image: var(--pattern-image);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 80% auto;
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+
 /* ---------------------- Dropdown Menu ---------------------- */
 .dropdown-menu {
   position: absolute;

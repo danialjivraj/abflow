@@ -3,6 +3,10 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import CreateTaskModal from "../../src/components/modals/CreateTaskModal";
 import { createBaseColumn } from "../../_testUtils/createBaseColumn";
 import { createBaseUser } from "../../_testUtils/createBaseUser";
+import {
+  getLabelVariant,
+  generatePattern,
+} from "../../src/components/boardComponents/TaskLabels";
 
 jest.mock("../../src/components/TiptapEditor", () => {
   return ({ value, onChange }) => (
@@ -55,6 +59,7 @@ const defaultProps = {
   setNewBoardCreateName: jest.fn(),
   handleCreateBoard: jest.fn(),
   createBoardError: "",
+  userSettings: { labelColorblindMode: false },
 };
 
 // =======================
@@ -80,7 +85,12 @@ describe("CreateTaskModal Unit Tests", () => {
 
 test("opens with the default task priority from user settings and updates when changed", async () => {
   function TestWrapper({ defaultPriority }) {
-    const [priority, setPriority] = React.useState("");
+    const [priority, setPriority] = React.useState(defaultPriority);
+
+    React.useEffect(() => {
+      setPriority(defaultPriority);
+    }, [defaultPriority]);
+
     return (
       <CreateTaskModal
         {...defaultProps}
@@ -90,6 +100,7 @@ test("opens with the default task priority from user settings and updates when c
       />
     );
   }
+
   const { rerender } = render(
     <TestWrapper
       defaultPriority={baseUser.settingsPreferences.defaultPriority}
@@ -569,6 +580,77 @@ describe("CreateTaskModal Integration Tests", () => {
       expect(screen.getByText("Urgent")).toBeInTheDocument();
       expect(screen.getByText("Feature")).toBeInTheDocument();
     });
+  });
+
+  test("renders TaskLabels without colorblind styling when labelColorblindMode is false", () => {
+    const renderModal = (userSettingsOverride, newTaskLabels) =>
+      render(
+        <CreateTaskModal
+          {...defaultProps}
+          columns={{ backlog: { ...baseColumn, items: [] } }}
+          availableLabels={[
+            { title: "Urgent", color: "red" },
+            { title: "Feature", color: "blue" },
+          ]}
+          newTaskLabels={newTaskLabels || [{ title: "Urgent", color: "red" }]}
+          userSettings={userSettingsOverride}
+        />,
+      );
+
+    renderModal({ labelColorblindMode: false, hideLabelText: false });
+    const urgentLabel = screen.getByText("Urgent");
+    expect(urgentLabel).toBeInTheDocument();
+    expect(urgentLabel.className).not.toMatch("colorblind-label");
+    expect(urgentLabel.style.getPropertyValue("--pattern-image")).toBe("");
+  });
+
+  test("renders TaskLabels with colorblind styling when labelColorblindMode is true", () => {
+    const renderModal = (userSettingsOverride, newTaskLabels) =>
+      render(
+        <CreateTaskModal
+          {...defaultProps}
+          columns={{ backlog: { ...baseColumn, items: [] } }}
+          availableLabels={[
+            { title: "Urgent", color: "red" },
+            { title: "Feature", color: "blue" },
+          ]}
+          newTaskLabels={newTaskLabels || [{ title: "Urgent", color: "red" }]}
+          userSettings={userSettingsOverride}
+        />,
+      );
+    renderModal({ labelColorblindMode: true, hideLabelText: false });
+    const urgentLabel = screen.getByText("Urgent");
+    expect(urgentLabel).toBeInTheDocument();
+    expect(urgentLabel.className).toContain("colorblind-label");
+    const expectedPattern = generatePattern(getLabelVariant("Urgent"));
+    expect(urgentLabel.style.getPropertyValue("--pattern-image")).toBe(
+      expectedPattern,
+    );
+  });
+
+  test("renders TaskLabels correctly when hideLabelText is true in userSettings and colorblind mode is true", () => {
+    const renderModal = (userSettingsOverride, newTaskLabels) =>
+      render(
+        <CreateTaskModal
+          {...defaultProps}
+          columns={{ backlog: { ...baseColumn, items: [] } }}
+          availableLabels={[
+            { title: "Urgent", color: "red" },
+            { title: "Feature", color: "blue" },
+          ]}
+          newTaskLabels={newTaskLabels || [{ title: "Urgent", color: "red" }]}
+          userSettings={userSettingsOverride}
+        />,
+      );
+    renderModal({ labelColorblindMode: true, hideLabelText: true });
+    // Although userSettings.hideLabelText is true, CreateTaskModal always passes false to TaskLabels.
+    const urgentLabel = screen.getByText("Urgent");
+    expect(urgentLabel).toBeInTheDocument();
+    expect(urgentLabel.className).toContain("colorblind-label");
+    const expectedPattern = generatePattern(getLabelVariant("Urgent"));
+    expect(urgentLabel.style.getPropertyValue("--pattern-image")).toBe(
+      expectedPattern,
+    );
   });
 });
 

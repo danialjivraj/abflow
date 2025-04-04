@@ -1,6 +1,10 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import ScheduleEditModal from "../../src/components/modals/ScheduleEditModal";
-const { createBaseTask } = require("../../_testUtils/createBaseTask");
+import { createBaseTask } from "../../_testUtils/createBaseTask";
+import {
+  getLabelVariant,
+  generatePattern,
+} from "../../src/components/boardComponents/TaskLabels";
 
 jest.mock("react-datepicker", () => {
   return ({ selected, onChange, placeholderText, className }) => (
@@ -33,6 +37,7 @@ const defaultProps = {
   onSave: jest.fn(),
   onClose: jest.fn(),
   onUnschedule: jest.fn(),
+  userSettings: { labelColorblindMode: false },
 };
 
 // =======================
@@ -252,5 +257,78 @@ describe("ScheduleEditModal - Integration Tests", () => {
     );
     expect(screen.getByText("Urgent")).toBeInTheDocument();
     expect(screen.getByText("Important")).toBeInTheDocument();
+  });
+
+  // ---------------------------
+  // TaskLabels
+  // ---------------------------
+  describe("ScheduleEditModal - TaskLabels Integration", () => {
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
+
+    const eventDataWithLabels = {
+      ...baseEventData,
+      task: {
+        ...baseEventData.task,
+        labels: [
+          { title: "Urgent", color: "#ff0000" },
+          { title: "Important", color: "#00ff00" },
+        ],
+      },
+    };
+
+    test("renders TaskLabels without colorblind styling when labelColorblindMode is false", () => {
+      render(
+        <ScheduleEditModal
+          {...defaultProps}
+          eventData={eventDataWithLabels}
+          userSettings={{ labelColorblindMode: false }}
+        />,
+      );
+      const urgentLabel = screen.getByText("Urgent");
+      expect(urgentLabel).toBeInTheDocument();
+      expect(urgentLabel.className).toContain("");
+      expect(urgentLabel.style.getPropertyValue("--pattern-image")).toBe("");
+    });
+
+    test("renders TaskLabels with colorblind styling when labelColorblindMode is true", () => {
+      render(
+        <ScheduleEditModal
+          {...defaultProps}
+          eventData={eventDataWithLabels}
+          userSettings={{ labelColorblindMode: true }}
+        />,
+      );
+      const urgentLabel = screen.getByText("Urgent");
+      expect(urgentLabel).toBeInTheDocument();
+      expect(urgentLabel.className).toContain("colorblind-label");
+      const expectedPattern = generatePattern(getLabelVariant("Urgent"));
+      expect(urgentLabel.style.getPropertyValue("--pattern-image")).toBe(
+        expectedPattern,
+      );
+    });
+
+    test("renders TaskLabels correctly when hideLabelText is forced to true and colorblind mode is true", () => {
+      const TestWrapper = () => {
+        return (
+          <ScheduleEditModal
+            {...defaultProps}
+            eventData={eventDataWithLabels}
+            userSettings={{ labelColorblindMode: true }}
+          ></ScheduleEditModal>
+        );
+      };
+
+      render(<TestWrapper />);
+      // Although userSettings.hideLabelText is true, ScheduleEditModal always passes false to TaskLabels.
+      const urgentLabel = screen.getByText("Urgent");
+      expect(urgentLabel).toBeInTheDocument();
+      expect(urgentLabel.className).toContain("colorblind-label");
+      const expectedPattern = generatePattern(getLabelVariant("Urgent"));
+      expect(urgentLabel.style.getPropertyValue("--pattern-image")).toBe(
+        expectedPattern,
+      );
+    });
   });
 });

@@ -1565,6 +1565,7 @@ const Charts = ({ userSettings }) => {
           startTimer={() => {}}
           stopTimer={() => {}}
           readOnly={true}
+          userSettings={userSettings}
         />
       )}
     </Layout>

@@ -10,6 +10,7 @@ const ScheduleEditModal = ({
   onSave,
   onClose,
   onUnschedule,
+  userSettings,
 }) => {
   const [start, setStart] = useState(
     eventData?.start ? new Date(eventData.start) : null,
@@ -105,6 +106,7 @@ const ScheduleEditModal = ({
                 labels={eventData.task.labels}
                 hideLabelText={false}
                 truncateLength={null}
+                colorblindMode={userSettings.labelColorblindMode}
               />
             )}
             <div className="title-priority">

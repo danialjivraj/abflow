@@ -340,8 +340,9 @@ const ScheduleView = ({
                   >
                     <TaskLabels
                       labels={task.labels}
-                      hideLabelText={userSettings?.hideLabelText}
+                      hideLabelText={userSettings.hideLabelText}
                       truncateLength={29}
+                      colorblindMode={userSettings.labelColorblindMode}
                     />
                     <div className="unscheduled-task-title">
                       {truncatedTitle}

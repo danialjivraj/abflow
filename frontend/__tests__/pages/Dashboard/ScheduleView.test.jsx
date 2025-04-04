@@ -3,6 +3,10 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import ScheduleView from "../../../src/pages/Dashboard/ScheduleView";
 import { BrowserRouter } from "react-router-dom";
 import { createBaseTask } from "../../../_testUtils/createBaseTask";
+import {
+  getLabelVariant,
+  generatePattern,
+} from "../../../src/components/boardComponents/TaskLabels";
 
 const fixedStart = "2025-03-22T10:00:00.000Z";
 const fixedEnd = "2025-03-22T11:00:00.000Z";
@@ -200,6 +204,18 @@ jest.mock("react-big-calendar/lib/addons/dragAndDrop", () => {
   };
 });
 
+const defaultUserSettings = {
+  labelColorblindMode: false,
+  hideLabelText: false,
+};
+
+const renderScheduleView = (ui) =>
+  render(
+    <BrowserRouter>
+      {React.cloneElement(ui, { userSettings: defaultUserSettings })}
+    </BrowserRouter>,
+  );
+
 function TestWrapper({ initialTasks }) {
   const [tasks, setTasks] = React.useState(initialTasks);
   const handleUpdateTaskInState = (updatedTask) => {
@@ -212,11 +228,10 @@ function TestWrapper({ initialTasks }) {
       tasks={tasks}
       updateTaskInState={handleUpdateTaskInState}
       onCreateTaskShortcut={() => {}}
+      userSettings={defaultUserSettings}
     />
   );
 }
-
-const renderWithRouter = (ui) => render(<BrowserRouter>{ui}</BrowserRouter>);
 
 // =======================
 // UNIT TESTS
@@ -233,7 +248,7 @@ describe("ScheduleView - Unit Tests", () => {
   });
 
   test("Valid Event Drop: updates event times and calls updateTaskSchedule and updateTaskInState", async () => {
-    renderWithRouter(
+    renderScheduleView(
       <ScheduleView
         tasks={tasks}
         updateTaskInState={dummyUpdateTaskInState}
@@ -263,7 +278,7 @@ describe("ScheduleView - Unit Tests", () => {
     const consoleWarnSpy = jest
       .spyOn(console, "warn")
       .mockImplementation(() => {});
-    renderWithRouter(
+    renderScheduleView(
       <ScheduleView
         tasks={tasks}
         updateTaskInState={dummyUpdateTaskInState}
@@ -287,7 +302,7 @@ describe("ScheduleView - Unit Tests", () => {
     const consoleWarnSpy = jest
       .spyOn(console, "warn")
       .mockImplementation(() => {});
-    renderWithRouter(
+    renderScheduleView(
       <ScheduleView
         tasks={tasks}
         updateTaskInState={dummyUpdateTaskInState}
@@ -308,7 +323,7 @@ describe("ScheduleView - Unit Tests", () => {
   });
 
   test("Valid Event Resize: updates event times and calls updateTaskSchedule and updateTaskInState", async () => {
-    renderWithRouter(
+    renderScheduleView(
       <ScheduleView
         tasks={tasks}
         updateTaskInState={dummyUpdateTaskInState}
@@ -338,7 +353,7 @@ describe("ScheduleView - Unit Tests", () => {
     const consoleWarnSpy = jest
       .spyOn(console, "warn")
       .mockImplementation(() => {});
-    renderWithRouter(
+    renderScheduleView(
       <ScheduleView
         tasks={tasks}
         updateTaskInState={dummyUpdateTaskInState}
@@ -359,7 +374,7 @@ describe("ScheduleView - Unit Tests", () => {
   });
 
   test("Valid Drop from Outside: updates task schedule, removes task from unscheduled list, and calls updateTask and updateTaskInState", async () => {
-    renderWithRouter(
+    renderScheduleView(
       <ScheduleView
         tasks={tasks}
         updateTaskInState={dummyUpdateTaskInState}
@@ -370,7 +385,6 @@ describe("ScheduleView - Unit Tests", () => {
     const unscheduledTaskItem = screen.getByText("Unscheduled Task");
     const dataTransfer = { setData: jest.fn() };
     fireEvent.dragStart(unscheduledTaskItem, { dataTransfer });
-
     fireEvent.click(screen.getByText("Trigger Valid Drop From Outside"));
 
     await waitFor(() => {
@@ -393,7 +407,7 @@ describe("ScheduleView - Unit Tests", () => {
     const consoleWarnSpy = jest
       .spyOn(console, "warn")
       .mockImplementation(() => {});
-    renderWithRouter(
+    renderScheduleView(
       <ScheduleView
         tasks={tasks}
         updateTaskInState={dummyUpdateTaskInState}
@@ -404,7 +418,6 @@ describe("ScheduleView - Unit Tests", () => {
     const unscheduledTaskItem = screen.getByText("Unscheduled Task");
     const dataTransfer = { setData: jest.fn() };
     fireEvent.dragStart(unscheduledTaskItem, { dataTransfer });
-
     fireEvent.click(screen.getByText("Trigger Invalid Drop From Outside"));
 
     await waitFor(() => {
@@ -419,7 +432,7 @@ describe("ScheduleView - Unit Tests", () => {
   });
 
   test("Slot Selection in Week View calls onCreateTaskShortcut with correct dates", () => {
-    renderWithRouter(
+    renderScheduleView(
       <ScheduleView
         tasks={tasks}
         updateTaskInState={dummyUpdateTaskInState}
@@ -434,7 +447,7 @@ describe("ScheduleView - Unit Tests", () => {
   });
 
   test("Slot Selection in Month View does not call onCreateTaskShortcut", () => {
-    renderWithRouter(
+    renderScheduleView(
       <ScheduleView
         tasks={tasks}
         updateTaskInState={dummyUpdateTaskInState}
@@ -457,7 +470,7 @@ describe("ScheduleView - Unit Tests", () => {
 
     const tasks = [shortEvent];
 
-    renderWithRouter(
+    renderScheduleView(
       <ScheduleView
         tasks={tasks}
         updateTaskInState={() => {}}
@@ -466,7 +479,6 @@ describe("ScheduleView - Unit Tests", () => {
     );
 
     const eventElements = screen.queryAllByTestId("calendar-event");
-
     expect(eventElements[0]).toHaveTextContent("Short Task");
     expect(eventElements[0]).toHaveTextContent("10:00 AM");
   });
@@ -482,7 +494,7 @@ describe("ScheduleView - Unit Tests", () => {
 
     const tasks = [longEvent];
 
-    renderWithRouter(
+    renderScheduleView(
       <ScheduleView
         tasks={tasks}
         updateTaskInState={() => {}}
@@ -505,8 +517,7 @@ describe("ScheduleView - Integration Tests", () => {
   });
 
   test("Complete interaction: Calendar initially does not show unscheduled task, then after drop shows it", async () => {
-    renderWithRouter(<TestWrapper initialTasks={tasks} />);
-
+    renderScheduleView(<TestWrapper initialTasks={tasks} />);
     const calendarEvents = screen.getByTestId("calendar-events");
     expect(calendarEvents).toHaveTextContent("Scheduled Task");
     expect(calendarEvents).not.toHaveTextContent("Unscheduled Task");
@@ -542,14 +553,13 @@ describe("ScheduleView - Integration Tests", () => {
 
   test("does not call onCreateTaskShortcut when disableToCreateTask is true", () => {
     const disableToCreateTask = true;
-
     const onCreateTaskShortcut = jest.fn();
     const conditionalOnCreateTaskShortcut = (start, end) => {
       if (disableToCreateTask) return;
       onCreateTaskShortcut(start, end);
     };
 
-    renderWithRouter(
+    renderScheduleView(
       <ScheduleView
         tasks={tasks}
         updateTaskInState={() => {}}
@@ -558,7 +568,71 @@ describe("ScheduleView - Integration Tests", () => {
     );
 
     fireEvent.click(screen.getByText("Trigger Slot Selection (Week)"));
-
     expect(onCreateTaskShortcut).not.toHaveBeenCalled();
+  });
+
+  // ---------------------------
+  // TaskLabels
+  // ---------------------------
+  describe("ScheduleView - TaskLabels Integration", () => {
+    const taskWithLabel = createBaseTask({
+      _id: "3",
+      title: "Unscheduled With Label",
+      priority: "A1",
+      scheduledStart: null,
+      scheduledEnd: null,
+      labels: [{ title: "Urgent", color: "red" }],
+    });
+
+    test("renders TaskLabels with visible text when hideLabelText is false", () => {
+      const customSettings = {
+        labelColorblindMode: false,
+        hideLabelText: false,
+      };
+      render(
+        <BrowserRouter>
+          <ScheduleView
+            tasks={[taskWithLabel]}
+            updateTaskInState={() => {}}
+            onCreateTaskShortcut={() => {}}
+            userSettings={customSettings}
+          />
+        </BrowserRouter>,
+      );
+      fireEvent.click(screen.getByText("Unscheduled Tasks"));
+      const urgentLabel = screen.getByText("Urgent");
+      expect(urgentLabel).toBeInTheDocument();
+      expect(urgentLabel.className).not.toContain("colorblind-label");
+      expect(urgentLabel.style.getPropertyValue("--pattern-image")).toBe("");
+    });
+
+    test("renders TaskLabels with hidden text and colorblind styling when hideLabelText is true and labelColorblindMode is true", async () => {
+      const customSettings = { labelColorblindMode: true, hideLabelText: true };
+      render(
+        <BrowserRouter>
+          <ScheduleView
+            tasks={[taskWithLabel]}
+            updateTaskInState={() => {}}
+            onCreateTaskShortcut={() => {}}
+            userSettings={customSettings}
+          />
+        </BrowserRouter>,
+      );
+      fireEvent.click(screen.getByText("Unscheduled Tasks"));
+      await waitFor(() => {
+        expect(
+          document.querySelector(".unscheduled-tasks-list"),
+        ).not.toBeNull();
+      });
+      const unscheduledList = document.querySelector(".unscheduled-tasks-list");
+      const labelSpan = unscheduledList.querySelector("span");
+      expect(labelSpan).toBeDefined();
+      expect(labelSpan.textContent).toBe("");
+      expect(labelSpan.className).toContain("colorblind-label");
+      const expectedPattern = generatePattern(getLabelVariant("Urgent"));
+      expect(labelSpan.style.getPropertyValue("--pattern-image")).toBe(
+        expectedPattern,
+      );
+    });
   });
 });

@@ -444,6 +444,7 @@ const ViewTaskModal = ({
   readOnly = false,
   availableLabels,
   setNewTaskLabels,
+  userSettings,
 }) => {
   if (!isModalOpen || !task) return null;
   const modalContentRef = useRef(null);
@@ -700,7 +701,11 @@ const ViewTaskModal = ({
         <div className="view-modal-body">
           <div className="view-modal-left">
             <div className="title-block">
-              <TaskLabels labels={editableTask.labels} hideLabelText={false} />
+              <TaskLabels
+                labels={editableTask.labels}
+                hideLabelText={false}
+                colorblindMode={userSettings.labelColorblindMode}
+              />
               <h3 className="panel-heading">Title</h3>
               {readOnly ? (
                 <div className="view-task-field non-editable-field">

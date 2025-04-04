@@ -83,6 +83,10 @@ const defaultProps = {
   handleCompleteTask: jest.fn(() => Promise.resolve()),
   handleBackToBoards: jest.fn(),
   hideDots: false,
+  confirmBeforeDeleteTask: true,
+  duplicateTask: jest.fn(),
+  availableLabels: [],
+  userSettings: { labelColorblindMode: false, hideLabelText: false },
 };
 
 // =======================
@@ -106,11 +110,12 @@ describe("TaskCard - Unit Tests", () => {
 
   test("renders calendar icon if getCalendarIconColor returns a value", () => {
     renderWithDnd(<TaskCard {...defaultProps} />);
-    const calendarIcon = screen.getByText(
-      (content, node) =>
+    const calendarIcon = screen.getByText((content, node) => {
+      return (
         node.tagName.toLowerCase() === "svg" &&
-        node.classList.contains("calendar-icon"),
-    );
+        node.classList.contains("calendar-icon")
+      );
+    });
     expect(calendarIcon).toBeDefined();
   });
 
@@ -118,11 +123,12 @@ describe("TaskCard - Unit Tests", () => {
     dateUtils.getCalendarIconColor.mockImplementationOnce(() => null);
     renderWithDnd(<TaskCard {...defaultProps} />);
     expect(
-      screen.queryByText(
-        (content, node) =>
+      screen.queryByText((content, node) => {
+        return (
           node.tagName.toLowerCase() === "svg" &&
-          node.classList.contains("calendar-icon"),
-      ),
+          node.classList.contains("calendar-icon")
+        );
+      }),
     ).toBeNull();
   });
 
@@ -133,11 +139,12 @@ describe("TaskCard - Unit Tests", () => {
         task={{ ...defaultTask, isTimerRunning: true }}
       />,
     );
-    const timerIcon = screen.getByText(
-      (content, node) =>
+    const timerIcon = screen.getByText((content, node) => {
+      return (
         node.tagName.toLowerCase() === "svg" &&
-        node.classList.contains("alarm-clock-icon"),
-    );
+        node.classList.contains("alarm-clock-icon")
+      );
+    });
     expect(timerIcon).toBeDefined();
   });
 
@@ -1014,6 +1021,11 @@ describe("TaskCard - Integration Tests", () => {
   });
 
   describe("TaskCard - Label Tests", () => {
+    const {
+      getLabelVariant,
+      generatePattern,
+    } = require("../../../src/components/boardComponents/TaskLabels");
+
     afterEach(() => {
       jest.clearAllMocks();
     });
@@ -1033,7 +1045,6 @@ describe("TaskCard - Integration Tests", () => {
       renderWithDnd(
         <TaskCard {...defaultProps} task={taskWithMultipleLabels} />,
       );
-
       const labelOne = screen.getByText("Label One");
       expect(labelOne).toBeInTheDocument();
       expect(labelOne).toHaveStyle("background-color: #111111");
@@ -1076,7 +1087,7 @@ describe("TaskCard - Integration Tests", () => {
       expect(labelSpan).toHaveStyle("background-color: #123456");
     });
 
-    test("hides label text when userSettings.hideLabelText is true", () => {
+    test("hides label text when userSettings.hideLabelText is true and userSettings.labelColorblindMode is false", () => {
       const visibleTitle = "Visible Label";
       const taskWithLabel = {
         ...defaultTask,
@@ -1087,16 +1098,41 @@ describe("TaskCard - Integration Tests", () => {
         <TaskCard
           {...defaultProps}
           task={taskWithLabel}
-          userSettings={{ hideLabelText: true }}
+          userSettings={{ hideLabelText: true, labelColorblindMode: false }}
         />,
       );
       expect(screen.queryByText(visibleTitle)).toBeNull();
 
-      const labelSpans = screen.getAllByText("", {
-        selector: ".task-labels span",
+      const labelsContainer = document.querySelector(".task-labels");
+      expect(labelsContainer).toBeDefined();
+      const spans = labelsContainer.querySelectorAll("span");
+      expect(spans.length).toBeGreaterThan(0);
+      spans.forEach((span) => {
+        expect(span.textContent).toBe("");
+        expect(span.style.backgroundColor).toBe("rgb(171, 205, 239)");
+        expect(span.style.getPropertyValue("--pattern-image")).toBe("");
       });
-      expect(labelSpans.length).toBeGreaterThan(0);
-      expect(labelSpans[0]).toHaveStyle("background-color: #abcdef");
+    });
+
+    test("renders label with colorblind styling when labelColorblindMode is true", () => {
+      const taskWithLabel = {
+        ...defaultTask,
+        labels: [{ title: "Urgent", color: "red" }],
+      };
+      renderWithDnd(
+        <TaskCard
+          {...defaultProps}
+          task={taskWithLabel}
+          userSettings={{ hideLabelText: false, labelColorblindMode: true }}
+        />,
+      );
+      const urgentLabel = screen.getByText("Urgent");
+      expect(urgentLabel).toBeInTheDocument();
+      expect(urgentLabel.className).toContain("colorblind-label");
+      const expectedPattern = generatePattern(getLabelVariant("Urgent"));
+      expect(urgentLabel.style.getPropertyValue("--pattern-image")).toBe(
+        expectedPattern,
+      );
     });
   });
 });

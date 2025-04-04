@@ -563,6 +563,16 @@ const Settings = ({ updateDefaultDashboardView }) => {
               />
             </label>
 
+            <label className="setting-row">
+              <span>Label Colourblindness Mode</span>
+              <input
+                type="checkbox"
+                name="labelColorblindMode"
+                checked={settings.labelColorblindMode}
+                onChange={handleChange}
+              />
+            </label>
+
             <div
               className="priority-colors-header"
               onClick={() => setShowPriorityColors(!showPriorityColors)}

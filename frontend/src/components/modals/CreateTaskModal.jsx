@@ -30,7 +30,6 @@ const CreateTaskModal = ({
   setNewTaskTitle,
   selectedPriority,
   setSelectedPriority,
-  defaultPriority,
   selectedStatus,
   setSelectedStatus,
   dueDate,
@@ -51,6 +50,7 @@ const CreateTaskModal = ({
   availableLabels = [],
   newTaskLabels = [],
   setNewTaskLabels = () => {},
+  userSettings,
 }) => {
   const [localSelectedStatus, setLocalSelectedStatus] =
     useState(selectedStatus);
@@ -60,10 +60,10 @@ const CreateTaskModal = ({
   const defaultStatus = Object.keys(columns)[0] || "";
 
   useEffect(() => {
-    if (isModalOpen && defaultPriority) {
-      setSelectedPriority(defaultPriority);
+    if (isModalOpen && userSettings.defaultPriority) {
+      setSelectedPriority(userSettings.defaultPriority);
     }
-  }, [isModalOpen, defaultPriority, setSelectedPriority]);
+  }, [isModalOpen, userSettings.defaultPriority, setSelectedPriority]);
 
   useEffect(() => {
     if (isModalOpen) {
@@ -312,6 +312,7 @@ const CreateTaskModal = ({
                             labels={newTaskLabels}
                             hideLabelText={false}
                             truncateLength={29}
+                            colorblindMode={userSettings.labelColorblindMode}
                           />
                         ) : (
                           "Select Labels"

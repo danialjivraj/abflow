@@ -161,6 +161,7 @@ describe("Preferences Routes", () => {
       defaultDashboardView: "schedule",
       disableToCreateTask: false,
       hideLabelText: false,
+      labelColorblindMode: false,
       confirmBeforeDeleteBoard: true,
       confirmBeforeDeleteTask: true,
       notifyNonPriorityGoesOvertime: 2,

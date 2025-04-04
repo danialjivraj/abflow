@@ -8,6 +8,10 @@ import {
 import ViewTaskModal from "../../src/components/modals/ViewTaskModal";
 import { createBaseTask } from "../../_testUtils/createBaseTask";
 import { createBaseColumn } from "../../_testUtils/createBaseColumn";
+import {
+  getLabelVariant,
+  generatePattern,
+} from "../../src/components/boardComponents/TaskLabels";
 
 jest.mock("../../src/components/TiptapEditor", () => {
   return ({ value, onChange }) => (
@@ -69,6 +73,7 @@ const defaultProps = {
   stopTimer: jest.fn(() => Promise.resolve({ data: { timeSpent: 3600 } })),
   setCompletedTasks: jest.fn(),
   readOnly: false,
+  userSettings: { labelColorblindMode: false },
 };
 
 // =======================
@@ -534,9 +539,7 @@ describe("ViewTaskModal - Integration Tests", () => {
     });
 
     test("shows label above title after toggling a label", async () => {
-      const setNewTaskLabels = jest.fn((updateFn) => {
-        return updateFn([]);
-      });
+      const setNewTaskLabels = jest.fn((updateFn) => updateFn([]));
       const taskNoLabels = createBaseTask({ labels: [] });
       render(
         <ViewTaskModal
@@ -568,6 +571,71 @@ describe("ViewTaskModal - Integration Tests", () => {
       await waitFor(() => {
         expect(within(titleBlock).getByText("Urgent")).toBeInTheDocument();
       });
+    });
+  });
+
+  // ---------------------------
+  // TaskLabels
+  // ---------------------------
+  describe("ViewTaskModal - TaskLabels Integration", () => {
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
+
+    const taskWithLabels = createBaseTask({
+      labels: [
+        { title: "Urgent", color: "#ff0000" },
+        { title: "Backend", color: "#00ff00" },
+      ],
+    });
+
+    test("renders TaskLabels without colorblind styling when labelColorblindMode is false", () => {
+      render(
+        <ViewTaskModal
+          {...defaultProps}
+          task={taskWithLabels}
+          userSettings={{ labelColorblindMode: false }}
+        />,
+      );
+      const urgentLabel = screen.getByText("Urgent");
+      expect(urgentLabel).toBeInTheDocument();
+      expect(urgentLabel.className).not.toContain("colorblind-label");
+      expect(urgentLabel.style.getPropertyValue("--pattern-image")).toBe("");
+    });
+
+    test("renders TaskLabels with colorblind styling when labelColorblindMode is true", () => {
+      render(
+        <ViewTaskModal
+          {...defaultProps}
+          task={taskWithLabels}
+          userSettings={{ labelColorblindMode: true }}
+        />,
+      );
+      const urgentLabel = screen.getByText("Urgent");
+      expect(urgentLabel).toBeInTheDocument();
+      expect(urgentLabel.className).toContain("colorblind-label");
+      const expectedPattern = generatePattern(getLabelVariant("Urgent"));
+      expect(urgentLabel.style.getPropertyValue("--pattern-image")).toBe(
+        expectedPattern,
+      );
+    });
+
+    test("renders TaskLabels with visible label text even when userSettings.hideLabelText is true", () => {
+      // Although userSettings.hideLabelText is true, ViewTaskModal always passes false to TaskLabels.
+      render(
+        <ViewTaskModal
+          {...defaultProps}
+          task={taskWithLabels}
+          userSettings={{ labelColorblindMode: true, hideLabelText: true }}
+        />,
+      );
+      const urgentLabel = screen.getByText("Urgent");
+      expect(urgentLabel).toBeInTheDocument();
+      expect(urgentLabel.className).toContain("colorblind-label");
+      const expectedPattern = generatePattern(getLabelVariant("Urgent"));
+      expect(urgentLabel.style.getPropertyValue("--pattern-image")).toBe(
+        expectedPattern,
+      );
     });
   });
 });

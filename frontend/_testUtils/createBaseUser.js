@@ -63,6 +63,8 @@ function createBaseUser(overrides = {}) {
         D: "#cc66ff",
         E: "#ff9966",
       },
+      hideLabelText: false,
+      labelColorblindMode: false,
     },
     lastWeeklyNotification: null,
     ...overrides,

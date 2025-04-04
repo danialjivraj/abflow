@@ -121,6 +121,7 @@ const TaskCard = ({
         labels={task.labels}
         hideLabelText={userSettings.hideLabelText}
         truncateLength={29}
+        colorblindMode={userSettings.labelColorblindMode}
       />
       <span>{task.title}</span>
       <div className="task-bottom">
