@@ -28,8 +28,8 @@ const generatePattern = (variant) => {
       break;
     case "triangle":
       svg = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12">
-        <polygon points="6,1 11,8 1,8" fill="rgba(0,0,0,0.5)" />
-      </svg>`;
+          <polygon transform="translate(0,1.5)" points="6,1 11,8 1,8" fill="rgba(0,0,0,0.5)" />
+        </svg>`;
       break;
     case "square":
       svg = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12">
