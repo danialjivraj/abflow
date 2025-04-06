@@ -978,8 +978,8 @@ describe("Charts Component Integration Tests", () => {
         "Preferences reset to default!",
       ),
     );
-    const defaultResult = await fetchChartPreferences(auth.currentUser.userId);
 
+    const defaultResult = await fetchChartPreferences(auth.currentUser.userId);
     expect(defaultResult.data.chartPreferences).toEqual(defaultPreferences);
 
     cleanup();
