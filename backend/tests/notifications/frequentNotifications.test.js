@@ -768,4 +768,48 @@ describe("Frequent Notifications", () => {
     });
     expect(notifications.length).toBe(4);
   });
+
+  describe("White Box Tests for Frequent Notifications", () => {
+    it("should call Task.findByIdAndUpdate when a scheduled notification is generated", async () => {
+      const now = new Date();
+      const scheduledStart = new Date(now.getTime() + 4 * 60 * 1000); // 4 minutes later
+      const task = await Task.create({
+        ...getBaseTask(),
+        title: "White Box Scheduled Task",
+        scheduledStart,
+      });
+
+      const updateSpy = jest.spyOn(Task, "findByIdAndUpdate");
+
+      await generateScheduledNotifications(defaultUser.userId, now);
+
+      expect(updateSpy).toHaveBeenCalledWith(task._id, {
+        lastNotifiedScheduledStart: scheduledStart,
+      });
+      updateSpy.mockRestore();
+    });
+
+    it("should call Notification.insertMany in the master function when notifications are generated", async () => {
+      const now = new Date();
+      const scheduledStart = new Date(now.getTime() + 4 * 60 * 1000);
+      await Task.create({
+        ...getBaseTask(),
+        title: "Master Scheduled Task",
+        scheduledStart,
+      });
+      const dueDate = new Date(now.getTime() + 2 * 60 * 60 * 1000);
+      await Task.create({
+        ...getBaseTask(),
+        title: "Master Upcoming Task",
+        dueDate,
+      });
+
+      const insertSpy = jest.spyOn(Notification, "insertMany");
+
+      await generateFrequentNotifications();
+
+      expect(insertSpy).toHaveBeenCalled();
+      insertSpy.mockRestore();
+    });
+  });
 });

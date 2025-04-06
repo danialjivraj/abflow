@@ -1,6 +1,7 @@
 const Task = require("../models/Task");
 const Notification = require("../models/Notification");
 const User = require("../models/User");
+const formatTime12Hour = require("../utils/formatTime");
 
 /**
  * Checks if a notification with the same message exists for the user,
@@ -14,18 +15,6 @@ const shouldCreateNotification = async (userId, message, thresholdMs = 1) => {
     createdAt: { $gte: threshold },
   });
   return !exists;
-};
-
-/**
- * Helper to consistently format times as 12-hour with AM/PM,
- * ensuring we never mix 24-hour vs. 12-hour strings.
- */
-const formatTime12Hour = (date) => {
-  return date.toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true,
-  });
 };
 
 /**

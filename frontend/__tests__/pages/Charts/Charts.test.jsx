@@ -804,7 +804,7 @@ describe("Charts Component Integration Tests", () => {
     cleanup();
   });
 
-  test("saves user preferences when the save button is clicked and calls toast.success", async () => {
+  test("saves user preferences by changing all input fields, then save button is clicked followed by clicking default button and checking it does default back to preferences", async () => {
     jest.spyOn(toast, "success");
 
     expect(auth.currentUser.chartPreferences).toEqual(defaultPreferences);
