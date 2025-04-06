@@ -267,5 +267,18 @@ describe("Column Routes", () => {
         .expect(400);
       expect(res.body.error).toBe("User ID and column order required");
     });
+
+    it("should return 404 when trying to rename a column that doesn’t exist", async () => {
+      const res = await request(app)
+        .put("/api/columns/rename")
+        .send({
+          userId: defaultUser.userId,
+          columnId: "nonexistentColumn",
+          newName: "Ghost Column",
+        })
+        .expect(404);
+
+      expect(res.body.error).toBe("Column not found");
+    });
   });
 });
