@@ -162,7 +162,11 @@ const CreateTaskModal = ({
     <div className="modal-overlay" onClick={handleOverlayClick}>
       <div className="modal-container">
         <div className="create-task-modal">
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div
+            className={`modal-content ${!hasBoards ? "no-boards" : ""}`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {" "}
             <button
               className="close-modal"
               onClick={() => {

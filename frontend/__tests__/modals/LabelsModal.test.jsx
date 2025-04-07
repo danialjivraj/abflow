@@ -321,6 +321,47 @@ describe("LabelsModal - Integration Tests", () => {
       );
     });
 
+    it("should successfully update a label when pressing Enter while editing", async () => {
+      updateLabel.mockResolvedValueOnce({
+        data: {
+          _id: "label1",
+          title: "Updated Label via Enter",
+          color: "#ff4d4d",
+        },
+      });
+      const initialLabel = {
+        _id: "label1",
+        title: "Old Label",
+        color: "#ff4d4d",
+      };
+
+      const { container } = render(
+        <LabelsModalWrapper initialLabels={[initialLabel]} />,
+      );
+
+      const editButton = container.querySelector(".edit-btn");
+      userEvent.click(editButton);
+
+      const inlineInput = await screen.findByDisplayValue("Old Label");
+      fireEvent.change(inlineInput, {
+        target: { value: "Updated Label via Enter" },
+      });
+      expect(inlineInput.value).toBe("Updated Label via Enter");
+
+      fireEvent.keyDown(inlineInput, { key: "Enter", code: "Enter" });
+
+      await waitFor(() =>
+        expect(updateLabel).toHaveBeenCalledWith("user1", "label1", {
+          title: "Updated Label via Enter",
+          color: "#ff4d4d",
+        }),
+      );
+
+      await waitFor(() =>
+        expect(toast.success).toHaveBeenCalledWith("Label updated!"),
+      );
+    });
+
     it("should display inline duplicate error when updating a label and clear it on typing", async () => {
       updateLabel.mockRejectedValueOnce({
         response: { data: { error: "Label already exists" } },

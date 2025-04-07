@@ -302,6 +302,7 @@ const Dashboard = (props) => {
         ...prev,
         [columnId]: { name: columnName, items: [] },
       }));
+      setSelectedStatus(columnId);
       setNewBoardCreateName("");
       setIsAddingBoard(false);
       setIsDropdownOpen(null);

@@ -2345,8 +2345,32 @@ select {
 
 /* Create Task Modal Specific Styles */
 .create-task-modal .modal-content {
-  min-height: 600px;
-  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+
+  min-height: auto;
+  max-height: none;
+  overflow: visible;
+  width: calc(100% - 40px);
+  max-width: 675px;
+  margin: 2rem auto;
+  padding: 1rem;
+  position: relative;
+  background-color: var(--component-bg);
+  border-radius: 7.2px;
+  box-shadow: 0 3.6px 7.2px rgba(0, 0, 0, 0.3);
+  color: var(--text-color);
+}
+
+.create-task-modal .modal-footer {
+  margin-top: auto;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.create-task-modal .modal-content.no-boards {
+  min-height: auto;
 }
 
 .create-task-modal .modal-body {
@@ -2412,13 +2436,6 @@ select {
   width: 100%;
 }
 
-.create-task-modal .modal-content {
-  width: calc(100% - 40px);
-  max-width: 675px;
-  margin: 2rem auto;
-  padding: 1rem;
-}
-
 .create-task-modal .story-points-container {
   display: flex;
   align-items: center;
@@ -2429,13 +2446,6 @@ select {
   width: 70px;
   text-align: left;
   font-size: 16.2px;
-}
-
-.create-task-modal .modal-footer {
-  margin-top: 27px;
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
 }
 
 .create-task-modal .create-task-btn {
@@ -2823,6 +2833,29 @@ select {
 .non-editable-field {
   pointer-events: none;
   opacity: 1;
+}
+
+.time-spent-editor.editing {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  margin-top: 10px;
+}
+
+.time-spent-editor.editing .time-inputs {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+}
+
+.time-spent-editor.editing .time-actions {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  margin-top: 4px;
+  align-self: flex-end;
 }
 
 /* ---------------------- Timer Toggle ---------------------- */

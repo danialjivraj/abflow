@@ -311,9 +311,15 @@ const LabelsModal = ({ isOpen, closeModal, labels, setLabels, userId }) => {
                                         setEditedLabel(e.target.value);
                                         setEditError("");
                                       }}
+                                      onKeyDown={(e) => {
+                                        if (e.key === "Enter") {
+                                          handleSaveEditing(index);
+                                        }
+                                      }}
                                       className="inline-edit-input"
                                       maxLength={75}
                                     />
+
                                     {editError && (
                                       <span className="error-message-inline">
                                         {editError}

@@ -125,69 +125,75 @@ const InlineTimeEditable = ({ value, onChange, onEditingChange, readOnly }) => {
   return (
     <div className="view-task-field">
       {isEditing ? (
-        <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-          <input
-            type="number"
-            value={localHours}
-            min="0"
-            onChange={(e) => {
-              e.target.value = Math.abs(e.target.value);
-              setLocalHours(
-                isNaN(parseInt(e.target.value, 10))
-                  ? 0
-                  : parseInt(e.target.value, 10),
-              );
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                handleConfirm();
-              }
-            }}
-            style={{ width: "50px" }}
-          />
-          <span>h</span>
-          <input
-            type="number"
-            value={localMinutes}
-            min="0"
-            max="59"
-            onChange={(e) => {
-              e.target.value = Math.abs(e.target.value);
-              const val = parseInt(e.target.value, 10);
-              setLocalMinutes(isNaN(val) || val < 0 ? 0 : val > 59 ? 59 : val);
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                handleConfirm();
-              }
-            }}
-            style={{ width: "50px" }}
-          />
-          <span>m</span>
-          <input
-            type="number"
-            value={localSeconds}
-            min="0"
-            max="59"
-            onChange={(e) => {
-              e.target.value = Math.abs(e.target.value);
-              const val = parseInt(e.target.value, 10);
-              setLocalSeconds(isNaN(val) || val < 0 ? 0 : val > 59 ? 59 : val);
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                handleConfirm();
-              }
-            }}
-            style={{ width: "50px" }}
-          />
-          <span>s</span>
-          <button className="tick-btn" onClick={handleConfirm}>
-            <FaCheck className="icon icon-check" data-testid="tick-icon" />
-          </button>
-          <button className="cross-btn" onClick={handleCancel}>
-            <FaTimes className="icon icon-cross" data-testid="cross-icon" />
-          </button>
+        <div className="time-spent-editor editing">
+          <div className="time-inputs">
+            <input
+              type="number"
+              value={localHours}
+              min="0"
+              onChange={(e) => {
+                e.target.value = Math.abs(e.target.value);
+                setLocalHours(
+                  isNaN(parseInt(e.target.value, 10))
+                    ? 0
+                    : parseInt(e.target.value, 10),
+                );
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleConfirm();
+                }
+              }}
+            />
+            <span>h</span>
+            <input
+              type="number"
+              value={localMinutes}
+              min="0"
+              max="59"
+              onChange={(e) => {
+                e.target.value = Math.abs(e.target.value);
+                const val = parseInt(e.target.value, 10);
+                setLocalMinutes(
+                  isNaN(val) || val < 0 ? 0 : val > 59 ? 59 : val,
+                );
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleConfirm();
+                }
+              }}
+            />
+            <span>m</span>
+            <input
+              type="number"
+              value={localSeconds}
+              min="0"
+              max="59"
+              onChange={(e) => {
+                e.target.value = Math.abs(e.target.value);
+                const val = parseInt(e.target.value, 10);
+                setLocalSeconds(
+                  isNaN(val) || val < 0 ? 0 : val > 59 ? 59 : val,
+                );
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleConfirm();
+                }
+              }}
+            />
+            <span>s</span>
+          </div>
+
+          <div className="time-actions">
+            <button className="tick-btn" onClick={handleConfirm}>
+              <FaCheck className="icon icon-check" data-testid="tick-icon" />
+            </button>
+            <button className="cross-btn" onClick={handleCancel}>
+              <FaTimes className="icon icon-cross" data-testid="cross-icon" />
+            </button>
+          </div>
         </div>
       ) : (
         <div className="scroll-wrapper">
