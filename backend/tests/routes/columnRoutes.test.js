@@ -149,13 +149,11 @@ describe("Column Routes", () => {
     });
 
     it("should return 400 if columnName already exists (duplicate)", async () => {
-      // First create a column
       await request(app)
         .post("/api/columns/create")
         .send({ userId: defaultUser.userId, columnName: "Duplicate Column" })
         .expect(200);
 
-      // Attempt to create the same column name (case insensitive)
       const res = await request(app)
         .post("/api/columns/create")
         .send({ userId: defaultUser.userId, columnName: "duplicate column" })
