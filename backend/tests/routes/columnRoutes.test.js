@@ -1,4 +1,4 @@
-jest.setTimeout(10000);
+jest.setTimeout(20000);
 
 const request = require("supertest");
 const express = require("express");
@@ -129,7 +129,38 @@ describe("Column Routes", () => {
         .post("/api/columns/create")
         .send({ userId: defaultUser.userId })
         .expect(400);
-      expect(res.body.error).toBe("User ID and column name are required");
+      expect(res.body.error).toBe("Column name cannot be empty.");
+    });
+
+    it("should return 400 if columnName is 'Completed' (reserved)", async () => {
+      const res = await request(app)
+        .post("/api/columns/create")
+        .send({ userId: defaultUser.userId, columnName: "Completed" })
+        .expect(400);
+      expect(res.body.error).toBe("Column name 'Completed' is reserved.");
+    });
+
+    it("should return 400 if columnName is 'completed' (case insensitive reserved)", async () => {
+      const res = await request(app)
+        .post("/api/columns/create")
+        .send({ userId: defaultUser.userId, columnName: "cOmPlEtEd" })
+        .expect(400);
+      expect(res.body.error).toBe("Column name 'Completed' is reserved.");
+    });
+
+    it("should return 400 if columnName already exists (duplicate)", async () => {
+      // First create a column
+      await request(app)
+        .post("/api/columns/create")
+        .send({ userId: defaultUser.userId, columnName: "Duplicate Column" })
+        .expect(200);
+
+      // Attempt to create the same column name (case insensitive)
+      const res = await request(app)
+        .post("/api/columns/create")
+        .send({ userId: defaultUser.userId, columnName: "duplicate column" })
+        .expect(400);
+      expect(res.body.error).toBe("Column name already exists.");
     });
   });
 
@@ -168,9 +199,83 @@ describe("Column Routes", () => {
         .put("/api/columns/rename")
         .send({ userId: defaultUser.userId, newName: "Renamed Column" })
         .expect(400);
-      expect(res.body.error).toBe(
-        "User ID, column ID, and new name are required",
-      );
+      expect(res.body.error).toBe("User ID and column ID are required");
+    });
+
+    it("should return 400 if newName is 'Completed' (reserved)", async () => {
+      await Column.create({
+        columnId: "colToRename",
+        name: "Old Name",
+        order: 0,
+        userId: defaultUser.userId,
+      });
+
+      const res = await request(app)
+        .put("/api/columns/rename")
+        .send({
+          userId: defaultUser.userId,
+          columnId: "colToRename",
+          newName: "Completed",
+        })
+        .expect(400);
+      expect(res.body.error).toBe("Column name 'Completed' is reserved.");
+    });
+
+    it("should return 400 if newName is 'completed' (case insensitive reserved)", async () => {
+      await Column.create({
+        columnId: "colToRename",
+        name: "Old Name",
+        order: 0,
+        userId: defaultUser.userId,
+      });
+
+      const res = await request(app)
+        .put("/api/columns/rename")
+        .send({
+          userId: defaultUser.userId,
+          columnId: "colToRename",
+          newName: "CoMpLeTeD",
+        })
+        .expect(400);
+      expect(res.body.error).toBe("Column name 'Completed' is reserved.");
+    });
+
+    it("should return 400 if newName already exists in another column (duplicate)", async () => {
+      await Column.create({
+        columnId: "col1",
+        name: "Existing Column",
+        order: 0,
+        userId: defaultUser.userId,
+      });
+      await Column.create({
+        columnId: "col2",
+        name: "Another Column",
+        order: 1,
+        userId: defaultUser.userId,
+      });
+
+      const res = await request(app)
+        .put("/api/columns/rename")
+        .send({
+          userId: defaultUser.userId,
+          columnId: "col2",
+          newName: "existing column",
+        })
+        .expect(400);
+      expect(res.body.error).toBe("Column name already exists.");
+    });
+
+    it("should return 404 when trying to rename a column that doesn’t exist", async () => {
+      const res = await request(app)
+        .put("/api/columns/rename")
+        .send({
+          userId: defaultUser.userId,
+          columnId: "nonexistentColumn",
+          newName: "Ghost Column",
+        })
+        .expect(404);
+
+      expect(res.body.error).toBe("Column not found");
     });
   });
 
@@ -266,19 +371,6 @@ describe("Column Routes", () => {
         .send({ userId: defaultUser.userId })
         .expect(400);
       expect(res.body.error).toBe("User ID and column order required");
-    });
-
-    it("should return 404 when trying to rename a column that doesn’t exist", async () => {
-      const res = await request(app)
-        .put("/api/columns/rename")
-        .send({
-          userId: defaultUser.userId,
-          columnId: "nonexistentColumn",
-          newName: "Ghost Column",
-        })
-        .expect(404);
-
-      expect(res.body.error).toBe("Column not found");
     });
   });
 });

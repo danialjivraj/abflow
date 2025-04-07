@@ -30,7 +30,7 @@ import ScheduleView from "./ScheduleView";
 import "../../components/styles.css";
 import "../../components/navigation/topBar.css";
 import "../../components/tipTapEditor.css";
-import { validateBoardName } from "../../utils/boardValidation";
+import { validateColumnName } from "../../utils/boardValidation";
 import { fetchSettingsPreferences } from "../../services/preferencesService";
 import { fetchLabels } from "../../services/labelsService";
 import { toast } from "react-toastify";
@@ -295,11 +295,6 @@ const Dashboard = (props) => {
   };
 
   const handleCreateBoard = async () => {
-    const error = validateBoardName(newBoardCreateName, columns);
-    if (error) {
-      setCreateBoardError(error);
-      return;
-    }
     try {
       const res = await createBoard(userId, newBoardCreateName);
       const { columnId, columnName } = res.data;
@@ -313,6 +308,11 @@ const Dashboard = (props) => {
       setCreateBoardError("");
     } catch (error) {
       console.error("Error creating board:", error);
+      const backendError = error.response?.data?.error;
+      const frontendError = validateColumnName(newBoardCreateName, columns);
+      setCreateBoardError(
+        backendError || frontendError || "Failed to create board",
+      );
     }
   };
 

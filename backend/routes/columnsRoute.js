@@ -8,11 +8,27 @@ const User = require("../models/User");
 router.post("/create", async (req, res) => {
   try {
     const { userId, columnName } = req.body;
-    if (!userId || !columnName) {
+    if (!userId) {
+      return res.status(400).json({ error: "User ID is required" });
+    }
+    if (!columnName || columnName.trim() === "") {
+      return res.status(400).json({ error: "Column name cannot be empty." });
+    }
+
+    if (columnName.trim().toLowerCase() === "completed") {
       return res
         .status(400)
-        .json({ error: "User ID and column name are required" });
+        .json({ error: "Column name 'Completed' is reserved." });
     }
+
+    const existingColumn = await Column.findOne({
+      userId,
+      name: { $regex: `^${columnName.trim()}$`, $options: "i" },
+    });
+    if (existingColumn) {
+      return res.status(400).json({ error: "Column name already exists." });
+    }
+
     const lastColumn = await Column.findOne({ userId }).sort({ order: -1 });
     const newOrder = lastColumn ? lastColumn.order + 1 : 0;
     const newColumnId = `column-${Date.now()}`;
@@ -38,11 +54,30 @@ router.post("/create", async (req, res) => {
 router.put("/rename", async (req, res) => {
   try {
     const { userId, columnId, newName } = req.body;
-    if (!userId || !columnId || !newName) {
+    if (!userId || !columnId) {
       return res
         .status(400)
-        .json({ error: "User ID, column ID, and new name are required" });
+        .json({ error: "User ID and column ID are required" });
     }
+    if (!newName || newName.trim() === "") {
+      return res.status(400).json({ error: "Column name cannot be empty." });
+    }
+
+    if (newName.trim().toLowerCase() === "completed") {
+      return res
+        .status(400)
+        .json({ error: "Column name 'Completed' is reserved." });
+    }
+
+    const duplicate = await Column.findOne({
+      userId,
+      name: { $regex: `^${newName.trim()}$`, $options: "i" },
+      columnId: { $ne: columnId },
+    });
+    if (duplicate) {
+      return res.status(400).json({ error: "Column name already exists." });
+    }
+
     const column = await Column.findOneAndUpdate(
       { userId, columnId },
       { name: newName },

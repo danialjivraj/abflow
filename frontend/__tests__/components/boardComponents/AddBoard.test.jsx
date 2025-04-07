@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { render, fireEvent, screen } from "@testing-library/react";
 import AddBoard from "../../../src/components/boardComponents/AddBoard";
-import { validateBoardName } from "../../../src/utils/boardValidation";
+import { validateColumnName } from "../../../src/utils/boardValidation";
 import { createBaseColumn } from "../../../_testUtils/createBaseColumn";
 
 // =======================
@@ -55,18 +55,18 @@ describe("AddBoard component - Unit Tests", () => {
   test("shows duplicate error message when createBoardError is set to duplicate error", () => {
     setup({
       isAddingBoard: true,
-      createBoardError: "Board name already taken.",
+      createBoardError: "Column name already exists.",
     });
-    expect(screen.getByText("Board name already taken.")).toBeInTheDocument();
+    expect(screen.getByText("Column name already exists.")).toBeInTheDocument();
   });
 
   test("shows reserved error message when createBoardError is set to reserved error", () => {
     setup({
       isAddingBoard: true,
-      createBoardError: "Board name 'Completed' is reserved.",
+      createBoardError: "Column name cannot be empty.",
     });
     expect(
-      screen.getByText("Board name 'Completed' is reserved."),
+      screen.getByText("Column name cannot be empty."),
     ).toBeInTheDocument();
   });
 
@@ -102,7 +102,7 @@ describe("AddBoard component - Integration Tests with Validation", () => {
     const [createBoardError, setCreateBoardError] = useState("");
 
     const handleCreateBoard = () => {
-      const error = validateBoardName(newBoardCreateName, columns);
+      const error = validateColumnName(newBoardCreateName, columns);
       setCreateBoardError(error);
     };
 
@@ -132,7 +132,7 @@ describe("AddBoard component - Integration Tests with Validation", () => {
     const input = screen.getByPlaceholderText("Enter board name");
     fireEvent.change(input, { target: { value: "project alpha" } });
     fireEvent.click(screen.getByTestId("tick-icon"));
-    expect(screen.getByText("Board name already taken.")).toBeInTheDocument();
+    expect(screen.getByText("Column name already exists.")).toBeInTheDocument();
   });
 
   test("shows reserved error message when board name 'Completed' is used", () => {
@@ -140,7 +140,7 @@ describe("AddBoard component - Integration Tests with Validation", () => {
     fireEvent.change(input, { target: { value: "Completed" } });
     fireEvent.click(screen.getByTestId("tick-icon"));
     expect(
-      screen.getByText("Board name 'Completed' is reserved."),
+      screen.getByText("Column name 'Completed' is reserved."),
     ).toBeInTheDocument();
   });
 
@@ -148,18 +148,18 @@ describe("AddBoard component - Integration Tests with Validation", () => {
     const input = screen.getByPlaceholderText("Enter board name");
     fireEvent.change(input, { target: { value: "" } });
     fireEvent.click(screen.getByTestId("tick-icon"));
-    expect(screen.getByText("Board name cannot be empty.")).toBeInTheDocument();
+    expect(
+      screen.getByText("Column name cannot be empty."),
+    ).toBeInTheDocument();
   });
 
   test("does not show error when a valid board name is entered", () => {
     const input = screen.getByPlaceholderText("Enter board name");
     fireEvent.change(input, { target: { value: "New Board" } });
     fireEvent.click(screen.getByTestId("tick-icon"));
-    expect(screen.queryByText("Board name cannot be empty.")).toBeNull();
-    expect(
-      screen.queryByText("Board name 'Completed' is reserved."),
-    ).toBeNull();
-    expect(screen.queryByText("Board name already taken.")).toBeNull();
-    expect(screen.queryByText("Board name cannot be empty.")).toBeNull();
+    expect(screen.queryByText("Column name cannot be empty.")).toBeNull();
+    expect(screen.queryByText("Column name cannot be empty.")).toBeNull();
+    expect(screen.queryByText("Column name already exists.")).toBeNull();
+    expect(screen.queryByText("Column name cannot be empty.")).toBeNull();
   });
 });

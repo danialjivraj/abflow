@@ -30,6 +30,14 @@ router.post("/:userId", async (req, res) => {
     const user = await User.findOne({ userId: req.params.userId });
     if (!user) return res.status(404).json({ error: "User not found" });
 
+    const duplicate = user.labels.some(
+      (label) =>
+        label.title.trim().toLowerCase() === title.trim().toLowerCase(),
+    );
+    if (duplicate) {
+      return res.status(400).json({ error: "Label already exists" });
+    }
+
     const newLabel = { title, color, order: user.labels.length };
     user.labels.push(newLabel);
     await user.save();
@@ -73,7 +81,17 @@ router.put("/:userId/:labelId", async (req, res) => {
     const label = user.labels.id(labelId);
     if (!label) return res.status(404).json({ error: "Label not found" });
 
-    if (title) label.title = title;
+    if (title) {
+      const duplicate = user.labels.some(
+        (lbl) =>
+          lbl._id.toString() !== labelId &&
+          lbl.title.trim().toLowerCase() === title.trim().toLowerCase(),
+      );
+      if (duplicate) {
+        return res.status(400).json({ error: "Label already exists" });
+      }
+      label.title = title;
+    }
     if (color) label.color = color;
     if (order !== undefined) label.order = order;
 

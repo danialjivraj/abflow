@@ -266,6 +266,20 @@ describe("LabelsModal - Integration Tests", () => {
       const errorMessage = await screen.findByText("Field cannot be empty");
       expect(errorMessage).toBeInTheDocument();
     });
+
+    it("should display inline error when duplicate label error occurs on creation", async () => {
+      createLabel.mockRejectedValueOnce({
+        response: { data: { error: "Label already exists" } },
+      });
+      render(<LabelsModalWrapper />);
+
+      const nameInput = screen.getByPlaceholderText("Label name");
+      fireEvent.change(nameInput, { target: { value: "Duplicate Label" } });
+      userEvent.click(screen.getByRole("button", { name: "Add Label" }));
+
+      const errorMessage = await screen.findByText("Label already exists");
+      expect(errorMessage).toBeInTheDocument();
+    });
   });
 
   describe("Editing a label", () => {
@@ -307,7 +321,32 @@ describe("LabelsModal - Integration Tests", () => {
       );
     });
 
-    it("should fail to update a label and display an error toast", async () => {
+    it("should display inline duplicate error when updating a label and clear it on typing", async () => {
+      updateLabel.mockRejectedValueOnce({
+        response: { data: { error: "Label already exists" } },
+      });
+      const { container } = render(
+        <LabelsModalWrapper initialLabels={[initialLabel]} />,
+      );
+
+      const editButton = container.querySelector(".edit-btn");
+      userEvent.click(editButton);
+
+      const inlineInput = await screen.findByDisplayValue("Old Label");
+      fireEvent.change(inlineInput, { target: { value: "Duplicate Label" } });
+      const saveButton = screen.getByRole("button", { name: "Save" });
+      userEvent.click(saveButton);
+
+      const errorMessage = await screen.findByText("Label already exists");
+      expect(errorMessage).toBeInTheDocument();
+
+      fireEvent.change(inlineInput, { target: { value: "Another Label" } });
+      await waitFor(() =>
+        expect(screen.queryByText("Label already exists")).toBeNull(),
+      );
+    });
+
+    it("should fail to update a label and display a toast error when error is not duplicate", async () => {
       updateLabel.mockRejectedValueOnce(new Error("Update failed"));
       const { container } = render(
         <LabelsModalWrapper initialLabels={[initialLabel]} />,

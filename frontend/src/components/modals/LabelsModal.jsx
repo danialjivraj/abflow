@@ -34,6 +34,7 @@ const LabelsModal = ({ isOpen, closeModal, labels, setLabels, userId }) => {
 
   const activeColor = editingLabelIndex !== null ? editedColor : newColor;
   const [labelError, setLabelError] = useState("");
+  const [editError, setEditError] = useState("");
 
   useEffect(() => {
     if (isOpen) {
@@ -74,7 +75,11 @@ const LabelsModal = ({ isOpen, closeModal, labels, setLabels, userId }) => {
       setNewColor(predefinedColors[0]);
     } catch (error) {
       console.error("Error: " + error.message);
-      toast.error("Error creating label!");
+      if (error.response && error.response.data && error.response.data.error) {
+        setLabelError(error.response.data.error);
+      } else {
+        toast.error("Error creating label!");
+      }
     }
   };
 
@@ -90,6 +95,8 @@ const LabelsModal = ({ isOpen, closeModal, labels, setLabels, userId }) => {
         toast.error("Label must be 75 characters or less");
         return;
       }
+      setEditError("");
+
       const labelToUpdate = labels[index];
       const response = await updateLabel(userId, labelToUpdate._id, {
         title: editedLabel,
@@ -107,7 +114,11 @@ const LabelsModal = ({ isOpen, closeModal, labels, setLabels, userId }) => {
       toast.success("Label updated!");
     } catch (error) {
       console.error("Error: " + error.message);
-      toast.error("Error updating label!");
+      if (error.response && error.response.data && error.response.data.error) {
+        setEditError(error.response.data.error);
+      } else {
+        toast.error("Error updating label!");
+      }
     }
   };
 
@@ -292,16 +303,23 @@ const LabelsModal = ({ isOpen, closeModal, labels, setLabels, userId }) => {
                                   }}
                                 />
                                 {editingLabelIndex === index ? (
-                                  <input
-                                    type="text"
-                                    value={editedLabel}
-                                    onChange={(e) =>
-                                      setEditedLabel(e.target.value)
-                                    }
-                                    className="inline-edit-input"
-                                    maxLength={75}
-                                    style={{ width: "100%" }}
-                                  />
+                                  <div className="inline-edit-input-wrapper">
+                                    <input
+                                      type="text"
+                                      value={editedLabel}
+                                      onChange={(e) => {
+                                        setEditedLabel(e.target.value);
+                                        setEditError("");
+                                      }}
+                                      className="inline-edit-input"
+                                      maxLength={75}
+                                    />
+                                    {editError && (
+                                      <span className="error-message-inline">
+                                        {editError}
+                                      </span>
+                                    )}
+                                  </div>
                                 ) : (
                                   <span className="label-title">
                                     {label.title}
@@ -311,7 +329,10 @@ const LabelsModal = ({ isOpen, closeModal, labels, setLabels, userId }) => {
                                   <div className="label-actions">
                                     <button
                                       className="edit-btn"
-                                      onClick={() => handleStartEditing(index)}
+                                      onClick={() => {
+                                        setEditError("");
+                                        handleStartEditing(index);
+                                      }}
                                     >
                                       <FiEdit size={14} />
                                     </button>

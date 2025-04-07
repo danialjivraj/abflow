@@ -4,7 +4,7 @@ import TaskCard from "./TaskCard";
 import DeleteConfirmationModal from "../modals/DeleteConfirmationModal";
 import { renameBoard, deleteBoard } from "../../services/columnsService";
 import { auth } from "../../firebase";
-import { validateBoardName } from "../../utils/boardValidation";
+import { validateColumnName } from "../../utils/boardValidation";
 import { toast } from "react-toastify";
 import { FaCheck, FaTimes } from "react-icons/fa";
 
@@ -45,11 +45,6 @@ const Column = ({
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const handleRename = async () => {
-    const error = validateBoardName(newBoardName, columns, columnId);
-    if (error) {
-      setRenameBoardError(error);
-      return;
-    }
     try {
       const user = auth.currentUser;
       if (!user) return;
@@ -61,6 +56,11 @@ const Column = ({
       setRenameBoardError("");
     } catch (error) {
       console.error("Error renaming board:", error);
+      const backendError = error.response?.data?.error;
+      const frontendError = validateColumnName(newBoardName, columns, columnId);
+      setRenameBoardError(
+        backendError || frontendError || "Failed to rename board",
+      );
     }
   };
 

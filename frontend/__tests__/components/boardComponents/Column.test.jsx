@@ -350,6 +350,11 @@ describe("Column Component - Integration Tests", () => {
   });
 
   test("throws error when renaming board to an empty name", async () => {
+    const { renameBoard } = require("../../../src/services/columnsService");
+    renameBoard.mockImplementationOnce(() =>
+      Promise.reject(new Error("Rename failed")),
+    );
+
     const setRenameBoardErrorMock = jest.fn();
 
     function TestWrapper() {
@@ -376,7 +381,7 @@ describe("Column Component - Integration Tests", () => {
 
     await waitFor(() => {
       expect(setRenameBoardErrorMock).toHaveBeenCalledWith(
-        "Board name cannot be empty.",
+        "Column name cannot be empty.",
       );
     });
   });
@@ -387,6 +392,11 @@ describe("Column Component - Integration Tests", () => {
       [baseColumn.columnId]: { name: baseColumn.name, items: [] },
       anotherColumnId: { name: existingBoardName, items: [] },
     };
+
+    const { renameBoard } = require("../../../src/services/columnsService");
+    const error = new Error("Rename failed");
+    error.response = { data: { error: "Column already exists" } };
+    renameBoard.mockImplementationOnce(() => Promise.reject(error));
 
     const setRenameBoardErrorMock = jest.fn();
 
@@ -415,12 +425,17 @@ describe("Column Component - Integration Tests", () => {
 
     await waitFor(() => {
       expect(setRenameBoardErrorMock).toHaveBeenCalledWith(
-        "Board name already taken.",
+        "Column already exists",
       );
     });
   });
 
   test("throws error when renaming board to reserved name 'Completed'", async () => {
+    const { renameBoard } = require("../../../src/services/columnsService");
+    renameBoard.mockImplementationOnce(() =>
+      Promise.reject(new Error("Rename failed")),
+    );
+
     const setRenameBoardErrorMock = jest.fn();
 
     function TestWrapper() {
@@ -447,8 +462,40 @@ describe("Column Component - Integration Tests", () => {
 
     await waitFor(() => {
       expect(setRenameBoardErrorMock).toHaveBeenCalledWith(
-        "Board name 'Completed' is reserved.",
+        "Column name 'Completed' is reserved.",
       );
+    });
+  });
+
+  test("displays backend error when renaming board fails with backend error message", async () => {
+    const backendErrorMessage = "Column already exists";
+    const { renameBoard } = require("../../../src/services/columnsService");
+    const error = new Error("Rename failed");
+    error.response = { data: { error: backendErrorMessage } };
+    renameBoard.mockImplementationOnce(() => Promise.reject(error));
+
+    const setRenameBoardErrorMock = jest.fn();
+
+    function TestWrapper() {
+      const [newBoardName, setNewBoardName] = React.useState("Valid Board");
+      return (
+        <Column
+          {...defaultProps}
+          renamingColumnId={baseColumn.columnId}
+          newBoardName={newBoardName}
+          setNewBoardName={setNewBoardName}
+          renameBoardError=""
+          setRenameBoardError={setRenameBoardErrorMock}
+        />
+      );
+    }
+
+    render(<TestWrapper />);
+    const tickButton = screen.getByTestId("tick-icon");
+    fireEvent.click(tickButton);
+
+    await waitFor(() => {
+      expect(setRenameBoardErrorMock).toHaveBeenCalledWith(backendErrorMessage);
     });
   });
 

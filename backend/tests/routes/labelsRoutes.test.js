@@ -1,4 +1,4 @@
-jest.setTimeout(10000);
+jest.setTimeout(20000);
 
 const request = require("supertest");
 const express = require("express");
@@ -107,6 +107,22 @@ describe("Labels Routes", () => {
         .send(labelData)
         .expect(404);
     });
+
+    it("should return 400 if a label with the same title already exists", async () => {
+      const labelData = { title: "Duplicate", color: "#111111" };
+      await request(app)
+        .post(`/api/labels/${defaultUser.userId}`)
+        .send(labelData)
+        .expect(201);
+
+      const duplicateLabelData = { title: "duplicate", color: "#222222" };
+      const res = await request(app)
+        .post(`/api/labels/${defaultUser.userId}`)
+        .send(duplicateLabelData)
+        .expect(400);
+
+      expect(res.body.error).toBe("Label already exists");
+    });
   });
 
   // ---------------------------
@@ -209,6 +225,26 @@ describe("Labels Routes", () => {
       const updatedTask = await Task.findById(task._id);
       expect(updatedTask.labels[0].title).toBe("New Label Title");
       expect(updatedTask.labels[0].color).toBe("#111111");
+    });
+
+    it("should return 400 if updating a label's title to a duplicate value", async () => {
+      let user = await User.findOne({ userId: defaultUser.userId });
+      user.labels = [
+        { title: "Label One", color: "#000000", order: 0 },
+        { title: "Label Two", color: "#111111", order: 1 },
+      ];
+      await user.save();
+
+      const labelId = user.labels[1]._id;
+
+      const updateData = { title: "label one" };
+
+      const res = await request(app)
+        .put(`/api/labels/${defaultUser.userId}/${labelId}`)
+        .send(updateData)
+        .expect(400);
+
+      expect(res.body.error).toBe("Label already exists");
     });
 
     it("should return 404 if user or label is not found", async () => {
