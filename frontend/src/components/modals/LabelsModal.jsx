@@ -54,10 +54,6 @@ const LabelsModal = ({ isOpen, closeModal, labels, setLabels, userId }) => {
 
   const handleAddLabel = async () => {
     try {
-      if (!newLabel.trim()) {
-        setLabelError("Field cannot be empty");
-        return;
-      }
       if (newLabel.length > 75) {
         toast.error("Label must be 75 characters or less");
         return;
@@ -319,7 +315,6 @@ const LabelsModal = ({ isOpen, closeModal, labels, setLabels, userId }) => {
                                       className="inline-edit-input"
                                       maxLength={75}
                                     />
-
                                     {editError && (
                                       <span className="error-message-inline">
                                         {editError}

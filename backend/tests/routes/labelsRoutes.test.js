@@ -97,7 +97,27 @@ describe("Labels Routes", () => {
         .send(labelData)
         .expect(400);
 
-      expect(res.body.error).toBe("Title and color are required");
+      expect(res.body.error).toBe("Field cannot be empty.");
+    });
+
+    it("should return 400 if title is an empty string", async () => {
+      const labelData = { title: "   ", color: "#123456" };
+      const res = await request(app)
+        .post(`/api/labels/${defaultUser.userId}`)
+        .send(labelData)
+        .expect(400);
+
+      expect(res.body.error).toBe("Field cannot be empty.");
+    });
+
+    it("should return 400 if color is an empty string", async () => {
+      const labelData = { title: "Non-empty", color: "   " };
+      const res = await request(app)
+        .post(`/api/labels/${defaultUser.userId}`)
+        .send(labelData)
+        .expect(400);
+
+      expect(res.body.error).toBe("Field cannot be empty.");
     });
 
     it("should return 404 if user not found", async () => {
@@ -121,7 +141,7 @@ describe("Labels Routes", () => {
         .send(duplicateLabelData)
         .expect(400);
 
-      expect(res.body.error).toBe("Label already exists");
+      expect(res.body.error).toBe("Label already exists.");
     });
   });
 
@@ -244,7 +264,35 @@ describe("Labels Routes", () => {
         .send(updateData)
         .expect(400);
 
-      expect(res.body.error).toBe("Label already exists");
+      expect(res.body.error).toBe("Label already exists.");
+    });
+
+    it("should return 400 if updating a label's title to an empty string", async () => {
+      let user = await User.findOne({ userId: defaultUser.userId });
+      user.labels = [{ title: "Label", color: "#000000", order: 0 }];
+      await user.save();
+      const labelId = user.labels[0]._id;
+
+      const updateData = { title: "   " };
+      const res = await request(app)
+        .put(`/api/labels/${defaultUser.userId}/${labelId}`)
+        .send(updateData)
+        .expect(400);
+      expect(res.body.error).toBe("Field cannot be empty.");
+    });
+
+    it("should return 400 if updating a label's color to an empty string", async () => {
+      let user = await User.findOne({ userId: defaultUser.userId });
+      user.labels = [{ title: "Label", color: "#000000", order: 0 }];
+      await user.save();
+      const labelId = user.labels[0]._id;
+
+      const updateData = { color: "   " };
+      const res = await request(app)
+        .put(`/api/labels/${defaultUser.userId}/${labelId}`)
+        .send(updateData)
+        .expect(400);
+      expect(res.body.error).toBe("Field cannot be empty.");
     });
 
     it("should return 404 if user or label is not found", async () => {

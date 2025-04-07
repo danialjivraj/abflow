@@ -24,8 +24,8 @@ router.get("/:userId", async (req, res) => {
 router.post("/:userId", async (req, res) => {
   try {
     const { title, color } = req.body;
-    if (!title || !color) {
-      return res.status(400).json({ error: "Title and color are required" });
+    if (!title || !color || title.trim() === "" || color.trim() === "") {
+      return res.status(400).json({ error: "Field cannot be empty." });
     }
     const user = await User.findOne({ userId: req.params.userId });
     if (!user) return res.status(404).json({ error: "User not found" });
@@ -35,7 +35,7 @@ router.post("/:userId", async (req, res) => {
         label.title.trim().toLowerCase() === title.trim().toLowerCase(),
     );
     if (duplicate) {
-      return res.status(400).json({ error: "Label already exists" });
+      return res.status(400).json({ error: "Label already exists." });
     }
 
     const newLabel = { title, color, order: user.labels.length };
@@ -81,18 +81,26 @@ router.put("/:userId/:labelId", async (req, res) => {
     const label = user.labels.id(labelId);
     if (!label) return res.status(404).json({ error: "Label not found" });
 
-    if (title) {
+    if (title !== undefined) {
+      if (title.trim() === "") {
+        return res.status(400).json({ error: "Field cannot be empty." });
+      }
       const duplicate = user.labels.some(
         (lbl) =>
           lbl._id.toString() !== labelId &&
           lbl.title.trim().toLowerCase() === title.trim().toLowerCase(),
       );
       if (duplicate) {
-        return res.status(400).json({ error: "Label already exists" });
+        return res.status(400).json({ error: "Label already exists." });
       }
       label.title = title;
     }
-    if (color) label.color = color;
+    if (color !== undefined) {
+      if (color.trim() === "") {
+        return res.status(400).json({ error: "Field cannot be empty." });
+      }
+      label.color = color;
+    }
     if (order !== undefined) label.order = order;
 
     await user.save();

@@ -255,6 +255,10 @@ describe("LabelsModal - Integration Tests", () => {
     });
 
     it("should display error message when trying to create a label with empty field", async () => {
+      createLabel.mockRejectedValueOnce({
+        response: { data: { error: "Field cannot be empty." } },
+      });
+
       render(<LabelsModalWrapper />);
 
       const nameInput = screen.getByPlaceholderText("Label name");
@@ -263,7 +267,7 @@ describe("LabelsModal - Integration Tests", () => {
       const addButton = screen.getByRole("button", { name: "Add Label" });
       userEvent.click(addButton);
 
-      const errorMessage = await screen.findByText("Field cannot be empty");
+      const errorMessage = await screen.findByText("Field cannot be empty.");
       expect(errorMessage).toBeInTheDocument();
     });
 
