@@ -9,7 +9,6 @@ router.get("/:userId", async (req, res) => {
     const user = await User.findOne({ userId: req.params.userId });
     if (!user) return res.status(404).json({ error: "User not found" });
 
-    // Sort labels based on the order field before returning them
     const sortedLabels = user.labels.sort((a, b) => a.order - b.order);
     res.json(sortedLabels);
   } catch (

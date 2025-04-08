@@ -6,6 +6,7 @@ import {
   FiPieChart,
   FiTag,
 } from "react-icons/fi";
+import { FaPlus } from "react-icons/fa";
 import { RiPentagonLine } from "react-icons/ri";
 import { FaSun, FaMoon, FaChartLine, FaChartArea } from "react-icons/fa";
 
@@ -45,6 +46,7 @@ export const getDashboardTopBarConfig = (
     label: "Create Task",
     onClick: () => openModal(),
     className: "create-top-bar-task-btn",
+    icon: <FaPlus size={18} />,
   },
 ];
 
