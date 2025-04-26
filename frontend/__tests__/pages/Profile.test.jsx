@@ -1,13 +1,13 @@
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import Profile from "../src/pages/Profile";
+import Profile from "../../src/pages/Profile";
 import axios from "axios";
-import { auth } from "../src/firebase";
+import { auth } from "../../src/firebase";
 import { BrowserRouter } from "react-router-dom";
-import { NotificationsProvider } from "../src/contexts/NotificationsContext";
-import { createBaseTask } from "../_testUtils/createBaseTask";
-import { createBaseUser } from "../_testUtils/createBaseUser";
-import * as profileService from "../src/services/profileService";
+import { NotificationsProvider } from "../../src/contexts/NotificationsContext";
+import { createBaseTask } from "../../_testUtils/createBaseTask";
+import { createBaseUser } from "../../_testUtils/createBaseUser";
+import * as profileService from "../../src/services/profileService";
 
 jest.mock("axios");
 

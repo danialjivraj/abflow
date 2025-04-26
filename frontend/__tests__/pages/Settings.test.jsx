@@ -7,12 +7,12 @@ import {
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
-import Settings from "../src/pages/Settings";
+import Settings from "../../src/pages/Settings";
 import {
   fetchSettingsPreferences,
   updateSettingsPreferences,
-} from "../src/services/preferencesService";
-import { createBaseUser } from "../_testUtils/createBaseUser";
+} from "../../src/services/preferencesService";
+import { createBaseUser } from "../../_testUtils/createBaseUser";
 import { toast } from "react-toastify";
 
 export const NotificationsContext = createContext({ notifications: [] });
@@ -28,25 +28,27 @@ const AllProviders = ({
   </MemoryRouter>
 );
 
-jest.mock("../src/firebase", () => ({
+jest.mock("../../src/firebase", () => ({
   auth: { currentUser: { uid: "user1" } },
 }));
 
-jest.mock("../src/services/preferencesService", () => ({
+jest.mock("../../src/services/preferencesService", () => ({
   fetchSettingsPreferences: jest.fn(),
   updateSettingsPreferences: jest.fn(),
 }));
 
-jest.mock("../src/utils/themeUtils", () => ({
+jest.mock("../../src/utils/themeUtils", () => ({
   updateAccentColor: jest.fn(),
   updateTopbarAccentColor: jest.fn(),
   updatePriorityCSSVariables: jest.fn(),
 }));
 
-jest.mock("../src/components/navigation/Layout", () => ({ children }) => (
+jest.mock("../../src/components/navigation/Layout", () => ({ children }) => (
   <div>{children}</div>
 ));
-jest.mock("../src/components/navigation/TopBar", () => () => <div>TopBar</div>);
+jest.mock("../../src/components/navigation/TopBar", () => () => (
+  <div>TopBar</div>
+));
 
 jest.mock("react-toastify", () => ({
   toast: {
