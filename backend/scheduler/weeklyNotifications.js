@@ -2,10 +2,6 @@ const Task = require("../models/Task");
 const Notification = require("../models/Notification");
 const User = require("../models/User");
 
-/**
- * Helper: Checks if a notification with the same message exists for the user,
- * created within the past thresholdMs (default 100 ms; adjust for production).
- */
 const shouldCreateNotification = async (userId, message, thresholdMs = 100) => {
   const threshold = new Date(Date.now() - thresholdMs);
   const exists = await Notification.findOne({
@@ -16,10 +12,6 @@ const shouldCreateNotification = async (userId, message, thresholdMs = 100) => {
   return !exists;
 };
 
-/**
- * Generates a weekly insight notification based on high priority tasks.
- * Returns an array with one notification (or empty if none qualifies).
- */
 const generateWeeklyInsightNotification = async (
   userId,
   now,
@@ -41,7 +33,6 @@ const generateWeeklyInsightNotification = async (
     0,
   );
 
-  // Only generate if there's total time and some high-priority tasks
   if (highPriorityTasks.length > 0 && totalTime > 0) {
     const highPercentage = (highTime / totalTime) * 100;
     let message;
@@ -68,10 +59,6 @@ const generateWeeklyInsightNotification = async (
   return notifications;
 };
 
-/**
- * Generates a weekly task count notification if the user completed any tasks last week.
- * Returns an array with one notification (or empty if no tasks were completed).
- */
 const generateWeeklyTaskCountNotification = async (
   userId,
   now,
@@ -92,37 +79,27 @@ const generateWeeklyTaskCountNotification = async (
   return notifications;
 };
 
-/**
- * Master function to generate all weekly notifications for every user.
- * "Last week" is defined here as Monday 00:00 of last week to Monday 00:00 of this week.
- */
 const generateWeeklyInsights = async () => {
   try {
     const now = new Date();
 
-    // 1) Calculate Monday 00:00 of the current week
-    // (Assumes Monday is the first day, day=1, Sunday=0)
     const startOfThisWeek = new Date(now);
-    const day = startOfThisWeek.getDay(); // 0=Sun, 1=Mon, etc.
-    const diffToMonday = day === 0 ? 6 : day - 1; // how many days back from today to Monday
+    const day = startOfThisWeek.getDay();
+    const diffToMonday = day === 0 ? 6 : day - 1;
     startOfThisWeek.setDate(startOfThisWeek.getDate() - diffToMonday);
-    startOfThisWeek.setHours(0, 0, 0, 0); // set to Monday 00:00 of this week
+    startOfThisWeek.setHours(0, 0, 0, 0);
 
-    // 2) Calculate Monday 00:00 of last week
     const startOfLastWeek = new Date(startOfThisWeek);
-    startOfLastWeek.setDate(startOfLastWeek.getDate() - 7); // Monday 00:00 of last week
+    startOfLastWeek.setDate(startOfLastWeek.getDate() - 7);
 
-    // For the "new tasks" check in generateWeeklyInsightNotification:
     const twoDaysAgo = new Date(now);
     twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
 
-    // Fetch all users
     const users = await User.find({});
 
     for (const user of users) {
       const userId = user.userId;
 
-      // If a weekly notification was already sent this week, skip
       if (
         user.lastWeeklyNotification &&
         new Date(user.lastWeeklyNotification) >= startOfThisWeek
@@ -133,7 +110,6 @@ const generateWeeklyInsights = async () => {
         continue;
       }
 
-      // 3) Query tasks completed in [last Monday 00:00, this Monday 00:00)
       const tasksLastWeek = await Task.find({
         userId,
         completedAt: { $gte: startOfLastWeek, $lt: startOfThisWeek },
@@ -141,7 +117,6 @@ const generateWeeklyInsights = async () => {
 
       let notificationsToCreate = [];
 
-      // 1. High Priority Time-based Insight
       const insightNotifs = await generateWeeklyInsightNotification(
         userId,
         now,
@@ -150,7 +125,6 @@ const generateWeeklyInsights = async () => {
       );
       notificationsToCreate = notificationsToCreate.concat(insightNotifs);
 
-      // 2. Task Count Notification
       const taskCountNotifs = await generateWeeklyTaskCountNotification(
         userId,
         now,
@@ -158,16 +132,12 @@ const generateWeeklyInsights = async () => {
       );
       notificationsToCreate = notificationsToCreate.concat(taskCountNotifs);
 
-      // If we have new notifications, insert them and update lastWeeklyNotification
       if (notificationsToCreate.length) {
         await Notification.insertMany(notificationsToCreate);
 
-        // Only update if an insight was sent; or you could do it if *any* notification was sent:
-        // if (insightNotifs.length) { ...
-        // but presumably any weekly notification means we've done "this week's" notifications
         await User.findOneAndUpdate(
           { userId },
-          { lastWeeklyNotification: startOfThisWeek }, // or 'now', your call
+          { lastWeeklyNotification: startOfThisWeek },
         );
 
         console.log(

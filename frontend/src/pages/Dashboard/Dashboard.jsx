@@ -45,7 +45,7 @@ export const getBaseRoute = (pathname) => {
 };
 
 const Dashboard = (props) => {
-  // State and refs
+  // state and refs
   const [columns, setColumns] = useState({});
   const [columnsLoaded, setColumnsLoaded] = useState(false);
   const [userId, setUserId] = useState(null);
@@ -74,7 +74,7 @@ const Dashboard = (props) => {
   const [selectedScheduleEvent, setSelectedScheduleEvent] = useState(null);
   const [createBoardError, setCreateBoardError] = useState("");
   const [renameBoardError, setRenameBoardError] = useState("");
-  const [labels, setLabels] = useState([]); // user's labels
+  const [labels, setLabels] = useState([]);
   const [newTaskLabels, setNewTaskLabels] = useState([]);
 
   const { userSettings, setUserSettings } = props;
@@ -90,7 +90,7 @@ const Dashboard = (props) => {
     /\/dashboard\/schedule\/editevent\/[^/]+$/.test(location.pathname) &&
     selectedScheduleEvent;
 
-  // Side effects
+  // side effects
   useEffect(() => {
     const currentUser = auth.currentUser;
     if (currentUser) {
@@ -237,7 +237,7 @@ const Dashboard = (props) => {
     });
   };
 
-  // Handlers for modal navigation
+  // handlers for modal navigation
   const openCreateModal = () => {
     navigate(`${baseRoute}/createtask`);
   };

@@ -174,7 +174,6 @@ const Wrapper = ({ children }) => (
   </NotificationsContext.Provider>
 );
 
-// --- Tests ---
 describe("Dashboard Duplicate Task Integration Toasts", () => {
   const tasksService = require("../../../src/services/tasksService");
   const columnsService = require("../../../src/services/columnsService");

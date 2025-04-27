@@ -1,10 +1,3 @@
-/**
- * Formats a due date relative to the current time, returning a human-readable string and an overdue flag.
- *
- * @param {string|Date} dueDate - The due date as a string or Date object.
- * @param {Date} currentTime - The current time.
- * @returns {{text: string, isOverdue: boolean}} - An object containing the formatted time text and a flag indicating if it's overdue.
- */
 export const formatDueDate = (dueDate, currentTime) => {
   const due = new Date(dueDate);
   const diffInMs = due - currentTime;
@@ -68,15 +61,6 @@ export const formatDueDate = (dueDate, currentTime) => {
   };
 };
 
-/**
- * Formats a duration in seconds into a human-readable string.
- * If the duration is less than a minute, it shows seconds;
- * if less than an hour, it shows minutes and seconds;
- * otherwise, it shows hours and minutes.
- *
- * @param {number} totalSeconds - The total duration in seconds.
- * @returns {string} - The formatted duration string.
- */
 export const formatTimeSpent = (totalSeconds) => {
   if (totalSeconds < 60) {
     return `${totalSeconds} second${totalSeconds !== 1 ? "s" : ""}`;
@@ -95,15 +79,6 @@ export const formatTimeSpent = (totalSeconds) => {
   }
 };
 
-/**
- * Calculates the total time spent on a task.
- * It adds the backend-recorded time to any additional elapsed time if the timer is currently running.
- *
- * @param {number} timeSpent - The time (in seconds) already recorded.
- * @param {boolean} isTimerRunning - Indicates if the timer is running.
- * @param {string} timerStartTime - The ISO string representing when the timer started.
- * @returns {number} - The total time spent in seconds.
- */
 export const calculateTotalTimeSpent = (
   timeSpent,
   isTimerRunning,
@@ -116,13 +91,6 @@ export const calculateTotalTimeSpent = (
   return backendTimeSpent + frontendElapsedTime;
 };
 
-/**
- * Formats a date into a human-readable string without showing GMT.
- * It converts a date string or Date object into a format like "Month Day, Year, Hour:Minute AM/PM".
- *
- * @param {string|Date} dateValue - The date value to format.
- * @returns {string} - The formatted date string, or an empty string if the date is invalid.
- */
 export const formatDateWithoutGMT = (dateValue) => {
   if (!dateValue) return "";
   const dateObj =
@@ -141,18 +109,6 @@ export const formatDateWithoutGMT = (dateValue) => {
   return `${day} ${month}, ${year} at ${time}`;
 };
 
-/**
- * Formats the completed task's due date message.
- *
- * Compares the due date with the completed date and returns a message like:
- * - "Completed on 12/05/2025 (Overdue by 2 hours)"
- * - "Completed on 12/05/2025 (Completed 30 minutes early)"
- * - "Completed on 12/05/2025 (On time)" if there's no difference.
- *
- * @param {string|Date} dueDate - The task's due date.
- * @param {string|Date} completedAt - The date when the task was completed.
- * @returns {string} - A formatted message indicating how early or late the task was completed.
- */
 export const formatCompletedDueDate = (dueDate, completedAt) => {
   const due = new Date(dueDate);
   const completed = new Date(completedAt);
@@ -214,13 +170,6 @@ export const formatCompletedDueDate = (dueDate, completedAt) => {
   }
 };
 
-/**
- * Checks if two dates fall on the same calendar day.
- *
- * @param {Date} date1
- * @param {Date} date2
- * @returns {boolean}
- */
 function isSameDay(date1, date2) {
   return (
     date1.getFullYear() === date2.getFullYear() &&
@@ -229,19 +178,6 @@ function isSameDay(date1, date2) {
   );
 }
 
-/**
- * Determines the color for the calendar icon based on scheduled times and the current time.
- * Rules:
- *  - Only show the icon if the task is scheduled for TODAY.
- *  - If currentTime < scheduledStart => grey (#aaa)
- *  - If scheduledStart <= currentTime <= scheduledEnd => green (#4caf50)
- *  - Otherwise => null (no icon)
- *
- * @param {string|Date|null} scheduledStart - Start time of the schedule
- * @param {string|Date|null} scheduledEnd - End time of the schedule
- * @param {Date} currentTime - Current date/time
- * @returns {string|null} - A color string if the icon should be displayed, or null if it shouldn't.
- */
 export function getCalendarIconColor(
   scheduledStart,
   scheduledEnd,
@@ -252,45 +188,30 @@ export function getCalendarIconColor(
   const start = new Date(scheduledStart);
   const end = new Date(scheduledEnd);
 
-  // Must be on the same day as currentTime
+  // must be on the same day as currentTime
   if (!isSameDay(start, currentTime)) {
     return null;
   }
 
-  // If it's still in the future (today) => grey
+  // if it's still in the future (today) => grey
   if (currentTime < start) {
     return "#aaa";
   }
 
-  // If it's currently within [start, end] => green
+  // if it's currently within [start, end] => green
   if (currentTime >= start && currentTime <= end) {
     return "#4caf50";
   }
 
-  // If it's already past end => no icon
+  // if it's already past end => no icon
   return null;
 }
 
-/**
- * Converts seconds to hours.
- *
- * @param {number} totalSeconds - The total duration in seconds.
- * @returns {string} - The duration in hours.
- */
 export const formatTimeSpentInHours = (totalSeconds) => {
-  const hours = totalSeconds / 3600; // Convert seconds to hours
-  return `${hours}`; // Return the hours as a string
+  const hours = totalSeconds / 3600;
+  return `${hours}`;
 };
 
-/**
- * Formats a numeric value as hours if the provided metric is "timeSpent".
- * Otherwise, returns the value unchanged.
- *
- * @param {number} value - The numeric value (e.g. seconds) to be formatted.
- * @param {string} metric - The metric type (e.g. "timeSpent").
- * @returns {string|number} - Returns a formatted string (e.g. "3.50h") if metric is timeSpent,
- *                            or the original value for other metrics.
- */
 export const formatToHoursIfTimeSpent = (value, metric) => {
   if (metric === "timeSpent") {
     const hours = (value / 3600).toFixed(2);

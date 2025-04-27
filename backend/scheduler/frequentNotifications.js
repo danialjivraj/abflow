@@ -3,10 +3,6 @@ const Notification = require("../models/Notification");
 const User = require("../models/User");
 const formatTime12Hour = require("../utils/formatTime");
 
-/**
- * Checks if a notification with the same message exists for the user,
- * created within the past thresholdMs (default 1 ms for testing; increase for production).
- */
 const shouldCreateNotification = async (userId, message, thresholdMs = 1) => {
   const threshold = new Date(Date.now() - thresholdMs);
   const exists = await Notification.findOne({
@@ -17,10 +13,6 @@ const shouldCreateNotification = async (userId, message, thresholdMs = 1) => {
   return !exists;
 };
 
-/**
- * Generates scheduled notifications for tasks whose scheduled start is within N minutes.
- * Updates the task's lastNotifiedScheduledStart field.
- */
 const generateScheduledNotifications = async (userId, now) => {
   const tasks = await Task.find({ userId, status: { $ne: "completed" } });
   let notifications = [];
@@ -69,10 +61,6 @@ const generateScheduledNotifications = async (userId, now) => {
   return notifications;
 };
 
-/**
- * Generates upcoming notifications for tasks whose due date is within 24 hours.
- * Updates the task's lastNotifiedUpcoming field.
- */
 const generateUpcomingNotifications = async (userId, now) => {
   const tasks = await Task.find({ userId, status: { $ne: "completed" } });
   let notifications = [];
@@ -106,10 +94,6 @@ const generateUpcomingNotifications = async (userId, now) => {
   return notifications;
 };
 
-/**
- * Generates overdue notifications for tasks whose due date is past.
- * Updates the task's lastNotifiedOverdue field.
- */
 const generateOverdueNotifications = async (userId, now) => {
   const tasks = await Task.find({ userId, status: { $ne: "completed" } });
   let notifications = [];
@@ -142,12 +126,6 @@ const generateOverdueNotifications = async (userId, now) => {
   return notifications;
 };
 
-/**
- * Generates warning notifications for tasks that are not high priority
- * (i.e., tasks whose priority does not start with "A" or "B"),
- * when the timer is running and the total time spent exceeds a threshold (e.g. 1 hour),
- * and when there exist at least some high-priority tasks.
- */
 const generateWarningNotifications = async (userId, now) => {
   const tasks = await Task.find({ userId, status: { $ne: "completed" } });
   let notifications = [];
@@ -181,12 +159,12 @@ const generateWarningNotifications = async (userId, now) => {
       : highPriorityLetters.join(" and ");
 
   for (const task of nonHighPriorityTasks) {
-    // Check if timer is running
+    // checks if timer is running
     if (task.isTimerRunning && task.timerStartTime) {
       const elapsedTimeMs =
         (task.timeSpent || 0) * 1000 + (now - new Date(task.timerStartTime));
 
-      // If it exceeds threshold and we haven't warned yet
+      // if it exceeds threshold and we haven't warned yet
       if (elapsedTimeMs >= thresholdMs && !task.notifiedWarning) {
         const hoursWord = thresholdHours > 1 ? "hours" : "hour";
         const message = `Warning: You have spent over ${thresholdHours} ${hoursWord} on the task "${task.title}" which is non high priority. Consider switching to high priority work (there are ${priorityMessage} tasks to do).`;
@@ -197,7 +175,7 @@ const generateWarningNotifications = async (userId, now) => {
           taskId: task._id,
         });
 
-        // Mark this task as warned
+        // marks this task as warned
         await Task.findByIdAndUpdate(task._id, {
           notifiedWarning: true,
         });
@@ -208,9 +186,7 @@ const generateWarningNotifications = async (userId, now) => {
   return notifications;
 };
 
-/**
- * Master function to generate all frequent notifications independently.
- */
+// master function to generate all frequent notifications independently
 const generateFrequentNotifications = async () => {
   try {
     const users = await User.find({});

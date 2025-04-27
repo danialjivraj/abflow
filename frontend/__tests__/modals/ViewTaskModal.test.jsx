@@ -358,7 +358,7 @@ describe("ViewTaskModal - Integration Tests", () => {
     });
   });
 
-  // Timer Toggle Tests
+  // timer toggle tests
   test("displays timer toggle as disabled in readOnly mode", () => {
     render(<ViewTaskModal {...defaultProps} readOnly={true} />);
     const timerContainer = screen.getByText("OFF").parentElement;
@@ -392,7 +392,7 @@ describe("ViewTaskModal - Integration Tests", () => {
     });
   });
 
-  // Move to Boards / Complete Task Tests
+  // move to boards / complete task tests
   test("calls handleUpdateTask when 'Back to Boards' is clicked for a completed task and shows success toast", async () => {
     const updatedTask = createBaseTask({ status: "completed" });
     const props = { ...defaultProps, task: updatedTask, readOnly: false };
@@ -621,7 +621,7 @@ describe("ViewTaskModal - Integration Tests", () => {
     });
 
     test("renders TaskLabels with visible label text even when userSettings.hideLabelText is true", () => {
-      // Although userSettings.hideLabelText is true, ViewTaskModal always passes false to TaskLabels.
+      // although userSettings.hideLabelText is true, ViewTaskModal always passes false to TaskLabels.
       render(
         <ViewTaskModal
           {...defaultProps}

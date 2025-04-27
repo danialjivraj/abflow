@@ -36,7 +36,6 @@
   --notif-title-warning: #ffdf7f;
 }
 
-/* Container styles */
 .notifications-dropdown {
   position: absolute;
   top: 50px;
@@ -54,7 +53,6 @@
   overflow-x: hidden;
 }
 
-/* Header area */
 .notifications-header {
   position: relative;
   background: var(--notif-header-bg);
@@ -65,7 +63,6 @@
   align-items: flex-start;
 }
 
-/* Header content for title and mark all button */
 .header-content {
   display: flex;
   flex-direction: column;
@@ -78,7 +75,6 @@
   color: var(--notif-header-text);
 }
 
-/* Mark All as Read button in header */
 .mark-all-read-header {
   background: none;
   border: none;
@@ -95,7 +91,6 @@
   color: var(--notif-header-text);
 }
 
-/* Close button for the dropdown header */
 .close-btn {
   position: absolute;
   top: 40%;
@@ -132,7 +127,6 @@
   color: var(--notif-header-text);
 }
 
-/* Notification list */
 .notifications-dropdown ul {
   list-style: none;
   margin: 0;
@@ -141,7 +135,6 @@
   overflow-y: auto;
 }
 
-/* Individual notification items */
 .notifications-dropdown li {
   display: flex;
   align-items: center;
@@ -157,7 +150,6 @@
   background: var(--notif-hover-bg) !important;
 }
 
-/* Fade-in animation */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -169,7 +161,6 @@
   }
 }
 
-/* Container for notification text */
 .notification-content {
   flex-grow: 1;
   margin-right: 8px;
@@ -189,7 +180,6 @@
   overflow-wrap: anywhere;
 }
 
-/* Remove button for individual notifications */
 .notification-remove-btn {
   background: none;
   border: none;
@@ -219,14 +209,12 @@
   color: var(--notif-header-text);
 }
 
-/* Clear All button container at bottom */
 .clear-all-container {
   text-align: center;
   padding: 8px 0;
   border-top: 1px solid var(--notif-border);
 }
 
-/* Clear All button styling */
 .clear-all-btn {
   background: none;
   border: none;
@@ -241,7 +229,6 @@
   color: var(--notif-header-text);
 }
 
-/* Unread and read notification styling */
 .notifications-dropdown li.unread {
   background: var(--notif-unread-bg);
 }
@@ -250,7 +237,6 @@
   background: var(--notif-read-bg);
 }
 
-/* Container for notification actions */
 .notification-actions {
   margin-left: 16px;
   display: flex;
@@ -258,7 +244,6 @@
   gap: 8px;
 }
 
-/* Envelope button styling */
 .notification-envelope-btn {
   background: none;
   border: none;
@@ -287,7 +272,6 @@
   color: var(--notif-envelope-color);
 }
 
-/* No notifications text */
 .no-notifications {
   padding: 16px;
   text-align: center;
@@ -315,7 +299,6 @@
   border: 0;
 }
 
-/* Notification Title Colors */
 .notification-title-alert {
   color: var(--notif-title-alert);
   margin-right: 4px;

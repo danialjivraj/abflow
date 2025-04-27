@@ -321,7 +321,7 @@ describe("ScheduleEditModal - Integration Tests", () => {
       };
 
       render(<TestWrapper />);
-      // Although userSettings.hideLabelText is true, ScheduleEditModal always passes false to TaskLabels.
+      // although userSettings.hideLabelText is true, ScheduleEditModal always passes false to TaskLabels.
       const urgentLabel = screen.getByText("Urgent");
       expect(urgentLabel).toBeInTheDocument();
       expect(urgentLabel.className).toContain("colorblind-label");

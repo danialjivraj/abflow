@@ -5,8 +5,8 @@ if (typeof window.matchMedia !== "function") {
       matches: false,
       media: query,
       onchange: null,
-      addListener: jest.fn(), // Deprecated
-      removeListener: jest.fn(), // Deprecated
+      addListener: jest.fn(), // deprecated
+      removeListener: jest.fn(), // deprecated
       addEventListener: jest.fn(),
       removeEventListener: jest.fn(),
       dispatchEvent: jest.fn(),

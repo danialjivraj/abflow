@@ -33,9 +33,7 @@ describe("TaskLabels", () => {
 
     const importantSpan = screen.getByText("Important");
     expect(importantSpan).toHaveStyle({ backgroundColor: "#ff0000" });
-    // Check that the className does not contain "colorblind-label"
     expect(importantSpan.className).not.toContain("colorblind-label");
-    // Check that the --pattern-image property is empty
     expect(importantSpan.style.getPropertyValue("--pattern-image")).toBe("");
   });
 

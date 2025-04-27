@@ -129,7 +129,7 @@ describe("CreateTaskModal Integration Tests", () => {
     jest.clearAllMocks();
   });
 
-  // Board Creation UI (no boards exist)
+  // board creation UI (no boards exist)
   describe("Board Creation UI (no boards exist)", () => {
     test("renders board creation UI", () => {
       render(<CreateTaskModal {...defaultProps} columns={{}} />);
@@ -169,7 +169,7 @@ describe("CreateTaskModal Integration Tests", () => {
       expect(screen.getByPlaceholderText("Enter board name").value).toBe(
         "Some Board",
       );
-      // Closing the modal
+      // closing the modal
       rerender(
         <CreateTaskModal
           {...defaultProps}
@@ -178,7 +178,7 @@ describe("CreateTaskModal Integration Tests", () => {
           columns={{}}
         />,
       );
-      // Reopen the modal
+      // reopen the modal
       rerender(
         <CreateTaskModal
           {...defaultProps}
@@ -202,7 +202,7 @@ describe("CreateTaskModal Integration Tests", () => {
     });
   });
 
-  // Task Creation UI (boards exist)
+  // task creation UI (boards exist)
   describe("Task Creation UI (boards exist)", () => {
     test("renders task creation UI elements", () => {
       render(
@@ -643,7 +643,7 @@ describe("CreateTaskModal Integration Tests", () => {
         />,
       );
     renderModal({ labelColorblindMode: true, hideLabelText: true });
-    // Although userSettings.hideLabelText is true, CreateTaskModal always passes false to TaskLabels.
+    // although userSettings.hideLabelText is true, CreateTaskModal always passes false to TaskLabels.
     const urgentLabel = screen.getByText("Urgent");
     expect(urgentLabel).toBeInTheDocument();
     expect(urgentLabel.className).toContain("colorblind-label");

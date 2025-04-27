@@ -75,7 +75,6 @@ const Profile = () => {
     try {
       if (pendingFile) {
         const response = await uploadProfilePicture(userId, pendingFile);
-        // Append a timestamp to bust browser caching if needed.
         setProfile((prev) => ({
           ...prev,
           profilePicture: `${response.data.profilePicture}?t=${Date.now()}`,
@@ -143,7 +142,6 @@ const Profile = () => {
   }
 
   const BASE_URL = import.meta.env.VITE_API_BASE_URL_DEPLOY;
-  // Checks if the URL is absolute (i.e., starts with http:// or https://)
   const isAbsoluteUrl = (url) => /^(?:[a-z]+:)?\/\//i.test(url);
 
   const displayImage = pendingRemove

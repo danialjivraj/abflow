@@ -24,10 +24,6 @@ const dayOptions = [
   "Sunday",
 ];
 
-/**
- * Computes the start and end date based on the given time range type.
- * For "all-time", it uses the tasks list to determine the earliest date.
- */
 export function computeDateRange({
   timeRangeType,
   customStartDate,
@@ -113,10 +109,6 @@ export function computeDateRange({
   return { startDate, endDate };
 }
 
-/**
- * Applies all the filtering logic to a given list of tasks.
- * All filter options are passed in via the "filters" object.
- */
 export function applyAllFilters(tasksList, startDate, endDate, filters) {
   const {
     taskType,
@@ -238,11 +230,6 @@ export function applyAllFilters(tasksList, startDate, endDate, filters) {
   return filtered;
 }
 
-/**
- * Groups tasks based on the xAxisField.
- * The filters object should include xAxisField, columnsMapping, labels,
- * includeZeroMetrics, and optionally filters for specific groups.
- */
 export function groupTasks(tasksList, filters) {
   const {
     xAxisField,
@@ -361,10 +348,6 @@ export function groupTasks(tasksList, filters) {
   return groupedData;
 }
 
-/**
- * Merges two grouped datasets (e.g. main and comparison) based on the key.
- * Converts timeSpent from seconds to hours if needed.
- */
 export function mergeData(mainData, compData, yAxisMetric) {
   const merged = {};
   mainData.forEach((item) => {

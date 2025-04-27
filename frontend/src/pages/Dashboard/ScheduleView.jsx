@@ -160,16 +160,16 @@ const ScheduleView = ({
     const startDay = start.toISOString().slice(0, 10);
     const endDay = end.toISOString().slice(0, 10);
 
-    // Prevent multi-day events
+    // prevent multi-day events
     if (startDay !== endDay) {
-      console.warn("Drop results in a multi-day event; ignoring drop.");
+      console.warn("Drop results in a multi-day event, ignoring drop.");
       return;
     }
 
-    // Prevent events with the same start and end time
+    // prevent events with the same start and end time
     if (start.getTime() === end.getTime()) {
       console.warn(
-        "Drop results in an event with the same start and end time; ignoring drop.",
+        "Drop results in an event with the same start and end time, ignoring drop.",
       );
       return;
     }
@@ -197,13 +197,13 @@ const ScheduleView = ({
     const startDay = start.toISOString().slice(0, 10);
     const endDay = end.toISOString().slice(0, 10);
 
-    // Prevent multi-day events
+    // prevent multi-day events
     if (startDay !== endDay) {
-      console.warn("Resize results in a multi-day event; ignoring resize.");
+      console.warn("Resize results in a multi-day event, ignoring resize.");
       return;
     }
 
-    // If below 30 sets it to 30
+    // if below 30 sets it to 30
     let duration = moment(end).diff(moment(start), "minutes");
 
     if (duration < 15) {
@@ -237,7 +237,7 @@ const ScheduleView = ({
     const endDay = end.toISOString().slice(0, 10);
     if (startDay !== endDay) {
       console.warn(
-        "Drop from outside results in a multi-day event; ignoring drop.",
+        "Drop from outside results in a multi-day event, ignoring drop.",
       );
       return;
     }

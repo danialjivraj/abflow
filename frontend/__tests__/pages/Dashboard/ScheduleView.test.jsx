@@ -117,7 +117,7 @@ jest.mock("react-big-calendar/lib/addons/dragAndDrop", () => {
             props.onEventDrop({
               event: props.events[0],
               start: new Date("2025-03-22T12:00:00.000Z"),
-              end: new Date("2025-03-23T13:00:00.000Z"), // Multi-day drop
+              end: new Date("2025-03-23T13:00:00.000Z"), // multi-day drop
             })
           }
         >
@@ -128,7 +128,7 @@ jest.mock("react-big-calendar/lib/addons/dragAndDrop", () => {
             props.onEventDrop({
               event: props.events[0],
               start: new Date("2025-03-22T12:00:00.000Z"),
-              end: new Date("2025-03-22T12:00:00.000Z"), // Same start and end
+              end: new Date("2025-03-22T12:00:00.000Z"), // same start and end
             })
           }
         >
@@ -150,7 +150,7 @@ jest.mock("react-big-calendar/lib/addons/dragAndDrop", () => {
             props.onEventResize({
               event: props.events[0],
               start: new Date("2025-03-22T12:00:00.000Z"),
-              end: new Date("2025-03-23T13:00:00.000Z"), // Multi-day resize
+              end: new Date("2025-03-23T13:00:00.000Z"), // multi-day resize
             })
           }
         >
@@ -170,7 +170,7 @@ jest.mock("react-big-calendar/lib/addons/dragAndDrop", () => {
           onClick={() =>
             props.onDropFromOutside({
               start: new Date("2025-03-22T14:00:00.000Z"),
-              end: new Date("2025-03-23T15:00:00.000Z"), // Multi-day drop
+              end: new Date("2025-03-23T15:00:00.000Z"), // multi-day drop
             })
           }
         >
@@ -289,7 +289,7 @@ describe("ScheduleView - Unit Tests", () => {
 
     await waitFor(() => {
       expect(console.warn).toHaveBeenCalledWith(
-        "Drop results in a multi-day event; ignoring drop.",
+        "Drop results in a multi-day event, ignoring drop.",
       );
       expect(
         require("../../../src/services/tasksService").updateTaskSchedule,
@@ -313,7 +313,7 @@ describe("ScheduleView - Unit Tests", () => {
 
     await waitFor(() => {
       expect(console.warn).toHaveBeenCalledWith(
-        "Drop results in an event with the same start and end time; ignoring drop.",
+        "Drop results in an event with the same start and end time, ignoring drop.",
       );
       expect(
         require("../../../src/services/tasksService").updateTaskSchedule,
@@ -364,7 +364,7 @@ describe("ScheduleView - Unit Tests", () => {
 
     await waitFor(() => {
       expect(console.warn).toHaveBeenCalledWith(
-        "Resize results in a multi-day event; ignoring resize.",
+        "Resize results in a multi-day event, ignoring resize.",
       );
       expect(
         require("../../../src/services/tasksService").updateTaskSchedule,
@@ -422,7 +422,7 @@ describe("ScheduleView - Unit Tests", () => {
 
     await waitFor(() => {
       expect(console.warn).toHaveBeenCalledWith(
-        "Drop from outside results in a multi-day event; ignoring drop.",
+        "Drop from outside results in a multi-day event, ignoring drop.",
       );
       expect(
         require("../../../src/services/tasksService").updateTask,

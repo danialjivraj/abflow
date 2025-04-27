@@ -123,7 +123,7 @@ const CompletedTasks = ({
 
   const filterCompletedTasks = (tasks) => {
     return tasks.filter((task) => {
-      // Task Name
+      // task name
       if (
         filters.taskName &&
         !task.title.toLowerCase().includes(filters.taskName.toLowerCase())
@@ -131,7 +131,7 @@ const CompletedTasks = ({
         return false;
       }
 
-      // Priority
+      // priority
       if (
         filters.priority.length > 0 &&
         !filters.priority.includes(task.priority)
@@ -147,7 +147,7 @@ const CompletedTasks = ({
         if (!matchesAll) return false;
       }
 
-      // Assigned To
+      // assigned to
       if (
         filters.assignedTo &&
         (!task.assignedTo ||
@@ -158,7 +158,7 @@ const CompletedTasks = ({
         return false;
       }
 
-      // Story Points
+      // story points
       if (
         filters.storyPoints &&
         task.storyPoints !== Number(filters.storyPoints)
@@ -166,7 +166,7 @@ const CompletedTasks = ({
         return false;
       }
 
-      // Timer Running
+      // timer running
       if (
         filters.timerRunning !== undefined &&
         filters.timerRunning !== null &&
@@ -175,7 +175,7 @@ const CompletedTasks = ({
         return false;
       }
 
-      // Due Status
+      // due status
       if (filters.dueStatus) {
         if (filters.dueStatus === "none") {
           if (task.dueDate) return false;
@@ -194,7 +194,7 @@ const CompletedTasks = ({
         }
       }
 
-      // Date Range (startDate/endDate)
+      // date range (startDate/endDate)
       if (filters.startDate) {
         const taskDate = new Date(task.completedAt);
         if (taskDate < filters.startDate) {

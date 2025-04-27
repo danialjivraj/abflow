@@ -263,7 +263,7 @@ describe("NotificationsDropdown Component - INTEGRATION TESTS", () => {
     fireEvent.click(unreadTab);
     expect(unreadTab).toHaveClass("active");
 
-    // There should be only 2 unread notifications (notif1 and notif3)
+    // there should be only 2 unread notifications (notif1 and notif3)
     const notifItems = screen.getAllByRole("listitem");
     expect(notifItems).toHaveLength(2);
 

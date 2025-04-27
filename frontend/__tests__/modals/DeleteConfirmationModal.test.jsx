@@ -19,7 +19,7 @@ describe("DeleteConfirmationModal", () => {
   // UNIT TESTS
   // =======================
   describe("Unit Tests", () => {
-    // General Rendering Tests
+    // general Rendering Tests
     test("does not render when isOpen is false", () => {
       const { container } = render(
         <DeleteConfirmationModal {...defaultProps} isOpen={false} />,
@@ -32,7 +32,7 @@ describe("DeleteConfirmationModal", () => {
       expect(screen.getByText("Confirm Deletion")).toBeInTheDocument();
     });
 
-    // Message Display Tests
+    // message Display Tests
     test("displays correct message for task deletion", () => {
       const expectedMessage =
         'Are you sure you want to delete the task:<br>"Test Task"?';
@@ -88,7 +88,6 @@ describe("DeleteConfirmationModal", () => {
   // INTEGRATION TESTS
   // =======================
   describe("Integration Tests", () => {
-    // Overlay and Close Button Tests
     test("calls onClose when clicking on the overlay", () => {
       const { container } = render(
         <DeleteConfirmationModal {...defaultProps} />,

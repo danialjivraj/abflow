@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const User = require("../models/User");
 
-// GET user preferences (both chart and settings)
+// get user preferences (both chart and settings)
 router.get("/:userId", async (req, res) => {
   try {
     const { userId } = req.params;
@@ -19,7 +19,7 @@ router.get("/:userId", async (req, res) => {
   }
 });
 
-// PUT update user preferences (chart and/or settings)
+// put update user preferences (chart and/or settings)
 router.put("/:userId", async (req, res) => {
   try {
     const { userId } = req.params;

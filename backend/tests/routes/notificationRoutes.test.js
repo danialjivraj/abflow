@@ -184,13 +184,11 @@ describe("Notification Routes", () => {
     });
 
     it("should update the soundPlayed field", async () => {
-      // Create a notification with the default soundPlayed (false)
       const notification = await Notification.create({
         userId: defaultUser.userId,
         message: "Test Notification",
       });
 
-      // Update the notification's soundPlayed field to true
       const res = await request(app)
         .patch(`/api/notifications/${notification._id}`)
         .send({ soundPlayed: true })

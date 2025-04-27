@@ -6,7 +6,7 @@ const Notification = require("../models/Notification");
 router.get("/:userId", async (req, res) => {
   try {
     const { userId } = req.params;
-    // Fetch notifications sorted by creation date (most recent first)
+
     const notifications = await Notification.find({ userId }).sort({
       createdAt: -1,
     });

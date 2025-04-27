@@ -136,7 +136,6 @@ jest.mock("../../../src/services/preferencesService", () => {
   };
 });
 
-// Modified to ensure the chart components render text that can be found in tests
 jest.mock("recharts", () => ({
   BarChart: ({ children }) => (
     <div data-testid="bar-chart">BarChart{children}</div>

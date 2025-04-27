@@ -8,7 +8,7 @@ const { MongoMemoryServer } = require("mongodb-memory-server");
 const User = require("../../models/User");
 const chartRoutes = require("../../routes/chartRoutes");
 
-// Full default chartPreferences from the User schema.
+// default chartPreferences from the User schema
 const defaultChartPreferences = {
   timeRangeType: "week",
   taskType: "active",

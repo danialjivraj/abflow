@@ -111,12 +111,12 @@ describe("CompletedTasks Component", () => {
     const completedTaskWeek1 = createBaseTask({
       _id: "1",
       title: "Task Week 1",
-      completedAt: "2025-03-10T12:00:00.000Z", // Group header: "10/03/2025 - 16/03/2025"
+      completedAt: "2025-03-10T12:00:00.000Z", // group header: "10/03/2025 - 16/03/2025"
     });
     const completedTaskWeek2 = createBaseTask({
       _id: "2",
       title: "Task Week 2",
-      completedAt: "2025-03-22T14:00:00.000Z", // Group header: "17/03/2025 - 23/03/2025"
+      completedAt: "2025-03-22T14:00:00.000Z", // group header: "17/03/2025 - 23/03/2025"
     });
     const props = {
       ...defaultProps,

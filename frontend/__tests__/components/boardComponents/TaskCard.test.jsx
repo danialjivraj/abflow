@@ -97,7 +97,7 @@ describe("TaskCard - Unit Tests", () => {
     jest.clearAllMocks();
   });
 
-  // --- Rendering Tests ---
+  // rendering Tests
   test("renders task title", () => {
     renderWithDnd(<TaskCard {...defaultProps} />);
     expect(screen.getByText("Task 1")).toBeInTheDocument();
@@ -183,14 +183,14 @@ describe("TaskCard - Unit Tests", () => {
     expect(screen.queryByText("⋮")).toBeNull();
   });
 
-  // --- Due/Overdue Date for Completed Task ---
+  // due/overdue date for completed task
   test("renders formatted completed early date text when task is completed early", () => {
     const completedTask = createBaseTask({
       _id: "task-3",
       title: "Task 3",
       status: "completed",
       dueDate: "2022-01-05T10:00:00.000Z",
-      completedAt: "2022-01-05T09:30:00.000Z", // Completed 30 minutes early
+      completedAt: "2022-01-05T09:30:00.000Z", // completed 30 minutes early
     });
     dateUtils.formatCompletedDueDate.mockImplementationOnce(
       () => "Completed on 05/01/2022 (Early by 30 minutes)",
@@ -207,7 +207,7 @@ describe("TaskCard - Unit Tests", () => {
       title: "Task 1",
       status: "completed",
       dueDate: "2022-01-05T10:00:00.000Z",
-      completedAt: "2022-01-05T11:00:00.000Z", // Completed 1 hour late
+      completedAt: "2022-01-05T11:00:00.000Z", // completed 1 hour late
     });
     dateUtils.formatCompletedDueDate.mockImplementationOnce(
       () => "Completed on 05/01/2022 (Late by 1 hour)",
@@ -244,7 +244,7 @@ describe("TaskCard - Integration Tests", () => {
     jest.clearAllMocks();
   });
 
-  // --- Card Click & Hover ---
+  // card click & hover
   test("calls openViewTaskModal when card (outside actions) is clicked", () => {
     renderWithDnd(<TaskCard {...defaultProps} />);
     const card = screen.getByText("Task 1").closest(".task-card");
@@ -261,7 +261,7 @@ describe("TaskCard - Integration Tests", () => {
     expect(defaultProps.setIsTaskHovered).toHaveBeenCalledWith(null);
   });
 
-  // --- Dropdown Actions ---
+  // dropdown actions
   test("toggles dropdown when dots button is clicked", () => {
     renderWithDnd(<TaskCard {...defaultProps} />);
     const dotsButton = screen.getByText("⋮");
@@ -423,7 +423,7 @@ describe("TaskCard - Integration Tests", () => {
     expect(actualOptions).toEqual(expectedOptions);
   });
 
-  // --- Duplicate Task ---
+  // duplicate task
   test("calls duplicateTask when duplicate button is clicked and passes the original task", () => {
     const duplicateTaskMock = jest.fn();
     const taskWithTimer = {
@@ -472,7 +472,7 @@ describe("TaskCard - Integration Tests", () => {
     expect(defaultProps.setIsTaskDropdownOpen).toHaveBeenCalledWith(null);
   });
 
-  // --- Delete Modal ---
+  // delete modal
   test("does not open delete confirmation modal when confirmBeforeDeleteTask is false", () => {
     renderWithDnd(
       <TaskCard
@@ -522,7 +522,7 @@ describe("TaskCard - Integration Tests", () => {
     });
   });
 
-  // --- Non-Draggable Mode ---
+  // non-draggable mode
   test("renders correctly in non-draggable mode", () => {
     const nonDraggableProps = { ...defaultProps, draggable: false };
     renderWithDnd(<TaskCard {...nonDraggableProps} />);
@@ -530,7 +530,7 @@ describe("TaskCard - Integration Tests", () => {
     expect(card).toBeInTheDocument();
   });
 
-  // --- Due Date Formatting Tests ---
+  // due date formatting tests
   describe("Due Date Formatting Tests", () => {
     test("does not render due date span when task has no due date", () => {
       const taskWithoutDueDate = { ...defaultTask, dueDate: null };
@@ -780,7 +780,7 @@ describe("TaskCard - Integration Tests", () => {
       expect(screen.getByText("Due in 1.1 years")).toBeInTheDocument();
     });
 
-    // --- Overdue Tests ---
+    // overdue Tests
     test("Overdue by 1 second", () => {
       const currentTime = new Date("2022-01-01T00:00:01.000Z");
       const dueDate = new Date("2022-01-01T00:00:00.000Z").toISOString();

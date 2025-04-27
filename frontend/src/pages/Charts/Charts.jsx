@@ -45,8 +45,6 @@ import {
 import { getChartsTopBarConfig } from "../../config/topBarConfig.jsx";
 import MultiSelectDropdown from "../../utils/MultiSelectDropdown.jsx";
 import { toast } from "react-toastify";
-
-// Import filtering functions from ChartsFilter.jsx
 import {
   computeDateRange,
   applyAllFilters,
@@ -54,7 +52,7 @@ import {
   mergeData,
 } from "./ChartsFilter";
 
-// -------------------- Options for multi-selects --------------------
+// options for multi-selects
 const allowedPriorities = [
   "A1",
   "A2",
@@ -88,13 +86,13 @@ const COLORS = [
 ];
 
 const Charts = ({ userSettings }) => {
-  // -------------------- State --------------------
+  // state
   const [tasks, setTasks] = useState([]);
   const [columnsMapping, setColumnsMapping] = useState({});
   const [labels, setLabels] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Chart and Filter States
+  // chart and filter States
   const [timeRangeType, setTimeRangeType] = useState("week");
   const [customStartDate, setCustomStartDate] = useState(null);
   const [customEndDate, setCustomEndDate] = useState(null);
@@ -127,10 +125,10 @@ const Charts = ({ userSettings }) => {
 
   const [preferencesLoaded, setPreferencesLoaded] = useState(false);
 
-  // Chart Data
+  // chart data
   const [chartData, setChartData] = useState([]);
 
-  // Modal States
+  // modal states
   const [modalOpen, setModalOpen] = useState(false);
   const [userClosedModal, setUserClosedModal] = useState(false);
   const [selectedMainGroupTasks, setSelectedMainGroupTasks] = useState([]);
@@ -138,13 +136,13 @@ const Charts = ({ userSettings }) => {
   const [selectedTask, setSelectedTask] = useState(null);
   const [isViewTaskModalOpen, setIsViewTaskModalOpen] = useState(false);
 
-  // -------------------- Hooks from React Router --------------------
+  // hooks from react router
   const { taskId, groupKey } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // -------------------- Default Filter Settings --------------------
+  // default filter settings
   const defaultFilterSettings = {
     timeRangeType: "week",
     taskType: "active",
@@ -173,7 +171,7 @@ const Charts = ({ userSettings }) => {
     customEndDate: null,
   };
 
-  // -------------------- Initialize Filters from URL --------------------
+  // initialize filters from uRL
   useEffect(() => {
     const params = Object.fromEntries([...searchParams]);
     if (params.timeRangeType) setTimeRangeType(params.timeRangeType);
@@ -216,9 +214,9 @@ const Charts = ({ userSettings }) => {
     if (params.compEndDate) {
       setCompEndDate(new Date(params.compEndDate));
     }
-  }, []); // run on mount
+  }, []);
 
-  // -------------------- Update URL on Filter Changes --------------------
+  // update URL on filter changes
   useEffect(() => {
     const params = {
       timeRangeType,
@@ -274,7 +272,7 @@ const Charts = ({ userSettings }) => {
     compEndDate,
   ]);
 
-  // -------------------- Effects: Fetch Tasks & Columns --------------------
+  // effects for fetch tasks & columns
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -330,7 +328,7 @@ const Charts = ({ userSettings }) => {
     }),
   );
 
-  // -------------------- Load Preferences from Backend --------------------
+  // load preferences from backend
   useEffect(() => {
     const loadPreferences = async () => {
       const currentUser = auth.currentUser;
@@ -410,7 +408,7 @@ const Charts = ({ userSettings }) => {
     loadPreferences();
   }, [searchParams]);
 
-  // -------------------- Update Chart Data --------------------
+  // update chart data
   useEffect(() => {
     const { startDate, endDate } = computeDateRange({
       timeRangeType,
@@ -423,7 +421,6 @@ const Charts = ({ userSettings }) => {
       return;
     }
 
-    // Build the filters object for the main data set
     const filters = {
       taskType,
       dueFilter,
@@ -548,7 +545,7 @@ const Charts = ({ userSettings }) => {
     });
   }, [sortOrder]);
 
-  // -------------------- Modal Effects: Open/Close Task Modals --------------------
+  // open/close task Modals
   useEffect(() => {
     if (location.pathname.includes("/viewtask/") && taskId) {
       const foundTask = tasks.find((t) => t._id === taskId);
@@ -578,7 +575,7 @@ const Charts = ({ userSettings }) => {
       customEndDate,
       tasks,
     });
-    // Build the same filters object for grouping tasks in the modal
+
     const filters = {
       taskType,
       dueFilter,
@@ -801,7 +798,6 @@ const Charts = ({ userSettings }) => {
     }, 1000);
   };
 
-  // -------------------- Updated Preferences Functions --------------------
   const saveUserPreferences = async () => {
     const currentUser = auth.currentUser;
     if (!currentUser) return;
@@ -1171,12 +1167,11 @@ const Charts = ({ userSettings }) => {
     return <p>Comparison not supported for this chart type.</p>;
   };
 
-  // If preferences haven't loaded, show a loading indicator
   if (!preferencesLoaded) {
     return <div>Loading preferences...</div>;
   }
 
-  // -------------------- Render --------------------
+  // render
   return (
     <Layout>
       <TopBar

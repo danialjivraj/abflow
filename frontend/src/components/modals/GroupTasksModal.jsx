@@ -59,7 +59,7 @@ const GroupTasksModal = ({
               )}
             </div>
 
-            {/* Only show Comparison Range if comparisonMode is ON */}
+            {/* Only shows Comparison Range if comparisonMode is ON */}
             {comparisonMode && (
               <div className="comparison-tasks-section">
                 <h3>Comparison Range</h3>

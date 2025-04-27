@@ -10,18 +10,18 @@ import {
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 
 const predefinedColors = [
-  "#d32f2f", // Red
-  "#f57c00", // Orange
-  "#f57f17", // Dark Amber
-  "#afb42b", // Yellow-green
-  "#388e3c", // Green
-  "#00796b", // Teal
-  "#00838f", // Cyan
-  "#1976d2", // Blue
-  "#283593", // Indigo
-  "#7b1fa2", // Violet
-  "#c2185b", // Magenta
-  "#ad1457", // Red-magenta
+  "#d32f2f", // red
+  "#f57c00", // orange
+  "#f57f17", // dark amber
+  "#afb42b", // yellow-green
+  "#388e3c", // green
+  "#00796b", // teal
+  "#00838f", // cyan
+  "#1976d2", // blue
+  "#283593", // indigo
+  "#7b1fa2", // violet
+  "#c2185b", // magenta
+  "#ad1457", // red-magenta
 ];
 
 const LabelsModal = ({ isOpen, closeModal, labels, setLabels, userId }) => {
@@ -189,7 +189,7 @@ const LabelsModal = ({ isOpen, closeModal, labels, setLabels, userId }) => {
           </button>
           <h2>Labels</h2>
           <div className="modal-body label-modal-body split">
-            {/* LEFT COLUMN: Single color picker (used for new OR editing) */}
+            {/* LEFT COLUMN: Single color picker */}
             <div className="add-label-column">
               <h3>
                 {editingLabelIndex !== null
@@ -262,7 +262,7 @@ const LabelsModal = ({ isOpen, closeModal, labels, setLabels, userId }) => {
               )}
             </div>
 
-            {/* RIGHT COLUMN: Existing Labels (with inline editing for title only) */}
+            {/* RIGHT COLUMN: Existing Labels */}
             <div className="labels-column">
               <h3>Existing Labels</h3>
               {labels.length === 0 ? (

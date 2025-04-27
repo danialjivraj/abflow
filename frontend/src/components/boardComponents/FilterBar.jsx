@@ -189,7 +189,7 @@ const FilterBar = ({
             )}
           </div>
 
-          {/* Story Points Field – changed to type "text" to allow non-numeric input */}
+          {/* Story Points Field */}
           <input
             type="number"
             name="storyPoints"
