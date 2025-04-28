@@ -187,7 +187,7 @@ describe("Task Routes", () => {
       expect(res.body.description).toBe("Updated description");
       // other fields
       expect(res.body.userId).toBe(defaultUser.userId);
-      expect(res.body.points).toBe(5);
+      expect(res.body.points).toBe(3.5);
       expect(res.body.labels).toEqual([]);
       expect(res.body.scheduledStart).toBeNull();
       expect(res.body.scheduledEnd).toBeNull();

@@ -99,6 +99,20 @@ router.get("/:userId", async (req, res) => {
 
 // edit a task
 router.put("/:id/edit", async (req, res) => {
+  const pointsMap = {
+    A1: 5.0,
+    A2: 4.5,
+    A3: 4.0,
+    B1: 3.5,
+    B2: 3.0,
+    B3: 2.5,
+    C1: 2.0,
+    C2: 1.5,
+    C3: 1.0,
+    D: 0.5,
+    E: 0.0,
+  };
+
   try {
     const {
       title,
@@ -135,6 +149,10 @@ router.put("/:id/edit", async (req, res) => {
       scheduledEnd,
       labels,
     };
+
+    if (typeof priority !== "undefined") {
+      updatedFields.points = pointsMap[priority] || 0;
+    }
 
     if (dueDate !== undefined) {
       const newDueDate = dueDate ? new Date(dueDate).toISOString() : null;
