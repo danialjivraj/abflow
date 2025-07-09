@@ -9,6 +9,20 @@ import { createBaseTask } from "../../_testUtils/createBaseTask";
 import { createBaseUser } from "../../_testUtils/createBaseUser";
 import * as profileService from "../../src/services/profileService";
 
+jest.mock("../../src/firebase", () => ({
+  auth: {},
+  googleProvider: {},
+  db: {},
+  default: {},
+}));
+
+jest.mock("firebase/auth", () => ({
+  onAuthStateChanged: jest.fn((auth, cb) => {
+    if (auth.currentUser) cb(auth.currentUser);
+    return () => {};
+  }),
+}));
+
 jest.mock("axios");
 
 jest.mock("react-toastify", () => ({

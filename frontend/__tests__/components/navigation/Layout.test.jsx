@@ -3,6 +3,13 @@ import Layout from "../../../src/components/navigation/Layout";
 import { MemoryRouter } from "react-router-dom";
 import { NotificationsContext } from "../../../src/contexts/NotificationsContext";
 
+jest.mock("../../../src/firebase", () => ({
+  auth: {},
+  googleProvider: {},
+  db: {},
+  default: {},
+}));
+
 describe("Layout Component", () => {
   test("renders Sidebar and children", () => {
     render(

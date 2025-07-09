@@ -3,6 +3,13 @@ import TopBar from "../../../src/components/navigation/TopBar";
 import { MemoryRouter } from "react-router-dom";
 import { NotificationsContext } from "../../../src/contexts/NotificationsContext";
 
+jest.mock("../../../src/firebase", () => ({
+  auth: {},
+  googleProvider: {},
+  db: {},
+  default: {},
+}));
+
 const dummyOpenModal = jest.fn();
 const dummyNavigate = jest.fn();
 

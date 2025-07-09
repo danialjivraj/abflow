@@ -1,18 +1,11 @@
 const express = require("express");
 const router = express.Router();
-const path = require("path");
-const fs = require("fs");
 const multer = require("multer");
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const cloudinary = require("../cloudinaryConfig");
 
 const Task = require("../models/Task");
 const User = require("../models/User");
-
-const uploadDir = process.env.UPLOADS_DIR || path.join(__dirname, "../uploads");
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
 
 const storage = new CloudinaryStorage({
   cloudinary,

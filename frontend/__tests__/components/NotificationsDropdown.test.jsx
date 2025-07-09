@@ -3,6 +3,13 @@ import NotificationsDropdown from "../../src/components/NotificationsDropdown";
 import { NotificationsContext } from "../../src/contexts/NotificationsContext";
 import { createBaseNotification } from "../../_testUtils/createBaseNotification";
 
+jest.mock("../../src/firebase", () => ({
+  auth: {},
+  googleProvider: {},
+  db: {},
+  default: {},
+}));
+
 jest.mock("../../src/services/notificationService", () => ({
   updateNotification: jest.fn(() => Promise.resolve()),
   deleteNotification: jest.fn(() => Promise.resolve()),
